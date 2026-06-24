@@ -1,0 +1,45 @@
+.print-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 36px 24px;
+
+  &__title { font-size: 28px; font-weight: 800; color: var(--amx-text); margin: 0 0 28px; }
+}
+
+.orders-list { display: flex; flex-direction: column; gap: 14px; }
+
+.order-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+
+  &__status { flex-shrink: 0; padding-top: 2px; }
+
+  &__id   { font-size: 14px; font-weight: 700; color: #1a1a2e; margin: 0 0 4px; }
+  &__meta { font-size: 13px; color: #6c757d; margin: 0 0 4px; }
+  &__tracking { font-size: 12px; color: #17a2b8; margin: 0; font-weight: 600; }
+}
+
+.status-badge {
+  font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase;
+
+  &--pending_payment  { background: #fff3cd; color: #856404; }
+  &--paid             { background: #d4edda; color: #155724; }
+  &--processing,
+  &--sent_to_printer  { background: #cce5ff; color: #004085; }
+  &--dispatched       { background: #d1ecf1; color: #0c5460; }
+  &--delivered        { background: #d4edda; color: #155724; }
+  &--cancelled        { background: #f8d7da; color: #721c24; }
+}
+
+.empty-state { text-align: center; padding: 40px; color: #6c757d; }
+
+// ── Dark Mode Overrides ──────────────────────────────
+[data-theme="dark"] {
+  .order-card { background: var(--amx-bg-card); border-color: var(--amx-border); }
+  .empty-state { color: var(--amx-text-muted); }
+}

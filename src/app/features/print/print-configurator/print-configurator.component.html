@@ -1,0 +1,479 @@
+<!-- ══ PRINT CONFIGURATOR ══════════════════════════════════════ -->
+<div class="amx-pc" *ngIf="product(); else loading">
+
+  <!-- ── Topbar breadcrumb ──────────────────────────────────── -->
+  <div class="amx-pc__topbar">
+    <button class="amx-pc__back" (click)="goBack()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <nav class="amx-pc__breadcrumb">
+      <span class="amx-pc__breadcrumb-link" (click)="goBack()">Print</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <span class="amx-pc__breadcrumb-cur">{{ product()!.name }}</span>
+    </nav>
+  </div>
+
+  <!-- ── Content layout ─────────────────────────────────────── -->
+  <div class="amx-pc__layout">
+
+    <!-- LEFT — Sticky image + tabs -->
+    <div class="amx-pc__left">
+      <div class="amx-pc__sticky-col">
+        <!-- Main product image -->
+        <div class="amx-pc__img-card">
+          <img [src]="product()!.imageUrl" [alt]="product()!.name" class="amx-pc__img"/>
+          <div class="amx-pc__img-badge" *ngIf="!isPaper()">
+            <span class="amx-pc__color-preview" [style.background]="selectedColorHex()"></span>
+            {{ selectedColorName() }}
+          </div>
+        </div>
+
+        <!-- Tab switcher -->
+        <div class="amx-pc__subtabs">
+          <button class="amx-pc__subtab" [class.amx-pc__subtab--active]="activeTab() === 'configure'" (click)="activeTab.set('configure')">Configure</button>
+          <button class="amx-pc__subtab" [class.amx-pc__subtab--active]="activeTab() === 'features'"  (click)="activeTab.set('features')">Features</button>
+        </div>
+
+        <!-- Features list -->
+        <div class="amx-pc__features" *ngIf="activeTab() === 'features'">
+          <ul class="amx-pc__feature-list">
+            <li *ngFor="let f of product()!.features">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              {{ f }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Rating -->
+        <div class="amx-pc__rating-row">
+          <span *ngFor="let i of starsArray(product()!.rating)" class="amx-pc__star" [class.amx-pc__star--filled]="i <= product()!.rating">★</span>
+          <span class="amx-pc__rating-label">{{ product()!.rating }} ({{ product()!.reviewCount | number }} Reviews)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT — Scrollable configurator panel -->
+    <div class="amx-pc__right">
+      <h1 class="amx-pc__title">{{ product()!.name }}</h1>
+
+      <!-- ══ PAPER PRODUCT OPTIONS ══════════════════════════ -->
+      <ng-container *ngIf="isPaper() && paperOpts()">
+
+        <!-- Size selector — visual shape grid -->
+        <div class="amx-pc__field">
+          <label class="amx-pc__field-label">
+            Size
+            <span class="amx-pc__field-hint">Enter Custom Dimension</span>
+          </label>
+          <div class="amx-pc__size-grid">
+            <button
+              *ngFor="let s of paperOpts()!.sizes"
+              class="amx-pc__size-card"
+              [class.amx-pc__size-card--active]="selectedSize() === s.label"
+              (click)="selectedSize.set(s.label)">
+              <div class="amx-pc__size-shape-wrap">
+                <div class="amx-pc__size-shape" [ngStyle]="getSizeStyle(s.width, s.height)">
+                  <svg *ngIf="s.width === 'custom'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+                  </svg>
+                  <svg *ngIf="s.width !== 'custom'" width="9" height="9" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/>
+                  </svg>
+                </div>
+              </div>
+              <span class="amx-pc__size-lbl">{{ s.label }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Paper type -->
+        <div class="amx-pc__field">
+          <label class="amx-pc__field-label">Paper Type</label>
+          <select class="amx-pc__select" [value]="selectedPaperType()" (change)="selectedPaperType.set($any($event.target).value)">
+            <option *ngFor="let pt of paperOpts()!.paperTypes" [value]="pt.label">{{ pt.label }}</option>
+          </select>
+        </div>
+
+        <!-- Lamination -->
+        <div class="amx-pc__field">
+          <label class="amx-pc__field-label">Lamination</label>
+          <div class="amx-pc__chip-row">
+            <button
+              *ngFor="let lam of paperOpts()!.laminations"
+              class="amx-pc__chip"
+              [class.amx-pc__chip--active]="selectedLaminate() === lam"
+              (click)="selectedLaminate.set(lam)">
+              {{ laminationLabel(lam) }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Print side -->
+        <div class="amx-pc__field">
+          <label class="amx-pc__field-label">Printed Side</label>
+          <select class="amx-pc__select" [value]="selectedSide()" (change)="selectedSide.set($any($event.target).value)">
+            <option *ngFor="let s of paperOpts()!.printSides" [value]="s">{{ sideLabel(s) }}</option>
+          </select>
+        </div>
+
+        <!-- Rounded corners -->
+        <div class="amx-pc__field amx-pc__field--inline" *ngIf="paperOpts()!.roundedCorners">
+          <label class="amx-pc__field-label">Rounded Corners</label>
+          <div class="amx-pc__toggle-wrap">
+            <button class="amx-pc__chip" [class.amx-pc__chip--active]="!roundedCorners()" (click)="roundedCorners.set(false)">No</button>
+            <button class="amx-pc__chip" [class.amx-pc__chip--active]="roundedCorners()" (click)="roundedCorners.set(true)">Yes (+UGX 11,100)</button>
+          </div>
+        </div>
+
+        <!-- Bleed note -->
+        <div class="amx-pc__bleed-notice">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f5820a" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Add <strong>1/8" ({{ paperOpts()!.bleedMm }}mm) bleed</strong> on all sides. Safe zone: 1/8" from trim line.
+        </div>
+
+        <!-- Quantity -->
+        <div class="amx-pc__field">
+          <label class="amx-pc__field-label">Quantity</label>
+          <select class="amx-pc__select" [value]="selectedQty()" (change)="selectedQty.set(+$any($event.target).value)">
+            <option *ngFor="let q of paperOpts()!.quantities" [value]="q">{{ q | number }}</option>
+          </select>
+        </div>
+
+        <!-- Printing time -->
+        <div class="amx-pc__field">
+          <label class="amx-pc__field-label">Printing Time</label>
+          <select class="amx-pc__select" [value]="selectedLeadTime()" (change)="selectedLeadTime.set(+$any($event.target).value)">
+            <option *ngFor="let lt of paperOpts()!.leadTimes" [value]="lt.businessDays">{{ lt.label }}</option>
+          </select>
+        </div>
+
+        <!-- Proof option -->
+        <div class="amx-pc__proof-row">
+          <label class="amx-pc__checkbox-label">
+            <input type="checkbox" [checked]="proofRequested()" (change)="proofRequested.set($any($event.target).checked)"/>
+            <span>Please send me a PDF proof before printing <em>(may cause delays)</em></span>
+          </label>
+        </div>
+
+      </ng-container>
+
+      <!-- ══ APPAREL PRODUCT OPTIONS ════════════════════════ -->
+      <ng-container *ngIf="!isPaper() && apparelOpts()">
+
+        <!-- Brand selector -->
+        <div class="amx-pc__field">
+          <label class="amx-pc__field-label">Brand</label>
+          <div class="amx-pc__chip-row">
+            <button
+              *ngFor="let b of apparelOpts()!.brands"
+              class="amx-pc__chip"
+              [class.amx-pc__chip--active]="selectedBrand() === b"
+              (click)="selectedBrand.set(b)">
+              {{ b }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Sleeve type -->
+        <div class="amx-pc__field" *ngIf="apparelOpts()!.sleeveTypes.length">
+          <label class="amx-pc__field-label">Sleeve</label>
+          <div class="amx-pc__chip-row">
+            <button
+              *ngFor="let sl of apparelOpts()!.sleeveTypes"
+              class="amx-pc__chip"
+              [class.amx-pc__chip--active]="selectedSleeve() === sl"
+              (click)="selectedSleeve.set(sl)">
+              {{ sl === 'SHORT' ? 'Short Sleeve' : sl === 'LONG' ? 'Long Sleeve' : 'Sleeveless' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Material -->
+        <div class="amx-pc__field">
+          <label class="amx-pc__field-label">Material</label>
+          <select class="amx-pc__select" [value]="selectedMaterial()" (change)="selectedMaterial.set($any($event.target).value)">
+            <option *ngFor="let m of apparelOpts()!.materials" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+
+        <!-- Colour swatches -->
+        <div class="amx-pc__field">
+          <label class="amx-pc__field-label">Colour — <em>{{ selectedColorName() }}</em></label>
+          <div class="amx-pc__color-grid">
+            <button
+              *ngFor="let c of apparelOpts()!.colors"
+              class="amx-pc__color-swatch"
+              [class.amx-pc__color-swatch--active]="selectedColorHex() === c.hex"
+              [style.background]="c.hex"
+              [title]="c.name"
+              (click)="selectColor(c.hex, c.name)">
+              <svg *ngIf="selectedColorHex() === c.hex" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                [attr.stroke]="c.hex === '#ffffff' ? '#1a1a1a' : '#ffffff'" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Size chart -->
+        <div class="amx-pc__field">
+          <label class="amx-pc__field-label">Size</label>
+          <div class="amx-pc__chip-row">
+            <button
+              *ngFor="let sz of apparelOpts()!.sizes"
+              class="amx-pc__chip amx-pc__chip--size"
+              [class.amx-pc__chip--active]="selectedShirtSize() === sz"
+              (click)="selectedShirtSize.set(sz)">
+              {{ sz }}
+            </button>
+          </div>
+          <p class="amx-pc__size-guide-link">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <a href="#">View size guide</a>
+          </p>
+        </div>
+
+        <!-- Print areas -->
+        <div class="amx-pc__field">
+          <label class="amx-pc__field-label">Print Area(s)</label>
+          <div class="amx-pc__chip-row amx-pc__chip-row--multi">
+            <button
+              *ngFor="let area of apparelOpts()!.printAreas"
+              class="amx-pc__chip"
+              [class.amx-pc__chip--active]="selectedPrintAreas().includes(area)"
+              (click)="togglePrintArea(area)">
+              {{ area }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Quantity -->
+        <div class="amx-pc__field">
+          <label class="amx-pc__field-label">Quantity</label>
+          <select class="amx-pc__select" [value]="selectedQty()" (change)="selectedQty.set(+$any($event.target).value)">
+            <option *ngFor="let q of apparelOpts()!.quantities" [value]="q">{{ q | number }}</option>
+          </select>
+        </div>
+
+      </ng-container>
+
+      <!-- ══ Fulfillment — Pickup or Delivery ═══════════════ -->
+      <div class="amx-pc__field">
+        <label class="amx-pc__field-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><circle cx="12" cy="12" r="1"/></svg>
+          Fulfillment
+        </label>
+        <div class="amx-pc__fulfillment-row">
+          <button
+            class="amx-pc__fulfill-btn"
+            [class.amx-pc__fulfill-btn--active]="fulfillment() === 'pickup'"
+            (click)="setFulfillment('pickup')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <div>
+              <strong>Pick Up</strong>
+              <span>Collect from our shop</span>
+            </div>
+          </button>
+          <button
+            class="amx-pc__fulfill-btn"
+            [class.amx-pc__fulfill-btn--active]="fulfillment() === 'delivery'"
+            (click)="setFulfillment('delivery')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="3" width="15" height="13" rx="1"/>
+              <path d="M16 8h4l3 5v3h-7V8z"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+            <div>
+              <strong>Deliver to Me</strong>
+              <span>+UGX {{ 8000 | number }} transport</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Delivery address fields (shown only when delivery selected) -->
+        <div class="amx-pc__delivery-fields" *ngIf="fulfillment() === 'delivery'">
+          <div class="amx-pc__delivery-field">
+            <label>Delivery Address</label>
+            <input
+              type="text"
+              class="amx-pc__input"
+              placeholder="e.g. Plot 12, Kampala Road, Kampala"
+              [value]="deliveryAddress()"
+              (input)="deliveryAddress.set($any($event.target).value)"/>
+          </div>
+          <div class="amx-pc__delivery-field">
+            <label>Contact Phone</label>
+            <input
+              type="tel"
+              class="amx-pc__input"
+              placeholder="+256 7XX XXX XXX"
+              [value]="deliveryPhone()"
+              (input)="deliveryPhone.set($any($event.target).value)"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ Price summary ═══════════════════════════════════ -->
+      <div class="amx-pc__price-box">
+        <div class="amx-pc__price-row">
+          <span class="amx-pc__price-label">Printing Cost</span>
+          <span class="amx-pc__price-val">{{ formatUGX(printingCostUGX()) }}</span>
+        </div>
+        <div class="amx-pc__price-row amx-pc__price-row--sub" *ngIf="isPaper()">
+          <span class="amx-pc__price-label">Per Unit</span>
+          <span class="amx-pc__price-sub-val">{{ formatUGX(pricePerUnit()) }}</span>
+        </div>
+        <div class="amx-pc__price-row amx-pc__price-row--delivery" *ngIf="fulfillment() === 'delivery'">
+          <span class="amx-pc__price-label">Transport / Delivery</span>
+          <span class="amx-pc__price-val">{{ formatUGX(deliveryFeeUGX()) }}</span>
+        </div>
+        <div class="amx-pc__price-divider"></div>
+        <div class="amx-pc__price-row amx-pc__price-row--total">
+          <span class="amx-pc__price-total-label">Total</span>
+          <span class="amx-pc__price-total-val">{{ formatUGX(grandTotalUGX()) }}</span>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="amx-pc__action-btns">
+          <button class="amx-pc__order-btn" (click)="addToCart()">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            Add to Cart &amp; Checkout
+          </button>
+        </div>
+
+        <div class="amx-pc__order-alts">
+          <a href="#">or <strong>Create Your Design Online</strong></a>
+          <a href="#">Artwork Not Ready? <strong>Buy Now &amp; Upload Later</strong></a>
+        </div>
+      </div>
+
+    </div><!-- /.amx-pc__right -->
+  </div><!-- /.amx-pc__layout -->
+
+</div>
+
+<!-- ── Checkout Modal ──────────────────────────────────────── -->
+<div class="amx-pc__modal-overlay" *ngIf="checkoutOpen()" (click)="closeCheckout()">
+  <div class="amx-pc__modal" (click)="$event.stopPropagation()">
+
+    <!-- Success screen -->
+    <div class="amx-pc__order-success" *ngIf="orderSubmitted()">
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/></svg>
+      <h2>Order Placed! 🎉</h2>
+      <p>We'll process your print order and reach out shortly on your mobile number.</p>
+      <button class="amx-pc__modal-close-btn" (click)="closeCheckout(); router.navigate(['/print'])">Back to Print Home</button>
+    </div>
+
+    <!-- Checkout form -->
+    <ng-container *ngIf="!orderSubmitted()">
+      <div class="amx-pc__modal-header">
+        <h2 class="amx-pc__modal-title">Checkout</h2>
+        <button class="amx-pc__modal-x" (click)="closeCheckout()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Order summary -->
+      <div class="amx-pc__modal-summary">
+        <div class="amx-pc__modal-row">
+          <span>{{ product()!.name }}</span>
+          <span>{{ formatUGX(printingCostUGX()) }}</span>
+        </div>
+        <div class="amx-pc__modal-row" *ngIf="fulfillment() === 'delivery'">
+          <span>Delivery Fee</span>
+          <span>{{ formatUGX(deliveryFeeUGX()) }}</span>
+        </div>
+        <div class="amx-pc__modal-row amx-pc__modal-row--total">
+          <strong>Total</strong>
+          <strong>{{ formatUGX(grandTotalUGX()) }}</strong>
+        </div>
+      </div>
+
+      <!-- Payment method tabs -->
+      <div class="amx-pc__modal-section-label">Choose Payment Method</div>
+      <div class="amx-pc__payment-methods">
+        <button
+          class="amx-pc__pay-method"
+          [class.amx-pc__pay-method--active]="paymentMethod() === 'mtn'"
+          (click)="setPaymentMethod('mtn')">
+          <div class="amx-pc__pay-logo amx-pc__pay-logo--mtn">MTN</div>
+          <span>MTN Mobile Money</span>
+          <div class="amx-pc__pay-badge">Recommended</div>
+        </button>
+        <button
+          class="amx-pc__pay-method"
+          [class.amx-pc__pay-method--active]="paymentMethod() === 'airtel'"
+          (click)="setPaymentMethod('airtel')">
+          <div class="amx-pc__pay-logo amx-pc__pay-logo--airtel">Airtel</div>
+          <span>Airtel Money</span>
+        </button>
+        <button
+          class="amx-pc__pay-method"
+          [class.amx-pc__pay-method--active]="paymentMethod() === 'visa'"
+          (click)="setPaymentMethod('visa')">
+          <div class="amx-pc__pay-logo amx-pc__pay-logo--visa">VISA</div>
+          <span>Visa / Card</span>
+        </button>
+      </div>
+
+      <!-- Mobile Money fields -->
+      <div class="amx-pc__pay-form" *ngIf="paymentMethod() === 'mtn' || paymentMethod() === 'airtel'">
+        <div class="amx-pc__modal-field">
+          <label>Mobile Number ({{ paymentMethod() === 'mtn' ? 'MTN' : 'Airtel' }})</label>
+          <input
+            type="tel"
+            class="amx-pc__input"
+            [placeholder]="paymentMethod() === 'mtn' ? '077X XXX XXX' : '075X XXX XXX'"
+            [value]="mobileNumber()"
+            (input)="mobileNumber.set($any($event.target).value)"/>
+        </div>
+        <div class="amx-pc__pay-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f5820a" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          You'll receive a prompt on your phone to confirm the payment of <strong>{{ formatUGX(grandTotalUGX()) }}</strong>.
+        </div>
+      </div>
+
+      <!-- Visa fields -->
+      <div class="amx-pc__pay-form" *ngIf="paymentMethod() === 'visa'">
+        <div class="amx-pc__modal-field">
+          <label>Card Number</label>
+          <input type="text" class="amx-pc__input" placeholder="1234 5678 9012 3456"
+            [value]="cardNumber()" (input)="cardNumber.set($any($event.target).value)" maxlength="19"/>
+        </div>
+        <div class="amx-pc__modal-field-row">
+          <div class="amx-pc__modal-field">
+            <label>Expiry</label>
+            <input type="text" class="amx-pc__input" placeholder="MM/YY"
+              [value]="cardExpiry()" (input)="cardExpiry.set($any($event.target).value)" maxlength="5"/>
+          </div>
+          <div class="amx-pc__modal-field">
+            <label>CVV</label>
+            <input type="password" class="amx-pc__input" placeholder="•••"
+              [value]="cardCVV()" (input)="cardCVV.set($any($event.target).value)" maxlength="4"/>
+          </div>
+        </div>
+      </div>
+
+      <button class="amx-pc__submit-btn" (click)="submitOrder()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Submit Order — {{ formatUGX(grandTotalUGX()) }}
+      </button>
+    </ng-container>
+
+  </div>
+</div>
+
+<!-- Loading state -->
+<ng-template #loading>
+  <div class="amx-pc__loading">
+    <amx-spinner [size]="'lg'" />
+    <p>Loading product…</p>
+  </div>
+</ng-template>

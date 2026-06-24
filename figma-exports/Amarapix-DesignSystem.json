@@ -1,0 +1,455 @@
+{
+  "document": {
+    "id": "document-1",
+    "name": "Amarapix UI Design System",
+    "type": "DOCUMENT",
+    "children": [
+      {
+        "id": "component-0",
+        "name": "Header Component",
+        "type": "FRAME",
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 800,
+        "background": "#FFFFFF",
+        "children": [
+          {
+            "id": "bg-0",
+            "name": "Background",
+            "type": "RECTANGLE",
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 800,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#FF6B6B",
+                "opacity": 0.1
+              }
+            ]
+          },
+          {
+            "id": "title-0",
+            "name": "Title",
+            "type": "TEXT",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "text": "Header Component",
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-0",
+            "name": "Description",
+            "type": "TEXT",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "text": "Main navigation header with logo and menu",
+            "fontSize": 14,
+            "fontWeight": "regular",
+            "fontFamily": "Inter",
+            "color": "#666666"
+          }
+        ]
+      },
+      {
+        "id": "component-1",
+        "name": "Asset Card Component",
+        "type": "FRAME",
+        "x": 0,
+        "y": 1000,
+        "width": 1440,
+        "height": 800,
+        "background": "#FFFFFF",
+        "children": [
+          {
+            "id": "bg-1",
+            "name": "Background",
+            "type": "RECTANGLE",
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 800,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#4ECDC4",
+                "opacity": 0.1
+              }
+            ]
+          },
+          {
+            "id": "title-1",
+            "name": "Title",
+            "type": "TEXT",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "text": "Asset Card Component",
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-1",
+            "name": "Description",
+            "type": "TEXT",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "text": "Card displaying individual assets with image and metadata",
+            "fontSize": 14,
+            "fontWeight": "regular",
+            "fontFamily": "Inter",
+            "color": "#666666"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "Collection Card",
+        "type": "FRAME",
+        "x": 0,
+        "y": 2000,
+        "width": 1440,
+        "height": 800,
+        "background": "#FFFFFF",
+        "children": [
+          {
+            "id": "bg-2",
+            "name": "Background",
+            "type": "RECTANGLE",
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 800,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#45B7D1",
+                "opacity": 0.1
+              }
+            ]
+          },
+          {
+            "id": "title-2",
+            "name": "Title",
+            "type": "TEXT",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "text": "Collection Card",
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-2",
+            "name": "Description",
+            "type": "TEXT",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "text": "Card for displaying collection of posters/assets",
+            "fontSize": 14,
+            "fontWeight": "regular",
+            "fontFamily": "Inter",
+            "color": "#666666"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "Pagination Component",
+        "type": "FRAME",
+        "x": 0,
+        "y": 3000,
+        "width": 1440,
+        "height": 800,
+        "background": "#FFFFFF",
+        "children": [
+          {
+            "id": "bg-3",
+            "name": "Background",
+            "type": "RECTANGLE",
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 800,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#96CEB4",
+                "opacity": 0.1
+              }
+            ]
+          },
+          {
+            "id": "title-3",
+            "name": "Title",
+            "type": "TEXT",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "text": "Pagination Component",
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-3",
+            "name": "Description",
+            "type": "TEXT",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "text": "Navigation component for multi-page results",
+            "fontSize": 14,
+            "fontWeight": "regular",
+            "fontFamily": "Inter",
+            "color": "#666666"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "Search Bar",
+        "type": "FRAME",
+        "x": 0,
+        "y": 4000,
+        "width": 1440,
+        "height": 800,
+        "background": "#FFFFFF",
+        "children": [
+          {
+            "id": "bg-4",
+            "name": "Background",
+            "type": "RECTANGLE",
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 800,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#FFEAA7",
+                "opacity": 0.1
+              }
+            ]
+          },
+          {
+            "id": "title-4",
+            "name": "Title",
+            "type": "TEXT",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "text": "Search Bar",
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-4",
+            "name": "Description",
+            "type": "TEXT",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "text": "Search input component with filters",
+            "fontSize": 14,
+            "fontWeight": "regular",
+            "fontFamily": "Inter",
+            "color": "#666666"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "Pricing Card",
+        "type": "FRAME",
+        "x": 0,
+        "y": 5000,
+        "width": 1440,
+        "height": 800,
+        "background": "#FFFFFF",
+        "children": [
+          {
+            "id": "bg-5",
+            "name": "Background",
+            "type": "RECTANGLE",
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 800,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#DDA15E",
+                "opacity": 0.1
+              }
+            ]
+          },
+          {
+            "id": "title-5",
+            "name": "Title",
+            "type": "TEXT",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "text": "Pricing Card",
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-5",
+            "name": "Description",
+            "type": "TEXT",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "text": "Subscription pricing tier card",
+            "fontSize": 14,
+            "fontWeight": "regular",
+            "fontFamily": "Inter",
+            "color": "#666666"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "Modal Dialog",
+        "type": "FRAME",
+        "x": 0,
+        "y": 6000,
+        "width": 1440,
+        "height": 800,
+        "background": "#FFFFFF",
+        "children": [
+          {
+            "id": "bg-6",
+            "name": "Background",
+            "type": "RECTANGLE",
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 800,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#BC6C25",
+                "opacity": 0.1
+              }
+            ]
+          },
+          {
+            "id": "title-6",
+            "name": "Title",
+            "type": "TEXT",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "text": "Modal Dialog",
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-6",
+            "name": "Description",
+            "type": "TEXT",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "text": "Reusable modal component for forms and confirmations",
+            "fontSize": 14,
+            "fontWeight": "regular",
+            "fontFamily": "Inter",
+            "color": "#666666"
+          }
+        ]
+      },
+      {
+        "id": "component-7",
+        "name": "Footer Component",
+        "type": "FRAME",
+        "x": 0,
+        "y": 7000,
+        "width": 1440,
+        "height": 800,
+        "background": "#FFFFFF",
+        "children": [
+          {
+            "id": "bg-7",
+            "name": "Background",
+            "type": "RECTANGLE",
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 800,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#9D84B7",
+                "opacity": 0.1
+              }
+            ]
+          },
+          {
+            "id": "title-7",
+            "name": "Title",
+            "type": "TEXT",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "text": "Footer Component",
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-7",
+            "name": "Description",
+            "type": "TEXT",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "text": "Site footer with links and information",
+            "fontSize": 14,
+            "fontWeight": "regular",
+            "fontFamily": "Inter",
+            "color": "#666666"
+          }
+        ]
+      }
+    ]
+  },
+  "version": "1.0",
+  "metadata": {
+    "createdAt": "2026-04-25T12:33:45.051Z",
+    "updatedAt": "2026-04-25T12:33:45.052Z",
+    "creator": "Amarapix Design System"
+  }
+}

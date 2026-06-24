@@ -1,0 +1,118 @@
+.asset-card {
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--amx-bg-card);
+  box-shadow: var(--amx-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+
+    .asset-card__overlay { opacity: 1; }
+  }
+
+  &__thumbnail {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+
+    img { width: 100%; height: 100%; object-fit: cover; }
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(26, 26, 46, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &__info { padding: 10px 12px; }
+
+  &__title {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--amx-text);
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__meta {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  &__downloads {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--amx-text-muted);
+    margin-top: 4px;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &--premium {
+    right: 8px;
+    background: linear-gradient(135deg, #f5820a, #e06000);
+    color: #fff;
+    padding: 6px 8px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(245, 130, 10, 0.4);
+  }
+  &--editable { left: 8px; background: #17a2b8; color: #fff; }
+}
+
+.format-tag,
+.orientation-tag {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--amx-tag-bg);
+  color: var(--amx-tag-text);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.btn--icon {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  padding: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover { background: rgba(245, 130, 10, 0.8); }
+
+  svg { display: block; width: 16px; height: 16px; }
+}

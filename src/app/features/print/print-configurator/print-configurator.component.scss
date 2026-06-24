@@ -1,0 +1,488 @@
+/* ── Print Configurator ─────────────────────────────────────── */
+$orange:    var(--amx-orange);
+$orange-dk: var(--amx-orange-dark);
+$text:      var(--amx-text);
+$muted:     var(--amx-text-muted);
+$border:    var(--amx-border);
+$radius:    10px;
+$card-bg:   var(--amx-bg-card);
+
+:host { display: block; background: var(--amx-bg-soft); min-height: 100vh; padding-bottom: 64px; }
+
+/* ── Topbar ─────────────────────────────────────────────────── */
+.amx-pc__topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 40px;
+  background: $card-bg;
+  border-bottom: 1px solid $border;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.amx-pc__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  color: $text;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover { background: #f3f4f6; border-color: #d1d5db; }
+}
+
+.amx-pc__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: $muted;
+
+  svg { flex-shrink: 0; color: #d1d5db; }
+}
+
+.amx-pc__breadcrumb-link {
+  cursor: pointer;
+  &:hover { color: $orange; text-decoration: underline; }
+}
+
+.amx-pc__breadcrumb-cur {
+  color: $text;
+  font-weight: 600;
+}
+
+/* ── Layout ─────────────────────────────────────────────────── */
+.amx-pc__layout {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 40px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    padding: 0 20px;
+    margin: 20px auto;
+  }
+}
+
+/* ── Left column ────────────────────────────────────────────── */
+.amx-pc__left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.amx-pc__img-card {
+  position: sticky;
+  top: 80px;
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  overflow: hidden;
+}
+
+.amx-pc__img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  display: block;
+}
+
+.amx-pc__img-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: $muted;
+  border-top: 1px solid $border;
+}
+
+.amx-pc__color-preview {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.15);
+  flex-shrink: 0;
+}
+
+/* Subtabs */
+.amx-pc__subtabs {
+  display: flex;
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  overflow: hidden;
+}
+
+.amx-pc__subtab {
+  flex: 1;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: $muted;
+  transition: background 0.15s, color 0.15s;
+
+  &--active {
+    background: $orange;
+    color: #fff;
+  }
+
+  &:hover:not(&--active) { background: #f3f4f6; color: $text; }
+}
+
+/* Features list */
+.amx-pc__features {
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  padding: 16px;
+}
+
+.amx-pc__feature-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: $text;
+    line-height: 1.4;
+
+    svg { margin-top: 2px; flex-shrink: 0; }
+  }
+}
+
+/* Rating */
+.amx-pc__rating-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.amx-pc__star {
+  font-size: 18px;
+  color: #d1d5db;
+
+  &--filled { color: #f59e0b; }
+}
+
+.amx-pc__rating-label {
+  font-size: 13px;
+  color: $muted;
+  margin-left: 6px;
+}
+
+/* ── Right column ───────────────────────────────────────────── */
+.amx-pc__right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.amx-pc__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: $text;
+  margin: 0;
+  line-height: 1.25;
+}
+
+/* ── Form fields ────────────────────────────────────────────── */
+.amx-pc__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &--inline {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+}
+
+.amx-pc__field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.amx-pc__field-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: $orange;
+  cursor: pointer;
+  &:hover { text-decoration: underline; }
+}
+
+.amx-pc__select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-size: 14px;
+  color: $text;
+  background: $card-bg;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:focus { outline: none; border-color: $orange; }
+  &:hover { border-color: #9ca3af; }
+}
+
+/* ── Chips ──────────────────────────────────────────────────── */
+.amx-pc__chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.amx-pc__toggle-wrap {
+  display: flex;
+  gap: 8px;
+}
+
+.amx-pc__chip {
+  padding: 7px 16px;
+  border: 1.5px solid $border;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: $text;
+  background: $card-bg;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(&--active) { border-color: $orange; color: $orange; }
+
+  &--active {
+    border-color: $orange;
+    background: $orange;
+    color: #fff;
+  }
+
+  &--size {
+    min-width: 48px;
+    text-align: center;
+    padding: 7px 12px;
+  }
+}
+
+/* ── Colour swatches ────────────────────────────────────────── */
+.amx-pc__color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.amx-pc__color-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.12);
+
+  &:hover { transform: scale(1.15); }
+
+  &--active {
+    box-shadow: 0 0 0 3px $orange;
+    transform: scale(1.1);
+  }
+}
+
+/* ── Size guide link ────────────────────────────────────────── */
+.amx-pc__size-guide-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  margin: 2px 0 0;
+
+  a { color: $orange; text-decoration: none; &:hover { text-decoration: underline; } }
+  svg { color: $orange; }
+}
+
+/* ── Bleed notice ───────────────────────────────────────────── */
+.amx-pc__bleed-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #92400e;
+  line-height: 1.5;
+
+  svg { margin-top: 2px; flex-shrink: 0; }
+}
+
+/* ── Proof / checkbox row ───────────────────────────────────── */
+.amx-pc__proof-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.amx-pc__checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: $text;
+  cursor: pointer;
+  line-height: 1.4;
+
+  input[type="checkbox"] { margin-top: 2px; accent-color: $orange; cursor: pointer; }
+  em { color: $muted; font-style: italic; }
+}
+
+.amx-pc__hard-proof-link {
+  font-size: 12px;
+  color: $orange;
+  text-decoration: none;
+  padding-left: 24px;
+  &:hover { text-decoration: underline; }
+  em { font-style: italic; color: $muted; }
+}
+
+/* ── Price box ──────────────────────────────────────────────── */
+.amx-pc__price-box {
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.amx-pc__price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.amx-pc__price-label {
+  font-size: 14px;
+  color: $muted;
+  font-weight: 500;
+}
+
+.amx-pc__price-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: $text;
+}
+
+.amx-pc__price-sub {
+  font-size: 12px;
+  color: $muted;
+  margin-top: -8px;
+}
+
+/* ── CTA button ─────────────────────────────────────────────── */
+.amx-pc__order-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  background: $orange;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+
+  &:hover  { background: $orange-dk; }
+  &:active { transform: scale(0.98); }
+}
+
+/* ── Alt links under CTA ────────────────────────────────────── */
+.amx-pc__order-alts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+
+  a {
+    font-size: 13px;
+    color: $muted;
+    text-decoration: none;
+
+    strong { color: $orange; }
+    &:hover strong { text-decoration: underline; }
+  }
+}
+
+.amx-pc__order-extras {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid $border;
+}
+
+.amx-pc__order-extra-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: $orange;
+  text-decoration: none;
+  font-weight: 500;
+
+  svg { flex-shrink: 0; }
+  &:hover { text-decoration: underline; }
+}
+
+/* ── Loading state ──────────────────────────────────────────── */
+.amx-pc__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 16px;
+  color: $muted;
+  font-size: 14px;
+}

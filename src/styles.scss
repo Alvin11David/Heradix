@@ -1,1 +1,104 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================
+   Global styles – Amarapix Platform
+   ============================================================ */
+
+// ── CSS Custom Properties ──────────────────────────────
+:root {
+  // Brand
+  --amx-orange:        #f5820a;
+  --amx-orange-dark:   #d9700a;
+  --amx-orange-light:  #fef3e7;
+
+  // Text
+  --amx-text:          #1a1a1a;
+  --amx-text-2:        #374151;
+  --amx-text-muted:    #6b7280;
+  --amx-text-faint:    #9ca3af;
+
+  // Backgrounds
+  --amx-bg:            #ffffff;
+  --amx-bg-soft:       #f9fafb;
+  --amx-bg-card:       #ffffff;
+  --amx-bg-overlay:    rgba(26,26,26,0.55);
+
+  // Borders
+  --amx-border:        #e5e7eb;
+  --amx-border-2:      #d1d5db;
+
+  // Misc
+  --amx-radius:        10px;
+  --amx-shadow-sm:     0 1px 3px rgba(0,0,0,.08);
+  --amx-shadow-md:     0 4px 16px rgba(0,0,0,.10);
+  --amx-shadow-lg:     0 12px 40px rgba(0,0,0,.14);
+  --font-base:         'Lato', sans-serif;
+
+  // Component-specific aliases
+  --amx-input-bg:      #ffffff;
+  --amx-tag-bg:        #eef2ff;
+  --amx-tag-text:      #1a1a2e;
+  --amx-danger-hover:  #fff5f5;
+}
+
+// ── Dark Mode Overrides ────────────────────────────────
+[data-theme="dark"] {
+  // Text
+  --amx-text:          #f0f0f0;
+  --amx-text-2:        #d1d5db;
+  --amx-text-muted:    #9ca3af;
+  --amx-text-faint:    #6b7280;
+
+  // Backgrounds
+  --amx-bg:            #111827;
+  --amx-bg-soft:       #1f2937;
+  --amx-bg-card:       #1f2937;
+  --amx-bg-overlay:    rgba(0,0,0,0.65);
+
+  // Borders
+  --amx-border:        #374151;
+  --amx-border-2:      #4b5563;
+
+  // Shadows (slightly stronger in dark)
+  --amx-shadow-sm:     0 1px 3px rgba(0,0,0,.30);
+  --amx-shadow-md:     0 4px 16px rgba(0,0,0,.40);
+  --amx-shadow-lg:     0 12px 40px rgba(0,0,0,.55);
+
+  // Component-specific aliases
+  --amx-input-bg:      #1f2937;
+  --amx-tag-bg:        #374151;
+  --amx-tag-text:      #d1d5db;
+  --amx-danger-hover:  #2d1515;
+
+  // Keep brand colours identical in dark mode
+  --amx-orange:        #f5820a;
+  --amx-orange-dark:   #d9700a;
+  --amx-orange-light:  #2d1c07;
+}
+
+// ── Reset / Base ───────────────────────────────────────────
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-base);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--amx-text);
+  background: var(--amx-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+a { text-decoration: none; color: inherit; }
+img { display: block; max-width: 100%; }
+button, input, select, textarea { font-family: var(--font-base); }
+
+// ── Utility ────────────────────────────────────────────────
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}

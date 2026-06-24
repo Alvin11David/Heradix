@@ -1,0 +1,44 @@
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+
+  &__ring {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--amx-border);
+    border-top-color: var(--amx-orange);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  // ── Size variants ────────────────────────────────
+  &--sm {
+    padding: 0;
+    .spinner__ring {
+      width: 16px;
+      height: 16px;
+      border-width: 2px;
+      border-color: rgba(255,255,255,0.3);
+      border-top-color: currentColor;
+    }
+  }
+
+  &--md {
+    // default — no override needed
+  }
+
+  &--lg {
+    padding: 32px;
+    .spinner__ring {
+      width: 56px;
+      height: 56px;
+      border-width: 4px;
+    }
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

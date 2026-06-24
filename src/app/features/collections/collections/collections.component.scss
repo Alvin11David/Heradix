@@ -1,0 +1,277 @@
+/* =============================================
+   Amazing Collections Page
+   ============================================= */
+
+.amx-col-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+  font-family: 'Lato', sans-serif;
+
+  /* ── Hero heading ── */
+  &__hero {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  &__title {
+    font-size: 36px;
+    font-weight: 900;
+    color: #1a1a2e;
+    margin: 0 0 10px;
+    letter-spacing: -0.5px;
+  }
+
+  &__sub {
+    font-size: 15px;
+    color: #6c757d;
+    margin: 0;
+  }
+}
+
+/* ── Search bar ── */
+.amx-col-search {
+  display: flex;
+  max-width: 680px;
+  margin: 0 auto 40px;
+  border: 1.5px solid #d8d8e8;
+  border-radius: 50px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+  &__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 14px 22px;
+    font-size: 14px;
+    font-family: 'Lato', sans-serif;
+    color: #333;
+    background: transparent;
+
+    &::placeholder { color: #aaa; }
+  }
+
+  &__btn {
+    padding: 0 28px;
+    background: #fff;
+    border: none;
+    border-left: 1.5px solid #d8d8e8;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    cursor: pointer;
+    font-family: 'Lato', sans-serif;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover {
+      background: #f5820a;
+      color: #fff;
+      border-left-color: #f5820a;
+    }
+  }
+}
+
+/* ── Collections grid ── */
+.amx-col-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+
+  @media (max-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 720px)  { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 480px)  { grid-template-columns: 1fr; }
+}
+
+/* ── Individual collection card ── */
+.amx-col-card {
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+  }
+
+  /* 2×2 mosaic area */
+  &__mosaic {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+
+  &__tile {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Footer (title + meta) */
+  &__footer {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__name {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1a1a2e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__meta {
+    font-size: 12px;
+    color: #8a8ea8;
+  }
+}
+
+/* ── Empty state ── */
+.amx-col-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--amx-text-muted);
+  font-size: 15px;
+}
+
+/* ── Modal Overlay ── */
+.amx-col-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+
+  &__content {
+    background: var(--amx-bg-primary);
+    border-radius: 16px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--amx-border);
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--amx-text);
+    margin: 0;
+  }
+
+  &__close {
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    color: var(--amx-text);
+    cursor: pointer;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background: var(--amx-bg-secondary);
+      color: var(--amx-accent);
+    }
+  }
+
+  &__body {
+    padding: 28px;
+    flex: 1;
+    overflow-y: auto;
+  }
+}
+
+/* ── Items Grid ── */
+.amx-col-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px;
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+  }
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+  }
+}
+
+.amx-col-item {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &__img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 10px;
+    background: var(--amx-bg-secondary);
+    border: 1px solid var(--amx-border);
+  }
+
+  &__name {
+    margin: 10px 0 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--amx-text);
+    text-align: center;
+    line-height: 1.3;
+    white-space: normal;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// ── Dark Mode Overrides ──────────────────────────────
+[data-theme="dark"] {
+  .amx-col-card { background: var(--amx-bg-card); border-color: var(--amx-border); }
+  .amx-col-page__hero h1 { color: var(--amx-text); }
+}

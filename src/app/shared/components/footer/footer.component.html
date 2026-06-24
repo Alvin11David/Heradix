@@ -1,0 +1,65 @@
+<footer class="amx-footer">
+
+  <!-- ── Main row ── -->
+  <div class="amx-footer__main">
+
+    <!-- Brand column -->
+    <div class="amx-footer__brand">
+      <div class="amx-footer__logo">
+        <img src="https://i.postimg.cc/grq8S5cK/Asset-1-2x.png"
+             alt="Amarapix"
+             class="amx-footer__logo-img"/>
+      </div>
+      <p class="amx-footer__tagline">
+        Premium graphic design assets for creators,<br>
+        designers and agencies seeking quality and agility.
+      </p>
+      <a routerLink="/pricing" class="amx-footer__cta">
+        See plans &nbsp;→
+      </a>
+    </div>
+
+    <!-- Link columns -->
+    <div class="amx-footer__cols">
+      <div class="amx-footer__col" *ngFor="let col of columns">
+        <h4 class="amx-footer__col-heading">{{ col.heading }}</h4>
+        <ul class="amx-footer__col-list">
+          <li *ngFor="let link of col.links">
+            <a [routerLink]="link.href" class="amx-footer__link">{{ link.label }}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Divider ── -->
+  <div class="amx-footer__divider"></div>
+
+  <!-- ── Social row ── -->
+  <div class="amx-footer__social-bar">
+    <p class="amx-footer__follow-label">FOLLOW AMARAPIX</p>
+    <div class="amx-footer__socials">
+      <a
+        *ngFor="let s of socials"
+        [href]="s.href"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="amx-footer__social-btn"
+        [attr.aria-label]="s.label">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+          <path [attr.d]="s.path"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── Bottom bar ── -->
+  <div class="amx-footer__bottom">
+    <p class="amx-footer__copy">&copy; {{ year }} Amarapix — All rights reserved</p>
+    <p class="amx-footer__legal-text">
+      AMARAPIX MEDIA LTD &nbsp;·&nbsp; A Premium Digital Asset Platform
+    </p>
+  </div>
+
+</footer>

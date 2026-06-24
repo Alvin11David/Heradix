@@ -1,0 +1,927 @@
+/* =====================================================
+   Academy — Course Player
+   ===================================================== */
+
+:host {
+  display: block;
+  font-family: 'Lato', sans-serif;
+  background: #f3f4f6;
+  min-height: 100vh;
+}
+
+/* ── Loading overlay ──────────────────────────────── */
+.amx-player-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 12px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* ── Root ─────────────────────────────────────────── */
+.amx-player {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+/* ══ TOP BAR ═════════════════════════════════════════ */
+.amx-player__topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0 32px;
+  height: 58px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+
+  @media (max-width: 640px) { padding: 0 16px; }
+}
+
+.amx-player__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: none;
+  cursor: pointer;
+  color: #374151;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  &:hover { background: #f3f4f6; }
+}
+
+.amx-player__topbar-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.amx-player__course-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.amx-player__topbar-meta {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.amx-player__top-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.amx-player__top-progress-bar {
+  width: 120px;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.amx-player__top-progress-fill {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 999px;
+  transition: width 0.4s;
+}
+
+.amx-player__top-progress-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2563eb;
+  min-width: 30px;
+}
+
+/* ══ BODY ════════════════════════════════════════════ */
+.amx-player__body {
+  flex: 1;
+  padding: 28px 32px 48px;
+
+  @media (max-width: 860px)  { padding: 20px 16px 40px; }
+}
+
+/* centred max-width grid */
+.amx-player__container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+
+  @media (max-width: 1100px) { grid-template-columns: 1fr 340px; }
+  @media (max-width: 860px)  { grid-template-columns: 1fr; }
+}
+
+/* ══ LEFT COLUMN ═════════════════════════════════════ */
+.amx-player__left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* ── Shared card base ─────────────────────────────── */
+.amx-player__card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+/* ── Video card ─────────────────────────────────────── */
+.amx-player__card--video {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* ── Lesson info card ─────────────────────────────── */
+.amx-player__card--lesson {
+  padding: 24px;
+}
+
+/* ── Comments card ──────────────────────────────────── */
+.amx-player__card--comments {
+  padding: 24px;
+}
+
+/* ══ VIDEO PLAYER ════════════════════════════════════ */
+.amx-player__video-wrap {
+  position: relative;
+  background: #000;
+}
+
+/* The "screen" */
+.amx-player__screen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0f0f0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.amx-player__screen-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.amx-player__screen-label {
+  color: rgba(255,255,255,0.45);
+  font-size: 13px;
+  max-width: 320px;
+  text-align: center;
+}
+
+.amx-player__big-play {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  &:hover {
+    background: rgba(255,255,255,0.22);
+    transform: scale(1.06);
+  }
+}
+
+/* Spinning ring while "playing" */
+.amx-player__playing-indicator {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.amx-player__spinner-ring {
+  width: 52px;
+  height: 52px;
+  border: 3px solid rgba(255,255,255,0.18);
+  border-top-color: rgba(255,255,255,0.85);
+  border-radius: 50%;
+  animation: amx-spin 0.85s linear infinite;
+}
+
+.amx-player__click-zone {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+@keyframes amx-spin { to { transform: rotate(360deg); } }
+
+/* ── Controls bar ──────────────────────────────────── */
+.amx-player__controls {
+  background: #1a1a2e;
+  padding: 10px 18px 14px;
+}
+
+.amx-player__seek-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.amx-player__time {
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  flex-shrink: 0;
+  min-width: 36px;
+}
+
+/* Range inputs shared */
+.amx-player__seek,
+.amx-player__volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.18);
+  outline: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 4px rgba(0,0,0,0.4);
+  }
+}
+
+.amx-player__btn-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.amx-player__ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255,255,255,0.8);
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  &--play {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #2563eb;
+    &:hover:not(:disabled) { background: #1d4ed8; }
+  }
+}
+
+.amx-player__volume-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.amx-player__volume-slider {
+  width: 72px;
+  flex: none;
+}
+
+.amx-player__ctrl-spacer { flex: 1; }
+
+/* Settings menu */
+.amx-player__settings-wrap { position: relative; }
+
+.amx-player__settings-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: #1e293b;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 6px 0;
+  min-width: 150px;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.amx-player__settings-label {
+  padding: 6px 14px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.amx-player__settings-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 7px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+  font-family: 'Lato', sans-serif;
+  transition: background 0.12s;
+
+  &:hover { background: rgba(255,255,255,0.08); }
+  &--active { color: #60a5fa; font-weight: 700; }
+}
+
+/* ══ LESSON INFO CARD ════════════════════════════════ */
+.amx-player__lesson-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.amx-player__lesson-pill {
+  background: #dbeafe;
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 50px;
+}
+
+.amx-player__lesson-clock {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  color: #6b7280;
+}
+
+.amx-player__lesson-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.amx-player__lesson-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+  line-height: 1.35;
+}
+
+.amx-player__mark-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 50px;
+  border: 1.5px solid #d1d5db;
+  background: #fff;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: #2563eb;
+    color: #2563eb;
+  }
+
+  &--done {
+    background: #d1fae5;
+    border-color: #10b981;
+    color: #059669;
+    cursor: default;
+  }
+
+  &:disabled:not(.amx-player__mark-btn--done) { opacity: 0.6; cursor: not-allowed; }
+}
+
+.amx-player__lesson-desc {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.75;
+  margin: 0 0 8px;
+}
+
+.amx-player__auto-mark {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0 0 20px;
+}
+
+.amx-player__prev-next {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.amx-player__nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  font-size: 13.5px;
+  color: #374151;
+  padding: 0;
+  transition: color 0.15s;
+
+  &:hover:not(:disabled) { color: #2563eb; }
+  &:disabled { opacity: 0.35; cursor: not-allowed; }
+}
+
+/* ══ COMMENTS CARD ═══════════════════════════════════ */
+.amx-player__comments-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 20px;
+}
+
+.amx-player__comment-input-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.amx-player__comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  &--self { background: #f5820a; }
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.amx-player__comment-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.amx-player__comment-textarea {
+  width: 100%;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  color: #1a1a1a;
+  resize: none;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+
+  &::placeholder { color: #9ca3af; }
+  &:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+}
+
+.amx-player__comment-send {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 50px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) { background: #1d4ed8; }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+.amx-player__comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.amx-player__comment {
+  display: flex;
+  gap: 12px;
+}
+
+.amx-player__comment-body { flex: 1; }
+
+.amx-player__comment-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.amx-player__comment-author {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.amx-player__comment-time {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.amx-player__comment-text {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.amx-player__no-comments {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 0;
+  color: #d1d5db;
+  font-size: 14px;
+}
+
+/* ══ RIGHT SIDEBAR ═══════════════════════════════════ */
+.amx-player__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: calc(58px + 28px);   /* topbar height + body top padding */
+
+  @media (max-width: 860px) {
+    position: static;
+  }
+}
+
+/* Instructor / stats card */
+.amx-player__instructor-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  padding: 20px;
+}
+
+.amx-player__instructor-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.amx-player__instructor-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.amx-player__instructor-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.amx-player__instructor-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9ca3af;
+  letter-spacing: 0.8px;
+}
+
+.amx-player__instructor-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.amx-player__level-pill {
+  padding: 4px 12px;
+  border-radius: 50px;
+  border: 1px solid #d1d5db;
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+  flex-shrink: 0;
+}
+
+/* Stats grid */
+.amx-player__stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.amx-player__stat-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.amx-player__stat-val {
+  font-size: 20px;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1;
+}
+
+.amx-player__stat-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9ca3af;
+  letter-spacing: 0.6px;
+  margin-top: 3px;
+}
+
+.amx-player__divider {
+  height: 1px;
+  background: #f3f4f6;
+  margin: 14px 0;
+}
+
+/* Rating */
+.amx-player__sidebar-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.amx-player__rating-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  color: #6b7280;
+}
+
+.amx-player__rating-note {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: right;
+  max-width: 160px;
+  line-height: 1.4;
+}
+
+.amx-player__rating-val {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  strong { font-size: 17px; font-weight: 800; color: #1a1a1a; }
+}
+
+.amx-player__rating-count {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* Progress */
+.amx-player__progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.amx-player__progress-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.amx-player__progress-pct {
+  font-weight: 800;
+  color: #2563eb;
+}
+
+.amx-player__progress-bar {
+  height: 5px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.amx-player__progress-fill {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 999px;
+  transition: width 0.4s;
+}
+
+.amx-player__progress-detail {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #9ca3af;
+}
+
+/* Course content card */
+.amx-player__content-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  overflow: hidden;
+  /* Fixed height so it scrolls independently */
+  max-height: calc(100vh - 58px - 28px - 280px - 16px);
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 860px) { max-height: 420px; }
+}
+
+.amx-player__content-heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  font-weight: 800;
+  color: #1a1a1a;
+  flex-shrink: 0;
+}
+
+.amx-player__content-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.amx-player__completed-count {
+  color: #10b981;
+  font-weight: 700;
+}
+
+/* Lesson list — scrollable */
+.amx-player__lesson-list {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+}
+
+.amx-player__lesson-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  width: 100%;
+  text-align: left;
+  border-bottom: 1px solid #f9fafb;
+  transition: background 0.12s;
+
+  &:hover { background: #f9fafb; }
+
+  &--active {
+    background: #eff6ff !important;
+    border-left: 3px solid #2563eb;
+    padding-left: 17px;
+  }
+
+  &--done { opacity: 0.72; }
+}
+
+.amx-player__lesson-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #f9fafb;
+
+  .amx-player__lesson-item--active & {
+    background: #dbeafe;
+    border-color: #2563eb;
+  }
+
+  .amx-player__lesson-item--done & {
+    background: #d1fae5;
+    border-color: #10b981;
+  }
+}
+
+.amx-player__lesson-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+}
+
+.amx-player__lesson-item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.amx-player__lesson-item-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1a1a1a;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+
+  .amx-player__lesson-item--active & { color: #2563eb; }
+}
+
+.amx-player__lesson-item-dur {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: #9ca3af;
+}

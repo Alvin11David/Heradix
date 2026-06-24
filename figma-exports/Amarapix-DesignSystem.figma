@@ -1,0 +1,483 @@
+{
+  "document": {
+    "id": "doc-1",
+    "name": "Amarapix Design System",
+    "type": "DOCUMENT",
+    "children": [
+      {
+        "id": "page-0",
+        "name": "Header Component",
+        "type": "FRAME",
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 900,
+        "children": [
+          {
+            "id": "title-0",
+            "name": "Component Name",
+            "type": "TEXT",
+            "text": "Header Component",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "fontSize": 32,
+            "fontWeight": 700,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-0",
+            "name": "Description",
+            "type": "TEXT",
+            "text": "Main navigation header with logo and menu",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "fontSize": 14,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "preview-0",
+            "name": "Component Preview",
+            "type": "RECTANGLE",
+            "x": 40,
+            "y": 180,
+            "width": 1360,
+            "height": 620,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#FF6B6B",
+                "opacity": 0.1
+              }
+            ],
+            "strokes": [
+              {
+                "type": "SOLID",
+                "color": "#FF6B6B",
+                "strokeWeight": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "page-1",
+        "name": "Asset Card Component",
+        "type": "FRAME",
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 900,
+        "children": [
+          {
+            "id": "title-1",
+            "name": "Component Name",
+            "type": "TEXT",
+            "text": "Asset Card Component",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "fontSize": 32,
+            "fontWeight": 700,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-1",
+            "name": "Description",
+            "type": "TEXT",
+            "text": "Card displaying individual assets with image and metadata",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "fontSize": 14,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "preview-1",
+            "name": "Component Preview",
+            "type": "RECTANGLE",
+            "x": 40,
+            "y": 180,
+            "width": 1360,
+            "height": 620,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#4ECDC4",
+                "opacity": 0.1
+              }
+            ],
+            "strokes": [
+              {
+                "type": "SOLID",
+                "color": "#4ECDC4",
+                "strokeWeight": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "page-2",
+        "name": "Collection Card",
+        "type": "FRAME",
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 900,
+        "children": [
+          {
+            "id": "title-2",
+            "name": "Component Name",
+            "type": "TEXT",
+            "text": "Collection Card",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "fontSize": 32,
+            "fontWeight": 700,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-2",
+            "name": "Description",
+            "type": "TEXT",
+            "text": "Card for displaying collection of posters/assets",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "fontSize": 14,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "preview-2",
+            "name": "Component Preview",
+            "type": "RECTANGLE",
+            "x": 40,
+            "y": 180,
+            "width": 1360,
+            "height": 620,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#45B7D1",
+                "opacity": 0.1
+              }
+            ],
+            "strokes": [
+              {
+                "type": "SOLID",
+                "color": "#45B7D1",
+                "strokeWeight": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "page-3",
+        "name": "Pagination Component",
+        "type": "FRAME",
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 900,
+        "children": [
+          {
+            "id": "title-3",
+            "name": "Component Name",
+            "type": "TEXT",
+            "text": "Pagination Component",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "fontSize": 32,
+            "fontWeight": 700,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-3",
+            "name": "Description",
+            "type": "TEXT",
+            "text": "Navigation component for multi-page results",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "fontSize": 14,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "preview-3",
+            "name": "Component Preview",
+            "type": "RECTANGLE",
+            "x": 40,
+            "y": 180,
+            "width": 1360,
+            "height": 620,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#96CEB4",
+                "opacity": 0.1
+              }
+            ],
+            "strokes": [
+              {
+                "type": "SOLID",
+                "color": "#96CEB4",
+                "strokeWeight": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "page-4",
+        "name": "Search Bar",
+        "type": "FRAME",
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 900,
+        "children": [
+          {
+            "id": "title-4",
+            "name": "Component Name",
+            "type": "TEXT",
+            "text": "Search Bar",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "fontSize": 32,
+            "fontWeight": 700,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-4",
+            "name": "Description",
+            "type": "TEXT",
+            "text": "Search input component with filters",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "fontSize": 14,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "preview-4",
+            "name": "Component Preview",
+            "type": "RECTANGLE",
+            "x": 40,
+            "y": 180,
+            "width": 1360,
+            "height": 620,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#FFEAA7",
+                "opacity": 0.1
+              }
+            ],
+            "strokes": [
+              {
+                "type": "SOLID",
+                "color": "#FFEAA7",
+                "strokeWeight": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "page-5",
+        "name": "Pricing Card",
+        "type": "FRAME",
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 900,
+        "children": [
+          {
+            "id": "title-5",
+            "name": "Component Name",
+            "type": "TEXT",
+            "text": "Pricing Card",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "fontSize": 32,
+            "fontWeight": 700,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-5",
+            "name": "Description",
+            "type": "TEXT",
+            "text": "Subscription pricing tier card",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "fontSize": 14,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "preview-5",
+            "name": "Component Preview",
+            "type": "RECTANGLE",
+            "x": 40,
+            "y": 180,
+            "width": 1360,
+            "height": 620,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#DDA15E",
+                "opacity": 0.1
+              }
+            ],
+            "strokes": [
+              {
+                "type": "SOLID",
+                "color": "#DDA15E",
+                "strokeWeight": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "page-6",
+        "name": "Modal Dialog",
+        "type": "FRAME",
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 900,
+        "children": [
+          {
+            "id": "title-6",
+            "name": "Component Name",
+            "type": "TEXT",
+            "text": "Modal Dialog",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "fontSize": 32,
+            "fontWeight": 700,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-6",
+            "name": "Description",
+            "type": "TEXT",
+            "text": "Reusable modal component for forms and confirmations",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "fontSize": 14,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "preview-6",
+            "name": "Component Preview",
+            "type": "RECTANGLE",
+            "x": 40,
+            "y": 180,
+            "width": 1360,
+            "height": 620,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#BC6C25",
+                "opacity": 0.1
+              }
+            ],
+            "strokes": [
+              {
+                "type": "SOLID",
+                "color": "#BC6C25",
+                "strokeWeight": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "page-7",
+        "name": "Footer Component",
+        "type": "FRAME",
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 900,
+        "children": [
+          {
+            "id": "title-7",
+            "name": "Component Name",
+            "type": "TEXT",
+            "text": "Footer Component",
+            "x": 40,
+            "y": 40,
+            "width": 1360,
+            "height": 60,
+            "fontSize": 32,
+            "fontWeight": 700,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "desc-7",
+            "name": "Description",
+            "type": "TEXT",
+            "text": "Site footer with links and information",
+            "x": 40,
+            "y": 110,
+            "width": 1360,
+            "height": 40,
+            "fontSize": 14,
+            "fontFamily": "Inter"
+          },
+          {
+            "id": "preview-7",
+            "name": "Component Preview",
+            "type": "RECTANGLE",
+            "x": 40,
+            "y": 180,
+            "width": 1360,
+            "height": 620,
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#9D84B7",
+                "opacity": 0.1
+              }
+            ],
+            "strokes": [
+              {
+                "type": "SOLID",
+                "color": "#9D84B7",
+                "strokeWeight": 2
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "schemaVersion": 0,
+  "version": 1
+}

@@ -1,0 +1,516 @@
+{
+  "users": [
+    {
+      "id": "u1",
+      "email": "admin@amarapix.io",
+      "fullName": "Admin User",
+      "avatarUrl": "https://i.pravatar.cc/150?u=admin",
+      "role": "ADMIN",
+      "isEmailVerified": true,
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "u2",
+      "email": "premium@example.com",
+      "fullName": "Jane Mukalele",
+      "avatarUrl": "https://i.pravatar.cc/150?u=jane",
+      "role": "PREMIUM",
+      "isEmailVerified": true,
+      "createdAt": "2025-03-10T00:00:00Z",
+      "updatedAt": "2026-02-01T00:00:00Z"
+    },
+    {
+      "id": "u3",
+      "email": "free@example.com",
+      "fullName": "Brian Okello",
+      "avatarUrl": null,
+      "role": "FREE",
+      "isEmailVerified": true,
+      "createdAt": "2025-06-20T00:00:00Z",
+      "updatedAt": "2026-01-10T00:00:00Z"
+    },
+    {
+      "id": "u4",
+      "email": "contributor@example.com",
+      "fullName": "Aisha Nalwoga",
+      "avatarUrl": "https://i.pravatar.cc/150?u=aisha",
+      "role": "AFFILIATE",
+      "isEmailVerified": true,
+      "createdAt": "2025-08-01T00:00:00Z",
+      "updatedAt": "2026-03-01T00:00:00Z"
+    }
+  ],
+
+  "categories": [
+    { "id": "cat1", "name": "Templates", "slug": "templates", "parentId": null },
+    { "id": "cat2", "name": "Fonts & Typography", "slug": "fonts", "parentId": null },
+    { "id": "cat3", "name": "Illustrations", "slug": "illustrations", "parentId": null },
+    { "id": "cat4", "name": "Mockups", "slug": "mockups", "parentId": null },
+    { "id": "cat5", "name": "Photos", "slug": "photos", "parentId": null },
+    { "id": "cat6", "name": "Videos", "slug": "videos", "parentId": null },
+    { "id": "cat7", "name": "Presentations", "slug": "presentations", "parentId": null },
+    { "id": "cat8", "name": "Social Media", "slug": "social-media", "parentId": "cat1" },
+    { "id": "cat9", "name": "Flyers & Posters", "slug": "flyers-posters", "parentId": "cat1" },
+    { "id": "cat10","name": "Business Cards", "slug": "business-cards", "parentId": "cat1" }
+  ],
+
+  "tags": [
+    { "id": "t1",  "name": "minimal" },
+    { "id": "t2",  "name": "corporate" },
+    { "id": "t3",  "name": "vintage" },
+    { "id": "t4",  "name": "modern" },
+    { "id": "t5",  "name": "colorful" },
+    { "id": "t6",  "name": "dark" },
+    { "id": "t7",  "name": "branding" },
+    { "id": "t8",  "name": "nature" },
+    { "id": "t9",  "name": "abstract" },
+    { "id": "t10", "name": "typography" }
+  ],
+
+  "assets": [
+    {
+      "id": "a1",
+      "title": "Modern Business Card Template",
+      "slug": "modern-business-card",
+      "description": "A clean, minimal business card design in PSD format. Fully layered and editable.",
+      "format": "PSD",
+      "orientation": "LANDSCAPE",
+      "isPremium": false,
+      "isEditable": true,
+      "previewUrl": "https://picsum.photos/seed/a1/800/600",
+      "thumbnailUrl": "https://picsum.photos/seed/a1/400/300",
+      "fileSizeBytes": 4718592,
+      "downloadCount": 2340,
+      "status": "ACTIVE",
+      "authorId": null,
+      "categoryId": "cat10",
+      "tags": [{ "id": "t1", "name": "minimal" }, { "id": "t2", "name": "corporate" }],
+      "createdAt": "2025-02-10T00:00:00Z",
+      "updatedAt": "2025-12-01T00:00:00Z"
+    },
+    {
+      "id": "a2",
+      "title": "Social Media Branding Kit – Instagram",
+      "slug": "instagram-branding-kit",
+      "description": "Complete Instagram branding kit with story, post and highlight templates.",
+      "format": "PSD",
+      "orientation": "SQUARE",
+      "isPremium": true,
+      "isEditable": true,
+      "previewUrl": "https://picsum.photos/seed/a2/800/800",
+      "thumbnailUrl": "https://picsum.photos/seed/a2/400/400",
+      "fileSizeBytes": 12582912,
+      "downloadCount": 870,
+      "status": "ACTIVE",
+      "authorId": null,
+      "categoryId": "cat8",
+      "tags": [{ "id": "t7", "name": "branding" }, { "id": "t4", "name": "modern" }],
+      "createdAt": "2025-04-18T00:00:00Z",
+      "updatedAt": "2026-01-05T00:00:00Z"
+    },
+    {
+      "id": "a3",
+      "title": "Vintage Flyer Pack",
+      "slug": "vintage-flyer-pack",
+      "description": "Set of 5 retro-style event flyers in Adobe Illustrator format.",
+      "format": "AI",
+      "orientation": "PORTRAIT",
+      "isPremium": false,
+      "isEditable": false,
+      "previewUrl": "https://picsum.photos/seed/a3/600/900",
+      "thumbnailUrl": "https://picsum.photos/seed/a3/300/450",
+      "fileSizeBytes": 2097152,
+      "downloadCount": 5120,
+      "status": "ACTIVE",
+      "authorId": "u4",
+      "categoryId": "cat9",
+      "tags": [{ "id": "t3", "name": "vintage" }, { "id": "t5", "name": "colorful" }],
+      "createdAt": "2025-05-22T00:00:00Z",
+      "updatedAt": "2025-11-14T00:00:00Z"
+    },
+    {
+      "id": "a4",
+      "title": "Dark Abstract Background Pack",
+      "slug": "dark-abstract-backgrounds",
+      "description": "10 high-resolution dark abstract backgrounds, perfect for presentations and social posts.",
+      "format": "PHOTO",
+      "orientation": "LANDSCAPE",
+      "isPremium": true,
+      "isEditable": false,
+      "previewUrl": "https://picsum.photos/seed/a4/800/500",
+      "thumbnailUrl": "https://picsum.photos/seed/a4/400/250",
+      "fileSizeBytes": 31457280,
+      "downloadCount": 1540,
+      "status": "ACTIVE",
+      "authorId": null,
+      "categoryId": "cat5",
+      "tags": [{ "id": "t6", "name": "dark" }, { "id": "t9", "name": "abstract" }],
+      "createdAt": "2025-07-03T00:00:00Z",
+      "updatedAt": "2026-02-20T00:00:00Z"
+    },
+    {
+      "id": "a5",
+      "title": "Phone Mockup Collection",
+      "slug": "phone-mockup-collection",
+      "description": "12 clean iPhone and Android mockups in PSD and PNG formats.",
+      "format": "MOCKUP",
+      "orientation": "PORTRAIT",
+      "isPremium": true,
+      "isEditable": false,
+      "previewUrl": "https://picsum.photos/seed/a5/600/900",
+      "thumbnailUrl": "https://picsum.photos/seed/a5/300/450",
+      "fileSizeBytes": 20971520,
+      "downloadCount": 3200,
+      "status": "ACTIVE",
+      "authorId": null,
+      "categoryId": "cat4",
+      "tags": [{ "id": "t1", "name": "minimal" }, { "id": "t4", "name": "modern" }],
+      "createdAt": "2025-08-11T00:00:00Z",
+      "updatedAt": "2026-01-30T00:00:00Z"
+    },
+    {
+      "id": "a6",
+      "title": "Explainer Video Motion Pack",
+      "slug": "explainer-video-motion-pack",
+      "description": "After Effects motion graphics kit for product explainer videos.",
+      "format": "VIDEO",
+      "orientation": "LANDSCAPE",
+      "isPremium": true,
+      "isEditable": false,
+      "previewUrl": "https://picsum.photos/seed/a6/800/450",
+      "thumbnailUrl": "https://picsum.photos/seed/a6/400/225",
+      "fileSizeBytes": 104857600,
+      "downloadCount": 680,
+      "status": "ACTIVE",
+      "authorId": "u4",
+      "categoryId": "cat6",
+      "tags": [{ "id": "t4", "name": "modern" }, { "id": "t2", "name": "corporate" }],
+      "createdAt": "2025-09-01T00:00:00Z",
+      "updatedAt": "2025-12-20T00:00:00Z"
+    },
+    {
+      "id": "a7",
+      "title": "Minimalist Pitch Deck",
+      "slug": "minimalist-pitch-deck",
+      "description": "30-slide PowerPoint pitch deck template with clean minimal design.",
+      "format": "PPT",
+      "orientation": "LANDSCAPE",
+      "isPremium": false,
+      "isEditable": true,
+      "previewUrl": "https://picsum.photos/seed/a7/800/450",
+      "thumbnailUrl": "https://picsum.photos/seed/a7/400/225",
+      "fileSizeBytes": 8388608,
+      "downloadCount": 4300,
+      "status": "ACTIVE",
+      "authorId": null,
+      "categoryId": "cat7",
+      "tags": [{ "id": "t1", "name": "minimal" }, { "id": "t10", "name": "typography" }],
+      "createdAt": "2025-10-05T00:00:00Z",
+      "updatedAt": "2026-03-01T00:00:00Z"
+    },
+    {
+      "id": "a8",
+      "title": "AI-Generated Landscape Pack",
+      "slug": "ai-landscape-pack",
+      "description": "20 stunning AI-generated landscape images at 4K resolution.",
+      "format": "AI_GEN",
+      "orientation": "LANDSCAPE",
+      "isPremium": true,
+      "isEditable": false,
+      "previewUrl": "https://picsum.photos/seed/a8/800/450",
+      "thumbnailUrl": "https://picsum.photos/seed/a8/400/225",
+      "fileSizeBytes": 52428800,
+      "downloadCount": 990,
+      "status": "ACTIVE",
+      "authorId": null,
+      "categoryId": "cat5",
+      "tags": [{ "id": "t8", "name": "nature" }, { "id": "t5", "name": "colorful" }],
+      "createdAt": "2025-11-14T00:00:00Z",
+      "updatedAt": "2026-03-10T00:00:00Z"
+    }
+  ],
+
+  "plans": [
+    {
+      "id": "plan_free",
+      "name": "Free",
+      "price": 0,
+      "currency": "USD",
+      "interval": "month",
+      "dailyFreeDl": 5,
+      "dailyPremiumDl": 0,
+      "editorAccess": "LIMITED",
+      "academyAccess": "PREVIEW",
+      "collectionsAccess": false,
+      "workspaceSeats": 1
+    },
+    {
+      "id": "plan_premium_monthly",
+      "name": "Premium Monthly",
+      "price": 9.99,
+      "currency": "USD",
+      "interval": "month",
+      "dailyFreeDl": null,
+      "dailyPremiumDl": 30,
+      "editorAccess": "FULL",
+      "academyAccess": "FULL",
+      "collectionsAccess": true,
+      "workspaceSeats": 1,
+      "stripePriceId": "price_mock_monthly"
+    },
+    {
+      "id": "plan_premium_annual",
+      "name": "Premium Annual",
+      "price": 79.99,
+      "currency": "USD",
+      "interval": "year",
+      "dailyFreeDl": null,
+      "dailyPremiumDl": 30,
+      "editorAccess": "FULL",
+      "academyAccess": "FULL",
+      "collectionsAccess": true,
+      "workspaceSeats": 1,
+      "stripePriceId": "price_mock_annual"
+    },
+    {
+      "id": "plan_team",
+      "name": "Team (5 seats)",
+      "price": 24.99,
+      "currency": "USD",
+      "interval": "month",
+      "dailyFreeDl": null,
+      "dailyPremiumDl": 30,
+      "editorAccess": "FULL",
+      "academyAccess": "FULL",
+      "collectionsAccess": true,
+      "workspaceSeats": 5,
+      "stripePriceId": "price_mock_team"
+    }
+  ],
+
+  "subscriptions": [
+    {
+      "id": "sub1",
+      "userId": "u2",
+      "planId": "plan_premium_monthly",
+      "status": "ACTIVE",
+      "currentPeriodStart": "2026-03-01T00:00:00Z",
+      "currentPeriodEnd": "2026-04-01T00:00:00Z",
+      "cancelAtPeriodEnd": false,
+      "stripeSubscriptionId": "sub_mock_001"
+    }
+  ],
+
+  "courses": [
+    {
+      "id": "c1",
+      "title": "Graphic Design for Beginners",
+      "slug": "graphic-design-beginners",
+      "description": "Learn the fundamentals of graphic design from scratch — colour theory, typography, layout principles and more.",
+      "thumbnailUrl": "https://picsum.photos/seed/c1/640/360",
+      "level": "BEGINNER",
+      "topic": "Graphic Design",
+      "isPremium": false,
+      "lessonCount": 12,
+      "durationMinutes": 180,
+      "createdAt": "2025-03-01T00:00:00Z"
+    },
+    {
+      "id": "c2",
+      "title": "Advanced Photoshop Techniques",
+      "slug": "advanced-photoshop",
+      "description": "Master advanced retouching, compositing and photo manipulation workflows used by professional designers.",
+      "thumbnailUrl": "https://picsum.photos/seed/c2/640/360",
+      "level": "ADVANCED",
+      "topic": "Photoshop",
+      "isPremium": true,
+      "lessonCount": 20,
+      "durationMinutes": 360,
+      "createdAt": "2025-05-10T00:00:00Z"
+    },
+    {
+      "id": "c3",
+      "title": "Branding & Identity Design",
+      "slug": "branding-identity",
+      "description": "Create compelling brand identities from logo design to full brand system documentation.",
+      "thumbnailUrl": "https://picsum.photos/seed/c3/640/360",
+      "level": "INTERMEDIATE",
+      "topic": "Branding",
+      "isPremium": true,
+      "lessonCount": 15,
+      "durationMinutes": 270,
+      "createdAt": "2025-07-22T00:00:00Z"
+    },
+    {
+      "id": "c4",
+      "title": "Motion Graphics with After Effects",
+      "slug": "motion-graphics-ae",
+      "description": "Build engaging animations and motion graphics using Adobe After Effects from beginner to pro.",
+      "thumbnailUrl": "https://picsum.photos/seed/c4/640/360",
+      "level": "INTERMEDIATE",
+      "topic": "Video & Motion",
+      "isPremium": true,
+      "lessonCount": 18,
+      "durationMinutes": 320,
+      "createdAt": "2025-09-05T00:00:00Z"
+    }
+  ],
+
+  "lessons": [
+    { "id": "l1", "courseId": "c1", "title": "Introduction to Design Principles", "order": 1, "durationSeconds": 720, "isFreePreview": true },
+    { "id": "l2", "courseId": "c1", "title": "Colour Theory Fundamentals", "order": 2, "durationSeconds": 1080, "isFreePreview": false },
+    { "id": "l3", "courseId": "c1", "title": "Typography & Font Pairing", "order": 3, "durationSeconds": 960, "isFreePreview": false },
+    { "id": "l4", "courseId": "c2", "title": "Smart Objects & Non-Destructive Editing", "order": 1, "durationSeconds": 900, "isFreePreview": true },
+    { "id": "l5", "courseId": "c2", "title": "Advanced Layer Masking", "order": 2, "durationSeconds": 1200, "isFreePreview": false }
+  ],
+
+  "workspaces": [
+    {
+      "id": "ws1",
+      "name": "Amarapix Design Team",
+      "logoUrl": null,
+      "ownerId": "u1",
+      "createdAt": "2025-02-01T00:00:00Z"
+    },
+    {
+      "id": "ws2",
+      "name": "Jane's Studio",
+      "logoUrl": null,
+      "ownerId": "u2",
+      "createdAt": "2025-06-15T00:00:00Z"
+    }
+  ],
+
+  "brand_guidelines": [
+    {
+      "workspaceId": "ws1",
+      "primaryColor": "#1A1A2E",
+      "secondaryColor": "#16213E",
+      "accentColor": "#F5820A",
+      "fontPrimary": "Inter",
+      "fontSecondary": "Playfair Display",
+      "logoUrl": null
+    }
+  ],
+
+  "affiliates": [
+    {
+      "id": "aff1",
+      "userId": "u4",
+      "portfolioUrl": "https://behance.net/aishandesigns",
+      "bio": "Ugandan graphic designer specialising in brand identity and print.",
+      "applicationStatus": "APPROVED",
+      "totalEarnings": 284.50,
+      "pendingPayout": 42.00,
+      "createdAt": "2025-08-05T00:00:00Z"
+    }
+  ],
+
+  "submissions": [
+    {
+      "id": "sub_a1",
+      "affiliateId": "aff1",
+      "title": "Afro-Pop Concert Poster",
+      "description": "Vibrant poster design inspired by East African music culture.",
+      "format": "PSD",
+      "fileUrl": "#",
+      "previewUrl": "https://picsum.photos/seed/sub1/600/900",
+      "status": "APPROVED",
+      "createdAt": "2025-09-12T00:00:00Z",
+      "updatedAt": "2025-09-20T00:00:00Z"
+    },
+    {
+      "id": "sub_a2",
+      "affiliateId": "aff1",
+      "title": "Kampala Street Photography Pack",
+      "description": "12 editorial street photographs from downtown Kampala.",
+      "format": "PHOTO",
+      "fileUrl": "#",
+      "previewUrl": "https://picsum.photos/seed/sub2/800/600",
+      "status": "UNDER_REVIEW",
+      "createdAt": "2026-03-20T00:00:00Z",
+      "updatedAt": "2026-03-20T00:00:00Z"
+    }
+  ],
+
+  "collections": [
+    {
+      "id": "col1",
+      "userId": "u2",
+      "name": "Brand Inspiration",
+      "description": "Assets I love for brand projects",
+      "isPublic": false,
+      "assetCount": 3,
+      "coverThumbnailUrl": "https://picsum.photos/seed/col1/400/300",
+      "createdAt": "2026-01-10T00:00:00Z",
+      "updatedAt": "2026-03-01T00:00:00Z"
+    }
+  ],
+
+  "print_specs": [
+    { "id": "ps1", "name": "A5 Flyer – Glossy", "widthMm": 148, "heightMm": 210, "finish": "GLOSSY", "minQuantity": 50,  "pricePerUnit": 0.25, "currency": "USD" },
+    { "id": "ps2", "name": "A4 Poster – Matte",  "widthMm": 210, "heightMm": 297, "finish": "MATTE",  "minQuantity": 25,  "pricePerUnit": 0.60, "currency": "USD" },
+    { "id": "ps3", "name": "Business Card – Satin", "widthMm": 85, "heightMm": 55, "finish": "SATIN", "minQuantity": 100, "pricePerUnit": 0.08, "currency": "USD" }
+  ],
+
+  "print_orders": [
+    {
+      "id": "po1",
+      "userId": "u2",
+      "assetId": "a1",
+      "printSpecId": "ps3",
+      "quantity": 200,
+      "totalPrice": 16.00,
+      "currency": "USD",
+      "status": "DELIVERED",
+      "trackingNumber": "TRK-KLA-88421",
+      "shippingAddress": {
+        "fullName": "Jane Mukalele",
+        "addressLine1": "Plot 14 Kampala Rd",
+        "city": "Kampala",
+        "country": "UG",
+        "phone": "+256700000001"
+      },
+      "paymentProvider": "mtn",
+      "createdAt": "2026-02-14T00:00:00Z",
+      "updatedAt": "2026-02-28T00:00:00Z"
+    }
+  ],
+
+  "editor_projects": [
+    {
+      "id": "ep1",
+      "userId": "u2",
+      "title": "My Business Card",
+      "assetId": "a1",
+      "canvasJson": "{\"version\":\"5.3.0\",\"objects\":[]}",
+      "width": 900,
+      "height": 500,
+      "thumbnailUrl": null,
+      "createdAt": "2026-03-10T00:00:00Z",
+      "updatedAt": "2026-03-25T00:00:00Z"
+    }
+  ],
+
+  "download_quota": [
+    {
+      "userId": "u3",
+      "dailyFreeUsed": 3,
+      "dailyFreeLimit": 5,
+      "dailyPremiumUsed": 0,
+      "dailyPremiumLimit": 0,
+      "monthlyTotal": 28,
+      "resetDate": "2026-03-27T00:00:00Z"
+    },
+    {
+      "userId": "u2",
+      "dailyFreeUsed": 0,
+      "dailyFreeLimit": null,
+      "dailyPremiumUsed": 7,
+      "dailyPremiumLimit": 30,
+      "monthlyTotal": 142,
+      "resetDate": "2026-04-01T00:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,482 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amarapix Client UI - Developer Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #f5820a 0%, #ff9a3d 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .toc {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .toc h2 {
+            margin-bottom: 15px;
+            color: #f5820a;
+        }
+        
+        .toc ul {
+            list-style: none;
+        }
+        
+        .toc li {
+            margin: 10px 0;
+        }
+        
+        .toc a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #f5820a;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f5820a;
+            padding-bottom: 10px;
+        }
+        
+        .section h3 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .journey {
+            border-left: 4px solid #f5820a;
+            padding-left: 20px;
+            margin: 15px 0;
+        }
+        
+        .journey h4 {
+            color: #f5820a;
+            margin-bottom: 5px;
+        }
+        
+        .route-flow {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .endpoint {
+            background: #f0f0f0;
+            padding: 10px;
+            border-left: 3px solid #0066cc;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            border-radius: 3px;
+        }
+        
+        .endpoint.get { border-left-color: #00aa00; }
+        .endpoint.post { border-left-color: #ff6600; }
+        .endpoint.put { border-left-color: #0066cc; }
+        .endpoint.delete { border-left-color: #cc0000; }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .feature-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .feature-card h5 {
+            color: #f5820a;
+            margin-bottom: 10px;
+        }
+        
+        .feature-card ul {
+            list-style: none;
+            padding-left: 10px;
+        }
+        
+        .feature-card li {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .feature-card li:before {
+            content: "✓ ";
+            color: #00aa00;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            margin-top: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.8em; }
+            .feature-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Amarapix Client UI</h1>
+            <p>Comprehensive Developer Documentation</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Generated: April 23, 2026 at 22:17</p>
+        </header>
+        
+        <div class="toc">
+            <h2>📋 Quick Navigation</h2>
+            <ul>
+                <li><a href="#journeys">User Journeys</a></li>
+                <li><a href="#components">Components</a></li>
+                <li><a href="#theme">Theme & Styling</a></li>
+                <li><a href="#api">API Integration</a></li>
+                <li><a href="#guards">Route Guards</a></li>
+                <li><a href="#features">Key Features</a></li>
+            </ul>
+        </div>
+        
+        <div id="journeys" class="section">
+            <h2>📍 User Journeys</h2>
+            
+            
+            <div class="journey">
+                <h4>🔄 User Signup & Login Journey</h4>
+                <p>Complete flow from landing to authenticated user</p>
+                <div class="route-flow">
+                    / → /auth/login → /auth/register → /auth/forgot-password
+                </div>
+                <h5>Components & Features:</h5>
+                <ul>
+                    <li><strong>Marketplace (Asset List)</strong>: Browse assets, Search, Filter by format/category</li><li><strong>Login</strong>: Email/Password login, Remember me, Forgot password link</li><li><strong>Register</strong>: Email signup, Password validation, Terms acceptance</li><li><strong>Forgot Password</strong>: Email recovery, Password reset</li>
+                </ul>
+            </div>
+            
+
+            <div class="journey">
+                <h4>🔄 Marketplace Asset Discovery</h4>
+                <p>Browse, search, and view asset details</p>
+                <div class="route-flow">
+                    /marketplace → /marketplace/asset/:slug
+                </div>
+                <h5>Components & Features:</h5>
+                <ul>
+                    <li><strong>Asset List</strong>: Grid view, Search bar, Filters, Pagination</li><li><strong>Asset Detail</strong>: Preview, Download formats, Similar assets, Share options</li>
+                </ul>
+            </div>
+            
+
+            <div class="journey">
+                <h4>🔄 Collections Management</h4>
+                <p>Organize and manage user collections (Premium)</p>
+                <div class="route-flow">
+                    /collections → /collections/:id
+                </div>
+                <h5>Components & Features:</h5>
+                <ul>
+                    <li><strong>Collections List</strong>: View all collections, 2x2 mosaic preview, Search collections</li><li><strong>Collection Detail</strong>: View all items in collection, Click item to view asset detail</li>
+                </ul>
+            </div>
+            
+
+            <div class="journey">
+                <h4>🔄 Canvas Editor</h4>
+                <p>Design and edit assets (Authenticated)</p>
+                <div class="route-flow">
+                    /editor
+                </div>
+                <h5>Components & Features:</h5>
+                <ul>
+                    <li><strong>Canvas Editor</strong>: Design tools, Template library, Real-time preview, Export options</li>
+                </ul>
+            </div>
+            
+
+            <div class="journey">
+                <h4>🔄 Print on Demand</h4>
+                <p>Configure and order printed products (Authenticated)</p>
+                <div class="route-flow">
+                    /print → /print/configure/:productId → /print/orders
+                </div>
+                <h5>Components & Features:</h5>
+                <ul>
+                    <li><strong>Print Home</strong>: Product showcase, Hero slider, Product categories</li><li><strong>Print Configurator</strong>: Product selection, Size options, Pricing, UGX currency, Checkout, Mobile payment integration</li><li><strong>Print Orders</strong>: Order history, Status tracking, Download receipts</li>
+                </ul>
+            </div>
+            
+
+            <div class="journey">
+                <h4>🔄 Academy & Learning</h4>
+                <p>Video courses and educational content</p>
+                <div class="route-flow">
+                    /academy → /academy/:id
+                </div>
+                <h5>Components & Features:</h5>
+                <ul>
+                    <li><strong>Course List</strong>: Browse courses, Course categories, Difficulty levels</li><li><strong>Course Player</strong>: Video playback, Course navigation, Progress tracking</li>
+                </ul>
+            </div>
+            
+
+            <div class="journey">
+                <h4>🔄 Subscription & Pricing</h4>
+                <p>Upgrade to premium features</p>
+                <div class="route-flow">
+                    /pricing
+                </div>
+                <h5>Components & Features:</h5>
+                <ul>
+                    <li><strong>Pricing Page</strong>: Subscription tiers, Feature comparison, CTA buttons</li>
+                </ul>
+            </div>
+            
+
+            <div class="journey">
+                <h4>🔄 User Workspace</h4>
+                <p>Personal dashboard and settings (Authenticated)</p>
+                <div class="route-flow">
+                    /workspace
+                </div>
+                <h5>Components & Features:</h5>
+                <ul>
+                    <li><strong>Workspace Dashboard</strong>: User info, Recent assets, Quick actions, Settings</li>
+                </ul>
+            </div>
+            
+
+            <div class="journey">
+                <h4>🔄 Affiliate Program</h4>
+                <p>Referral and earnings management (Authenticated)</p>
+                <div class="route-flow">
+                    /affiliate
+                </div>
+                <h5>Components & Features:</h5>
+                <ul>
+                    <li><strong>Affiliate Dashboard</strong>: Earnings stats, Referral links, Commission tracking</li>
+                </ul>
+            </div>
+            
+
+            <div class="journey">
+                <h4>🔄 Admin Management</h4>
+                <p>Administrative controls (Admin only)</p>
+                <div class="route-flow">
+                    /admin
+                </div>
+                <h5>Components & Features:</h5>
+                <ul>
+                    <li><strong>Admin Dashboard</strong>: User management, Asset moderation, Analytics, Settings</li>
+                </ul>
+            </div>
+            
+        </div>
+        
+        <div id="components" class="section">
+            <h2>🧩 Component Structure</h2>
+            
+            <h3>Shared Components</h3>
+            <div class="feature-grid">
+                
+                <div class="feature-card">
+                    <h5>Header</h5>
+                    <ul>
+                        <li>Navigation</li><li>Logo</li><li>User menu</li><li>Theme toggle</li><li>Search</li>
+                    </ul>
+                </div>
+                
+
+                <div class="feature-card">
+                    <h5>Footer</h5>
+                    <ul>
+                        <li>Links</li><li>Social media</li><li>Copyright</li><li>Newsletter signup</li>
+                    </ul>
+                </div>
+                
+
+                <div class="feature-card">
+                    <h5>Modal</h5>
+                    <ul>
+                        <li>Dialogs</li><li>Forms</li><li>Confirmations</li>
+                    </ul>
+                </div>
+                
+
+                <div class="feature-card">
+                    <h5>Spinner</h5>
+                    <ul>
+                        <li>Loading states</li><li>Progress indicators</li>
+                    </ul>
+                </div>
+                
+
+                <div class="feature-card">
+                    <h5>Pagination</h5>
+                    <ul>
+                        <li>Navigation</li><li>Page info</li>
+                    </ul>
+                </div>
+                
+
+                <div class="feature-card">
+                    <h5>Search Bar</h5>
+                    <ul>
+                        <li>Text input</li><li>Search button</li><li>Auto-suggestions</li>
+                    </ul>
+                </div>
+                
+
+                <div class="feature-card">
+                    <h5>Asset Card</h5>
+                    <ul>
+                        <li>Thumbnail</li><li>Title</li><li>Meta info</li><li>Hover effects</li>
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+        
+        <div id="theme" class="section">
+            <h2>🎨 Theme & Styling</h2>
+            
+            <h3>Color Palette</h3>
+            <div class="feature-grid">
+                <div class="feature-card"><h5>primary</h5><p><code>#f5820a (Orange)</code></p></div>
+<div class="feature-card"><h5>text</h5><p><code>#1a1a2e (Dark gray)</code></p></div>
+<div class="feature-card"><h5>textMuted</h5><p><code>#6c757d (Medium gray)</code></p></div>
+<div class="feature-card"><h5>background</h5><p><code>#ffffff (Light)</code></p></div>
+<div class="feature-card"><h5>backgroundDark</h5><p><code>#0f1419 (Dark mode)</code></p></div>
+            </div>
+            
+            <h3>Typography</h3>
+            <ul>
+                <li><strong>Font Family:</strong> Lato, sans-serif</li>
+                <li><strong>Font Weights:</strong> 400 (Regular), 600 (Semi-bold), 700 (Bold), 800 (Extra-bold), 900 (Black)</li>
+            </ul>
+            
+            <h3>Layout</h3>
+            <ul>
+                <li><strong>Spacing Base:</strong> 8px base unit</li>
+                <li><strong>Border Radius:</strong> 8px - 16px</li>
+                <li><strong>Transitions:</strong> 0.2s - 0.3s ease</li>
+            </ul>
+        </div>
+        
+        <div id="api" class="section">
+            <h2>🔌 API Integration</h2>
+            
+            <h3>Authentication Endpoints</h3>
+            <div class="endpoint post">POST /api/auth/login</div>
+            <div class="endpoint post">POST /api/auth/register</div>
+            <div class="endpoint post">POST /api/auth/logout</div>
+            
+            <h3>Asset Endpoints</h3>
+            <div class="endpoint get">GET /api/assets?q=search&format=PSD&page=1</div>
+            <div class="endpoint get">GET /api/assets/:slug</div>
+            <div class="endpoint post">POST /api/assets/:id/download</div>
+            
+            <h3>Collections Endpoints</h3>
+            <div class="endpoint get">GET /api/collections</div>
+            <div class="endpoint get">GET /api/collections/:id</div>
+            <div class="endpoint post">POST /api/collections</div>
+            <div class="endpoint post">POST /api/collections/:id/assets</div>
+            
+            <h3>Print Endpoints</h3>
+            <div class="endpoint get">GET /api/print/products</div>
+            <div class="endpoint post">POST /api/print/checkout</div>
+            <div class="endpoint get">GET /api/print/orders</div>
+        </div>
+        
+        <div id="guards" class="section">
+            <h2>🔐 Route Guards</h2>
+            <div class="feature-grid">
+                <div class="feature-card"><h5>authGuard</h5><p>Requires user to be authenticated</p></div>
+<div class="feature-card"><h5>guestGuard</h5><p>Only allows unauthenticated users (auth pages)</p></div>
+<div class="feature-card"><h5>premiumGuard</h5><p>Requires premium subscription</p></div>
+<div class="feature-card"><h5>adminGuard</h5><p>Requires admin role</p></div>
+            </div>
+        </div>
+        
+        <div id="features" class="section">
+            <h2>✨ Key Features</h2>
+            <ul>
+                <li>Dark Mode with automatic OS preference detection</li>
+<li>Responsive design (mobile, tablet, desktop)</li>
+<li>Asset marketplace with advanced filtering</li>
+<li>Print on Demand with UGX pricing & mobile payments (MTN/Airtel)</li>
+<li>Collections management for organizing assets</li>
+<li>Canvas editor for design customization</li>
+<li>Video academy with course progression</li>
+<li>Affiliate program with earnings tracking</li>
+<li>Premium subscription tiers</li>
+<li>Real-time search and filtering</li>
+            </ul>
+        </div>
+        
+        <footer>
+            <p>📚 Amarapix Client UI - Developer Documentation</p>
+            <p>For questions, refer to component files in <code>/src/app/</code></p>
+        </footer>
+    </div>
+</body>
+</html>

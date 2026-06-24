@@ -1,0 +1,400 @@
+{
+  "project": "Amarapix Client UI",
+  "version": "1.0.0",
+  "generatedAt": "2026-04-23T22:17:19.706581",
+  "journeys": [
+    {
+      "id": "signup-login",
+      "title": "User Signup & Login Journey",
+      "description": "Complete flow from landing to authenticated user",
+      "routes": [
+        {
+          "path": "/",
+          "component": "Marketplace (Asset List)",
+          "features": [
+            "Browse assets",
+            "Search",
+            "Filter by format/category"
+          ]
+        },
+        {
+          "path": "/auth/login",
+          "component": "Login",
+          "features": [
+            "Email/Password login",
+            "Remember me",
+            "Forgot password link"
+          ]
+        },
+        {
+          "path": "/auth/register",
+          "component": "Register",
+          "features": [
+            "Email signup",
+            "Password validation",
+            "Terms acceptance"
+          ]
+        },
+        {
+          "path": "/auth/forgot-password",
+          "component": "Forgot Password",
+          "features": [
+            "Email recovery",
+            "Password reset"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "marketplace-journey",
+      "title": "Marketplace Asset Discovery",
+      "description": "Browse, search, and view asset details",
+      "routes": [
+        {
+          "path": "/marketplace",
+          "component": "Asset List",
+          "features": [
+            "Grid view",
+            "Search bar",
+            "Filters",
+            "Pagination"
+          ]
+        },
+        {
+          "path": "/marketplace/asset/:slug",
+          "component": "Asset Detail",
+          "features": [
+            "Preview",
+            "Download formats",
+            "Similar assets",
+            "Share options"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "collections-journey",
+      "title": "Collections Management",
+      "description": "Organize and manage user collections (Premium)",
+      "routes": [
+        {
+          "path": "/collections",
+          "component": "Collections List",
+          "features": [
+            "View all collections",
+            "2x2 mosaic preview",
+            "Search collections"
+          ]
+        },
+        {
+          "path": "/collections/:id",
+          "component": "Collection Detail",
+          "features": [
+            "View all items in collection",
+            "Click item to view asset detail"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "editor-journey",
+      "title": "Canvas Editor",
+      "description": "Design and edit assets (Authenticated)",
+      "routes": [
+        {
+          "path": "/editor",
+          "component": "Canvas Editor",
+          "features": [
+            "Design tools",
+            "Template library",
+            "Real-time preview",
+            "Export options"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "print-journey",
+      "title": "Print on Demand",
+      "description": "Configure and order printed products (Authenticated)",
+      "routes": [
+        {
+          "path": "/print",
+          "component": "Print Home",
+          "features": [
+            "Product showcase",
+            "Hero slider",
+            "Product categories"
+          ]
+        },
+        {
+          "path": "/print/configure/:productId",
+          "component": "Print Configurator",
+          "features": [
+            "Product selection",
+            "Size options",
+            "Pricing",
+            "UGX currency",
+            "Checkout",
+            "Mobile payment integration"
+          ]
+        },
+        {
+          "path": "/print/orders",
+          "component": "Print Orders",
+          "features": [
+            "Order history",
+            "Status tracking",
+            "Download receipts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "academy-journey",
+      "title": "Academy & Learning",
+      "description": "Video courses and educational content",
+      "routes": [
+        {
+          "path": "/academy",
+          "component": "Course List",
+          "features": [
+            "Browse courses",
+            "Course categories",
+            "Difficulty levels"
+          ]
+        },
+        {
+          "path": "/academy/:id",
+          "component": "Course Player",
+          "features": [
+            "Video playback",
+            "Course navigation",
+            "Progress tracking"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "subscription-journey",
+      "title": "Subscription & Pricing",
+      "description": "Upgrade to premium features",
+      "routes": [
+        {
+          "path": "/pricing",
+          "component": "Pricing Page",
+          "features": [
+            "Subscription tiers",
+            "Feature comparison",
+            "CTA buttons"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "workspace-journey",
+      "title": "User Workspace",
+      "description": "Personal dashboard and settings (Authenticated)",
+      "routes": [
+        {
+          "path": "/workspace",
+          "component": "Workspace Dashboard",
+          "features": [
+            "User info",
+            "Recent assets",
+            "Quick actions",
+            "Settings"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "affiliate-journey",
+      "title": "Affiliate Program",
+      "description": "Referral and earnings management (Authenticated)",
+      "routes": [
+        {
+          "path": "/affiliate",
+          "component": "Affiliate Dashboard",
+          "features": [
+            "Earnings stats",
+            "Referral links",
+            "Commission tracking"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "admin-journey",
+      "title": "Admin Management",
+      "description": "Administrative controls (Admin only)",
+      "routes": [
+        {
+          "path": "/admin",
+          "component": "Admin Dashboard",
+          "features": [
+            "User management",
+            "Asset moderation",
+            "Analytics",
+            "Settings"
+          ]
+        }
+      ]
+    }
+  ],
+  "components": {
+    "shared": [
+      {
+        "name": "Header",
+        "features": [
+          "Navigation",
+          "Logo",
+          "User menu",
+          "Theme toggle",
+          "Search"
+        ]
+      },
+      {
+        "name": "Footer",
+        "features": [
+          "Links",
+          "Social media",
+          "Copyright",
+          "Newsletter signup"
+        ]
+      },
+      {
+        "name": "Modal",
+        "features": [
+          "Dialogs",
+          "Forms",
+          "Confirmations"
+        ]
+      },
+      {
+        "name": "Spinner",
+        "features": [
+          "Loading states",
+          "Progress indicators"
+        ]
+      },
+      {
+        "name": "Pagination",
+        "features": [
+          "Navigation",
+          "Page info"
+        ]
+      },
+      {
+        "name": "Search Bar",
+        "features": [
+          "Text input",
+          "Search button",
+          "Auto-suggestions"
+        ]
+      },
+      {
+        "name": "Asset Card",
+        "features": [
+          "Thumbnail",
+          "Title",
+          "Meta info",
+          "Hover effects"
+        ]
+      }
+    ]
+  },
+  "theme": {
+    "mode": "Light & Dark",
+    "colors": {
+      "primary": "#f5820a (Orange)",
+      "text": "#1a1a2e (Dark gray)",
+      "textMuted": "#6c757d (Medium gray)",
+      "background": "#ffffff (Light)",
+      "backgroundDark": "#0f1419 (Dark mode)"
+    },
+    "typography": {
+      "fontFamily": "Lato, sans-serif",
+      "weights": [
+        "400 (Regular)",
+        "600 (Semi-bold)",
+        "700 (Bold)",
+        "800 (Extra-bold)",
+        "900 (Black)"
+      ]
+    },
+    "spacing": "8px base unit",
+    "borderRadius": "8px - 16px",
+    "transitions": "0.2s - 0.3s ease"
+  },
+  "api_endpoints": {
+    "auth": {
+      "POST /api/auth/login": {
+        "body": "{ email, password }",
+        "response": "{ token, user }"
+      },
+      "POST /api/auth/register": {
+        "body": "{ email, password, name }",
+        "response": "{ token, user }"
+      },
+      "POST /api/auth/logout": {
+        "response": "success"
+      }
+    },
+    "assets": {
+      "GET /api/assets": {
+        "params": "q, format, orientation, page",
+        "response": "Asset[]"
+      },
+      "GET /api/assets/:slug": {
+        "response": "Asset with details"
+      },
+      "POST /api/assets/:id/download": {
+        "response": "{ downloadUrl }"
+      }
+    },
+    "collections": {
+      "GET /api/collections": {
+        "response": "Collection[]"
+      },
+      "GET /api/collections/:id": {
+        "response": "Collection with assets"
+      },
+      "POST /api/collections": {
+        "body": "{ name, description }",
+        "response": "Collection"
+      },
+      "POST /api/collections/:id/assets": {
+        "body": "{ assetId }",
+        "response": "success"
+      }
+    },
+    "subscription": {
+      "GET /api/subscription/plans": {
+        "response": "Plan[]"
+      },
+      "POST /api/subscription/subscribe": {
+        "body": "{ planId }",
+        "response": "Subscription"
+      }
+    }
+  },
+  "guards": {
+    "authGuard": "Requires user to be authenticated",
+    "guestGuard": "Only allows unauthenticated users (auth pages)",
+    "premiumGuard": "Requires premium subscription",
+    "adminGuard": "Requires admin role"
+  },
+  "key_features": [
+    "Dark Mode with automatic OS preference detection",
+    "Responsive design (mobile, tablet, desktop)",
+    "Asset marketplace with advanced filtering",
+    "Print on Demand with UGX pricing & mobile payments (MTN/Airtel)",
+    "Collections management for organizing assets",
+    "Canvas editor for design customization",
+    "Video academy with course progression",
+    "Affiliate program with earnings tracking",
+    "Premium subscription tiers",
+    "Real-time search and filtering"
+  ]
+}

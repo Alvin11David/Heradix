@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amarapix UI Design System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 60px 40px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    
+    .header p {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .components-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+    
+    .component-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .component-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    
+    .component-preview {
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #666;
+      font-weight: 500;
+    }
+    
+    .component-content {
+      padding: 24px;
+    }
+    
+    .component-name {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #222;
+    }
+    
+    .component-description {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+    }
+    
+    .stats {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      margin-bottom: 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .stat-item h3 {
+      font-size: 24px;
+      color: #667eea;
+      margin-bottom: 8px;
+    }
+    
+    .stat-item p {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .print-section {
+      page-break-after: always;
+      margin-bottom: 40px;
+    }
+    
+    @media print {
+      .header {
+        background: #667eea;
+      }
+      
+      body {
+        background: white;
+      }
+      
+      .print-section {
+        page-break-after: always;
+      }
+    }
+    
+    .section-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 40px 0 20px 0;
+      color: #222;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 10px;
+    }
+    
+    .footer {
+      background: #222;
+      color: white;
+      padding: 40px;
+      text-align: center;
+      margin-top: 60px;
+    }
+    
+    .footer p {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎨 Amarapix UI Design System</h1>
+    <p>Complete component library and design documentation</p>
+  </div>
+  
+  <div class="container">
+    <div class="stats">
+      <div class="stat-item">
+        <h3>8</h3>
+        <p>Components</p>
+      </div>
+      <div class="stat-item">
+        <h3>1.0</h3>
+        <p>Version</p>
+      </div>
+      <div class="stat-item">
+        <h3>4/25/2026</h3>
+        <p>Generated</p>
+      </div>
+    </div>
+    
+    <div class="print-section">
+      <h2 class="section-title">📦 UI Components Library</h2>
+      
+      <div class="components-grid">
+        
+          <div class="component-card">
+            <div class="component-preview" style="background: #FF6B6B15;">
+              Header Component
+            </div>
+            <div class="component-content">
+              <div class="component-name">Header Component</div>
+              <div class="component-description">Main navigation header with logo and menu</div>
+            </div>
+          </div>
+        
+          <div class="component-card">
+            <div class="component-preview" style="background: #4ECDC415;">
+              Asset Card Component
+            </div>
+            <div class="component-content">
+              <div class="component-name">Asset Card Component</div>
+              <div class="component-description">Card displaying individual assets with image and metadata</div>
+            </div>
+          </div>
+        
+          <div class="component-card">
+            <div class="component-preview" style="background: #45B7D115;">
+              Collection Card
+            </div>
+            <div class="component-content">
+              <div class="component-name">Collection Card</div>
+              <div class="component-description">Card for displaying collection of posters/assets</div>
+            </div>
+          </div>
+        
+          <div class="component-card">
+            <div class="component-preview" style="background: #96CEB415;">
+              Pagination Component
+            </div>
+            <div class="component-content">
+              <div class="component-name">Pagination Component</div>
+              <div class="component-description">Navigation component for multi-page results</div>
+            </div>
+          </div>
+        
+          <div class="component-card">
+            <div class="component-preview" style="background: #FFEAA715;">
+              Search Bar
+            </div>
+            <div class="component-content">
+              <div class="component-name">Search Bar</div>
+              <div class="component-description">Search input component with filters</div>
+            </div>
+          </div>
+        
+          <div class="component-card">
+            <div class="component-preview" style="background: #DDA15E15;">
+              Pricing Card
+            </div>
+            <div class="component-content">
+              <div class="component-name">Pricing Card</div>
+              <div class="component-description">Subscription pricing tier card</div>
+            </div>
+          </div>
+        
+          <div class="component-card">
+            <div class="component-preview" style="background: #BC6C2515;">
+              Modal Dialog
+            </div>
+            <div class="component-content">
+              <div class="component-name">Modal Dialog</div>
+              <div class="component-description">Reusable modal component for forms and confirmations</div>
+            </div>
+          </div>
+        
+          <div class="component-card">
+            <div class="component-preview" style="background: #9D84B715;">
+              Footer Component
+            </div>
+            <div class="component-content">
+              <div class="component-name">Footer Component</div>
+              <div class="component-description">Site footer with links and information</div>
+            </div>
+          </div>
+        
+      </div>
+    </div>
+    
+    <div class="print-section">
+      <h2 class="section-title">🎯 Design System Principles</h2>
+      <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="margin-top: 20px; color: #667eea;">Consistency</h3>
+        <p>All components follow a unified design language for coherent user experience.</p>
+        
+        <h3 style="margin-top: 20px; color: #667eea;">Accessibility</h3>
+        <p>Components are built with accessibility in mind, supporting keyboard navigation and screen readers.</p>
+        
+        <h3 style="margin-top: 20px; color: #667eea;">Responsive</h3>
+        <p>All components are responsive and work seamlessly across all device sizes.</p>
+        
+        <h3 style="margin-top: 20px; color: #667eea;">Performance</h3>
+        <p>Optimized for fast load times and smooth interactions.</p>
+      </div>
+    </div>
+    
+    <div class="print-section">
+      <h2 class="section-title">📱 Responsive Breakpoints</h2>
+      <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr style="background: #f5f5f5;">
+            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Device</th>
+            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Width</th>
+            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Usage</th>
+          </tr>
+          <tr>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;">Mobile</td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;">320px - 640px</td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;">Phones</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;">Tablet</td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;">641px - 1024px</td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;">Tablets</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;">Desktop</td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;">1025px+</td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee;">Computers</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    
+    <div class="print-section">
+      <h2 class="section-title">🚀 Implementation Guide</h2>
+      <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: 'Courier New', monospace;">
+        <p><strong>1. Import Component:</strong></p>
+        <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto;">import { AssetCardComponent } from '@shared/components';</pre>
+        
+        <p style="margin-top: 16px;"><strong>2. Use in Template:</strong></p>
+        <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto;">&lt;app-asset-card [asset]="asset"&gt;&lt;/app-asset-card&gt;</pre>
+        
+        <p style="margin-top: 16px;"><strong>3. Style with CSS Variables:</strong></p>
+        <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; overflow-x: auto;">--primary-color: #667eea;
+--secondary-color: #764ba2;
+--spacing-unit: 8px;</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <p>🎨 Amarapix UI Design System v1.0</p>
+    <p>Generated on 4/25/2026 at 3:33:45 PM</p>
+    <p>© 2026 Amarapix. All rights reserved.</p>
+  </div>
+  
+  <script>
+    console.log('✨ To save as PDF: File → Print → Save as PDF');
+  </script>
+</body>
+</html>

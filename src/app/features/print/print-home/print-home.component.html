@@ -1,0 +1,360 @@
+<!-- ══ PRINT HOME PAGE ══════════════════════════════════════════ -->
+<div class="amx-ph">
+
+  <!-- ── Promo offer banner ──────────────────────────────────── -->
+  <div class="amx-ph__offer" *ngIf="!offerDismissed()">
+    <div class="amx-ph__offer-inner">
+      <div class="amx-ph__offer-badge">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+        </svg>
+        LIMITED OFFER
+      </div>
+      <div class="amx-ph__offer-text">
+        <h2 class="amx-ph__offer-title">Get <span class="amx-ph__offer-highlight">15% OFF</span> Your First Print Order</h2>
+        <p class="amx-ph__offer-sub">Use code <strong>FIRSTPRINT15</strong> at checkout. Valid on all products. No minimum order.</p>
+      </div>
+      <div class="amx-ph__offer-actions">
+        <button class="amx-ph__offer-cta" (click)="startPrinting()">
+          Claim Offer
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <button class="amx-ph__offer-dismiss" (click)="dismissOffer()" aria-label="Dismiss offer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Hero banner ─────────────────────────────────────────── -->
+  <section class="amx-ph__hero">
+    <div class="amx-ph__hero-content">
+      <h1 class="amx-ph__hero-title">Everything you need to<br>draw a crowd</h1>
+      <p class="amx-ph__hero-sub">High Quality &bull; On Time Delivery &bull; Everyday Fair Prices</p>
+      <div class="amx-ph__hero-btns">
+        <button class="amx-ph__hero-cta" (click)="startPrinting()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 6 2 18 2 18 9"/>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          Start Printing Now
+        </button>
+        <button class="amx-ph__hero-sec" (click)="setTab('upload')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Upload Your Design
+        </button>
+      </div>
+      <div class="amx-ph__hero-trust">
+        <div class="amx-ph__trust-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>33-Point Quality Check</span>
+        </div>
+        <div class="amx-ph__trust-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>1–3 Business Day Turnaround</span>
+        </div>
+        <div class="amx-ph__trust-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          <span>Free Delivery Over UGX 150,000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Rotating Branded Samples slider (top-right) ──── -->
+    <div class="amx-ph__hero-slider">
+      <div class="amx-ph__slider-track">
+        <div
+          *ngFor="let slide of heroSlides; let i = index; trackBy: trackByIdx"
+          class="amx-ph__slide"
+          [class.amx-ph__slide--active]="heroSlideIndex() === i"
+          [class.amx-ph__slide--prev]="heroSlideIndex() === ((i + 1) % heroSlides.length)">
+          <img [src]="slide.img" [alt]="slide.label" class="amx-ph__slide-img" loading="lazy"/>
+          <div class="amx-ph__slide-label">{{ slide.label }}</div>
+        </div>
+      </div>
+      <!-- Dot indicators -->
+      <div class="amx-ph__slider-dots">
+        <button
+          *ngFor="let slide of heroSlides; let i = index; trackBy: trackByIdx"
+          class="amx-ph__dot"
+          [class.amx-ph__dot--active]="heroSlideIndex() === i"
+          (click)="goToSlide(i)"
+          [attr.aria-label]="'Go to slide ' + (i + 1)">
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Start / Upload tabs ─────────────────────────────────── -->
+  <section class="amx-ph__action-panel">
+    <div class="amx-ph__tabs">
+      <button class="amx-ph__tab" [class.amx-ph__tab--active]="activeTab() === 'start'" (click)="setTab('start')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"/>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Start Printing
+      </button>
+      <button class="amx-ph__tab" [class.amx-ph__tab--active]="activeTab() === 'upload'" (click)="setTab('upload')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Upload Print / Design
+      </button>
+    </div>
+
+    <!-- Start Printing panel — visual size grid -->
+    <div class="amx-ph__panel" *ngIf="activeTab() === 'start'">
+      <div class="amx-ph__panel-header">
+        <h3 class="amx-ph__panel-title">Choose a size to get started</h3>
+        <p class="amx-ph__panel-sub">Select a common size or choose a product category below</p>
+      </div>
+
+      <!-- Visual size shape grid -->
+      <div class="amx-ph__size-grid">
+        <button
+          *ngFor="let s of quickSizes; trackBy: trackByIdx"
+          class="amx-ph__size-card"
+          [class.amx-ph__size-card--active]="selectedSize() === s.label"
+          (click)="selectSize(s.label)">
+          <!-- Proportional white card shape -->
+          <div class="amx-ph__size-shape-wrap">
+            <div class="amx-ph__size-shape" [ngStyle]="sizeCardStyle(s.width, s.height)">
+              <!-- Custom size shows grid icon -->
+              <svg *ngIf="!s.width" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <!-- Heart icon for standard sizes -->
+              <svg *ngIf="s.width" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/>
+              </svg>
+            </div>
+          </div>
+          <span class="amx-ph__size-label">{{ s.label }}</span>
+        </button>
+      </div>
+
+      <button class="amx-ph__panel-cta" (click)="startPrinting()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="6 9 6 2 18 2 18 9"/>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Continue with {{ selectedSize() }}
+      </button>
+    </div>
+
+    <!-- Upload panel -->
+    <div class="amx-ph__panel" *ngIf="activeTab() === 'upload'">
+      <div class="amx-ph__panel-header">
+        <h3 class="amx-ph__panel-title">Upload your ready print file</h3>
+        <p class="amx-ph__panel-sub">PDF, JPG, PNG, PSD, AI, EPS, TIF, DOCX, ZIP accepted &bull; Max 600 MB</p>
+      </div>
+      <div class="amx-ph__upload-zone">
+        <div class="amx-ph__upload-drop">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <p class="amx-ph__upload-label">Drag &amp; drop your file here</p>
+          <p class="amx-ph__upload-hint">or choose an upload source</p>
+        </div>
+        <div class="amx-ph__upload-sources">
+          <button class="amx-ph__upload-src amx-ph__upload-src--primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            UPLOAD FROM COMPUTER
+          </button>
+          <button class="amx-ph__upload-src">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+            CHOOSE FROM RECENT FILES
+          </button>
+          <button class="amx-ph__upload-src">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0061ff" stroke-width="2">
+              <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+              <path d="M12 12v9"/><path d="m8 17 4 4 4-4"/>
+            </svg>
+            DROPBOX
+          </button>
+          <button class="amx-ph__upload-src">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34a853" stroke-width="2">
+              <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+            </svg>
+            GOOGLE DRIVE
+          </button>
+        </div>
+      </div>
+      <div class="amx-ph__spec-tabs">
+        <div class="amx-ph__spec-tab">
+          <div class="amx-ph__spec-header">
+            <strong>File Specifications</strong>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="amx-ph__spec-body">
+            <p><strong>Recommended formats:</strong> PDF, JPG, PNG, PSD, AI, EPS, TIF, TIFF, DOCX, SVG, ZIP</p>
+            <p><strong>Max file size:</strong> 600 MB</p>
+            <p><strong>Colour space:</strong> CMYK at 300 dpi minimum</p>
+            <p><strong>Bleed:</strong> Add 1/8" (0.125") on each side</p>
+          </div>
+        </div>
+        <div class="amx-ph__spec-tab">
+          <div class="amx-ph__spec-header">
+            <strong>Proofing</strong>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="amx-ph__spec-body">
+            <p>Every file gets a <strong>33-point automated and human review</strong>. Request a PDF proof before printing (may cause delays).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Category nav ────────────────────────────────────────── -->
+  <section class="amx-ph__catalogue">
+    <div class="amx-ph__cat-header">
+      <h2 class="amx-ph__cat-title">Popular Products</h2>
+    </div>
+    <nav class="amx-ph__cat-nav">
+      <button
+        *ngFor="let c of categories; trackBy: trackByCat"
+        class="amx-ph__cat-btn"
+        [class.amx-ph__cat-btn--active]="activeCategory() === c.id"
+        (click)="setCategory(c.id)">
+        <span class="amx-ph__cat-icon">
+          <ng-container [ngSwitch]="c.icon">
+            <ng-container *ngSwitchCase="'business-card'">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 2H8l-2 5h12z"/></svg>
+            </ng-container>
+            <ng-container *ngSwitchCase="'brochure'">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+            </ng-container>
+            <ng-container *ngSwitchCase="'flyer'">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </ng-container>
+            <ng-container *ngSwitchCase="'sticker'">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </ng-container>
+            <ng-container *ngSwitchCase="'banner'">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+            </ng-container>
+            <ng-container *ngSwitchCase="'box'">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            </ng-container>
+            <ng-container *ngSwitchCase="'postcard'">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="14" y1="12" x2="14" y2="20"/></svg>
+            </ng-container>
+            <ng-container *ngSwitchCase="'shirt'">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>
+            </ng-container>
+            <ng-container *ngSwitchDefault>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            </ng-container>
+          </ng-container>
+        </span>
+        {{ c.label }}
+      </button>
+    </nav>
+
+    <!-- Product grid for active category -->
+    <div class="amx-ph__product-grid">
+      <div
+        *ngFor="let p of filteredProducts(); trackBy: trackByProd"
+        class="amx-ph__product-card"
+        (click)="configure(p.id)">
+        <div class="amx-ph__prod-img-wrap">
+          <img [src]="p.imageUrl" [alt]="p.name" class="amx-ph__prod-img" loading="lazy"/>
+          <span class="amx-ph__prod-badge" *ngIf="p.isPremium">Premium</span>
+          <div class="amx-ph__prod-overlay">
+            <button class="amx-ph__prod-overlay-btn" (click)="$event.stopPropagation(); configure(p.id)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 6 2 18 2 18 9"/>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                <rect x="6" y="14" width="12" height="8"/>
+              </svg>
+              Get Started
+            </button>
+          </div>
+        </div>
+        <div class="amx-ph__prod-info">
+          <h3 class="amx-ph__prod-name">{{ p.name }}</h3>
+          <div class="amx-ph__prod-rating">
+            <span *ngFor="let i of starsArray(p.rating)" class="amx-ph__star" [class.amx-ph__star--filled]="i <= p.rating">★</span>
+            <span class="amx-ph__prod-rating-num">{{ p.rating }} ({{ p.reviewCount | number }} Reviews)</span>
+          </div>
+          <p class="amx-ph__prod-tagline">{{ p.tagline }}</p>
+          <p class="amx-ph__prod-price">from <strong>UGX {{ (p.fromPrice * 3700) | number:'1.0-0' }}</strong></p>
+        </div>
+      </div>
+
+      <div class="amx-ph__empty" *ngIf="filteredProducts().length === 0">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <p>No products in this category yet.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Sample gallery ──────────────────────────────────────── -->
+  <section class="amx-ph__samples">
+    <div class="amx-ph__samples-header">
+      <h2 class="amx-ph__samples-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Sample Designs &amp; Inspiration
+      </h2>
+      <p class="amx-ph__samples-sub">See what our customers create</p>
+    </div>
+    <div class="amx-ph__samples-track">
+      <div class="amx-ph__sample-item" *ngFor="let s of samples; trackBy: trackBySample">
+        <img [src]="s.img" [alt]="s.label" class="amx-ph__sample-img" loading="lazy"/>
+        <p class="amx-ph__sample-label">{{ s.label }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Trust strip ─────────────────────────────────────────── -->
+  <section class="amx-ph__trust-strip">
+    <div class="amx-ph__trust-card">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      <div>
+        <strong>High Quality</strong>
+        <p>33-point quality check on every order</p>
+      </div>
+    </div>
+    <div class="amx-ph__trust-card">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <div>
+        <strong>On Time Delivery</strong>
+        <p>1–5 business day turnaround options</p>
+      </div>
+    </div>
+    <div class="amx-ph__trust-card">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f5820a" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      <div>
+        <strong>Everyday Fair Prices</strong>
+        <p>Competitive UGX pricing with volume discounts</p>
+      </div>
+    </div>
+    <div class="amx-ph__trust-card">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div>
+        <strong>Satisfaction Guarantee</strong>
+        <p>100% satisfaction or we'll reprint free</p>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /.amx-ph -->

@@ -1,0 +1,297 @@
+<!-- ── Loading ──────────────────────────────────────────── -->
+<div class="amx-ad-loading" *ngIf="loading()">
+  <amx-spinner [size]="'lg'" />
+  <p>Loading asset…</p>
+</div>
+
+<!-- ── Toast notification ──────────────────────────────── -->
+<div class="amx-ad-toast" [class.amx-ad-toast--visible]="toast()">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+  {{ toast() }}
+</div>
+
+<!-- ══ Main page ══════════════════════════════════════════ -->
+<div class="amx-ad" *ngIf="!loading() && asset()">
+
+  <!-- Topbar breadcrumb -->
+  <div class="amx-ad__topbar">
+    <button class="amx-ad__back" (click)="goBack()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <nav class="amx-ad__breadcrumb">
+      <span (click)="goBack()" class="amx-ad__breadcrumb-link">Marketplace</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <span class="amx-ad__breadcrumb-cur">{{ asset()!.category?.name ?? asset()!.format }}</span>
+    </nav>
+  </div>
+
+  <!-- ── Content grid ─────────────────────────────────── -->
+  <div class="amx-ad__grid">
+
+    <!-- LEFT — thumbnail card -->
+    <div class="amx-ad__preview-card">
+      <!-- Premium ribbon -->
+      <div class="amx-ad__ribbon" *ngIf="asset()!.isPremium">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        Premium
+      </div>
+      <div class="amx-ad__ribbon amx-ad__ribbon--free" *ngIf="!asset()!.isPremium">Free</div>
+
+      <div class="amx-ad__thumb-wrap">
+        <img class="amx-ad__thumb" [src]="asset()!.previewUrl" [alt]="asset()!.title" />
+
+        <!-- hover overlay with quick-peek actions -->
+        <div class="amx-ad__thumb-overlay">
+          <button class="amx-ad__peek-btn" (click)="openEditor()" *ngIf="asset()!.isEditable">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Edit
+          </button>
+        </div>
+      </div>
+
+      <!-- thumbnail meta strip -->
+      <div class="amx-ad__thumb-meta">
+        <span class="amx-ad__format-chip">{{ asset()!.format }}</span>
+        <span class="amx-ad__orientation-chip">{{ asset()!.orientation }}</span>
+        <span class="amx-ad__dl-count">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          {{ asset()!.downloadCount | number }} downloads
+        </span>
+      </div>
+    </div>
+
+    <!-- RIGHT — detail panel -->
+    <div class="amx-ad__panel">
+
+      <!-- Title & tags -->
+      <h1 class="amx-ad__title">{{ asset()!.title }}</h1>
+      <p class="amx-ad__desc" *ngIf="asset()!.description">{{ asset()!.description }}</p>
+
+      <div class="amx-ad__tags" *ngIf="asset()!.tags?.length">
+        <span class="amx-ad__tag" *ngFor="let tag of asset()!.tags">{{ tag.name }}</span>
+      </div>
+
+      <!-- ── Feature checklist ──────────────────────────── -->
+      <ul class="amx-ad__checklist">
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Editable file included</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> For commercial &amp; personal projects</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> No attribution required</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Quality verified</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Instant download</li>
+      </ul>
+
+      <!-- ── Premium notice (if premium) ──────────────────── -->
+      <div class="amx-ad__premium-notice" *ngIf="asset()!.isPremium">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#f5820a"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        <div>
+          <strong>Premium file</strong>
+          <p>This file is exclusively available to premium members. <a class="amx-ad__premium-link" href="/subscription/pricing">Become Premium</a> to download.</p>
+        </div>
+      </div>
+
+      <!-- ── Format selector ───────────────────────────────── -->
+      <div class="amx-ad__formats-section">
+        <p class="amx-ad__formats-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+          FILE TYPE
+        </p>
+        <div class="amx-ad__formats-grid">
+          <button
+            class="amx-ad__format-btn"
+            *ngFor="let f of formats()"
+            [class.amx-ad__format-btn--active]="selectedFormat() === f.type"
+            (click)="selectFormat(f.type)">
+            <span class="amx-ad__format-type">{{ f.type }}</span>
+            <span class="amx-ad__format-size">{{ f.sizeLabel }}</span>
+          </button>
+          <button class="amx-ad__format-btn amx-ad__format-btn--zip" (click)="download()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span class="amx-ad__format-type">DOWNLOAD ZIP</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Main download CTA ──────────────────────────────── -->
+      <button
+        class="amx-ad__download-btn"
+        [class.amx-ad__download-btn--premium]="asset()!.isPremium"
+        [disabled]="downloading()"
+        (click)="download()">
+        <ng-container *ngIf="!downloading()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span *ngIf="!asset()!.isPremium">Download Free</span>
+          <span *ngIf="asset()!.isPremium">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+            Become Premium
+          </span>
+        </ng-container>
+        <amx-spinner *ngIf="downloading()" [size]="'sm'" />
+      </button>
+
+      <!-- ── Share to social ─────────────────────────────────── -->
+      <div class="amx-ad__share-wrap">
+        <button class="amx-ad__share-trigger" (click)="toggleShare()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          Share
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            [style.transform]="shareOpen() ? 'rotate(180deg)' : 'rotate(0)'" style="transition:transform 0.2s">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="amx-ad__share-panel" *ngIf="shareOpen()">
+          <button class="amx-ad__social-btn amx-ad__social-btn--twitter"  (click)="shareToSocial('twitter')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-3.14-1.17c-2.5 0-4.52 2.03-4.52 4.52 0 .35.04.7.11 1.03C7.73 5.37 4.1 3.58 1.67.83a4.52 4.52 0 0 0-.61 2.27c0 1.57.8 2.95 2.01 3.76A4.48 4.48 0 0 1 .96 6v.06a4.53 4.53 0 0 0 3.63 4.43 4.55 4.55 0 0 1-2.04.08 4.53 4.53 0 0 0 4.23 3.14A9.07 9.07 0 0 1 0 19.54a12.8 12.8 0 0 0 6.92 2.03c8.3 0 12.85-6.88 12.85-12.85 0-.2 0-.39-.01-.58A9.17 9.17 0 0 0 23 3z"/></svg>
+            Twitter / X
+          </button>
+          <button class="amx-ad__social-btn amx-ad__social-btn--facebook" (click)="shareToSocial('facebook')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            Facebook
+          </button>
+          <button class="amx-ad__social-btn amx-ad__social-btn--pinterest" (click)="shareToSocial('pinterest')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.08 3.16 9.44 7.63 11.22.83-1.59 1.32-3.37 1.32-5.22 0-.53-.05-1.05-.14-1.55.27.53.55 1.08.82 1.55.61 1.08 2.01 1.08 2.62 0C13.7 15.8 15 13.03 15 10c0-4.42-3.58-8-8-8s-8 3.58-8 8c0 3.27 1.98 6.09 4.83 7.38A11.95 11.95 0 0 1 0 12C0 5.37 5.37 0 12 0z"/></svg>
+            Pinterest
+          </button>
+          <button class="amx-ad__social-btn amx-ad__social-btn--whatsapp" (click)="shareToSocial('whatsapp')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.26-.13-1.53-.76-1.77-.84-.23-.09-.4-.13-.57.13-.17.26-.66.84-.81 1.02-.15.17-.3.19-.56.06-.26-.13-1.1-.41-2.1-1.3-.77-.69-1.3-1.54-1.45-1.8-.15-.26-.02-.4.11-.53.12-.11.26-.3.39-.45.13-.15.17-.26.26-.43.09-.17.04-.32-.02-.45-.06-.13-.57-1.37-.78-1.87-.2-.5-.41-.43-.57-.44l-.48-.01c-.17 0-.44.06-.67.3-.23.24-.87.85-.87 2.08s.9 2.41 1.02 2.58c.13.17 1.77 2.7 4.28 3.79.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.49-.61 1.7-1.2.21-.59.21-1.1.15-1.2-.06-.1-.23-.16-.49-.28z"/><path d="M11.99 0C5.37 0 0 5.37 0 12c0 2.13.55 4.13 1.52 5.86L0 24l6.3-1.49A11.95 11.95 0 0 0 12 24c6.63 0 12-5.37 12-12S18.62 0 11.99 0zM12 22c-1.88 0-3.63-.5-5.14-1.37l-.37-.22-3.74.88.93-3.62-.24-.38A9.95 9.95 0 0 1 2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10z"/></svg>
+            WhatsApp
+          </button>
+          <button class="amx-ad__social-btn amx-ad__social-btn--copy" (click)="copyLink()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copy Link
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /.amx-ad__panel -->
+  </div><!-- /.amx-ad__grid -->
+
+  <!-- ══ Quick Actions strip (horizontal row below grid) ══════ -->
+  <div class="amx-ad__actions-strip" *ngIf="asset()">
+    <p class="amx-ad__qa-label">Quick Actions</p>
+    <div class="amx-ad__qa-row">
+
+      <!-- Edit in Canvas -->
+      <button class="amx-ad__qa-btn" (click)="openEditor()" *ngIf="asset()!.isEditable">
+        <span class="amx-ad__qa-icon amx-ad__qa-icon--blue">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </span>
+        <span class="amx-ad__qa-text">
+          <strong>Edit Design</strong>
+          <small>Open in canvas editor</small>
+        </span>
+      </button>
+
+      <!-- Print -->
+      <button class="amx-ad__qa-btn" (click)="openPrint()">
+        <span class="amx-ad__qa-icon amx-ad__qa-icon--indigo">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+        </span>
+        <span class="amx-ad__qa-text">
+          <strong>Print</strong>
+          <small>Order a print copy</small>
+        </span>
+      </button>
+
+      <!-- Re-edit with AI -->
+      <button class="amx-ad__qa-btn" (click)="openEditor()">
+        <span class="amx-ad__qa-icon amx-ad__qa-icon--purple">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a5 5 0 0 1 5 5c0 2.5-1.5 4.6-3.5 5.5L15 21H9l1.5-8.5C8.5 11.6 7 9.5 7 7a5 5 0 0 1 5-5z"/>
+            <line x1="9" y1="21" x2="15" y2="21"/>
+          </svg>
+        </span>
+        <span class="amx-ad__qa-text">
+          <strong>Re-edit with AI</strong>
+          <small>Redesign using AI</small>
+        </span>
+      </button>
+
+      <!-- Remove Background -->
+      <button class="amx-ad__qa-btn" (click)="removeBackground()" [disabled]="bgRemoving()">
+        <span class="amx-ad__qa-icon amx-ad__qa-icon--green">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/>
+            <line x1="15" y1="3" x2="15" y2="21"/>
+          </svg>
+        </span>
+        <span class="amx-ad__qa-text">
+          <strong>Remove BG</strong>
+          <small>{{ bgRemoving() ? 'Processing…' : 'Remove background' }}</small>
+        </span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ══ Related / Similar designs ════════════════════════ -->
+  <section class="amx-ad__related">
+    <div class="amx-ad__related-header">
+      <h2 class="amx-ad__related-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Similar Designs
+      </h2>
+      <a class="amx-ad__related-see-all" href="/marketplace">See all →</a>
+    </div>
+
+    <div class="amx-ad__related-scroll">
+      <div class="amx-ad__related-track">
+        <div class="amx-ad__related-item" *ngFor="let a of similar()">
+          <div class="amx-ad__rel-thumb">
+            <img [src]="a.thumbnailUrl" [alt]="a.title" loading="lazy" />
+            <span class="amx-ad__rel-ribbon" *ngIf="a.isPremium">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+            </span>
+            <div class="amx-ad__rel-overlay">
+              <button class="amx-ad__rel-btn" (click)="downloadAsset(a)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              </button>
+              <button class="amx-ad__rel-btn" (click)="openEditor()" *ngIf="a.isEditable">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="amx-ad__rel-info">
+            <p class="amx-ad__rel-name">{{ a.title }}</p>
+            <span class="amx-ad__rel-format">{{ a.format }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /.amx-ad -->

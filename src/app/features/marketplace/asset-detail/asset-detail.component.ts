@@ -1,0 +1,266 @@
+import {
+  Component, ChangeDetectionStrategy, inject, signal, computed, OnInit,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { catchError, of, timeout } from 'rxjs';
+import { MarketplaceService } from '../marketplace.service';
+import { Asset, AssetFormat } from '../../../core/models/asset.model';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+
+export interface DownloadFormat {
+  type: string;      // e.g. 'PSD', 'AI', 'EPS', 'JPG', 'PNG', 'VECTOR', 'ZIP'
+  sizeLabel: string; // e.g. '3.44 MB', '458 KB'
+  isPrimary?: boolean;
+}
+
+@Component({
+  selector: 'amx-asset-detail',
+  standalone: true,
+  imports: [CommonModule, SpinnerComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './asset-detail.component.html',
+  styleUrl: './asset-detail.component.scss',
+})
+export class AssetDetailComponent implements OnInit {
+  private readonly route  = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly svc    = inject(MarketplaceService);
+
+  asset   = signal<Asset | null>(null);
+  similar = signal<Asset[]>([]);
+  loading = signal(true);
+  downloading = signal(false);
+  selectedFormat = signal<string>('');
+  bgRemoving = signal(false);
+  shareOpen  = signal(false);
+  toast      = signal<string>('');
+
+  /** Derive available download formats from asset format */
+  formats = computed<DownloadFormat[]>(() => {
+    const a = this.asset();
+    if (!a) return [];
+    const mb = (bytes: number) =>
+      bytes >= 1_048_576
+        ? `${(bytes / 1_048_576).toFixed(2)} MB`
+        : `${Math.round(bytes / 1024)} KB`;
+
+    const base = mb(a.fileSizeBytes);
+
+    switch (a.format) {
+      case 'PSD':
+        return [
+          { type: 'PSD', sizeLabel: base, isPrimary: true },
+          { type: 'JPG', sizeLabel: mb(a.fileSizeBytes * 0.12) },
+          { type: 'PNG', sizeLabel: mb(a.fileSizeBytes * 0.18) },
+        ];
+      case 'AI':
+        return [
+          { type: 'AI',  sizeLabel: base, isPrimary: true },
+          { type: 'EPS', sizeLabel: mb(a.fileSizeBytes * 1.4) },
+          { type: 'SVG', sizeLabel: mb(a.fileSizeBytes * 0.3) },
+          { type: 'JPG', sizeLabel: mb(a.fileSizeBytes * 0.1) },
+        ];
+      case 'VECTOR':
+        return [
+          { type: 'SVG', sizeLabel: base, isPrimary: true },
+          { type: 'EPS', sizeLabel: mb(a.fileSizeBytes * 1.2) },
+          { type: 'PDF', sizeLabel: mb(a.fileSizeBytes * 0.9) },
+          { type: 'PNG', sizeLabel: mb(a.fileSizeBytes * 0.5) },
+          { type: 'ZIP (All)', sizeLabel: mb(a.fileSizeBytes * 2.1) },
+        ];
+      case 'PHOTO':
+        return [
+          { type: 'JPG', sizeLabel: base, isPrimary: true },
+          { type: 'PNG', sizeLabel: mb(a.fileSizeBytes * 1.5) },
+        ];
+      case 'VIDEO':
+        return [
+          { type: 'MP4', sizeLabel: base, isPrimary: true },
+          { type: 'MOV', sizeLabel: mb(a.fileSizeBytes * 1.1) },
+        ];
+      default:
+        return [{ type: a.format, sizeLabel: base, isPrimary: true }];
+    }
+  });
+
+  ngOnInit(): void {
+    const slug  = this.route.snapshot.paramMap.get('slug')!;
+    const thumb = this.route.snapshot.queryParamMap.get('thumb');
+    const label = this.route.snapshot.queryParamMap.get('label');
+
+    // Use timeout of 8 seconds, then fallback to mock data
+    this.svc.getAssetBySlug(slug).pipe(
+      timeout(8000),
+      catchError(() => of(this.buildMockAsset(slug)))
+    ).subscribe((a) => {
+      // Override preview image and title with what was actually clicked
+      if (thumb) { a = { ...a, previewUrl: thumb, thumbnailUrl: thumb }; }
+      if (label) { a = { ...a, title: label }; }
+      this.asset.set(a);
+      this.loading.set(false);
+      this.selectedFormat.set(a.format);
+      
+      // Load similar assets with timeout
+      this.svc.getSimilarAssets(a.id).pipe(
+        timeout(5000),
+        catchError(() => of(this.buildMockSimilar(slug)))
+      ).subscribe((s) => this.similar.set(s.length ? s : this.buildMockSimilar(slug)));
+    });
+  }
+
+  /** Produce a display-ready mock asset when the API has no record for the slug */
+  private buildMockAsset(slug: string): Asset {
+    const slugMap: Record<string, Partial<Asset>> = {
+      'modern-business-card':       { id: 'a1', title: 'Modern Business Card',          format: 'PSD',    fileSizeBytes: 8_200_000,  isPremium: false, isEditable: true },
+      'instagram-branding-kit':     { id: 'a2', title: 'Instagram Branding Kit',         format: 'PSD',    fileSizeBytes: 12_400_000, isPremium: true,  isEditable: true },
+      'vintage-flyer-pack':         { id: 'a3', title: 'Vintage Flyer Pack',             format: 'AI',     fileSizeBytes: 5_600_000,  isPremium: false, isEditable: true },
+      'dark-abstract-backgrounds':  { id: 'a4', title: 'Dark Abstract Backgrounds',      format: 'PHOTO',  fileSizeBytes: 18_900_000, isPremium: true,  isEditable: false },
+      'phone-mockup-collection':    { id: 'a5', title: 'Phone Mockup Collection',         format: 'PSD',    fileSizeBytes: 9_100_000,  isPremium: false, isEditable: true },
+      'explainer-video-motion-pack':{ id: 'a6', title: 'Explainer Video Motion Pack',    format: 'VIDEO',  fileSizeBytes: 45_000_000, isPremium: true,  isEditable: false },
+      'minimalist-pitch-deck':      { id: 'a7', title: 'Minimalist Pitch Deck',          format: 'PPT',    fileSizeBytes: 3_200_000,  isPremium: false, isEditable: true },
+      'ai-landscape-pack':          { id: 'a8', title: 'AI Landscape Pack',              format: 'AI_GEN', fileSizeBytes: 22_000_000, isPremium: true,  isEditable: false },
+    };
+    const overrides = slugMap[slug] ?? {};
+    return {
+      id:            overrides.id    ?? slug,
+      title:         overrides.title ?? slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      slug,
+      description:   'A high-quality, professionally designed asset ready for your next creative project. Fully customisable and optimised for digital and print use.',
+      format:        overrides.format       ?? 'PSD',
+      orientation:   'LANDSCAPE',
+      isPremium:     overrides.isPremium    ?? false,
+      isEditable:    overrides.isEditable   ?? true,
+      previewUrl:    `https://picsum.photos/seed/${slug}/900/675`,
+      thumbnailUrl:  `https://picsum.photos/seed/${slug}/400/300`,
+      fileSizeBytes: overrides.fileSizeBytes ?? 7_340_000,
+      downloadCount: Math.floor(Math.random() * 8000) + 500,
+      status:        'ACTIVE',
+      categoryId:    'cat-1',
+      category:      { id: 'cat-1', name: 'Templates', slug: 'templates' },
+      tags: [
+        { id: 't1', name: 'Design' },
+        { id: 't2', name: 'Creative' },
+        { id: 't3', name: slug.split('-')[0] },
+      ],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  /** Build a list of 8 related/similar mock assets for display in the Related section */
+  private buildMockSimilar(currentSlug: string): Asset[] {
+    const items: { slug: string; title: string; format: AssetFormat; isPremium: boolean; isEditable: boolean }[] = [
+      { slug: 'modern-business-card',        title: 'Modern Business Card',       format: 'PSD',    isPremium: false, isEditable: true  },
+      { slug: 'instagram-branding-kit',      title: 'Instagram Branding Kit',      format: 'PSD',    isPremium: true,  isEditable: true  },
+      { slug: 'vintage-flyer-pack',          title: 'Vintage Flyer Pack',          format: 'AI',     isPremium: false, isEditable: true  },
+      { slug: 'dark-abstract-backgrounds',   title: 'Dark Abstract Backgrounds',   format: 'PHOTO',  isPremium: true,  isEditable: false },
+      { slug: 'phone-mockup-collection',     title: 'Phone Mockup Collection',     format: 'PSD',    isPremium: false, isEditable: true  },
+      { slug: 'explainer-video-motion-pack', title: 'Explainer Video Motion Pack', format: 'VIDEO',  isPremium: true,  isEditable: false },
+      { slug: 'minimalist-pitch-deck',       title: 'Minimalist Pitch Deck',       format: 'PPT',    isPremium: false, isEditable: true  },
+      { slug: 'ai-landscape-pack',           title: 'AI Landscape Pack',           format: 'AI_GEN', isPremium: true,  isEditable: false },
+    ];
+    const cat = { id: 'cat-1', name: 'Templates', slug: 'templates' };
+    return items
+      .filter(i => i.slug !== currentSlug)
+      .slice(0, 6)
+      .map((i, idx) => ({
+        id:            `sim-${idx + 1}`,
+        title:         i.title,
+        slug:          i.slug,
+        description:   'A professionally designed asset ready for your next creative project.',
+        format:        i.format,
+        orientation:   'LANDSCAPE' as const,
+        isPremium:     i.isPremium,
+        isEditable:    i.isEditable,
+        previewUrl:    `https://picsum.photos/seed/${i.slug}/400/300`,
+        thumbnailUrl:  `https://picsum.photos/seed/${i.slug}/400/300`,
+        fileSizeBytes: 6_000_000,
+        downloadCount: Math.floor(Math.random() * 5000) + 200,
+        status:        'ACTIVE' as const,
+        categoryId:    'cat-1',
+        category:      cat,
+        tags:          [{ id: 't1', name: 'Design' }],
+        createdAt:     new Date().toISOString(),
+        updatedAt:     new Date().toISOString(),
+      }));
+  }
+
+  selectFormat(type: string): void {
+    this.selectedFormat.set(type);
+  }
+
+  download(): void {
+    if (!this.asset() || this.downloading()) return;
+    this.downloading.set(true);
+    this.svc.requestDownload(this.asset()!.id).subscribe({
+      next: ({ signedUrl }) => {
+        window.open(signedUrl, '_blank');
+        this.downloading.set(false);
+        this.showToast('Download started!');
+      },
+      error: (err) => {
+        this.downloading.set(false);
+        alert(err.message);
+      },
+    });
+  }
+
+  downloadAsset(asset: Asset): void {
+    this.svc.requestDownload(asset.id).subscribe({
+      next: ({ signedUrl }) => window.open(signedUrl, '_blank'),
+    });
+  }
+
+  openEditor(): void {
+    this.router.navigate(['/editor'], { queryParams: { assetId: this.asset()!.id } });
+  }
+
+  openPrint(): void {
+    this.router.navigate(['/print'], { queryParams: { assetId: this.asset()!.id } });
+  }
+
+  removeBackground(): void {
+    if (this.bgRemoving()) return;
+    this.bgRemoving.set(true);
+    setTimeout(() => {
+      this.bgRemoving.set(false);
+      this.showToast('Background removed! Opening editor…');
+      this.openEditor();
+    }, 1800);
+  }
+
+  toggleShare(): void {
+    this.shareOpen.update(v => !v);
+  }
+
+  shareToSocial(platform: string): void {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(this.asset()?.title ?? '');
+    const links: Record<string, string> = {
+      twitter:   `https://twitter.com/intent/tweet?url=${url}&text=${title}`,
+      facebook:  `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+      pinterest: `https://pinterest.com/pin/create/button/?url=${url}&description=${title}`,
+      linkedin:  `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+      whatsapp:  `https://api.whatsapp.com/send?text=${title}%20${url}`,
+    };
+    if (links[platform]) window.open(links[platform], '_blank', 'width=600,height=450');
+    this.shareOpen.set(false);
+  }
+
+  copyLink(): void {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      this.showToast('Link copied to clipboard!');
+      this.shareOpen.set(false);
+    });
+  }
+
+  goBack(): void {
+    this.router.navigate(['/marketplace']);
+  }
+
+  private showToast(msg: string): void {
+    this.toast.set(msg);
+    setTimeout(() => this.toast.set(''), 3000);
+  }
+}
