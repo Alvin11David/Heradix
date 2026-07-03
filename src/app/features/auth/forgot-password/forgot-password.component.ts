@@ -4,12 +4,13 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ThemeService } from '../../../core/theme/theme.service';
+import { CircularTextComponent } from '../../../shared/components/circular-text/circular-text.component';
 import { SplashCursorComponent } from '../../../shared/components/splash-cursor/splash-cursor.component';
 
 @Component({
   selector: 'amx-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, SplashCursorComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, CircularTextComponent, SplashCursorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="auth-page">
@@ -154,11 +155,15 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
 
       <div class="auth-panel auth-panel--promo">
 
+        <div class="auth-ambient">
+          <amx-circular-text text="Amarapix" [spinDuration]="24" onHover="speedUp" />
+        </div>
+
         <div class="auth-slider">
           <div class="auth-slider__track" [style.transform]="'translateX(-' + (activeSlide() * 100) + '%)'">
             <div class="auth-slide" *ngFor="let slide of slides">
               <div class="auth-slide__icon">
-                <img [src]="isDark() ? 'assets/logo/whitelogo.png' : 'assets/logo/blacklogo.png'" alt="" class="auth-slide__icon-img" />
+                <img src="assets/logo/whitelogo.png" alt="" class="auth-slide__icon-img" />
               </div>
               <h2 class="auth-promo__title">{{ slide.title }} <span>{{ slide.highlight }}</span></h2>
               <p class="auth-promo__sub">{{ slide.sub }}</p>

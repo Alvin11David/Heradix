@@ -442,3 +442,13 @@
     max-width: 300px;
   }
 }
+
+[data-theme="light"] .auth-promo {
+  &__title {
+    color: #1a1a1a;
+  }
+
+  &__sub {
+    color: rgba(0, 0, 0, 0.7);
+  }
+}

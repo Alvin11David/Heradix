@@ -5,11 +5,24 @@
   <title>AmarapixClientUI</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <!-- Brand fonts -->
+  <link rel="icon" type="image/png" href="assets/logo/blacklogo.png" id="favicon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>
+    (function() {
+      const favicon = document.getElementById('favicon');
+      const updateFavicon = () => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || 
+                       window.matchMedia('(prefers-color-scheme: dark)').matches;
+        favicon.href = isDark ? 'assets/logo/whitelogo.png' : 'assets/logo/blacklogo.png';
+      };
+      updateFavicon();
+      const observer = new MutationObserver(updateFavicon);
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFavicon);
+    })();
+  </script>
 </head>
 <body>
   <app-root></app-root>
