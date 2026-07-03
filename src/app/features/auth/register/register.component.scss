@@ -1,7 +1,3 @@
-// ════════════════════════════════════════════════════════
-//  AUTH PAGE – Register (split-screen immersive)
-// ════════════════════════════════════════════════════════
-
 .auth-page {
   min-height: 100vh;
   display: flex;
@@ -21,7 +17,6 @@
   }
 }
 
-// ── Panel container ─────────────────────────────────────
 .auth-panels {
   display: flex;
   border-radius: 24px;
@@ -101,7 +96,6 @@
   to   { opacity: 1; transform: translateX(0); }
 }
 
-// ── Logo ─────────────────────────────────────────────────
 .auth-logo {
   display: flex;
   align-items: center;
@@ -136,7 +130,6 @@
   &__pix { color: var(--amx-orange); }
 }
 
-// ── Headings ──────────────────────────────────────────────
 .auth-title {
   font-family: 'Lato', sans-serif;
   font-size: 24px;
@@ -152,7 +145,6 @@
   margin: 0 0 28px;
 }
 
-// ── Form ─────────────────────────────────────────────────
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -161,7 +153,6 @@
   max-width: 440px;
 }
 
-// ── Field ─────────────────────────────────────────────────
 .auth-field {
   display: flex;
   flex-direction: column;
@@ -219,7 +210,6 @@
   }
 }
 
-// ── Buttons ───────────────────────────────────────────────
 .auth-btn {
   display: flex;
   align-items: center;
@@ -256,7 +246,6 @@
   }
 }
 
-// ── Divider ───────────────────────────────────────────────
 .auth-divider {
   display: flex;
   align-items: center;
@@ -281,14 +270,12 @@
   }
 }
 
-// ── Error ─────────────────────────────────────────────────
 .auth-error {
   font-size: 13px;
   color: var(--amx-danger);
   margin: 0;
 }
 
-// ── Footer link ───────────────────────────────────────────
 .auth-footer-link {
   margin-top: 24px;
   font-size: 13.5px;
@@ -304,7 +291,6 @@
   &:hover { text-decoration: underline; }
 }
 
-// ── Ambient Circular Text ──────────────────────────────────
 .auth-ambient {
   position: absolute;
   top: 50%;
@@ -324,7 +310,6 @@
   }
 }
 
-// ── Promo Slider ──────────────────────────────────────────
 .auth-slider {
   width: 100%;
   display: flex;

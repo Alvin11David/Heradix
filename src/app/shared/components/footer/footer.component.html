@@ -1,25 +1,48 @@
 <footer class="amx-footer">
 
-  <!-- ── Main row ── -->
-  <div class="amx-footer__main">
+  <!-- ═══ Wavy top edge ═══ -->
+  <svg class="amx-footer__wave" viewBox="0 0 1440 55" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,0 L 1440,0 L 1440,45 C 1330,15 1240,15 1160,40 C 1070,8 980,8 920,45 C 860,20 770,20 700,48 C 630,10 540,10 480,42 C 420,18 330,18 250,38 C 170,25 80,25 0,40 Z"/>
+  </svg>
 
-    <!-- Brand column -->
-    <div class="amx-footer__brand">
-      <div class="amx-footer__logo">
-        <img src="https://i.postimg.cc/grq8S5cK/Asset-1-2x.png"
-             alt="Amarapix"
-             class="amx-footer__logo-img"/>
+  <!-- ═══ Brand masthead ═══ -->
+  <div class="amx-footer__masthead">
+    <div class="amx-footer__inner">
+      <div class="amx-footer__brand-row">
+        <div class="amx-footer__brand-group">
+          <img src="https://i.postimg.cc/grq8S5cK/Asset-1-2x.png"
+               alt="Amarapix"
+               class="amx-footer__brand-logo"/>
+          <span class="amx-footer__brand-name">AMARAPIX</span>
+        </div>
+        <p class="amx-footer__brand-tagline">
+          Premium graphic design assets for creators, designers &amp; agencies.
+        </p>
       </div>
-      <p class="amx-footer__tagline">
-        Premium graphic design assets for creators,<br>
-        designers and agencies seeking quality and agility.
-      </p>
-      <a routerLink="/pricing" class="amx-footer__cta">
-        See plans &nbsp;→
-      </a>
     </div>
+  </div>
 
-    <!-- Link columns -->
+  <!-- ═══ Trusted by marquee ═══ -->
+  <div class="amx-footer__trusted">
+    <div class="amx-footer__inner">
+      <p class="amx-footer__trusted-label">TRUSTED BY CREATORS AT</p>
+      <div class="amx-footer__trusted-viewport">
+        <div class="amx-footer__trusted-track">
+          <span class="amx-footer__trusted-item" *ngFor="let brand of trustedBy">
+            <img [src]="brand.logo" alt="" class="amx-footer__trusted-logo"/>
+            <span class="amx-footer__trusted-name">{{ brand.name }}</span>
+          </span>
+          <span class="amx-footer__trusted-item" *ngFor="let brand of trustedBy">
+            <img [src]="brand.logo" alt="" class="amx-footer__trusted-logo"/>
+            <span class="amx-footer__trusted-name">{{ brand.name }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Link columns ═══ -->
+  <div class="amx-footer__inner">
     <div class="amx-footer__cols">
       <div class="amx-footer__col" *ngFor="let col of columns">
         <h4 class="amx-footer__col-heading">{{ col.heading }}</h4>
@@ -30,36 +53,32 @@
         </ul>
       </div>
     </div>
-
   </div>
 
-  <!-- ── Divider ── -->
-  <div class="amx-footer__divider"></div>
-
-  <!-- ── Social row ── -->
-  <div class="amx-footer__social-bar">
-    <p class="amx-footer__follow-label">FOLLOW AMARAPIX</p>
-    <div class="amx-footer__socials">
-      <a
-        *ngFor="let s of socials"
-        [href]="s.href"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="amx-footer__social-btn"
-        [attr.aria-label]="s.label">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-          <path [attr.d]="s.path"/>
-        </svg>
-      </a>
+  <!-- ═══ Social bar ═══ -->
+  <div class="amx-footer__inner">
+    <div class="amx-footer__social-row">
+      <div class="amx-footer__socials">
+        <a *ngFor="let s of socials"
+           [href]="s.href"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="amx-footer__social-btn"
+           [attr.aria-label]="s.label">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path [attr.d]="s.path"/>
+          </svg>
+        </a>
+      </div>
     </div>
   </div>
 
-  <!-- ── Bottom bar ── -->
+  <!-- ═══ Bottom bar ═══ -->
   <div class="amx-footer__bottom">
-    <p class="amx-footer__copy">&copy; {{ year }} Amarapix — All rights reserved</p>
-    <p class="amx-footer__legal-text">
-      AMARAPIX MEDIA LTD &nbsp;·&nbsp; A Premium Digital Asset Platform
-    </p>
+    <div class="amx-footer__inner">
+      <p class="amx-footer__copy">&copy; {{ year }} Amarapix — All rights reserved</p>
+      <p class="amx-footer__legal-text">AMARAPIX MEDIA LTD &nbsp;·&nbsp; A Premium Digital Asset Platform</p>
+    </div>
   </div>
 
 </footer>

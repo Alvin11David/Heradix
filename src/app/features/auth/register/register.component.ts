@@ -17,10 +17,8 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
 
       <div class="auth-panels">
 
-      <!-- ═══ LEFT PANEL ═══ -->
       <div class="auth-panel auth-panel--form">
 
-        <!-- Logo -->
         <div class="auth-logo">
           <img src="https://i.postimg.cc/zD47BZ94/Asset-1-2x.png"
                alt="Amarapix"
@@ -38,7 +36,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
 
         <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
 
-          <!-- Full Name -->
+
           <div class="auth-field">
             <label class="auth-field__label">Full Name</label>
             <div class="auth-field__wrap">
@@ -55,7 +53,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
             </div>
           </div>
 
-          <!-- Email -->
+
           <div class="auth-field">
             <label class="auth-field__label">Email</label>
             <div class="auth-field__wrap">
@@ -73,7 +71,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
             </div>
           </div>
 
-          <!-- Password -->
+
           <div class="auth-field">
             <label class="auth-field__label">Password</label>
             <div class="auth-field__wrap">
@@ -126,7 +124,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
 
       </div>
 
-      <!-- ═══ RIGHT PANEL – Promo Slider ═══ -->
+
       <div class="auth-panel auth-panel--promo">
 
         <div class="auth-ambient">

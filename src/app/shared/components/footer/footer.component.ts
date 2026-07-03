@@ -13,6 +13,19 @@ import { RouterLink } from '@angular/router';
 export class FooterComponent {
   readonly year = new Date().getFullYear();
 
+  readonly trustedBy = [
+    { name: 'Nike',     logo: 'https://cdn.simpleicons.org/nike' },
+    { name: 'Spotify',  logo: 'https://cdn.simpleicons.org/spotify' },
+    { name: 'Google',   logo: 'https://cdn.simpleicons.org/google' },
+    { name: 'Disney',   logo: 'https://cdn.simpleicons.org/disney' },
+    { name: 'Adobe',    logo: 'https://cdn.simpleicons.org/adobe' },
+    { name: 'Figma',    logo: 'https://cdn.simpleicons.org/figma' },
+    { name: 'Netflix',  logo: 'https://cdn.simpleicons.org/netflix' },
+    { name: 'Samsung',  logo: 'https://cdn.simpleicons.org/samsung' },
+    { name: 'Sony',     logo: 'https://cdn.simpleicons.org/sony' },
+    { name: 'Uber',     logo: 'https://cdn.simpleicons.org/uber' },
+  ];
+
   readonly columns = [
     {
       heading: 'Company',

@@ -14,10 +14,8 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
   template: `
     <div class="auth-page">
 
-      <!-- ═══ LEFT PANEL ═══ -->
       <div class="auth-panel auth-panel--form">
 
-        <!-- Logo -->
         <div class="auth-logo">
           <img src="https://i.postimg.cc/zD47BZ94/Asset-1-2x.png"
                alt="Amarapix"
@@ -29,7 +27,6 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
           </span>
         </div>
 
-        <!-- STEP 1: Enter email -->
         <ng-container *ngIf="step() === 1">
           <h1 class="auth-title">Forgot Password?</h1>
           <p class="auth-sub">Enter your email and we'll send you a 6-digit reset code</p>
@@ -61,14 +58,12 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
           </form>
         </ng-container>
 
-        <!-- STEP 2: Enter 6-digit code only -->
         <ng-container *ngIf="step() === 2">
           <h1 class="auth-title">Check your email</h1>
           <p class="auth-sub">We sent a 6-digit code to <strong>{{ emailForm.value.email }}</strong>. Enter it below to continue.</p>
 
           <form [formGroup]="otpForm" (ngSubmit)="verifyOtp()" class="auth-form">
 
-            <!-- OTP inputs -->
             <div class="auth-otp">
               <input *ngFor="let i of [0,1,2,3,4,5]; let idx = index"
                 class="auth-otp__box"
@@ -95,7 +90,6 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
           </form>
         </ng-container>
 
-        <!-- STEP 3: New password -->
         <ng-container *ngIf="step() === 3">
           <h1 class="auth-title">Set new password</h1>
           <p class="auth-sub">Choose a strong password for your account.</p>
@@ -136,7 +130,6 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
           </form>
         </ng-container>
 
-        <!-- STEP 4: Success -->
         <ng-container *ngIf="step() === 4">
           <div class="auth-success">
             <div class="auth-success__icon">
@@ -158,7 +151,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
 
       </div>
 
-      <!-- ═══ RIGHT PANEL – Promo Slider ═══ -->
+
       <div class="auth-panel auth-panel--promo">
 
         <div class="auth-slider">
@@ -241,7 +234,6 @@ export class ForgotPasswordComponent {
     if (this.emailForm.invalid) return;
     this.loading.set(true);
     this.error.set('');
-    // TODO: wire to authService.forgotPassword(email)
     setTimeout(() => {
       this.loading.set(false);
       this.step.set(2);
@@ -269,7 +261,6 @@ export class ForgotPasswordComponent {
     if (this.otpForm.invalid) return;
     this.loading.set(true);
     this.error.set('');
-    // TODO: wire to authService.verifyOtp(code)
     setTimeout(() => {
       this.loading.set(false);
       this.step.set(3);
@@ -280,7 +271,6 @@ export class ForgotPasswordComponent {
     if (this.passwordForm.invalid) return;
     this.loading.set(true);
     this.error.set('');
-    // TODO: wire to authService.resetPassword(newPassword)
     setTimeout(() => {
       this.loading.set(false);
       this.step.set(4);

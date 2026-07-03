@@ -1,8 +1,3 @@
-// ════════════════════════════════════════════════════════════
-//  AUTH PAGE — Login (split-screen immersive)
-// ════════════════════════════════════════════════════════════
-
-// ── Page wrapper ────────────────────────────────────────────
 .auth-page {
   min-height: 100vh;
   display: flex;
@@ -12,7 +7,6 @@
   padding: 40px 24px;
   position: relative;
 
-  // Atmospheric glow
   &::before {
     content: '';
     position: fixed;
@@ -23,7 +17,6 @@
   }
 }
 
-// ── Panel container ─────────────────────────────────────────
 .auth-panels {
   display: flex;
   border-radius: 24px;
@@ -65,7 +58,6 @@
     overflow: hidden;
     animation: auth-promo-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 
-    // Ornamental circles
     &::before {
       content: '';
       position: absolute;
@@ -94,7 +86,6 @@
   }
 }
 
-// ── Entrance animations ─────────────────────────────────────
 @keyframes auth-form-in {
   from { opacity: 0; transform: translateX(-24px); }
   to   { opacity: 1; transform: translateX(0); }
@@ -105,7 +96,6 @@
   to   { opacity: 1; transform: translateX(0); }
 }
 
-// ── Logo ────────────────────────────────────────────────────
 .auth-logo {
   display: flex;
   align-items: center;
@@ -142,7 +132,6 @@
   &__pix { color: var(--amx-orange); }
 }
 
-// ── Headings ────────────────────────────────────────────────
 .auth-title {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 28px;
@@ -160,7 +149,6 @@
   line-height: 1.5;
 }
 
-// ── Form ────────────────────────────────────────────────────
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -168,7 +156,6 @@
   width: 100%;
 }
 
-// ── Field ───────────────────────────────────────────────────
 .auth-field {
   display: flex;
   flex-direction: column;
@@ -271,7 +258,6 @@
   }
 }
 
-// ── Meta row ────────────────────────────────────────────────
 .auth-form__meta {
   display: flex;
   align-items: center;
@@ -302,7 +288,6 @@
     justify-content: center;
     transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 
-    // Checkmark
     &::after {
       content: '';
       width: 6px;
@@ -336,7 +321,6 @@
   }
 }
 
-// ── Buttons ─────────────────────────────────────────────────
 .auth-btn {
   display: flex;
   align-items: center;
@@ -402,7 +386,6 @@
   }
 }
 
-// ── Links ───────────────────────────────────────────────────
 .auth-link {
   color: var(--amx-orange);
   font-size: 13px;
@@ -414,7 +397,6 @@
   &:hover { opacity: 0.8; text-decoration: underline; }
 }
 
-// ── Divider ─────────────────────────────────────────────────
 .auth-divider {
   display: flex;
   align-items: center;
@@ -438,7 +420,6 @@
   }
 }
 
-// ── Error ───────────────────────────────────────────────────
 .auth-error {
   font-size: 13px;
   color: var(--amx-danger);
@@ -466,7 +447,6 @@
   }
 }
 
-// ── Footer link ─────────────────────────────────────────────
 .auth-footer-link {
   margin-top: 24px;
   font-size: 14px;
@@ -476,7 +456,6 @@
 }
 
 
-// ── Ambient Circular Text ──────────────────────────────────
 .auth-ambient {
   position: absolute;
   top: 50%;
@@ -496,9 +475,6 @@
   }
 }
 
-// ════════════════════════════════════════════════════════════
-//  PROMO SLIDER (right panel)
-// ════════════════════════════════════════════════════════════
 
 .auth-slider {
   width: 100%;

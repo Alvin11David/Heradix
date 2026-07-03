@@ -17,10 +17,8 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
     <div class="auth-page">
 
       <div class="auth-panels">
-      <!-- ═══ LEFT PANEL ═══ -->
       <div class="auth-panel auth-panel--form">
 
-        <!-- Logo -->
         <div class="auth-logo">
           <img src="https://i.postimg.cc/zD47BZ94/Asset-1-2x.png"
                alt="Amarapix"
@@ -38,7 +36,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
 
         <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
 
-          <!-- Email -->
+
           <div class="auth-field">
             <label class="auth-field__label">Email</label>
             <div class="auth-field__wrap" [class.auth-field__wrap--error]="emailCtrl.invalid && emailCtrl.touched">
@@ -58,7 +56,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
             <span class="auth-field__error" *ngIf="emailCtrl.touched && emailCtrl.hasError('email')">Enter a valid email address.</span>
           </div>
 
-          <!-- Password -->
+
           <div class="auth-field">
             <label class="auth-field__label">Password</label>
             <div class="auth-field__wrap" [class.auth-field__wrap--error]="pwdCtrl.invalid && pwdCtrl.touched">
@@ -87,7 +85,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
             <span class="auth-field__error" *ngIf="pwdCtrl.touched && pwdCtrl.hasError('minlength')">Password must be at least 8 characters.</span>
           </div>
 
-          <!-- Remember + Forgot -->
+
           <div class="auth-form__meta">
             <label class="auth-check">
               <input type="checkbox" formControlName="remember" />
@@ -124,7 +122,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
 
       </div>
 
-      <!-- ═══ RIGHT PANEL – Promo Slider ═══ -->
+
       <div class="auth-panel auth-panel--promo">
 
         <div class="auth-ambient">
