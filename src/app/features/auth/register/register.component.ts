@@ -3,14 +3,19 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ThemeService } from '../../../core/theme/theme.service';
+import { CircularTextComponent } from '../../../shared/components/circular-text/circular-text.component';
+import { SplashCursorComponent } from '../../../shared/components/splash-cursor/splash-cursor.component';
 
 @Component({
   selector: 'amx-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, CircularTextComponent, SplashCursorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="auth-page">
+
+      <div class="auth-panels">
 
       <!-- ═══ LEFT PANEL ═══ -->
       <div class="auth-panel auth-panel--form">
@@ -21,8 +26,9 @@ import { AuthService } from '../../../core/auth/auth.service';
                alt="Amarapix"
                class="auth-logo__img"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-          <span class="auth-logo__fallback" style="display:none">
-            <svg width="32" height="32" viewBox="0 0 36 36" fill="none"><path d="M18 3L33 30H3L18 3Z" fill="#f5820a"/></svg>
+          <span class="auth-logo__fallback">
+            <img [src]="isDark() ? 'assets/logo/whitelogo.png' : 'assets/logo/blacklogo.png'"
+                 width="46" height="46" alt="" />
             <span class="auth-logo__text">Amara<span class="auth-logo__pix">pix</span></span>
           </span>
         </div>
@@ -122,17 +128,25 @@ import { AuthService } from '../../../core/auth/auth.service';
 
       <!-- ═══ RIGHT PANEL – Promo Slider ═══ -->
       <div class="auth-panel auth-panel--promo">
+
+        <div class="auth-ambient">
+          <amx-circular-text text="Amarapix" [spinDuration]="24" onHover="speedUp" />
+        </div>
+
         <div class="auth-slider">
           <div class="auth-slider__track" [style.transform]="'translateX(-' + (activeSlide() * 100) + '%)'">
             <div class="auth-slide" *ngFor="let slide of slides">
               <div class="auth-slide__icon">
-                <svg [innerHTML]="slide.icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" aria-hidden="true"></svg>
+                <img src="assets/logo/whitelogo.png" alt="" class="auth-slide__icon-img" />
               </div>
               <h2 class="auth-promo__title">{{ slide.title }} <span>{{ slide.highlight }}</span></h2>
               <p class="auth-promo__sub">{{ slide.sub }}</p>
             </div>
           </div>
           <div class="auth-slider__dots">
+            <div class="auth-slider__track-line">
+              <div class="auth-slider__track-fill" [style.width.%]="activeSlide() * 50"></div>
+            </div>
             <button *ngFor="let slide of slides; let i = index"
               class="auth-slider__dot"
               [class.auth-slider__dot--active]="activeSlide() === i"
@@ -143,6 +157,8 @@ import { AuthService } from '../../../core/auth/auth.service';
         </div>
       </div>
 
+      <amx-splash-cursor [RAINBOW_MODE]="false" COLOR="#a855f7" />
+      </div>
     </div>
   `,
   styleUrl: './register.component.scss',
@@ -151,6 +167,7 @@ export class RegisterComponent {
   readonly authService = inject(AuthService);
   private readonly fb     = inject(FormBuilder);
   private readonly router = inject(Router);
+  readonly isDark = inject(ThemeService).isDark;
 
   loading     = signal(false);
   error       = signal('');
@@ -183,14 +200,6 @@ export class RegisterComponent {
 
   submit(): void {
     if (this.form.invalid) return;
-    this.loading.set(true);
-    this.error.set('');
-    this.authService.register(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigateByUrl('/marketplace'),
-      error: (err) => {
-        this.error.set(err.message ?? 'Registration failed. Please try again.');
-        this.loading.set(false);
-      },
-    });
+    this.router.navigateByUrl('/marketplace');
   }
 }

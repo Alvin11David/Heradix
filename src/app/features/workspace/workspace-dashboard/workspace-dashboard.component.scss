@@ -32,7 +32,7 @@
   gap: 14px;
   transition: transform 0.2s, box-shadow 0.2s, background 0.25s;
 
-  &:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+  &:hover { transform: translateY(-3px); box-shadow: var(--amx-shadow-md); }
 
   &__logo {
     width: 64px;
@@ -46,8 +46,8 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: #1a1a2e;
-    color: #f5820a;
+    background: var(--amx-text);
+    color: var(--amx-orange);
     font-size: 28px;
     font-weight: 800;
     display: flex;
@@ -73,5 +73,5 @@
   border: none;
   transition: all 0.15s;
 
-  &--primary { background: #f5820a; color: #fff; &:hover { background: #d9700a; } }
+  &--primary { background: var(--amx-btn-bg); color: var(--amx-btn-text); &:hover { background: var(--amx-btn-bg-hover); } }
 }

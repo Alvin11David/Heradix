@@ -6,9 +6,17 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
 
+  --asset-overlay: var(--amx-overlay);
+  --asset-premium-bg: linear-gradient(135deg, var(--amx-orange), var(--amx-orange-dark));
+  --asset-editable-bg: var(--amx-print-tracking);
+  --asset-editable-text: var(--amx-btn-text);
+  --asset-btn-bg: rgba(255, 255, 255, 0.15);
+  --asset-btn-border: rgba(255, 255, 255, 0.4);
+  --asset-btn-hover: rgba(245, 130, 10, 0.8);
+
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+    box-shadow: var(--amx-shadow-md);
 
     .asset-card__overlay { opacity: 1; }
   }
@@ -24,7 +32,7 @@
   &__overlay {
     position: absolute;
     inset: 0;
-    background: rgba(26, 26, 46, 0.6);
+    background: var(--asset-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -78,7 +86,7 @@
 
   &--premium {
     right: 8px;
-    background: linear-gradient(135deg, #f5820a, #e06000);
+    background: var(--asset-premium-bg);
     color: #fff;
     padding: 6px 8px;
     border-radius: 50%;
@@ -89,7 +97,7 @@
     justify-content: center;
     box-shadow: 0 2px 8px rgba(245, 130, 10, 0.4);
   }
-  &--editable { left: 8px; background: #17a2b8; color: #fff; }
+  &--editable { left: 8px; background: var(--asset-editable-bg); color: var(--asset-editable-text); }
 }
 
 .format-tag,
@@ -104,15 +112,23 @@
 }
 
 .btn--icon {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: var(--asset-btn-bg);
+  border: 1px solid var(--asset-btn-border);
   border-radius: 8px;
   padding: 8px;
   color: #fff;
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover { background: rgba(245, 130, 10, 0.8); }
+  &:hover { background: var(--asset-btn-hover); }
 
   svg { display: block; width: 16px; height: 16px; }
+}
+
+[data-theme='dark'] {
+  .asset-card {
+    --asset-overlay: rgba(0, 0, 0, 0.5);
+    --asset-btn-bg: rgba(255, 255, 255, 0.08);
+    --asset-btn-border: rgba(255, 255, 255, 0.16);
+  }
 }

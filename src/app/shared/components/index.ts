@@ -5,3 +5,5 @@ export * from './modal/modal.component';
 export * from './spinner/spinner.component';
 export * from './header/header.component';
 export * from './footer/footer.component';
+export * from './circular-text/circular-text.component';
+export * from './splash-cursor/splash-cursor.component';

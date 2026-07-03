@@ -82,7 +82,7 @@
     transform: translateY(-8px);
 
     .amx-col-detail__item-img {
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--amx-shadow-md);
     }
   }
 }
@@ -129,7 +129,7 @@
   margin-top: 20px;
   background: var(--amx-accent);
   border: none;
-  color: white;
+  color: var(--amx-btn-text);
   padding: 12px 28px;
   border-radius: 8px;
   font-size: 14px;

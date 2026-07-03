@@ -35,7 +35,7 @@ $card-bg:   var(--amx-bg-card);
   color: $text;
   transition: background 0.15s, border-color 0.15s;
 
-  &:hover { background: #f3f4f6; border-color: #d1d5db; }
+  &:hover { background: var(--amx-border-light); border-color: var(--amx-scrollbar-thumb); }
 }
 
 .amx-pc__breadcrumb {
@@ -45,7 +45,7 @@ $card-bg:   var(--amx-bg-card);
   font-size: 14px;
   color: $muted;
 
-  svg { flex-shrink: 0; color: #d1d5db; }
+  svg { flex-shrink: 0; color: var(--amx-scrollbar-thumb); }
 }
 
 .amx-pc__breadcrumb-link {
@@ -140,7 +140,7 @@ $card-bg:   var(--amx-bg-card);
     color: #fff;
   }
 
-  &:hover:not(&--active) { background: #f3f4f6; color: $text; }
+  &:hover:not(&--active) { background: var(--amx-border-light); color: $text; }
 }
 
 /* Features list */
@@ -181,9 +181,9 @@ $card-bg:   var(--amx-bg-card);
 
 .amx-pc__star {
   font-size: 18px;
-  color: #d1d5db;
+  color: var(--amx-scrollbar-thumb);
 
-  &--filled { color: #f59e0b; }
+  &--filled { color: var(--amx-warning); }
 }
 
 .amx-pc__rating-label {
@@ -254,7 +254,7 @@ $card-bg:   var(--amx-bg-card);
   transition: border-color 0.15s;
 
   &:focus { outline: none; border-color: $orange; }
-  &:hover { border-color: #9ca3af; }
+  &:hover { border-color: var(--amx-faint); }
 }
 
 /* ── Chips ──────────────────────────────────────────────────── */
@@ -339,7 +339,7 @@ $card-bg:   var(--amx-bg-card);
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  background: #fff7ed;
+  background: var(--amx-accent-subtle);
   border: 1px solid #fed7aa;
   border-radius: 8px;
   padding: 12px 14px;

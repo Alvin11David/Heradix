@@ -9,34 +9,34 @@
 .orders-list { display: flex; flex-direction: column; gap: 14px; }
 
 .order-card {
-  background: #fff;
+  background: var(--amx-card);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  box-shadow: var(--amx-shadow-sm);
   display: flex;
   align-items: flex-start;
   gap: 20px;
 
   &__status { flex-shrink: 0; padding-top: 2px; }
 
-  &__id   { font-size: 14px; font-weight: 700; color: #1a1a2e; margin: 0 0 4px; }
-  &__meta { font-size: 13px; color: #6c757d; margin: 0 0 4px; }
-  &__tracking { font-size: 12px; color: #17a2b8; margin: 0; font-weight: 600; }
+  &__id   { font-size: 14px; font-weight: 700; color: var(--amx-text); margin: 0 0 4px; }
+  &__meta { font-size: 13px; color: var(--amx-muted); margin: 0 0 4px; }
+  &__tracking { font-size: 12px; color: var(--amx-print-tracking); margin: 0; font-weight: 600; }
 }
 
 .status-badge {
   font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase;
 
-  &--pending_payment  { background: #fff3cd; color: #856404; }
-  &--paid             { background: #d4edda; color: #155724; }
+  &--pending_payment  { background: var(--amx-badge-pending); color: var(--amx-badge-pending-text); }
+  &--paid             { background: var(--amx-badge-paid); color: var(--amx-badge-paid-text); }
   &--processing,
   &--sent_to_printer  { background: #cce5ff; color: #004085; }
-  &--dispatched       { background: #d1ecf1; color: #0c5460; }
-  &--delivered        { background: #d4edda; color: #155724; }
-  &--cancelled        { background: #f8d7da; color: #721c24; }
+  &--dispatched       { background: var(--amx-badge-dispatched); color: var(--amx-badge-dispatched-text); }
+  &--delivered        { background: var(--amx-badge-delivered); color: var(--amx-badge-delivered-text); }
+  &--cancelled        { background: var(--amx-badge-cancelled); color: var(--amx-badge-cancelled-text); }
 }
 
-.empty-state { text-align: center; padding: 40px; color: #6c757d; }
+.empty-state { text-align: center; padding: 40px; color: var(--amx-muted); }
 
 // ── Dark Mode Overrides ──────────────────────────────
 [data-theme="dark"] {

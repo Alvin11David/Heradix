@@ -17,14 +17,14 @@
   &__title {
     font-size: 36px;
     font-weight: 900;
-    color: #1a1a2e;
+    color: var(--amx-text);
     margin: 0 0 10px;
     letter-spacing: -0.5px;
   }
 
   &__sub {
     font-size: 15px;
-    color: #6c757d;
+    color: var(--amx-muted);
     margin: 0;
   }
 }
@@ -34,11 +34,11 @@
   display: flex;
   max-width: 680px;
   margin: 0 auto 40px;
-  border: 1.5px solid #d8d8e8;
+  border: 1.5px solid var(--amx-border-3);
   border-radius: 50px;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  background: var(--amx-card);
+  box-shadow: var(--amx-shadow-sm);
 
   &__input {
     flex: 1;
@@ -47,28 +47,28 @@
     padding: 14px 22px;
     font-size: 14px;
     font-family: 'Lato', sans-serif;
-    color: #333;
+    color: var(--amx-text);
     background: transparent;
 
-    &::placeholder { color: #aaa; }
+    &::placeholder { color: var(--amx-faint); }
   }
 
   &__btn {
     padding: 0 28px;
-    background: #fff;
+    background: var(--amx-card);
     border: none;
-    border-left: 1.5px solid #d8d8e8;
+    border-left: 1.5px solid var(--amx-border-3);
     font-size: 14px;
     font-weight: 700;
-    color: #1a1a2e;
+    color: var(--amx-text);
     cursor: pointer;
     font-family: 'Lato', sans-serif;
     transition: background 0.15s, color 0.15s;
 
     &:hover {
-      background: #f5820a;
-      color: #fff;
-      border-left-color: #f5820a;
+      background: var(--amx-orange);
+      color: var(--amx-btn-text);
+      border-left-color: var(--amx-orange);
     }
   }
 }
@@ -88,14 +88,14 @@
 .amx-col-card {
   border-radius: 14px;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  background: var(--amx-card);
+  box-shadow: var(--amx-shadow-sm);
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+    box-shadow: var(--amx-shadow-elevated);
   }
 
   /* 2×2 mosaic area */
@@ -125,7 +125,7 @@
   &__name {
     font-size: 14px;
     font-weight: 800;
-    color: #1a1a2e;
+    color: var(--amx-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -133,7 +133,7 @@
 
   &__meta {
     font-size: 12px;
-    color: #8a8ea8;
+    color: var(--amx-faint);
   }
 }
 
@@ -152,7 +152,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--amx-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -167,7 +167,7 @@
     width: 100%;
     max-height: 85vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--amx-shadow-lg);
     display: flex;
     flex-direction: column;
   }

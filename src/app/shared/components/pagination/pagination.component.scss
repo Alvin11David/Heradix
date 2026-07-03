@@ -18,14 +18,14 @@
     transition: all 0.15s;
 
     &:hover:not([disabled]) {
-      border-color: #f5820a;
-      color: #f5820a;
+      border-color: var(--amx-orange);
+      color: var(--amx-orange);
     }
 
     &.active {
-      background: #f5820a;
-      border-color: #f5820a;
-      color: #fff;
+      background: var(--amx-orange);
+      border-color: var(--amx-orange);
+      color: var(--amx-btn-text);
     }
 
     &[disabled] {

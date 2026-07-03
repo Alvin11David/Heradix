@@ -5,7 +5,7 @@
 :host {
   display: block;
   font-family: 'Lato', sans-serif;
-  background: #f3f4f6;
+  background: var(--amx-bg);
   min-height: 100vh;
 }
 
@@ -17,7 +17,7 @@
   justify-content: center;
   min-height: 60vh;
   gap: 12px;
-  color: #6b7280;
+  color: var(--amx-muted);
   font-size: 14px;
 }
 
@@ -26,7 +26,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #f3f4f6;
+  background: var(--amx-bg);
 }
 
 /* ══ TOP BAR ═════════════════════════════════════════ */
@@ -34,8 +34,8 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--amx-toolbar-bg);
+  border-bottom: 1px solid var(--amx-border-3);
   padding: 0 32px;
   height: 58px;
   position: sticky;
@@ -53,13 +53,13 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--amx-border-3);
   background: none;
   cursor: pointer;
-  color: #374151;
+  color: var(--amx-text-2);
   flex-shrink: 0;
   transition: background 0.15s;
-  &:hover { background: #f3f4f6; }
+  &:hover { background: var(--amx-border-light); }
 }
 
 .amx-player__topbar-info {
@@ -72,7 +72,7 @@
 .amx-player__course-title {
   font-size: 14px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--amx-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -80,7 +80,7 @@
 
 .amx-player__topbar-meta {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--amx-faint);
 }
 
 .amx-player__top-progress {
@@ -93,14 +93,14 @@
 .amx-player__top-progress-bar {
   width: 120px;
   height: 4px;
-  background: #e5e7eb;
+  background: var(--amx-border-3);
   border-radius: 999px;
   overflow: hidden;
 }
 
 .amx-player__top-progress-fill {
   height: 100%;
-  background: #2563eb;
+  background: var(--amx-link);
   border-radius: 999px;
   transition: width 0.4s;
 }
@@ -108,7 +108,7 @@
 .amx-player__top-progress-label {
   font-size: 13px;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--amx-link);
   min-width: 30px;
 }
 
@@ -143,9 +143,9 @@
 
 /* ── Shared card base ─────────────────────────────── */
 .amx-player__card {
-  background: #fff;
+  background: var(--amx-card);
   border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--amx-shadow-sm);
   overflow: hidden;
 }
 
@@ -278,8 +278,8 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 0 4px rgba(0,0,0,0.4);
+    background: var(--amx-btn-text);
+    box-shadow: var(--amx-shadow-sm);
   }
 }
 
@@ -305,7 +305,7 @@
 
   &:hover:not(:disabled) {
     background: rgba(255,255,255,0.12);
-    color: #fff;
+    color: var(--amx-btn-text);
   }
 
   &:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -314,8 +314,8 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #2563eb;
-    &:hover:not(:disabled) { background: #1d4ed8; }
+    background: var(--amx-link);
+    &:hover:not(:disabled) { background: var(--amx-link-hover); }
   }
 }
 
@@ -345,7 +345,7 @@
   padding: 6px 0;
   min-width: 150px;
   z-index: 200;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  box-shadow: var(--amx-shadow-lg);
 }
 
 .amx-player__settings-label {
@@ -371,7 +371,7 @@
   transition: background 0.12s;
 
   &:hover { background: rgba(255,255,255,0.08); }
-  &--active { color: #60a5fa; font-weight: 700; }
+  &--active { color: var(--amx-link); font-weight: 700; }
 }
 
 /* ══ LESSON INFO CARD ════════════════════════════════ */
@@ -383,8 +383,8 @@
 }
 
 .amx-player__lesson-pill {
-  background: #dbeafe;
-  color: #2563eb;
+  background: var(--amx-chip-bg-3);
+  color: var(--amx-link);
   font-size: 11px;
   font-weight: 700;
   padding: 3px 10px;
@@ -396,7 +396,7 @@
   align-items: center;
   gap: 4px;
   font-size: 12.5px;
-  color: #6b7280;
+  color: var(--amx-muted);
 }
 
 .amx-player__lesson-row {
@@ -411,7 +411,7 @@
 .amx-player__lesson-title {
   font-size: 20px;
   font-weight: 800;
-  color: #1a1a1a;
+  color: var(--amx-text);
   margin: 0;
   flex: 1;
   min-width: 200px;
@@ -424,26 +424,26 @@
   gap: 6px;
   padding: 9px 18px;
   border-radius: 50px;
-  border: 1.5px solid #d1d5db;
-  background: #fff;
+  border: 1.5px solid var(--amx-scrollbar-thumb);
+  background: var(--amx-card);
   cursor: pointer;
   font-family: 'Lato', sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: var(--amx-text-2);
   white-space: nowrap;
   flex-shrink: 0;
   transition: all 0.15s;
 
   &:hover:not(:disabled) {
-    border-color: #2563eb;
-    color: #2563eb;
+    border-color: var(--amx-link);
+    color: var(--amx-link);
   }
 
   &--done {
-    background: #d1fae5;
-    border-color: #10b981;
-    color: #059669;
+    background: var(--amx-level-beginner-bg);
+    border-color: var(--amx-success);
+    color: var(--amx-level-beginner-text);
     cursor: default;
   }
 
@@ -452,14 +452,14 @@
 
 .amx-player__lesson-desc {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--amx-muted);
   line-height: 1.75;
   margin: 0 0 8px;
 }
 
 .amx-player__auto-mark {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--amx-faint);
   margin: 0 0 20px;
 }
 
@@ -468,7 +468,7 @@
   justify-content: space-between;
   gap: 12px;
   padding-top: 16px;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--amx-border-light);
 }
 
 .amx-player__nav-btn {
@@ -480,11 +480,11 @@
   cursor: pointer;
   font-family: 'Lato', sans-serif;
   font-size: 13.5px;
-  color: #374151;
+  color: var(--amx-text-2);
   padding: 0;
   transition: color 0.15s;
 
-  &:hover:not(:disabled) { color: #2563eb; }
+  &:hover:not(:disabled) { color: var(--amx-link); }
   &:disabled { opacity: 0.35; cursor: not-allowed; }
 }
 
@@ -495,7 +495,7 @@
   gap: 8px;
   font-size: 16px;
   font-weight: 800;
-  color: #1a1a1a;
+  color: var(--amx-text);
   margin-bottom: 20px;
 }
 
@@ -509,17 +509,17 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #e5e7eb;
+  background: var(--amx-border-3);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   font-weight: 700;
-  color: #fff;
+  color: var(--amx-btn-text);
   flex-shrink: 0;
   overflow: hidden;
 
-  &--self { background: #f5820a; }
+  &--self { background: var(--amx-orange); }
   img { width: 100%; height: 100%; object-fit: cover; }
 }
 
@@ -532,19 +532,19 @@
 
 .amx-player__comment-textarea {
   width: 100%;
-  border: 1.5px solid #e5e7eb;
+  border: 1.5px solid var(--amx-border-3);
   border-radius: 10px;
   padding: 10px 14px;
   font-family: 'Lato', sans-serif;
   font-size: 14px;
-  color: #1a1a1a;
+  color: var(--amx-text);
   resize: none;
   outline: none;
   transition: border-color 0.15s;
   box-sizing: border-box;
 
-  &::placeholder { color: #9ca3af; }
-  &:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+  &::placeholder { color: var(--amx-faint); }
+  &:focus { border-color: var(--amx-link); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
 }
 
 .amx-player__comment-send {
@@ -554,8 +554,8 @@
   gap: 6px;
   padding: 8px 18px;
   border-radius: 50px;
-  background: #2563eb;
-  color: #fff;
+  background: var(--amx-link);
+  color: var(--amx-btn-text);
   border: none;
   cursor: pointer;
   font-family: 'Lato', sans-serif;
@@ -563,7 +563,7 @@
   font-weight: 700;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) { background: #1d4ed8; }
+  &:hover:not(:disabled) { background: var(--amx-link-hover); }
   &:disabled { opacity: 0.45; cursor: not-allowed; }
 }
 
@@ -590,17 +590,17 @@
 .amx-player__comment-author {
   font-size: 13.5px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--amx-text);
 }
 
 .amx-player__comment-time {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--amx-faint);
 }
 
 .amx-player__comment-text {
   font-size: 14px;
-  color: #374151;
+  color: var(--amx-text-2);
   line-height: 1.6;
   margin: 0;
 }
@@ -611,7 +611,7 @@
   align-items: center;
   gap: 8px;
   padding: 40px 0;
-  color: #d1d5db;
+  color: var(--amx-scrollbar-thumb);
   font-size: 14px;
 }
 
@@ -630,9 +630,9 @@
 
 /* Instructor / stats card */
 .amx-player__instructor-card {
-  background: #fff;
+  background: var(--amx-card);
   border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--amx-shadow-sm);
   padding: 20px;
 }
 
@@ -647,7 +647,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #f3f4f6;
+  background: var(--amx-border-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -663,23 +663,23 @@
 .amx-player__instructor-label {
   font-size: 10px;
   font-weight: 700;
-  color: #9ca3af;
+  color: var(--amx-faint);
   letter-spacing: 0.8px;
 }
 
 .amx-player__instructor-name {
   font-size: 14px;
   font-weight: 800;
-  color: #1a1a1a;
+  color: var(--amx-text);
 }
 
 .amx-player__level-pill {
   padding: 4px 12px;
   border-radius: 50px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--amx-scrollbar-thumb);
   font-size: 11px;
   font-weight: 600;
-  color: #374151;
+  color: var(--amx-text-2);
   flex-shrink: 0;
 }
 
@@ -700,21 +700,21 @@
 .amx-player__stat-val {
   font-size: 20px;
   font-weight: 900;
-  color: #1a1a1a;
+  color: var(--amx-text);
   line-height: 1;
 }
 
 .amx-player__stat-lbl {
   font-size: 10px;
   font-weight: 700;
-  color: #9ca3af;
+  color: var(--amx-faint);
   letter-spacing: 0.6px;
   margin-top: 3px;
 }
 
 .amx-player__divider {
   height: 1px;
-  background: #f3f4f6;
+  background: var(--amx-border-light);
   margin: 14px 0;
 }
 
@@ -730,12 +730,12 @@
   justify-content: space-between;
   align-items: center;
   font-size: 12.5px;
-  color: #6b7280;
+  color: var(--amx-muted);
 }
 
 .amx-player__rating-note {
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--amx-faint);
   text-align: right;
   max-width: 160px;
   line-height: 1.4;
@@ -746,12 +746,12 @@
   align-items: center;
   gap: 5px;
 
-  strong { font-size: 17px; font-weight: 800; color: #1a1a1a; }
+  strong { font-size: 17px; font-weight: 800; color: var(--amx-text); }
 }
 
 .amx-player__rating-count {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--amx-faint);
 }
 
 /* Progress */
@@ -766,24 +766,24 @@
   justify-content: space-between;
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: var(--amx-text-2);
 }
 
 .amx-player__progress-pct {
   font-weight: 800;
-  color: #2563eb;
+  color: var(--amx-link);
 }
 
 .amx-player__progress-bar {
   height: 5px;
-  background: #e5e7eb;
+  background: var(--amx-border-3);
   border-radius: 999px;
   overflow: hidden;
 }
 
 .amx-player__progress-fill {
   height: 100%;
-  background: #2563eb;
+  background: var(--amx-link);
   border-radius: 999px;
   transition: width 0.4s;
 }
@@ -792,14 +792,14 @@
   display: flex;
   justify-content: space-between;
   font-size: 11.5px;
-  color: #9ca3af;
+  color: var(--amx-faint);
 }
 
 /* Course content card */
 .amx-player__content-card {
-  background: #fff;
+  background: var(--amx-card);
   border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--amx-shadow-sm);
   overflow: hidden;
   /* Fixed height so it scrolls independently */
   max-height: calc(100vh - 58px - 28px - 280px - 16px);
@@ -814,10 +814,10 @@
   align-items: center;
   gap: 7px;
   padding: 16px 20px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--amx-border-light);
   font-size: 14px;
   font-weight: 800;
-  color: #1a1a1a;
+  color: var(--amx-text);
   flex-shrink: 0;
 }
 
@@ -825,11 +825,11 @@
   margin-left: auto;
   font-size: 12px;
   font-weight: 400;
-  color: #6b7280;
+  color: var(--amx-muted);
 }
 
 .amx-player__completed-count {
-  color: #10b981;
+  color: var(--amx-success);
   font-weight: 700;
 }
 
@@ -841,7 +841,7 @@
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+  &::-webkit-scrollbar-thumb { background: var(--amx-border-3); border-radius: 2px; }
 }
 
 .amx-player__lesson-item {
@@ -855,14 +855,14 @@
   font-family: 'Lato', sans-serif;
   width: 100%;
   text-align: left;
-  border-bottom: 1px solid #f9fafb;
+  border-bottom: 1px solid var(--amx-border-light);
   transition: background 0.12s;
 
-  &:hover { background: #f9fafb; }
+  &:hover { background: var(--amx-border-light); }
 
   &--active {
     background: #eff6ff !important;
-    border-left: 3px solid #2563eb;
+    border-left: 3px solid var(--amx-link);
     padding-left: 17px;
   }
 
@@ -873,28 +873,28 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 1.5px solid #e5e7eb;
+  border: 1.5px solid var(--amx-border-3);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: #f9fafb;
+  background: var(--amx-border-light);
 
   .amx-player__lesson-item--active & {
-    background: #dbeafe;
-    border-color: #2563eb;
+    background: var(--amx-chip-bg-3);
+    border-color: var(--amx-link);
   }
 
   .amx-player__lesson-item--done & {
-    background: #d1fae5;
-    border-color: #10b981;
+    background: var(--amx-level-beginner-bg);
+    border-color: var(--amx-success);
   }
 }
 
 .amx-player__lesson-num {
   font-size: 11px;
   font-weight: 700;
-  color: #9ca3af;
+  color: var(--amx-faint);
 }
 
 .amx-player__lesson-item-body {
@@ -908,14 +908,14 @@
 .amx-player__lesson-item-title {
   font-size: 12.5px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--amx-text);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.4;
 
-  .amx-player__lesson-item--active & { color: #2563eb; }
+  .amx-player__lesson-item--active & { color: var(--amx-link); }
 }
 
 .amx-player__lesson-item-dur {
@@ -923,5 +923,5 @@
   align-items: center;
   gap: 3px;
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--amx-faint);
 }

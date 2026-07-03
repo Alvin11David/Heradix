@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, signal, HostListener } from
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ThemeService } from '../../../core/theme/theme.service';
 
 interface CategoryGroup {
   label: string;
@@ -82,6 +83,23 @@ const FORMAT_ITEMS = [
 
         <!-- Right actions -->
         <div class="amx-topbar__actions">
+          <button
+            class="amx-theme-btn"
+            type="button"
+            (click)="toggleTheme()"
+            [attr.aria-pressed]="darkMode()"
+            [attr.aria-label]="darkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
+          >
+            <svg *ngIf="!darkMode()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+            </svg>
+            <svg *ngIf="darkMode()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <span>{{ darkMode() ? 'Dark' : 'Light' }}</span>
+          </button>
+
           <ng-container *ngIf="auth.isLoggedIn(); else guestTpl">
             <!-- Premium badge (show for logged-in users) -->
             <button class="amx-btn amx-btn--premium" routerLink="/pricing">
@@ -283,6 +301,7 @@ const FORMAT_ITEMS = [
 })
 export class HeaderComponent {
   readonly auth = inject(AuthService);
+  readonly theme = inject(ThemeService);
 
   // Format dropdown
   formatOpen     = signal(false);
@@ -297,10 +316,7 @@ export class HeaderComponent {
   avatarMenuOpen = signal(false);
 
   // Theme
-  darkMode = signal(
-    localStorage.getItem('amx_theme') === 'dark' ||
-    (!localStorage.getItem('amx_theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)
-  );
+  readonly darkMode = this.theme.isDark;
 
   @HostListener('document:click')
   onDocumentClick(): void {
@@ -317,10 +333,7 @@ export class HeaderComponent {
   }
 
   toggleTheme(): void {
-    const next = !this.darkMode();
-    this.darkMode.set(next);
-    localStorage.setItem('amx_theme', next ? 'dark' : 'light');
-    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
+    this.theme.toggle();
   }
 
   logout(): void {

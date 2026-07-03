@@ -5,6 +5,7 @@ import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { signal } from '@angular/core';
 import { filter } from 'rxjs';
+import { ThemeService } from './core/theme/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -14,14 +15,11 @@ import { filter } from 'rxjs';
 })
 export class App {
   private readonly router = inject(Router);
+  private readonly theme = inject(ThemeService);
   readonly isAuthPage = signal(false);
 
   constructor() {
-    // Apply saved or OS-preferred theme immediately on startup
-    const saved = localStorage.getItem('amx_theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = saved ?? (prefersDark ? 'dark' : 'light');
-    document.documentElement.setAttribute('data-theme', theme);
+    this.theme.syncTheme();
 
     // Hide header/footer on auth pages
     this.router.events

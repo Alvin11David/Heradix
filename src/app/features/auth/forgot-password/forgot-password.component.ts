@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ThemeService } from '../../../core/theme/theme.service';
+import { SplashCursorComponent } from '../../../shared/components/splash-cursor/splash-cursor.component';
 
 @Component({
   selector: 'amx-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SplashCursorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="auth-page">
@@ -158,17 +160,21 @@ import { AuthService } from '../../../core/auth/auth.service';
 
       <!-- ═══ RIGHT PANEL – Promo Slider ═══ -->
       <div class="auth-panel auth-panel--promo">
+
         <div class="auth-slider">
           <div class="auth-slider__track" [style.transform]="'translateX(-' + (activeSlide() * 100) + '%)'">
             <div class="auth-slide" *ngFor="let slide of slides">
               <div class="auth-slide__icon">
-                <svg [innerHTML]="slide.icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" aria-hidden="true"></svg>
+                <img [src]="isDark() ? 'assets/logo/whitelogo.png' : 'assets/logo/blacklogo.png'" alt="" class="auth-slide__icon-img" />
               </div>
               <h2 class="auth-promo__title">{{ slide.title }} <span>{{ slide.highlight }}</span></h2>
               <p class="auth-promo__sub">{{ slide.sub }}</p>
             </div>
           </div>
           <div class="auth-slider__dots">
+            <div class="auth-slider__track-line">
+              <div class="auth-slider__track-fill" [style.width.%]="activeSlide() * 50"></div>
+            </div>
             <button *ngFor="let slide of slides; let i = index"
               class="auth-slider__dot"
               [class.auth-slider__dot--active]="activeSlide() === i"
@@ -179,6 +185,7 @@ import { AuthService } from '../../../core/auth/auth.service';
         </div>
       </div>
 
+      <amx-splash-cursor [RAINBOW_MODE]="false" COLOR="#a855f7" />
     </div>
   `,
   styleUrl: './forgot-password.component.scss',
@@ -187,6 +194,7 @@ export class ForgotPasswordComponent {
   readonly authService = inject(AuthService);
   private readonly fb  = inject(FormBuilder);
   private readonly router = inject(Router);
+  readonly isDark = inject(ThemeService).isDark;
 
   step    = signal(1);
   loading = signal(false);
