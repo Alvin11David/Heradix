@@ -51,7 +51,7 @@
   &__prompt {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.1);
+    background: #ffffff;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: var(--amx-shadow-sm);
@@ -67,9 +67,9 @@
     background: transparent;
     font-family: 'Lato', sans-serif;
     font-size: 15px;
-    color: #ffffff;
+    color: #1a1a1a;
 
-    &::placeholder { color: rgba(255, 255, 255, 0.6); }
+    &::placeholder { color: rgba(0, 0, 0, 0.4); }
   }
 
   &__attach {
