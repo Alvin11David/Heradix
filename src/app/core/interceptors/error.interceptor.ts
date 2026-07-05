@@ -23,7 +23,6 @@ export const errorInterceptor: HttpInterceptorFn = (
         console.error('[Network] Cannot reach server');
       }
 
-      // Re-throw enriched error
       return throwError(() => ({ status, message, originalError: err }));
     })
   );

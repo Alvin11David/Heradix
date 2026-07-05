@@ -5,7 +5,7 @@ export interface EditorProject {
   userId: string;
   title: string;
   assetId?: string;
-  canvasJson: string; // serialised Fabric.js JSON
+  canvasJson: string;
   width: number;
   height: number;
   thumbnailUrl?: string;
@@ -22,7 +22,7 @@ export interface CreateProjectPayload {
 
 export interface ExportProjectPayload {
   format: ExportFormat;
-  quality?: number;    // 1–100 (PNG/JPG)
+  quality?: number;
   transparent?: boolean;
 }
 

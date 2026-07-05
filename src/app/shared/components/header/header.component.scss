@@ -1,6 +1,4 @@
-// ════════════════════════════════════════════════════════════
-//  AMX TOP BAR — glassmorphism, scroll-aware
-// ════════════════════════════════════════════════════════════
+
 
 .amx-topbar {
   position: sticky;
@@ -13,7 +11,7 @@
   border-bottom: 1px solid var(--amx-border);
   transition: background 0.35s ease, border-color 0.35s ease;
 
-  // Bottom glow accent
+
   &::after {
     content: '';
     position: absolute;
@@ -45,7 +43,7 @@
   }
 }
 
-// ── Logo ─────────────────────────────────────────────────────
+
 .amx-logo {
   display: flex;
   align-items: center;
@@ -74,7 +72,7 @@
   &__pix { color: var(--amx-orange); }
 }
 
-// ── All Categories pill ─────────────────────────────────────
+
 .amx-categories-btn {
   display: flex;
   align-items: center;
@@ -102,7 +100,7 @@
   &:active { transform: translateY(0); }
 }
 
-// ── Search bar ──────────────────────────────────────────────
+
 .amx-search {
   flex: 1;
   min-width: 0;
@@ -190,7 +188,7 @@
   }
 }
 
-// ── Format dropdown ─────────────────────────────────────────
+
 .amx-format-dropdown {
   position: absolute;
   top: calc(100% + 8px);
@@ -229,7 +227,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-// ── Buttons ─────────────────────────────────────────────────
+
 .amx-btn {
   display: inline-flex;
   align-items: center;
@@ -290,7 +288,7 @@
   }
 }
 
-// ── Theme button ────────────────────────────────────────────
+
 .amx-theme-btn {
   display: inline-flex;
   align-items: center;
@@ -323,7 +321,7 @@
   &:active { transform: translateY(0); }
 }
 
-// ── Avatar ──────────────────────────────────────────────────
+
 .amx-avatar-wrap {
   position: relative;
   flex-shrink: 0;
@@ -360,7 +358,7 @@
   &:active { transform: scale(0.97); }
 }
 
-// ── User menu dropdown ──────────────────────────────────────
+
 .amx-user-menu {
   position: absolute;
   top: calc(100% + 10px);
@@ -518,7 +516,7 @@
   }
 }
 
-// ── Theme toggle switch ─────────────────────────────────────
+
 .amx-theme-toggle {
   position: relative;
   width: 42px;
@@ -558,9 +556,7 @@
 }
 
 
-// ════════════════════════════════════════════════════════════
-//  AMX CATEGORY NAV BAR — magnetic tab bar
-// ════════════════════════════════════════════════════════════
+
 
 .amx-catnav {
   position: relative;
@@ -569,7 +565,7 @@
   height: 48px;
   transition: background 0.3s ease, border-color 0.3s ease;
 
-  // Full-width accent line sits above the border
+
   &::before {
     content: '';
     position: absolute;
@@ -611,7 +607,7 @@
     align-items: center;
   }
 
-  // ── Main category link ────────────────────────────────
+
   &__link {
     display: inline-flex;
     align-items: center;
@@ -629,7 +625,7 @@
     z-index: 1;
     transition: color 0.2s, transform 0.15s;
 
-    // Background pill that appears on hover/active
+
     &::before {
       content: '';
       position: absolute;
@@ -641,7 +637,7 @@
       z-index: -1;
     }
 
-    // Active downward arrow bridge
+
     &.active::after {
       content: '';
       position: absolute;
@@ -656,7 +652,7 @@
       pointer-events: none;
     }
 
-    // Chevron icon (dropdown indicator)
+
     svg {
       opacity: 0.4;
       transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
@@ -691,7 +687,7 @@
     }
   }
 
-  // ── Utility links ─────────────────────────────────────
+
   &__utils {
     gap: 2px;
     margin-left: auto;
@@ -740,7 +736,7 @@
   }
 }
 
-// ── Category nav dropdown ───────────────────────────────────
+
 .amx-cat-dropdown {
   position: absolute;
   top: calc(100% + 6px);

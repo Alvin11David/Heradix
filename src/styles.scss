@@ -1,9 +1,6 @@
-/* ============================================================
-   Global styles - Amarapix Platform
-   ============================================================ */
 
-// ── CSS Custom Properties ──────────────────────────────
-// LIGHT mode is the default (:root)
+
+
 :root {
   color-scheme: light;
 
@@ -137,7 +134,7 @@
   --font-display:      'Space Grotesk', sans-serif;
 }
 
-// ── Dark Mode Overrides ────────────────────────────────
+
 [data-theme="dark"] {
   color-scheme: dark;
 
@@ -264,7 +261,7 @@
   --amx-orange-dark:   #d86d06;
 }
 
-// ── Reset / Base ───────────────────────────────────────────
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
@@ -299,7 +296,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--amx-text);
 }
 
-// ── Utility ────────────────────────────────────────────────
+
 .visually-hidden {
   position: absolute;
   width: 1px; height: 1px;

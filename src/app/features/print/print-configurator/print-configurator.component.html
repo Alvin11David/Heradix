@@ -1,7 +1,5 @@
-<!-- ══ PRINT CONFIGURATOR ══════════════════════════════════════ -->
 <div class="amx-pc" *ngIf="product(); else loading">
 
-  <!-- ── Topbar breadcrumb ──────────────────────────────────── -->
   <div class="amx-pc__topbar">
     <button class="amx-pc__back" (click)="goBack()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -13,13 +11,10 @@
     </nav>
   </div>
 
-  <!-- ── Content layout ─────────────────────────────────────── -->
   <div class="amx-pc__layout">
 
-    <!-- LEFT — Sticky image + tabs -->
     <div class="amx-pc__left">
       <div class="amx-pc__sticky-col">
-        <!-- Main product image -->
         <div class="amx-pc__img-card">
           <img [src]="product()!.imageUrl" [alt]="product()!.name" class="amx-pc__img"/>
           <div class="amx-pc__img-badge" *ngIf="!isPaper()">
@@ -28,13 +23,11 @@
           </div>
         </div>
 
-        <!-- Tab switcher -->
         <div class="amx-pc__subtabs">
           <button class="amx-pc__subtab" [class.amx-pc__subtab--active]="activeTab() === 'configure'" (click)="activeTab.set('configure')">Configure</button>
           <button class="amx-pc__subtab" [class.amx-pc__subtab--active]="activeTab() === 'features'"  (click)="activeTab.set('features')">Features</button>
         </div>
 
-        <!-- Features list -->
         <div class="amx-pc__features" *ngIf="activeTab() === 'features'">
           <ul class="amx-pc__feature-list">
             <li *ngFor="let f of product()!.features">
@@ -44,7 +37,6 @@
           </ul>
         </div>
 
-        <!-- Rating -->
         <div class="amx-pc__rating-row">
           <span *ngFor="let i of starsArray(product()!.rating)" class="amx-pc__star" [class.amx-pc__star--filled]="i <= product()!.rating">★</span>
           <span class="amx-pc__rating-label">{{ product()!.rating }} ({{ product()!.reviewCount | number }} Reviews)</span>
@@ -52,14 +44,11 @@
       </div>
     </div>
 
-    <!-- RIGHT — Scrollable configurator panel -->
     <div class="amx-pc__right">
       <h1 class="amx-pc__title">{{ product()!.name }}</h1>
 
-      <!-- ══ PAPER PRODUCT OPTIONS ══════════════════════════ -->
       <ng-container *ngIf="isPaper() && paperOpts()">
 
-        <!-- Size selector — visual shape grid -->
         <div class="amx-pc__field">
           <label class="amx-pc__field-label">
             Size
@@ -87,7 +76,6 @@
           </div>
         </div>
 
-        <!-- Paper type -->
         <div class="amx-pc__field">
           <label class="amx-pc__field-label">Paper Type</label>
           <select class="amx-pc__select" [value]="selectedPaperType()" (change)="selectedPaperType.set($any($event.target).value)">
@@ -95,7 +83,6 @@
           </select>
         </div>
 
-        <!-- Lamination -->
         <div class="amx-pc__field">
           <label class="amx-pc__field-label">Lamination</label>
           <div class="amx-pc__chip-row">
@@ -109,7 +96,6 @@
           </div>
         </div>
 
-        <!-- Print side -->
         <div class="amx-pc__field">
           <label class="amx-pc__field-label">Printed Side</label>
           <select class="amx-pc__select" [value]="selectedSide()" (change)="selectedSide.set($any($event.target).value)">
@@ -117,7 +103,6 @@
           </select>
         </div>
 
-        <!-- Rounded corners -->
         <div class="amx-pc__field amx-pc__field--inline" *ngIf="paperOpts()!.roundedCorners">
           <label class="amx-pc__field-label">Rounded Corners</label>
           <div class="amx-pc__toggle-wrap">
@@ -126,13 +111,11 @@
           </div>
         </div>
 
-        <!-- Bleed note -->
         <div class="amx-pc__bleed-notice">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f5820a" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           Add <strong>1/8" ({{ paperOpts()!.bleedMm }}mm) bleed</strong> on all sides. Safe zone: 1/8" from trim line.
         </div>
 
-        <!-- Quantity -->
         <div class="amx-pc__field">
           <label class="amx-pc__field-label">Quantity</label>
           <select class="amx-pc__select" [value]="selectedQty()" (change)="selectedQty.set(+$any($event.target).value)">
@@ -140,7 +123,6 @@
           </select>
         </div>
 
-        <!-- Printing time -->
         <div class="amx-pc__field">
           <label class="amx-pc__field-label">Printing Time</label>
           <select class="amx-pc__select" [value]="selectedLeadTime()" (change)="selectedLeadTime.set(+$any($event.target).value)">
@@ -148,7 +130,6 @@
           </select>
         </div>
 
-        <!-- Proof option -->
         <div class="amx-pc__proof-row">
           <label class="amx-pc__checkbox-label">
             <input type="checkbox" [checked]="proofRequested()" (change)="proofRequested.set($any($event.target).checked)"/>
@@ -158,10 +139,8 @@
 
       </ng-container>
 
-      <!-- ══ APPAREL PRODUCT OPTIONS ════════════════════════ -->
       <ng-container *ngIf="!isPaper() && apparelOpts()">
 
-        <!-- Brand selector -->
         <div class="amx-pc__field">
           <label class="amx-pc__field-label">Brand</label>
           <div class="amx-pc__chip-row">
@@ -175,7 +154,6 @@
           </div>
         </div>
 
-        <!-- Sleeve type -->
         <div class="amx-pc__field" *ngIf="apparelOpts()!.sleeveTypes.length">
           <label class="amx-pc__field-label">Sleeve</label>
           <div class="amx-pc__chip-row">
@@ -189,7 +167,6 @@
           </div>
         </div>
 
-        <!-- Material -->
         <div class="amx-pc__field">
           <label class="amx-pc__field-label">Material</label>
           <select class="amx-pc__select" [value]="selectedMaterial()" (change)="selectedMaterial.set($any($event.target).value)">
@@ -197,7 +174,6 @@
           </select>
         </div>
 
-        <!-- Colour swatches -->
         <div class="amx-pc__field">
           <label class="amx-pc__field-label">Colour — <em>{{ selectedColorName() }}</em></label>
           <div class="amx-pc__color-grid">
@@ -216,7 +192,6 @@
           </div>
         </div>
 
-        <!-- Size chart -->
         <div class="amx-pc__field">
           <label class="amx-pc__field-label">Size</label>
           <div class="amx-pc__chip-row">
@@ -234,7 +209,6 @@
           </p>
         </div>
 
-        <!-- Print areas -->
         <div class="amx-pc__field">
           <label class="amx-pc__field-label">Print Area(s)</label>
           <div class="amx-pc__chip-row amx-pc__chip-row--multi">
@@ -248,7 +222,6 @@
           </div>
         </div>
 
-        <!-- Quantity -->
         <div class="amx-pc__field">
           <label class="amx-pc__field-label">Quantity</label>
           <select class="amx-pc__select" [value]="selectedQty()" (change)="selectedQty.set(+$any($event.target).value)">
@@ -258,7 +231,6 @@
 
       </ng-container>
 
-      <!-- ══ Fulfillment — Pickup or Delivery ═══════════════ -->
       <div class="amx-pc__field">
         <label class="amx-pc__field-label">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><circle cx="12" cy="12" r="1"/></svg>
@@ -294,7 +266,6 @@
           </button>
         </div>
 
-        <!-- Delivery address fields (shown only when delivery selected) -->
         <div class="amx-pc__delivery-fields" *ngIf="fulfillment() === 'delivery'">
           <div class="amx-pc__delivery-field">
             <label>Delivery Address</label>
@@ -317,7 +288,6 @@
         </div>
       </div>
 
-      <!-- ══ Price summary ═══════════════════════════════════ -->
       <div class="amx-pc__price-box">
         <div class="amx-pc__price-row">
           <span class="amx-pc__price-label">Printing Cost</span>
@@ -337,7 +307,6 @@
           <span class="amx-pc__price-total-val">{{ formatUGX(grandTotalUGX()) }}</span>
         </div>
 
-        <!-- Action buttons -->
         <div class="amx-pc__action-btns">
           <button class="amx-pc__order-btn" (click)="addToCart()">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -354,16 +323,14 @@
         </div>
       </div>
 
-    </div><!-- /.amx-pc__right -->
-  </div><!-- /.amx-pc__layout -->
+    </div>
+  </div>
 
 </div>
 
-<!-- ── Checkout Modal ──────────────────────────────────────── -->
 <div class="amx-pc__modal-overlay" *ngIf="checkoutOpen()" (click)="closeCheckout()">
   <div class="amx-pc__modal" (click)="$event.stopPropagation()">
 
-    <!-- Success screen -->
     <div class="amx-pc__order-success" *ngIf="orderSubmitted()">
       <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/></svg>
       <h2>Order Placed! 🎉</h2>
@@ -371,7 +338,6 @@
       <button class="amx-pc__modal-close-btn" (click)="closeCheckout(); router.navigate(['/print'])">Back to Print Home</button>
     </div>
 
-    <!-- Checkout form -->
     <ng-container *ngIf="!orderSubmitted()">
       <div class="amx-pc__modal-header">
         <h2 class="amx-pc__modal-title">Checkout</h2>
@@ -380,7 +346,6 @@
         </button>
       </div>
 
-      <!-- Order summary -->
       <div class="amx-pc__modal-summary">
         <div class="amx-pc__modal-row">
           <span>{{ product()!.name }}</span>
@@ -396,7 +361,6 @@
         </div>
       </div>
 
-      <!-- Payment method tabs -->
       <div class="amx-pc__modal-section-label">Choose Payment Method</div>
       <div class="amx-pc__payment-methods">
         <button
@@ -423,7 +387,6 @@
         </button>
       </div>
 
-      <!-- Mobile Money fields -->
       <div class="amx-pc__pay-form" *ngIf="paymentMethod() === 'mtn' || paymentMethod() === 'airtel'">
         <div class="amx-pc__modal-field">
           <label>Mobile Number ({{ paymentMethod() === 'mtn' ? 'MTN' : 'Airtel' }})</label>
@@ -440,7 +403,6 @@
         </div>
       </div>
 
-      <!-- Visa fields -->
       <div class="amx-pc__pay-form" *ngIf="paymentMethod() === 'visa'">
         <div class="amx-pc__modal-field">
           <label>Card Number</label>
@@ -470,7 +432,6 @@
   </div>
 </div>
 
-<!-- Loading state -->
 <ng-template #loading>
   <div class="amx-pc__loading">
     <amx-spinner [size]="'lg'" />

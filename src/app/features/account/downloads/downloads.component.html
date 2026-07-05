@@ -1,0 +1,131 @@
+<div class="amx-dl">
+
+  <div class="amx-dl__header">
+    <div>
+      <h1 class="amx-dl__title">Download History</h1>
+      <p class="amx-dl__sub">{{ totalCount() }} download{{ totalCount() === 1 ? '' : 's' }} total</p>
+    </div>
+  </div>
+
+  <div class="amx-dl__search">
+    <svg class="amx-dl__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input class="amx-dl__search-input"
+           type="text"
+           [ngModel]="searchQuery()"
+           (ngModelChange)="onSearch($event)"
+           placeholder="Search downloads…" />
+    <button class="amx-dl__search-clear" *ngIf="searchQuery()" (click)="onSearch('')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="amx-dl__empty" *ngIf="page().length === 0">
+    <div class="amx-dl__empty-icon">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </div>
+    <p class="amx-dl__empty-text">No downloads found</p>
+    <p class="amx-dl__empty-sub" *ngIf="searchQuery()">Try a different search term.</p>
+    <p class="amx-dl__empty-sub" *ngIf="!searchQuery()">Your downloaded assets will appear here.</p>
+  </div>
+
+  <div class="amx-dl__table-wrap" *ngIf="page().length > 0">
+    <table class="amx-dl__table">
+      <thead>
+        <tr>
+          <th class="amx-dl__th amx-dl__th--asset">Asset</th>
+          <th class="amx-dl__th amx-dl__th--type">Type</th>
+          <th class="amx-dl__th amx-dl__th--sortable" (click)="sortBy('date')">
+            Date
+            <svg class="amx-dl__sort-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path [attr.d]="sortIcon('date')"/></svg>
+          </th>
+          <th class="amx-dl__th amx-dl__th--sortable" (click)="sortBy('size')">
+            Size
+            <svg class="amx-dl__sort-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path [attr.d]="sortIcon('size')"/></svg>
+          </th>
+          <th class="amx-dl__th">Format</th>
+          <th class="amx-dl__th">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of page(); let i = index" class="amx-dl__row" [style.--i]="i">
+          <td class="amx-dl__td amx-dl__td--asset">
+            <span class="amx-dl__thumb">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path [attr.d]="assetIcons[r.assetType]"/>
+              </svg>
+            </span>
+            <span class="amx-dl__name">{{ r.assetTitle }}</span>
+          </td>
+          <td class="amx-dl__td amx-dl__td--type">
+            <span class="amx-dl__type-badge" [class.amx-dl__type-badge--photo]="r.assetType === 'photo'"
+                  [class.amx-dl__type-badge--vector]="r.assetType === 'vector'"
+                  [class.amx-dl__type-badge--mockup]="r.assetType === 'mockup'"
+                  [class.amx-dl__type-badge--template]="r.assetType === 'template'">
+              {{ typeLabels[r.assetType] }}
+            </span>
+          </td>
+          <td class="amx-dl__td amx-dl__td--date">
+            <span class="amx-dl__date-rel">{{ relativeTime(r.downloadedAt) }}</span>
+            <span class="amx-dl__date-full">{{ fullDate(r.downloadedAt) }}</span>
+          </td>
+          <td class="amx-dl__td amx-dl__td--size">{{ formatSize(r.fileSize) }}</td>
+          <td class="amx-dl__td amx-dl__td--format">
+            <span class="amx-dl__format-badge" [style.--fmt-clr]="formatColors[r.format] || '#6b7280'">{{ r.format }}</span>
+          </td>
+          <td class="amx-dl__td amx-dl__td--status">
+            <span class="amx-dl__status"
+                  [class.amx-dl__status--completed]="r.status === 'completed'"
+                  [class.amx-dl__status--processing]="r.status === 'processing'"
+                  [class.amx-dl__status--failed]="r.status === 'failed'">
+              <span class="amx-dl__status-dot"></span>
+              {{ r.status === 'completed' ? 'Completed' : r.status === 'processing' ? 'Processing' : 'Failed' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="amx-dl__cards" *ngIf="page().length > 0">
+    <div *ngFor="let r of page(); let i = index" class="amx-dl__card" [style.--i]="i">
+      <div class="amx-dl__card-top">
+        <div class="amx-dl__card-asset">
+          <span class="amx-dl__thumb">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path [attr.d]="assetIcons[r.assetType]"/>
+            </svg>
+          </span>
+          <div>
+            <span class="amx-dl__name">{{ r.assetTitle }}</span>
+            <span class="amx-dl__date-rel">{{ relativeTime(r.downloadedAt) }}</span>
+          </div>
+        </div>
+        <span class="amx-dl__status"
+              [class.amx-dl__status--completed]="r.status === 'completed'"
+              [class.amx-dl__status--processing]="r.status === 'processing'"
+              [class.amx-dl__status--failed]="r.status === 'failed'">
+          <span class="amx-dl__status-dot"></span>
+        </span>
+      </div>
+      <div class="amx-dl__card-meta">
+        <span class="amx-dl__type-badge" [class.amx-dl__type-badge--photo]="r.assetType === 'photo'"
+              [class.amx-dl__type-badge--vector]="r.assetType === 'vector'"
+              [class.amx-dl__type-badge--mockup]="r.assetType === 'mockup'"
+              [class.amx-dl__type-badge--template]="r.assetType === 'template'">
+          {{ typeLabels[r.assetType] }}
+        </span>
+        <span class="amx-dl__format-badge" [style.--fmt-clr]="formatColors[r.format] || '#6b7280'">{{ r.format }}</span>
+        <span class="amx-dl__card-size">{{ formatSize(r.fileSize) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="amx-dl__pagination" *ngIf="totalPages() > 1">
+    <amx-pagination [currentPage]="currentPage()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)"></amx-pagination>
+  </div>
+
+</div>

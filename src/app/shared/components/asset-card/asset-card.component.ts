@@ -27,9 +27,15 @@ import { Asset } from '../../../core/models/asset.model';
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
-          <button class="btn btn--icon" (click)="onSave()" aria-label="Save to collection">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <button class="btn btn--icon"
+                  [class.btn--icon-saved]="isSaved"
+                  (click)="onSave($event)"
+                  [attr.aria-label]="isSaved ? 'Saved — manage collections' : 'Save to collection'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+              [attr.fill]="isSaved ? 'currentColor' : 'none'"
+              stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
           </button>
         </div>
       </div>
@@ -54,11 +60,15 @@ import { Asset } from '../../../core/models/asset.model';
 })
 export class AssetCardComponent {
   @Input({ required: true }) asset!: Asset;
+  @Input() isSaved = false;
   @Output() download = new EventEmitter<Asset>();
   @Output() edit = new EventEmitter<Asset>();
-  @Output() save = new EventEmitter<Asset>();
+  @Output() save = new EventEmitter<{ asset: Asset; event: MouseEvent }>();
 
   onDownload(): void { this.download.emit(this.asset); }
   onEdit(): void { this.edit.emit(this.asset); }
-  onSave(): void { this.save.emit(this.asset); }
+  onSave(event: MouseEvent): void {
+    event.stopPropagation();
+    this.save.emit({ asset: this.asset, event });
+  }
 }

@@ -13,7 +13,7 @@ export type PrintCategoryId =
 export interface PrintCategory {
   id: PrintCategoryId;
   label: string;
-  icon: string;        // SVG path fragment
+  icon: string;
   description: string;
 }
 
@@ -31,7 +31,7 @@ export interface PaperProductOptions {
   bleedMm: number;
   quantities: number[];
   leadTimes: { label: string; businessDays: number; priceMod: number }[];
-  basePriceMap: Record<number, number>;  // qty → base price
+  basePriceMap: Record<number, number>;
 }
 
 export type ShirtSize    = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'XXXL';
@@ -45,7 +45,7 @@ export interface ApparelProductOptions {
   colors: ApparelColor[];
   brands: string[];
   materials: string[];
-  printAreas: string[];    // e.g. 'Front', 'Back', 'Left Sleeve'
+  printAreas: string[];
   quantities: number[];
   basePriceMap: Record<string, number>; // brand → base price
 }

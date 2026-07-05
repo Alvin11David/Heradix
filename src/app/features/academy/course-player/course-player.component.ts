@@ -13,8 +13,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
-// ── Interfaces ──────────────────────────────────────────────────────────────
-
 export interface PlayerLesson {
   id: number;
   number: number;
@@ -33,8 +31,6 @@ export interface CourseComment {
   text: string;
   postedAt: string;
 }
-
-// ── Mock data ─────────────────────────────────────────────────────────────────
 
 const MOCK_LESSONS: PlayerLesson[] = [
   { id: 1,  number: 1,  title: '01 - Explaining the concept',                durationSecs: 449,  duration: '7:29',  completed: false, isFree: true },
@@ -75,8 +71,6 @@ const MOCK_COMMENTS: CourseComment[] = [
   { id: 3, author: 'Ana Ferreira',  initials: 'AF', avatarColor: '#f59e0b', text: 'Could you cover blending modes in more depth? Great start!', postedAt: '1 week ago' },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Component({
   selector: 'amx-course-player',
   standalone: true,
@@ -91,7 +85,6 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   private readonly route  = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  // ── State ────────────────────────────────────────────────────────────────
   contentLoading = signal(true);
   lessons        = signal<PlayerLesson[]>([]);
   comments       = signal<CourseComment[]>([...MOCK_COMMENTS]);
@@ -99,10 +92,10 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   activeLesson   = signal<PlayerLesson | null>(null);
   playing        = signal(false);
   muted          = signal(false);
-  volume         = signal(80);          // 0-100
-  currentTime    = signal(0);           // seconds
-  duration       = signal(0);           // seconds
-  buffered       = signal(0);           // percentage
+  volume         = signal(80);
+  currentTime    = signal(0);
+  duration       = signal(0);
+  buffered       = signal(0);
   showSettings   = signal(false);
   playbackRate   = signal(1);
   commentText    = signal('');
@@ -111,7 +104,6 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
 
   readonly RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
-  // ── Computed ──────────────────────────────────────────────────────────────
   readonly completedCount = computed(() =>
     this.lessons().filter(l => l.completed).length
   );
@@ -141,15 +133,12 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   readonly autoMarkSecs = computed(() => {
     const al = this.activeLesson();
     if (!al) return 0;
-    return Math.max(0, al.durationSecs - 60); // auto-mark eligible after last 60s
+    return Math.max(0, al.durationSecs - 60);
   });
 
-  // ── Expose Math to template ───────────────────────────────────────────────
   readonly Math = Math;
 
-  // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
-    // Simulate loading
     setTimeout(() => {
       this.lessons.set(MOCK_LESSONS.map(l => ({ ...l })));
       this.activeLesson.set(MOCK_LESSONS[0]);
@@ -158,13 +147,10 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // cleanup if needed
   }
 
-  // ── Video control helpers ─────────────────────────────────────────────────
   selectLesson(lesson: PlayerLesson): void {
     if (!lesson.isFree && lesson.number > 1) {
-      // In real app gate with premiumGuard; for now allow all
     }
     this.activeLesson.set(lesson);
     this.playing.set(false);
@@ -229,7 +215,6 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
       );
       this.activeLesson.update(l => l ? { ...l, completed: true } : l);
       this.markingComplete.set(false);
-      // auto-advance after short delay
       setTimeout(() => this.nextLesson(), 600);
     }, 800);
   }
@@ -253,7 +238,6 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
     this.router.navigate(['/academy']);
   }
 
-  // ── Utilities ─────────────────────────────────────────────────────────────
   formatTime(secs: number): string {
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);

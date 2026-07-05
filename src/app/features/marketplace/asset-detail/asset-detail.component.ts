@@ -1,12 +1,18 @@
 import {
-  Component, ChangeDetectionStrategy, inject, signal, computed, OnInit,
+  Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, AfterViewInit, OnDestroy, ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, of, timeout } from 'rxjs';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MarketplaceService } from '../marketplace.service';
 import { Asset, AssetFormat } from '../../../core/models/asset.model';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { AddToCollectionMenuComponent } from '../../../shared/components/add-to-collection/add-to-collection-menu.component';
+import { CollectionsService } from '../../collections/collections.service';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export interface DownloadFormat {
   type: string;      // e.g. 'PSD', 'AI', 'EPS', 'JPG', 'PNG', 'VECTOR', 'ZIP'
@@ -17,15 +23,18 @@ export interface DownloadFormat {
 @Component({
   selector: 'amx-asset-detail',
   standalone: true,
-  imports: [CommonModule, SpinnerComponent],
+  imports: [CommonModule, SpinnerComponent, AddToCollectionMenuComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './asset-detail.component.html',
   styleUrl: './asset-detail.component.scss',
 })
-export class AssetDetailComponent implements OnInit {
+export class AssetDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly route  = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly svc    = inject(MarketplaceService);
+  private readonly el     = inject(ElementRef);
+  private readonly collectionsSvc = inject(CollectionsService);
+  private gsapCtx: gsap.Context | null = null;
 
   asset   = signal<Asset | null>(null);
   similar = signal<Asset[]>([]);
@@ -35,8 +44,8 @@ export class AssetDetailComponent implements OnInit {
   bgRemoving = signal(false);
   shareOpen  = signal(false);
   toast      = signal<string>('');
+  readonly saveMenuOpen = signal(false);
 
-  /** Derive available download formats from asset format */
   formats = computed<DownloadFormat[]>(() => {
     const a = this.asset();
     if (!a) return [];
@@ -89,27 +98,96 @@ export class AssetDetailComponent implements OnInit {
     const thumb = this.route.snapshot.queryParamMap.get('thumb');
     const label = this.route.snapshot.queryParamMap.get('label');
 
-    // Use timeout of 8 seconds, then fallback to mock data
     this.svc.getAssetBySlug(slug).pipe(
       timeout(8000),
       catchError(() => of(this.buildMockAsset(slug)))
     ).subscribe((a) => {
-      // Override preview image and title with what was actually clicked
       if (thumb) { a = { ...a, previewUrl: thumb, thumbnailUrl: thumb }; }
       if (label) { a = { ...a, title: label }; }
       this.asset.set(a);
       this.loading.set(false);
       this.selectedFormat.set(a.format);
       
-      // Load similar assets with timeout
       this.svc.getSimilarAssets(a.id).pipe(
         timeout(5000),
         catchError(() => of(this.buildMockSimilar(slug)))
-      ).subscribe((s) => this.similar.set(s.length ? s : this.buildMockSimilar(slug)));
+      ).subscribe((s) => {
+        this.similar.set(s.length ? s : this.buildMockSimilar(slug));
+        requestAnimationFrame(() => this.animateRelatedItems());
+      });
     });
   }
 
-  /** Produce a display-ready mock asset when the API has no record for the slug */
+  ngAfterViewInit(): void {
+    this.gsapCtx = gsap.context(() => {
+
+      gsap.fromTo('.amx-ad__topbar',
+        { y: -30, opacity: 0 },
+        {
+          scrollTrigger: {
+            trigger: '.amx-ad__topbar', start: 'top 80%',
+            toggleActions: 'play none none none',
+          },
+          y: 0, opacity: 1,
+          duration: 0.5, ease: 'power3.out',
+        }
+      );
+
+      gsap.fromTo('.amx-ad__preview-card',
+        { x: -50, opacity: 0, scale: 0.97 },
+        {
+          scrollTrigger: {
+            trigger: '.amx-ad__grid', start: 'top 80%',
+            toggleActions: 'play none none none',
+          },
+          x: 0, opacity: 1, scale: 1,
+          duration: 0.85, ease: 'power4.out',
+        }
+      );
+
+      gsap.fromTo('.amx-ad__panel',
+        { x: 40, opacity: 0 },
+        {
+          scrollTrigger: {
+            trigger: '.amx-ad__grid', start: 'top 80%',
+            toggleActions: 'play none none none',
+          },
+          x: 0, opacity: 1,
+          duration: 0.7, ease: 'power3.out',
+        }
+      );
+
+      gsap.fromTo('.amx-ad__qa-btn',
+        { y: 24, opacity: 0 },
+        {
+          scrollTrigger: {
+            trigger: '.amx-ad__actions-strip', start: 'top 85%',
+            toggleActions: 'play none none none',
+          },
+          y: 0, opacity: 1,
+          duration: 0.45, stagger: 0.08, ease: 'back.out(1.7)',
+        }
+      );
+
+      gsap.fromTo('.amx-ad__related-header',
+        { y: 20, opacity: 0 },
+        {
+          scrollTrigger: {
+            trigger: '.amx-ad__related', start: 'top 85%',
+            toggleActions: 'play none none none',
+          },
+          y: 0, opacity: 1,
+          duration: 0.6, ease: 'power3.out',
+        }
+      );
+
+    }, this.el.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.gsapCtx?.revert();
+  }
+
   private buildMockAsset(slug: string): Asset {
     const slugMap: Record<string, Partial<Asset>> = {
       'modern-business-card':       { id: 'a1', title: 'Modern Business Card',          format: 'PSD',    fileSizeBytes: 8_200_000,  isPremium: false, isEditable: true },
@@ -148,7 +226,6 @@ export class AssetDetailComponent implements OnInit {
     };
   }
 
-  /** Build a list of 8 related/similar mock assets for display in the Related section */
   private buildMockSimilar(currentSlug: string): Asset[] {
     const items: { slug: string; title: string; format: AssetFormat; isPremium: boolean; isEditable: boolean }[] = [
       { slug: 'modern-business-card',        title: 'Modern Business Card',       format: 'PSD',    isPremium: false, isEditable: true  },
@@ -184,6 +261,18 @@ export class AssetDetailComponent implements OnInit {
         createdAt:     new Date().toISOString(),
         updatedAt:     new Date().toISOString(),
       }));
+  }
+
+  private animateRelatedItems(): void {
+    const items = this.el.nativeElement.querySelectorAll('.amx-ad__related-item');
+    if (!items.length) return;
+    gsap.fromTo(items,
+      { y: 40, opacity: 0 },
+      {
+        y: 0, opacity: 1,
+        duration: 0.5, stagger: 0.06, ease: 'power3.out',
+      }
+    );
   }
 
   selectFormat(type: string): void {
@@ -246,6 +335,16 @@ export class AssetDetailComponent implements OnInit {
     };
     if (links[platform]) window.open(links[platform], '_blank', 'width=600,height=450');
     this.shareOpen.set(false);
+  }
+
+  readonly isAssetSaved = computed(() => {
+    const a = this.asset();
+    return a ? this.collectionsSvc.collectionIdsForAsset(a.id).length > 0 : false;
+  });
+
+  openSaveMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.saveMenuOpen.set(true);
   }
 
   copyLink(): void {

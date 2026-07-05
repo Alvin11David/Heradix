@@ -1,7 +1,7 @@
-<!-- ══ PRINT HOME PAGE ══════════════════════════════════════════ -->
+
 <div class="amx-ph">
 
-  <!-- ── Promo offer banner ──────────────────────────────────── -->
+
   <div class="amx-ph__offer" *ngIf="!offerDismissed()">
     <div class="amx-ph__offer-inner">
       <div class="amx-ph__offer-badge">
@@ -26,7 +26,7 @@
     </div>
   </div>
 
-  <!-- ── Hero banner ─────────────────────────────────────────── -->
+
   <section class="amx-ph__hero">
     <div class="amx-ph__hero-content">
       <h1 class="amx-ph__hero-title">Everything you need to<br>draw a crowd</h1>
@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <!-- ── Rotating Branded Samples slider (top-right) ──── -->
+
     <div class="amx-ph__hero-slider">
       <div class="amx-ph__slider-track">
         <div
@@ -76,7 +76,7 @@
           <div class="amx-ph__slide-label">{{ slide.label }}</div>
         </div>
       </div>
-      <!-- Dot indicators -->
+
       <div class="amx-ph__slider-dots">
         <button
           *ngFor="let slide of heroSlides; let i = index; trackBy: trackByIdx"
@@ -89,7 +89,7 @@
     </div>
   </section>
 
-  <!-- ── Start / Upload tabs ─────────────────────────────────── -->
+
   <section class="amx-ph__action-panel">
     <div class="amx-ph__tabs">
       <button class="amx-ph__tab" [class.amx-ph__tab--active]="activeTab() === 'start'" (click)="setTab('start')">
@@ -109,29 +109,29 @@
       </button>
     </div>
 
-    <!-- Start Printing panel — visual size grid -->
+
     <div class="amx-ph__panel" *ngIf="activeTab() === 'start'">
       <div class="amx-ph__panel-header">
         <h3 class="amx-ph__panel-title">Choose a size to get started</h3>
         <p class="amx-ph__panel-sub">Select a common size or choose a product category below</p>
       </div>
 
-      <!-- Visual size shape grid -->
+
       <div class="amx-ph__size-grid">
         <button
           *ngFor="let s of quickSizes; trackBy: trackByIdx"
           class="amx-ph__size-card"
           [class.amx-ph__size-card--active]="selectedSize() === s.label"
           (click)="selectSize(s.label)">
-          <!-- Proportional white card shape -->
+
           <div class="amx-ph__size-shape-wrap">
             <div class="amx-ph__size-shape" [ngStyle]="sizeCardStyle(s.width, s.height)">
-              <!-- Custom size shows grid icon -->
+
               <svg *ngIf="!s.width" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
                 <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
               </svg>
-              <!-- Heart icon for standard sizes -->
+
               <svg *ngIf="s.width" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                 <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/>
               </svg>
@@ -151,7 +151,7 @@
       </button>
     </div>
 
-    <!-- Upload panel -->
+
     <div class="amx-ph__panel" *ngIf="activeTab() === 'upload'">
       <div class="amx-ph__panel-header">
         <h3 class="amx-ph__panel-title">Upload your ready print file</h3>
@@ -221,7 +221,7 @@
     </div>
   </section>
 
-  <!-- ── Category nav ────────────────────────────────────────── -->
+
   <section class="amx-ph__catalogue">
     <div class="amx-ph__cat-header">
       <h2 class="amx-ph__cat-title">Popular Products</h2>
@@ -267,7 +267,7 @@
       </button>
     </nav>
 
-    <!-- Product grid for active category -->
+
     <div class="amx-ph__product-grid">
       <div
         *ngFor="let p of filteredProducts(); trackBy: trackByProd"
@@ -305,7 +305,7 @@
     </div>
   </section>
 
-  <!-- ── Sample gallery ──────────────────────────────────────── -->
+
   <section class="amx-ph__samples">
     <div class="amx-ph__samples-header">
       <h2 class="amx-ph__samples-title">
@@ -325,7 +325,7 @@
     </div>
   </section>
 
-  <!-- ── Trust strip ─────────────────────────────────────────── -->
+
   <section class="amx-ph__trust-strip">
     <div class="amx-ph__trust-card">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -357,4 +357,4 @@
     </div>
   </section>
 
-</div><!-- /.amx-ph -->
+</div>

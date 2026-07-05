@@ -1,7 +1,3 @@
-// ════════════════════════════════════════════════════════
-//  HERO – Create Your Design
-// ════════════════════════════════════════════════════════
-
 .amx-hero {
   padding: 40px 24px 32px;
   background: var(--amx-bg);
@@ -37,6 +33,7 @@
     flex-direction: column;
     gap: 20px;
     box-shadow: var(--market-card-shadow);
+    will-change: transform, opacity;
   }
 
   &__title {
@@ -106,10 +103,6 @@
   }
 }
 
-// ════════════════════════════════════════════════════════
-//  STRATEGIC CALENDAR TEASER
-// ════════════════════════════════════════════════════════
-
 .amx-cal-section {
   max-width: 1440px;
   margin: 0 auto;
@@ -122,6 +115,7 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
+    will-change: transform, opacity;
   }
 
   &__title {
@@ -176,7 +170,6 @@
   }
 }
 
-// ── Calendar event cards ──────────────────────────────────
 .amx-cal-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -198,6 +191,7 @@
   flex-direction: column;
   box-shadow: var(--amx-shadow-sm);
   background: transparent;
+  will-change: transform, opacity;
 
   &:hover {
     transform: translateY(-4px);
@@ -209,7 +203,6 @@
     box-shadow: 0 6px 28px rgba(245,130,10,0.22);
   }
 
-  /* Floating design card area */
   &__preview-wrap {
     flex: 1;
     display: flex;
@@ -237,7 +230,6 @@
     display: block;
   }
 
-  /* Footer: white pill at bottom with name + date + tags */
   &__footer {
     background: var(--market-card-surface);
     margin: 0 -18px;
@@ -289,7 +281,6 @@
   }
 }
 
-// ── Calendar tags ─────────────────────────────────────────
 .amx-cal-tag {
   display: inline-flex;
   align-items: center;
@@ -305,7 +296,6 @@
   &--sought { background: var(--market-chip-sought-bg); color: var(--market-chip-sought-text); }
 }
 
-// ── Resources pointer label ───────────────────────────────
 .amx-cal-resources {
   margin-top: 28px;
   text-align: center;
@@ -317,6 +307,7 @@
     font-size: 14px;
     color: var(--market-text);
     margin: 0;
+    will-change: transform, opacity;
   }
 
   &__event-name {
@@ -336,13 +327,13 @@
   50%       { transform: translateY(4px); }
 }
 
-// ── Resources grid header ─────────────────────────────────
 .amx-resources-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-top: 24px;
   margin-bottom: 16px;
+  will-change: transform, opacity;
 
   &__title {
     font-family: 'Lato', sans-serif;
@@ -368,7 +359,6 @@
   }
 }
 
-// ── Thumbnail grid ────────────────────────────────────────
 .amx-thumb-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -385,6 +375,7 @@
   background: var(--amx-bg-soft);
   aspect-ratio: 1 / 1;
   position: relative;
+  will-change: transform, opacity;
 
   &__img-wrap {
     width: 100%;
@@ -431,14 +422,6 @@
   }
 }
 
-// ════════════════════════════════════════════════════════
-//  ASSET LIST GRID
-// ════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════════════
-//  FEATURED ASSETS SECTION
-// ════════════════════════════════════════════════════════
-
 .featured-assets {
   max-width: 1440px;
   margin: 0 auto;
@@ -450,6 +433,7 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 28px;
+    will-change: transform, opacity;
   }
 
   &__title {

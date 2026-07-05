@@ -14,6 +14,6 @@ import { CommonModule } from '@angular/common';
   styleUrl: './spinner.component.scss',
 })
 export class SpinnerComponent {
-  /** 'sm' | 'md' | 'lg' — defaults to 'md' */
+
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
 }

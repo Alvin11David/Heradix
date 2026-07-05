@@ -1,9 +1,15 @@
-import { Component, ChangeDetectionStrategy, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, OnInit, computed, AfterViewInit, OnDestroy, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MarketplaceService } from '../marketplace.service';
 import { Asset, AssetListParams } from '../../../core/models/asset.model';
 import { AssetCardComponent } from '../../../shared/components/asset-card/asset-card.component';
+import { AddToCollectionMenuComponent } from '../../../shared/components/add-to-collection/add-to-collection-menu.component';
+import { CollectionsService } from '../../collections/collections.service';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface CalendarEvent {
   emoji: string;
@@ -19,10 +25,9 @@ interface CalendarEvent {
 @Component({
   selector: 'amx-asset-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, AssetCardComponent],
+  imports: [CommonModule, RouterLink, AssetCardComponent, AddToCollectionMenuComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <!-- ══════ HERO: Create Your Design ══════ -->
     <section class="amx-hero">
       <div class="amx-hero__card">
         <h2 class="amx-hero__title">Create Your Design!</h2>
@@ -48,7 +53,6 @@ interface CalendarEvent {
       </div>
     </section>
 
-    <!-- ══════ STRATEGIC CALENDAR ══════ -->
     <section class="amx-cal-section">
       <div class="amx-cal-section__header">
         <div>
@@ -77,7 +81,6 @@ interface CalendarEvent {
         </div>
       </div>
 
-      <!-- Event cards row -->
       <div class="amx-cal-cards">
         <div *ngFor="let ev of visibleCalEvents(); let i = index"
              class="amx-cal-card"
@@ -85,14 +88,12 @@ interface CalendarEvent {
              [style.background]="ev.gradient"
              (click)="activeEvent.set(ev)">
 
-          <!-- Floating design card (thumbnail preview) -->
           <div class="amx-cal-card__preview-wrap">
             <div class="amx-cal-card__preview-shadow">
               <img [src]="ev.cover" [alt]="ev.title" class="amx-cal-card__preview-img" loading="lazy"/>
             </div>
           </div>
 
-          <!-- Card footer: name + details -->
           <div class="amx-cal-card__footer">
             <div class="amx-cal-card__footer-left">
               <span class="amx-cal-card__icon-wrap">
@@ -122,7 +123,6 @@ interface CalendarEvent {
         </div>
       </div>
 
-      <!-- Selected event resources -->
       <div class="amx-cal-resources" *ngIf="activeEvent()">
         <p class="amx-cal-resources__label">
           See below the resources for
@@ -133,7 +133,6 @@ interface CalendarEvent {
         </p>
       </div>
 
-      <!-- Resources grid header -->
       <div class="amx-resources-header" *ngIf="activeEvent()">
         <h4 class="amx-resources-header__title">
           Resources for
@@ -147,7 +146,6 @@ interface CalendarEvent {
         </a>
       </div>
 
-      <!-- Thumbnail grid -->
       <div class="amx-thumb-grid" *ngIf="activeEvent()">
         <div *ngFor="let asset of activeEvent()!.assets"
              class="amx-thumb-card"
@@ -166,7 +164,6 @@ interface CalendarEvent {
       </div>
     </section>
 
-    <!-- ══════ FEATURED ASSETS GRID ══════ -->
     <section class="featured-assets">
       <div class="featured-assets__header">
         <h3 class="featured-assets__title">Featured Assets</h3>
@@ -192,12 +189,21 @@ interface CalendarEvent {
         No assets available at the moment.
       </p>
     </section>
+
+    <amx-add-to-collection
+      *ngIf="saveMenuOpen()"
+      [assetId]="saveAssetId()"
+      (closed)="saveMenuOpen.set(false)"
+    />
   `,
   styleUrl: './asset-list.component.scss',
 })
-export class AssetListComponent implements OnInit {
+export class AssetListComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly svc    = inject(MarketplaceService);
   private readonly router = inject(Router);
+  private readonly el     = inject(ElementRef);
+  private readonly mm     = gsap.matchMedia();
+  readonly collectionsSvc = inject(CollectionsService);
 
   assets      = signal<Asset[]>([]);
   loading     = signal(true);
@@ -205,7 +211,9 @@ export class AssetListComponent implements OnInit {
   currentPage = signal(1);
   totalPages  = signal(1);
 
-  // Calendar
+  readonly saveMenuOpen = signal(false);
+  readonly saveAssetId = signal('');
+
   calPage    = signal(0);
   activeEvent = signal<CalendarEvent | null>(null);
 
@@ -326,6 +334,165 @@ export class AssetListComponent implements OnInit {
     this.load();
   }
 
+  ngAfterViewInit(): void {
+    const el = this.el.nativeElement;
+
+    this.mm.add('(min-width: 640px)', () => {
+      const ctx = gsap.context(() => {
+
+        gsap.fromTo('.amx-hero__card',
+          { y: 60, opacity: 0, scale: 0.96 },
+          {
+            scrollTrigger: {
+              trigger: '.amx-hero', start: 'top 80%',
+              toggleActions: 'play none none none',
+            },
+            y: 0, opacity: 1, scale: 1,
+            duration: 1.2, ease: 'power4.out',
+          }
+        );
+
+        gsap.fromTo('.amx-cal-section__header',
+          { y: 30, opacity: 0 },
+          {
+            scrollTrigger: {
+              trigger: '.amx-cal-section', start: 'top 80%',
+              toggleActions: 'play none none none',
+            },
+            y: 0, opacity: 1,
+            duration: 0.7, ease: 'power3.out',
+          }
+        );
+
+        const cards = gsap.utils.toArray('.amx-cal-card') as HTMLElement[];
+        cards.forEach((card, i) => {
+          const dir = i % 2 === 0 ? -1 : 1;
+          gsap.fromTo(card,
+            { y: 80, x: 40 * dir, opacity: 0, scale: 0.88, rotation: -6 * dir },
+            {
+              scrollTrigger: {
+                trigger: card, start: 'top 88%',
+                toggleActions: 'play none none none',
+              },
+              y: 0, x: 0, opacity: 1, scale: 1, rotation: 0,
+              duration: 0.7, ease: 'back.out(1.7)',
+              delay: i * 0.15,
+            }
+          );
+        });
+
+        gsap.fromTo('.amx-cal-resources__label',
+          { y: 20, opacity: 0 },
+          {
+            scrollTrigger: {
+              trigger: '.amx-cal-resources', start: 'top 88%',
+              toggleActions: 'play none none none',
+            },
+            y: 0, opacity: 1,
+            duration: 0.5, ease: 'power2.out',
+          }
+        );
+
+        gsap.fromTo('.amx-resources-header',
+          { y: 20, opacity: 0 },
+          {
+            scrollTrigger: {
+              trigger: '.amx-resources-header', start: 'top 88%',
+              toggleActions: 'play none none none',
+            },
+            y: 0, opacity: 1,
+            duration: 0.5, ease: 'power3.out',
+          }
+        );
+
+        const thumbs = gsap.utils.toArray('.amx-thumb-card') as HTMLElement[];
+        thumbs.forEach((card, i) => {
+          gsap.fromTo(card,
+            { y: 30, opacity: 0, scale: 0.92 },
+            {
+              scrollTrigger: {
+                trigger: card, start: 'top 90%',
+                toggleActions: 'play none none none',
+              },
+              y: 0, opacity: 1, scale: 1,
+              duration: 0.45, ease: 'power3.out',
+              delay: (i % 7) * 0.05,
+            }
+          );
+        });
+
+        gsap.fromTo('.featured-assets__header',
+          { x: -30, opacity: 0 },
+          {
+            scrollTrigger: {
+              trigger: '.featured-assets', start: 'top 80%',
+              toggleActions: 'play none none none',
+            },
+            x: 0, opacity: 1,
+            duration: 0.7, ease: 'power3.out',
+          }
+        );
+
+      }, el);
+      return () => ctx.revert();
+    });
+
+    this.mm.add('(max-width: 639px)', () => {
+      const ctx = gsap.context(() => {
+
+        gsap.fromTo('.amx-hero__card',
+          { y: 40, opacity: 0, scale: 0.97 },
+          {
+            scrollTrigger: {
+              trigger: '.amx-hero', start: 'top 85%',
+              toggleActions: 'play none none none',
+            },
+            y: 0, opacity: 1, scale: 1,
+            duration: 0.8, ease: 'power3.out',
+          }
+        );
+
+        const cards = gsap.utils.toArray('.amx-cal-card') as HTMLElement[];
+        cards.forEach((card, i) => {
+          gsap.fromTo(card,
+            { y: 50, opacity: 0, scale: 0.92, rotation: -4 },
+            {
+              scrollTrigger: {
+                trigger: card, start: 'top 90%',
+                toggleActions: 'play none none none',
+              },
+              y: 0, opacity: 1, scale: 1, rotation: 0,
+              duration: 0.55, ease: 'back.out(1.5)',
+              delay: i * 0.12,
+            }
+          );
+        });
+
+        const thumbs = gsap.utils.toArray('.amx-thumb-card') as HTMLElement[];
+        thumbs.forEach((card, i) => {
+          gsap.fromTo(card,
+            { y: 20, opacity: 0 },
+            {
+              scrollTrigger: {
+                trigger: card, start: 'top 92%',
+                toggleActions: 'play none none none',
+              },
+              y: 0, opacity: 1,
+              duration: 0.35, ease: 'power2.out',
+              delay: (i % 2) * 0.06,
+            }
+          );
+        });
+
+      }, el);
+      return () => ctx.revert();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.mm.kill();
+  }
+
   prevCalPage(): void { if (this.calPage() > 0) this.calPage.update(p => p - 1); }
   nextCalPage(): void { if (this.calPage() < this.calEvents.length - 1) this.calPage.update(p => p + 1); }
 
@@ -337,7 +504,10 @@ export class AssetListComponent implements OnInit {
   }
 
   onEdit(asset: Asset): void { this.router.navigate(['/editor'], { queryParams: { assetId: asset.id } }); }
-  onSave(_asset: Asset): void { /* TODO: open save-to-collection modal */ }
+  onSave(data: { asset: Asset; event: MouseEvent }): void {
+    this.saveAssetId.set(data.asset.id);
+    this.saveMenuOpen.set(true);
+  }
   trackById(_: number, a: Asset): string { return a.id; }
   openAsset(slug: string, img?: string, label?: string): void {
     this.router.navigate(['/marketplace', 'asset', slug], {
@@ -353,8 +523,31 @@ export class AssetListComponent implements OnInit {
         this.total.set(res.total);
         this.totalPages.set(res.totalPages);
         this.loading.set(false);
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+          this.animateAssetCards();
+        });
       },
       error: () => this.loading.set(false),
+    });
+  }
+
+  private animateAssetCards(): void {
+    const grid = this.el.nativeElement.querySelector('.asset-grid');
+    if (!grid) return;
+    const cards = grid.querySelectorAll('amx-asset-card');
+    if (!cards.length) return;
+
+    cards.forEach((card: Element, i: number) => {
+      const dir = i % 2 === 0 ? -1 : 1;
+      gsap.fromTo(card,
+        { y: 60, x: 20 * dir, opacity: 0, scale: 0.93, rotation: -3 * dir },
+        {
+          y: 0, x: 0, opacity: 1, scale: 1, rotation: 0,
+          duration: 0.65, ease: 'power3.out',
+          delay: i * 0.07,
+        }
+      );
     });
   }
 }

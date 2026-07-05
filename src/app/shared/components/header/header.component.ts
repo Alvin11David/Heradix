@@ -22,13 +22,9 @@ const FORMAT_ITEMS = [
   imports: [CommonModule, RouterLink, RouterLinkActive],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <!-- ══════════════════════════════════════════════════
-         TOP BAR
-    ══════════════════════════════════════════════════ -->
     <header class="amx-topbar">
       <div class="amx-topbar__inner">
 
-        <!-- Logo -->
         <a routerLink="/marketplace" class="amx-logo" aria-label="Amarapix home">
           <img src="https://i.postimg.cc/zD47BZ94/Asset-1-2x.png"
                alt="Amarapix"
@@ -37,7 +33,6 @@ const FORMAT_ITEMS = [
           <span class="amx-logo__text" style="display:none">Amara<span class="amx-logo__pix">pix</span></span>
         </a>
 
-        <!-- All Categories pill -->
         <button class="amx-categories-btn" type="button" aria-haspopup="true">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -46,7 +41,6 @@ const FORMAT_ITEMS = [
           All Categories
         </button>
 
-        <!-- Search bar -->
         <div class="amx-search">
           <input
             class="amx-search__input"
@@ -81,7 +75,6 @@ const FORMAT_ITEMS = [
           </button>
         </div>
 
-        <!-- Right actions -->
         <div class="amx-topbar__actions">
           <button
             class="amx-theme-btn"
@@ -101,7 +94,6 @@ const FORMAT_ITEMS = [
           </button>
 
           <ng-container *ngIf="auth.isLoggedIn(); else guestTpl">
-            <!-- Premium badge (show for logged-in users) -->
             <button class="amx-btn amx-btn--premium" routerLink="/pricing">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M2 19h20v2H2v-2zM12 3l4 8 4-4-3 10H7L4 7l4 4 4-8z"/>
@@ -109,7 +101,6 @@ const FORMAT_ITEMS = [
               Premium
             </button>
 
-            <!-- Avatar + dropdown -->
             <div class="amx-avatar-wrap" (click)="$event.stopPropagation()">
               <button class="amx-avatar"
                       (click)="avatarMenuOpen.set(!avatarMenuOpen())"
@@ -123,9 +114,7 @@ const FORMAT_ITEMS = [
                 </ng-template>
               </button>
 
-              <!-- Dropdown panel -->
               <div class="amx-user-menu" *ngIf="avatarMenuOpen()" role="menu">
-                <!-- User info header -->
                 <div class="amx-user-menu__header">
                   <div class="amx-user-menu__avatar">
                     <img *ngIf="auth.currentUser()?.avatarUrl"
@@ -146,7 +135,6 @@ const FORMAT_ITEMS = [
 
                 <div class="amx-user-menu__divider"></div>
 
-                <!-- Menu items -->
                 <ul class="amx-user-menu__list" role="none">
                   <li role="none">
                     <a routerLink="/profile" class="amx-user-menu__item" role="menuitem" (click)="avatarMenuOpen.set(false)">
@@ -186,7 +174,6 @@ const FORMAT_ITEMS = [
 
                 <div class="amx-user-menu__divider"></div>
 
-                <!-- Theme toggle -->
                 <div class="amx-user-menu__theme" role="none">
                   <span class="amx-user-menu__theme-label">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -206,7 +193,6 @@ const FORMAT_ITEMS = [
 
                 <div class="amx-user-menu__divider"></div>
 
-                <!-- Logout -->
                 <ul class="amx-user-menu__list" role="none">
                   <li role="none">
                     <button class="amx-user-menu__item amx-user-menu__item--danger" role="menuitem" (click)="logout()">
@@ -223,7 +209,6 @@ const FORMAT_ITEMS = [
           </ng-container>
 
           <ng-template #guestTpl>
-            <!-- Premium upsell -->
             <button class="amx-btn amx-btn--premium" routerLink="/pricing">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M2 19h20v2H2v-2zM12 3l4 8 4-4-3 10H7L4 7l4 4 4-8z"/>
@@ -243,12 +228,8 @@ const FORMAT_ITEMS = [
       </div>
     </header>
 
-    <!-- ══════════════════════════════════════════════════
-         CATEGORY NAV BAR
-    ══════════════════════════════════════════════════ -->
     <nav class="amx-catnav" aria-label="Asset categories">
       <div class="amx-catnav__inner">
-        <!-- Left: category links -->
         <ul class="amx-catnav__list" role="list">
           <li *ngFor="let cat of categories" class="amx-catnav__item"
               (mouseenter)="cat.dropdownItems && openCatDropdown(cat.label)"
@@ -272,7 +253,6 @@ const FORMAT_ITEMS = [
           </li>
         </ul>
 
-        <!-- Right: utility links -->
         <ul class="amx-catnav__utils" role="list">
           <li>
             <a routerLink="/print" routerLinkActive="active" class="amx-catnav__util-link">
@@ -303,19 +283,19 @@ export class HeaderComponent {
   readonly auth = inject(AuthService);
   readonly theme = inject(ThemeService);
 
-  // Format dropdown
+
   formatOpen     = signal(false);
   selectedFormat = signal('Format');
   readonly formatItems = FORMAT_ITEMS;
 
-  // Category nav dropdown
+
   openDropdown: string | null = null;
   activeCat: string | null = null;
 
-  // Avatar user menu
+
   avatarMenuOpen = signal(false);
 
-  // Theme
+
   readonly darkMode = this.theme.isDark;
 
   @HostListener('document:click')

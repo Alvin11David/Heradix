@@ -1,84 +1,99 @@
 <div class="amx-pricing">
 
-  <!-- ── HERO ─────────────────────────────────────────────── -->
-  <section class="amx-pricing__hero">
-    <h1 class="amx-pricing__title">Subscribe Now.</h1>
-    <p class="amx-pricing__sub">
-      Choose the plan that fits your creative workflow.<br>
-      Cancel anytime, no questions asked.
-    </p>
 
-    <div class="amx-pricing__toggle">
-      <button
-        class="amx-pricing__toggle-btn"
-        [class.amx-pricing__toggle-btn--active]="billing() === 'monthly'"
-        (click)="billing.set('monthly')">
-        Monthly
-      </button>
-      <button
-        class="amx-pricing__toggle-btn"
-        [class.amx-pricing__toggle-btn--active]="billing() === 'annual'"
-        (click)="billing.set('annual')">
-        Annual
-        <span class="amx-pricing__save-badge">Save 20%</span>
-      </button>
+  <section class="amx-pricing__hero">
+    <div class="amx-pricing__hero-pattern"></div>
+    <div class="amx-pricing__hero-content">
+      <span class="amx-pricing__hero-badge">Plans &amp; Pricing</span>
+      <h1 class="amx-pricing__title">Find the perfect plan for your creative work</h1>
+      <p class="amx-pricing__sub">
+        Start with a free trial. No credit card required. Cancel anytime.
+      </p>
+
+      <div class="amx-pricing__toggle">
+        <button class="amx-pricing__toggle-btn"
+                [class.amx-pricing__toggle-btn--active]="billing() === 'monthly'"
+                (click)="billing.set('monthly')">
+          Monthly
+        </button>
+        <button class="amx-pricing__toggle-btn"
+                [class.amx-pricing__toggle-btn--active]="billing() === 'annual'"
+                (click)="billing.set('annual')">
+          Annual
+          <span class="amx-pricing__save-badge">Save 20%</span>
+        </button>
+      </div>
     </div>
   </section>
 
-  <!-- ── PLAN CARDS ─────────────────────────────────────────── -->
+
   <section class="amx-pricing__plans">
-    <div
-      *ngFor="let plan of plans"
-      class="amx-plan-card"
-      [class.amx-plan-card--selected]="selectedPlan()?.key === plan.key"
-      [style.background]="plan.gradient"
-      [style.--accent]="plan.accentColor"
-      (click)="selectedPlan.set(plan)">
+    <div *ngFor="let plan of plans; let i = index"
+         class="amx-plan-card"
+         [class.amx-plan-card--popular]="plan.popular"
+         [class.amx-plan-card--lite]="plan.key === 'lite'"
+         [class.amx-plan-card--plus]="plan.key === 'plus'"
+         [style.--i]="i"
+         (click)="selectedPlan.set(plan)">
+
+
+      <div class="amx-plan-card__ribbon" *ngIf="plan.popular">
+        <span>Most popular</span>
+      </div>
 
       <div class="amx-plan-card__head">
-        <div class="amx-plan-card__icon-wrap" [style.color]="plan.accentColor">
+        <div class="amx-plan-card__icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path [attr.d]="plan.icon"/>
           </svg>
         </div>
-        <span class="amx-plan-card__label" [style.color]="plan.accentColor">{{ plan.label }}</span>
+        <span class="amx-plan-card__label">{{ plan.label }}</span>
       </div>
 
       <div class="amx-plan-card__price">
         <span class="amx-plan-card__currency">$</span>
         <span class="amx-plan-card__amount">
-          {{ billing() === 'monthly' ? plan.monthlyPrice.toFixed(2) : plan.annualPrice.toFixed(2) }}
+          {{ billing() === 'monthly' ? plan.monthlyPrice : annualPrice(plan.monthlyPrice) }}
         </span>
         <span class="amx-plan-card__period">/mo</span>
       </div>
 
+      <div class="amx-plan-card__annual-note" *ngIf="billing() === 'annual'">
+        Billed annually — ${{ (annualPrice(plan.monthlyPrice) * 12).toFixed(2) }}/year
+      </div>
+
       <div class="amx-plan-card__downloads">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+        </svg>
         <strong>{{ plan.downloadsPerDay }}</strong> downloads / day
       </div>
 
       <ul class="amx-plan-card__features">
         <li *ngFor="let f of plan.features">
-          <svg viewBox="0 0 20 20" fill="currentColor" class="amx-plan-card__check">
-            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" clip-rule="evenodd"/>
+          <svg class="amx-plan-card__check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
           </svg>
-          {{ f }}
+          <span>{{ f }}</span>
         </li>
       </ul>
 
-      <button class="amx-plan-card__cta" [style.background]="plan.accentColor"
+      <button class="amx-plan-card__cta"
+              [class.amx-plan-card__cta--hero]="plan.popular"
               (click)="openCheckout(plan, $event)">
-        Subscribe
+        <ng-container *ngIf="plan.popular">Start free trial</ng-container>
+        <ng-container *ngIf="!plan.popular">Subscribe</ng-container>
       </button>
     </div>
   </section>
 
-  <!-- ── BENEFITS ───────────────────────────────────────────── -->
+
   <section class="amx-pricing__benefits">
-    <h2 class="amx-pricing__section-title">Why go Premium?</h2>
+    <h2 class="amx-pricing__section-title">Everything you get with Premium</h2>
     <div class="amx-benefits-grid">
       <div class="amx-benefit" *ngFor="let b of benefits">
-        <div class="amx-benefit__icon">
+        <div class="amx-benefit__icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path [attr.d]="b.icon"/>
@@ -92,15 +107,14 @@
     </div>
   </section>
 
-  <!-- ── FAQ ────────────────────────────────────────────────── -->
+
   <section class="amx-pricing__faq">
     <h2 class="amx-pricing__section-title">Frequently asked questions</h2>
     <div class="amx-faq-list">
-      <div
-        class="amx-faq-item"
-        *ngFor="let faq of faqs"
-        [class.amx-faq-item--open]="faq.open"
-        (click)="faq.open = !faq.open">
+      <div class="amx-faq-item"
+           *ngFor="let faq of faqs"
+           [class.amx-faq-item--open]="faq.open"
+           (click)="faq.open = !faq.open">
         <div class="amx-faq-item__q">
           {{ faq.q }}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -115,12 +129,14 @@
 
 </div>
 
-<!-- ── CHECKOUT OVERLAY ────────────────────────────────────── -->
-<div class="amx-overlay" *ngIf="checkoutPlan()" (click)="closeCheckout($event)">
+
+<div class="amx-checkout-overlay" *ngIf="checkoutPlan()" (click)="closeCheckout($event)">
   <div class="amx-checkout">
 
-    <!-- LEFT PANEL -->
-    <div class="amx-checkout__left" [style.background]="checkoutPlan()!.gradient">
+
+    <div class="amx-checkout__left"
+         [class.amx-checkout__left--popular]="checkoutPlan()!.popular">
+
       <button class="amx-checkout__back" (click)="closeCheckout()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
@@ -141,43 +157,39 @@
 
       <div class="amx-checkout__plan-info">
         <div class="amx-checkout__plan-name"
-             [style.color]="checkoutPlan()!.accentColor">
+             [class.amx-checkout__plan-name--popular]="checkoutPlan()!.popular">
           {{ checkoutPlan()!.label }}
         </div>
         <div class="amx-checkout__plan-price">
           ${{ billing() === 'monthly'
-              ? checkoutPlan()!.monthlyPrice.toFixed(2)
-              : checkoutPlan()!.annualPrice.toFixed(2) }} /mo
+              ? checkoutPlan()!.monthlyPrice
+              : annualPrice(checkoutPlan()!.monthlyPrice) }} /mo
         </div>
         <div class="amx-checkout__billing-note">
           Billed {{ billing() === 'annual' ? 'annually' : 'monthly' }}
+          <span *ngIf="billing() === 'annual'">— you save 20%</span>
         </div>
       </div>
 
-      <!-- Currency switcher -->
       <div class="amx-checkout__currency-section">
         <div class="amx-checkout__currency-label">Pay in</div>
         <div class="amx-checkout__currency-grid">
-          <button
-            *ngFor="let c of currencies"
-            class="amx-checkout__currency-btn"
-            [class.amx-checkout__currency-btn--active]="selectedCurrency().code === c.code"
-            (click)="selectedCurrency.set(c)">
+          <button *ngFor="let c of currencies"
+                  class="amx-checkout__currency-btn"
+                  [class.amx-checkout__currency-btn--active]="selectedCurrency().code === c.code"
+                  (click)="selectedCurrency.set(c)">
             {{ c.flag }} {{ c.code }}
           </button>
         </div>
       </div>
 
-      <div class="amx-checkout__line-item">
+      <div class="amx-checkout__total">
         <span>Total due today</span>
-        <strong>
-          {{ selectedCurrency().code }}
-          {{ convertedPrice() | number:'1.0-0' }}
-        </strong>
+        <strong>{{ selectedCurrency().code }} {{ displayPrice() | number:'1.0-0' }}</strong>
       </div>
     </div>
 
-    <!-- RIGHT PANEL -->
+
     <div class="amx-checkout__right" [formGroup]="payForm">
       <h3 class="amx-checkout__form-title">Complete your subscription</h3>
 
@@ -234,13 +246,11 @@
         </select>
       </div>
 
-      <button
-        class="amx-checkout__submit"
-        (click)="submitPayment()"
-        [disabled]="payForm.invalid || paying()">
+      <button class="amx-checkout__submit"
+              (click)="submitPayment()"
+              [disabled]="payForm.invalid || paying()">
         <span *ngIf="!paying()">
-          Subscribe — {{ selectedCurrency().code }}
-          {{ convertedPrice() | number:'1.0-0' }}
+          Subscribe — {{ selectedCurrency().code }} {{ displayPrice() | number:'1.0-0' }}
         </span>
         <span *ngIf="paying()" class="amx-checkout__spinner"></span>
       </button>

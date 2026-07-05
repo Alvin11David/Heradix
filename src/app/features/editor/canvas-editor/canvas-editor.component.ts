@@ -12,7 +12,6 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="editor-shell">
-      <!-- Toolbar -->
       <aside class="editor-toolbar">
         <div class="toolbar-section">
           <button class="tool-btn" title="Select">&#9654;</button>
@@ -28,21 +27,17 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
         </div>
       </aside>
 
-      <!-- Canvas area -->
       <main class="editor-canvas-area">
         <amx-spinner *ngIf="loading()" />
         <div id="canvas-container" class="canvas-container" *ngIf="!loading()">
-          <!-- Fabric.js canvas will be mounted here by the component lifecycle -->
           <canvas id="amx-fabric-canvas"></canvas>
         </div>
       </main>
 
-      <!-- Layers / Properties panel -->
       <aside class="editor-properties">
         <h3 class="panel-title">Layers</h3>
         <p class="panel-hint">Select an object on the canvas to see its properties.</p>
 
-        <!-- Export panel (slide-in) -->
         <div class="export-panel" *ngIf="showExportPanel()">
           <h4>Export Design</h4>
           <div class="export-formats">
@@ -83,7 +78,6 @@ export class CanvasEditorComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Auto-save every 30 seconds
     this.autoSaveInterval = setInterval(() => this.save(), 30_000);
   }
 
@@ -94,7 +88,6 @@ export class CanvasEditorComponent implements OnInit, OnDestroy {
   save(): void {
     const p = this.project();
     if (!p) return;
-    // TODO: serialise Fabric.js canvas JSON and call saveProject
     this.svc.saveProject(p.id, p.canvasJson).subscribe();
   }
 
@@ -107,7 +100,6 @@ export class CanvasEditorComponent implements OnInit, OnDestroy {
   }
 
   private initCanvas(_json: string): void {
-    // Fabric.js initialisation will go here once the library is installed
     console.log('Canvas ready — Fabric.js init pending npm install');
   }
 }

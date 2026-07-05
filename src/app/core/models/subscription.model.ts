@@ -4,8 +4,8 @@ export interface Plan {
   price: number;
   currency: string;
   interval: 'month' | 'year';
-  dailyFreeDl: number | null;       // null = unlimited
-  dailyPremiumDl: number | null;    // null = unlimited
+  dailyFreeDl: number | null;
+  dailyPremiumDl: number | null;
   editorAccess: 'LIMITED' | 'FULL';
   academyAccess: 'PREVIEW' | 'FULL';
   collectionsAccess: boolean;

@@ -16,16 +16,11 @@ const ACCESS_TOKEN_KEY  = 'amx_access_token';
 const REFRESH_TOKEN_KEY = 'amx_refresh_token';
 const USER_KEY          = 'amx_user';
 
-// ─── JWT helpers ──────────────────────────────────────────────────────────────
 
-/**
- * Decode a JWT without a library — returns the payload object or null.
- */
 function decodeJwt(token: string): Record<string, unknown> | null {
   try {
     const payload = token.split('.')[1];
     if (!payload) return null;
-    // Base64-URL → Base64 → JSON
     const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
     const json   = atob(base64);
     return JSON.parse(json) as Record<string, unknown>;
@@ -34,20 +29,15 @@ function decodeJwt(token: string): Record<string, unknown> | null {
   }
 }
 
-/**
- * Returns true when the JWT is missing, malformed, or its `exp` claim is in the past.
- * A 30-second clock-skew buffer is applied.
- */
 function isTokenExpired(token: string | null): boolean {
   if (!token) return true;
   const payload = decodeJwt(token);
-  if (!payload) return true;
-  if (typeof payload['exp'] !== 'number') return false; // no exp → treat as valid
+  if (!payload) return false;
+  if (typeof payload['exp'] !== 'number') return false;
   const nowSeconds = Math.floor(Date.now() / 1000);
-  return payload['exp'] < nowSeconds - 30; // 30-second buffer
+  return payload['exp'] < nowSeconds - 30;
 }
 
-// ─── Mock credentials (dev bypass — no backend required) ──────────────────────
 const MOCK_EMAIL    = 'kafulumap@gmail.com';
 const MOCK_PASSWORD = 'Zulukedra!7';
 
@@ -83,7 +73,6 @@ export class AuthService {
   );
   readonly isAdmin = computed(() => this._currentUser()?.role === 'ADMIN');
 
-  /** True when the stored access token is expired (or missing). */
   get isAccessTokenExpired(): boolean {
     return isTokenExpired(this._accessToken());
   }
@@ -91,7 +80,6 @@ export class AuthService {
   private loadUser(): User | null {
     try {
       const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-      // If the stored access token is expired, clear storage and return null
       if (isTokenExpired(token)) {
         localStorage.removeItem(ACCESS_TOKEN_KEY);
         localStorage.removeItem(REFRESH_TOKEN_KEY);

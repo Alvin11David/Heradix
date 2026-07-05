@@ -12,9 +12,7 @@ import {
 import { PRINT_PRODUCTS } from '../print-home/print-home.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
-/** UGX exchange rate – 1 USD ≈ 3 700 UGX */
 const UGX_RATE = 3700;
-/** Base delivery fee in UGX */
 const DELIVERY_FEE_UGX = 8000;
 
 export type FulfillmentType = 'pickup' | 'delivery';
@@ -34,7 +32,6 @@ export class PrintConfiguratorComponent implements OnInit {
 
   product = signal<PrintProduct | null>(null);
 
-  /* ── Paper options state ─────────────────────────────── */
   selectedSize      = signal<string>('');
   selectedPaperType = signal<string>('');
   selectedLaminate  = signal<Lamination>('NONE');
@@ -44,7 +41,6 @@ export class PrintConfiguratorComponent implements OnInit {
   selectedLeadTime  = signal<number>(3);
   proofRequested    = signal(false);
 
-  /* ── Apparel options state ───────────────────────────── */
   selectedShirtSize  = signal<ShirtSize>('M');
   selectedSleeve     = signal<SleeveType>('SHORT');
   selectedColorHex   = signal<string>('#ffffff');
@@ -53,12 +49,10 @@ export class PrintConfiguratorComponent implements OnInit {
   selectedMaterial   = signal<string>('100% Cotton');
   selectedPrintAreas = signal<string[]>(['Front Center']);
 
-  /* ── Fulfillment ─────────────────────────────────────── */
   fulfillment      = signal<FulfillmentType>('pickup');
   deliveryAddress  = signal<string>('');
   deliveryPhone    = signal<string>('');
 
-  /* ── Checkout modal ──────────────────────────────────── */
   checkoutOpen     = signal(false);
   paymentMethod    = signal<PaymentMethod>('mtn');
   mobileNumber     = signal<string>('');
@@ -67,10 +61,8 @@ export class PrintConfiguratorComponent implements OnInit {
   cardCVV          = signal<string>('');
   orderSubmitted   = signal(false);
 
-  /* ── Active image / tab ──────────────────────────────── */
   activeTab = signal<'configure' | 'preview' | 'features'>('configure');
 
-  /* ── Derived ─────────────────────────────────────────── */
   isPaper = computed(() => this.product()?.options.kind === 'paper');
 
   paperOpts = computed(() =>
@@ -81,7 +73,6 @@ export class PrintConfiguratorComponent implements OnInit {
     !this.isPaper() ? (this.product()!.options as ApparelProductOptions) : null
   );
 
-  /** Total printing cost in USD (internal) */
   totalPriceUSD = computed(() => {
     const p = this.product();
     if (!p) return 0;
@@ -101,15 +92,12 @@ export class PrintConfiguratorComponent implements OnInit {
     }
   });
 
-  /** Printing cost in UGX */
   printingCostUGX = computed(() => Math.round(this.totalPriceUSD() * UGX_RATE));
 
-  /** Delivery fee in UGX (0 if pickup) */
   deliveryFeeUGX = computed(() =>
     this.fulfillment() === 'delivery' ? DELIVERY_FEE_UGX : 0
   );
 
-  /** Grand total in UGX */
   grandTotalUGX = computed(() => this.printingCostUGX() + this.deliveryFeeUGX());
 
   pricePerUnit = computed(() => {
@@ -144,7 +132,6 @@ export class PrintConfiguratorComponent implements OnInit {
     }
   }
 
-  /* ── Helpers ─────────────────────────────────────────── */
   selectColor(hex: string, name: string): void {
     this.selectedColorHex.set(hex);
     this.selectedColorName.set(name);
@@ -166,7 +153,6 @@ export class PrintConfiguratorComponent implements OnInit {
   closeCheckout(): void { this.checkoutOpen.set(false); }
 
   submitOrder(): void {
-    // In a real app, POST to backend with payment provider, address, etc.
     this.orderSubmitted.set(true);
   }
 
@@ -192,7 +178,6 @@ export class PrintConfiguratorComponent implements OnInit {
     return 'UGX ' + amount.toLocaleString('en-UG');
   }
 
-  /** Returns inline style for proportional size shape */
   getSizeStyle(w: string, h: string): { [key: string]: string } {
     if (w === 'custom' || h === 'custom') return { width: '44px', height: '44px' };
     const wn = parseFloat(w);

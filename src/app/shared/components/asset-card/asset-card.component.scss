@@ -118,11 +118,19 @@
   padding: 8px;
   color: #fff;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s;
 
   &:hover { background: var(--asset-btn-hover); }
 
   svg { display: block; width: 16px; height: 16px; }
+
+  &-saved {
+    color: var(--amx-orange);
+    background: rgba(245, 130, 10, 0.2);
+    border-color: rgba(245, 130, 10, 0.3);
+
+    &:hover { background: rgba(245, 130, 10, 0.35); }
+  }
 }
 
 [data-theme='dark'] {

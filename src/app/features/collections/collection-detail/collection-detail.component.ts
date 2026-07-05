@@ -1,195 +1,227 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { CollectionsService } from '../collections.service';
+import { Collection } from '../../../core/models/collection.model';
 
-interface CollectionItem {
-  id: string;
-  name: string;
-  thumbnail: string;
-  slug?: string;
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(months / 12)}y ago`;
 }
 
-interface Collection {
-  id: string;
-  name: string;
-  fileCount: number;
-  format: string;
-  items: CollectionItem[];
-}
-
-// Mock data - same collections from collections.component
-const MOCK_COLLECTIONS: Record<string, Collection> = {
-  'safe-birth': {
-    id: 'safe-birth',
-    name: 'Safe Birth Campaign',
-    fileCount: 5,
-    format: 'PNG/JPG',
-    items: [
-      { id: '1', name: 'Safe Birth - Main', thumbnail: '/assets/images/thumbnails/safebirth-1080.jpg', slug: 'safe-birth-main' },
-      { id: '2', name: 'Safe Birth - Breathe', thumbnail: '/assets/images/thumbnails/safebirth-1080-breathe.jpg', slug: 'safe-birth-breathe' },
-      { id: '3', name: 'Safe Birth - Left Side', thumbnail: '/assets/images/thumbnails/safebirth-1080-Left-side.jpg', slug: 'safe-birth-left' },
-      { id: '4', name: 'Safe Birth - Campaign', thumbnail: '/assets/images/thumbnails/Safe-Birth-Awareness-CampaignArtboard-1-copy-2.png', slug: 'safe-birth-campaign' },
-      { id: '5', name: 'Safe Birth - Alternative', thumbnail: '/assets/images/thumbnails/Safe-Birth-Awareness-CampaignArtboard-1-copy-3.png', slug: 'safe-birth-alt' },
-    ],
-  },
-  'easter-resources': {
-    id: 'easter-resources',
-    name: 'Easter Resources',
-    fileCount: 8,
-    format: 'JPG',
-    items: [
-      { id: '1', name: 'Easter - Design 1', thumbnail: '/assets/images/thumbnails/5bab3098d48598d96d159989a821062d.jpg', slug: 'easter-design-1' },
-      { id: '2', name: 'Easter - Design 2', thumbnail: '/assets/images/thumbnails/916d081a3838f5ae2c67906d7c7ab7b9.jpg', slug: 'easter-design-2' },
-      { id: '3', name: 'Soar Away Easter', thumbnail: '/assets/images/thumbnails/SoarAway-Easter.jpg', slug: 'soar-away-easter' },
-      { id: '4', name: 'Image Gen 4', thumbnail: '/assets/images/thumbnails/image-gen-4.jpg', slug: 'image-gen-4' },
-      { id: '5', name: 'Easter - Theme 1', thumbnail: '/assets/images/thumbnails/5bab3098d48598d96d159989a821062d.jpg', slug: 'easter-theme-1' },
-      { id: '6', name: 'Easter - Theme 2', thumbnail: '/assets/images/thumbnails/916d081a3838f5ae2c67906d7c7ab7b9.jpg', slug: 'easter-theme-2' },
-      { id: '7', name: 'Easter - Theme 3', thumbnail: '/assets/images/thumbnails/SoarAway-Easter.jpg', slug: 'easter-theme-3' },
-      { id: '8', name: 'Easter - Theme 4', thumbnail: '/assets/images/thumbnails/image-gen-4.jpg', slug: 'easter-theme-4' },
-    ],
-  },
-  'african-day': {
-    id: 'african-day',
-    name: 'African Day',
-    fileCount: 4,
-    format: 'JPG/PNG',
-    items: [
-      { id: '1', name: 'African Day', thumbnail: '/assets/images/thumbnails/African-Day.jpg', slug: 'african-day' },
-      { id: '2', name: 'African Leaders', thumbnail: '/assets/images/thumbnails/african-Leaders.png', slug: 'african-leaders' },
-      { id: '3', name: 'International Day 5', thumbnail: '/assets/images/thumbnails/International-Day5.png', slug: 'intl-day-5' },
-      { id: '4', name: 'Soar Away Quotes', thumbnail: '/assets/images/thumbnails/SoarAway-quotes-4.png', slug: 'soar-away-quotes-4' },
-    ],
-  },
-  'education-schools': {
-    id: 'education-schools',
-    name: 'Education & Schools',
-    fileCount: 4,
-    format: 'JPG/PNG',
-    items: [
-      { id: '1', name: 'P.7 Candidates', thumbnail: '/assets/images/thumbnails/P.7-Candidates.jpg', slug: 'p7-candidates' },
-      { id: '2', name: 'S.6 Candidates', thumbnail: '/assets/images/thumbnails/S.6.Candidates-2.jpg', slug: 's6-candidates' },
-      { id: '3', name: 'Kisoro School', thumbnail: '/assets/images/thumbnails/Kisoro-2.jpg', slug: 'kisoro-school' },
-      { id: '4', name: 'Bombo Secondary', thumbnail: '/assets/images/thumbnails/Bombo-Sec-Thumbnail.png', slug: 'bombo-secondary' },
-    ],
-  },
-  'business-cards': {
-    id: 'business-cards',
-    name: 'Business Cards',
-    fileCount: 4,
-    format: 'JPG',
-    items: [
-      { id: '1', name: 'Dr. JP Business Cards', thumbnail: '/assets/images/thumbnails/Dr-JP-Business-cards.jpg', slug: 'dr-jp-cards' },
-      { id: '2', name: 'Be Sincere Cards', thumbnail: '/assets/images/thumbnails/Inspirations-Be-Sincere.jpg', slug: 'be-sincere-cards' },
-      { id: '3', name: 'Creative Design 2', thumbnail: '/assets/images/thumbnails/Inspirations-creative2.jpg', slug: 'creative-design-2' },
-      { id: '4', name: 'Denis Cards', thumbnail: '/assets/images/thumbnails/Denis.jpg', slug: 'denis-cards' },
-    ],
-  },
-  'motivational-quotes': {
-    id: 'motivational-quotes',
-    name: 'Motivational Quotes',
-    fileCount: 4,
-    format: 'PNG/JPG',
-    items: [
-      { id: '1', name: 'Be Sincere Quote', thumbnail: '/assets/images/thumbnails/Inspirations-Be-Sincere.jpg', slug: 'be-sincere-quote' },
-      { id: '2', name: 'Soar Away Quote 4', thumbnail: '/assets/images/thumbnails/SoarAway-quotes-4.png', slug: 'soar-away-quote-4' },
-      { id: '3', name: 'Happy New Month', thumbnail: '/assets/images/thumbnails/Happy-new-month.png', slug: 'happy-new-month' },
-      { id: '4', name: 'Creative Quote', thumbnail: '/assets/images/thumbnails/Inspirations-creative2.jpg', slug: 'creative-quote' },
-    ],
-  },
-  'portraits-people': {
-    id: 'portraits-people',
-    name: 'Portraits & People',
-    fileCount: 3,
-    format: 'JPG',
-    items: [
-      { id: '1', name: 'Coach Paul', thumbnail: '/assets/images/thumbnails/Coach-Paul.jpg', slug: 'coach-paul' },
-      { id: '2', name: 'Denis Portrait', thumbnail: '/assets/images/thumbnails/Denis.jpg', slug: 'denis-portrait' },
-      { id: '3', name: 'Kisoro Portrait', thumbnail: '/assets/images/thumbnails/Kisoro-2.jpg', slug: 'kisoro-portrait' },
-    ],
-  },
-  'apparel-merchandise': {
-    id: 'apparel-merchandise',
-    name: 'Apparel & Merchandise',
-    fileCount: 2,
-    format: 'PNG',
-    items: [
-      { id: '1', name: 'T-Shirt Design', thumbnail: '/assets/images/thumbnails/T-shirt-both-sides-2.png', slug: 'tshirt-design' },
-      { id: '2', name: 'Apparel Variant', thumbnail: '/assets/images/thumbnails/Safe-Birth-Awareness-CampaignArtboard-1-copy-3.png', slug: 'apparel-variant' },
-    ],
-  },
-};
+const ACCENTS = ['var(--amx-orange)', '#0891b2', '#7c3aed', '#059669', '#e11d48', '#2563eb'];
 
 @Component({
   selector: 'amx-collection-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="amx-col-detail-page">
-      <!-- Header with back button -->
-      <div class="amx-col-detail__header">
-        <button class="amx-col-detail__back" (click)="goBack()">← Back to Collections</button>
-      </div>
+    <div class="amx-cd">
+      <div class="amx-cd__hero"
+           [style.--hero-accent]="accentColor()">
 
-      <!-- Collection info -->
-      <div class="amx-col-detail__hero" *ngIf="collection()">
-        <h1 class="amx-col-detail__title">{{ collection()!.name }}</h1>
-        <p class="amx-col-detail__meta">{{ collection()!.fileCount }} items • {{ collection()!.format }} format</p>
-      </div>
-
-      <!-- Items grid -->
-      <div class="amx-col-detail__content" *ngIf="collection()">
-        <div class="amx-col-detail__grid">
-          <div
-            class="amx-col-detail__item"
-            *ngFor="let item of collection()!.items"
-            (click)="viewAssetDetail(item)"
-          >
-            <div class="amx-col-detail__item-img-wrapper">
-              <img
-                [src]="item.thumbnail"
-                [alt]="item.name"
-                class="amx-col-detail__item-img"
-                loading="lazy"
-              />
+        @let col = collection();
+        @if (col) {
+          @if (col.coverThumbnailUrl) {
+            <div class="amx-cd__cover">
+              <img [src]="col.coverThumbnailUrl" alt="" class="amx-cd__cover-img"/>
+              <div class="amx-cd__cover-overlay"></div>
             </div>
-            <p class="amx-col-detail__item-name">{{ item.name }}</p>
+          }
+
+          <a class="amx-cd__back" routerLink="/collections">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 12H5m7-7-7 7 7 7"/>
+            </svg>
+            Collections
+          </a>
+
+          <div class="amx-cd__hero-content" [class.amx-cd__hero-content--has-cover]="!!col.coverThumbnailUrl">
+            <div class="amx-cd__badge-row">
+              <span class="amx-cd__badge" [class.amx-cd__badge--public]="col.isPublic">
+                @if (col.isPublic) {
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                } @else {
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                }
+                {{ col.isPublic ? 'Public' : 'Private' }}
+              </span>
+              <span class="amx-cd__count">{{ col.assetCount }} {{ col.assetCount === 1 ? 'item' : 'items' }}</span>
+            </div>
+
+            <h1 class="amx-cd__title">{{ col.name }}</h1>
+
+            @if (col.description) {
+              <p class="amx-cd__desc">{{ col.description }}</p>
+            }
+
+            <div class="amx-cd__meta">
+              <span class="amx-cd__meta-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Updated {{ timeAgo(col.updatedAt) }}
+              </span>
+              <span class="amx-cd__meta-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="2"/><circle cx="8" cy="8" r="1"/><path d="m22 14-6-6-8 8-4-4"/>
+                </svg>
+                Created {{ timeAgo(col.createdAt) }}
+              </span>
+            </div>
           </div>
-        </div>
+        } @else {
+          <div class="amx-cd__hero-content">
+            <div class="amx-cd__skeleton-badge"></div>
+            <div class="amx-cd__skeleton-title"></div>
+            <div class="amx-cd__skeleton-desc"></div>
+            <div class="amx-cd__skeleton-meta"></div>
+          </div>
+        }
       </div>
 
-      <!-- Empty state -->
-      <div class="amx-col-detail__empty" *ngIf="!collection()">
-        <p>Collection not found</p>
-        <button class="amx-col-detail__empty-btn" (click)="goBack()">Go Back</button>
+      <div class="amx-cd__body">
+
+        <div class="amx-cd__section-header">
+          <h2 class="amx-cd__section-title">Assets in this collection</h2>
+          @if (!loadingItems() && items().length > 0) {
+            <span class="amx-cd__section-count">{{ items().length }} file{{ items().length !== 1 ? 's' : '' }}</span>
+          }
+        </div>
+
+        @if (loadingItems()) {
+          <div class="amx-cd__grid">
+            @for (s of [1,2,3,4,5,6]; track s) {
+              <div class="amx-cd__skeleton-card">
+                <div class="amx-cd__skeleton-thumb"></div>
+                <div class="amx-cd__skeleton-label"></div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (!loadingItems() && items().length > 0) {
+          <div class="amx-cd__grid">
+            @for (item of items(); track item.id; let i = $index) {
+              <div class="amx-cd__card"
+                   [style.--card-accent]="ACCENTS[i % ACCENTS.length]"
+                   (click)="viewAssetDetail(item)"
+                   role="button"
+                   [attr.aria-label]="'View ' + item.name">
+                <div class="amx-cd__thumb-wrap">
+                  <img [src]="item.thumbnail" [alt]="item.name" class="amx-cd__thumb" loading="lazy"/>
+                  <div class="amx-cd__thumb-overlay">
+                    <span class="amx-cd__view-btn">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                      </svg>
+                      View
+                    </span>
+                  </div>
+                </div>
+                <p class="amx-cd__label">{{ item.name }}</p>
+              </div>
+            }
+          </div>
+        }
+
+        @if (!loadingItems() && items().length === 0) {
+          <div class="amx-cd__empty">
+            <div class="amx-cd__empty-icon">
+              <svg viewBox="0 0 80 80" fill="none" stroke="var(--amx-faint)" stroke-width="1.5">
+                <rect x="14" y="18" width="52" height="46" rx="6" stroke="currentColor" fill="none"/>
+                <path d="M32 18V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10" stroke="currentColor" fill="none"/>
+                <path d="M24 38h32M24 48h20" stroke="var(--amx-border-2)" stroke-linecap="round"/>
+                <circle cx="54" cy="52" r="16" fill="none" stroke="var(--amx-orange)" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <path d="M54 46v12M48 52h12" stroke="var(--amx-orange)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            @if (col) {
+              <h3 class="amx-cd__empty-title">This collection is empty</h3>
+              <p class="amx-cd__empty-text">Start adding assets from the marketplace to fill it up.</p>
+              <a class="amx-cd__btn" routerLink="/marketplace">Browse Marketplace</a>
+            } @else {
+              <h3 class="amx-cd__empty-title">Collection not found</h3>
+              <p class="amx-cd__empty-text">The collection you're looking for doesn't exist or has been deleted.</p>
+              <a class="amx-cd__btn" routerLink="/collections">Back to Collections</a>
+            }
+          </div>
+        }
       </div>
     </div>
   `,
   styleUrl: './collection-detail.component.scss',
 })
-export class CollectionDetailComponent implements OnInit {
+export class CollectionDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  readonly svc = inject(CollectionsService);
+  readonly ACCENTS = ACCENTS;
+  readonly timeAgo = timeAgo;
 
-  collection = signal<Collection | null>(null);
+  private readonly collectionId = signal<string | null>(null);
+  private readonly itemsLoaded = signal(false);
 
-  ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const collectionId = params.get('id');
-      if (collectionId && MOCK_COLLECTIONS[collectionId]) {
-        this.collection.set(MOCK_COLLECTIONS[collectionId]);
-      }
+  readonly collection = computed(() => {
+    const id = this.collectionId();
+    if (!id) return null;
+    return this.svc.collections().find(c => c.id === id) ?? null;
+  });
+
+  readonly items = signal<{ id: string; name: string; thumbnail: string; slug?: string }[]>([]);
+  readonly loadingItems = computed(() => !this.itemsLoaded() && !!this.collectionId());
+
+  private sub?: Subscription;
+
+  accentColor = computed(() => {
+    const col = this.collection();
+    if (!col) return 'var(--amx-orange)';
+    const hash = col.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    return ACCENTS[hash % ACCENTS.length];
+  });
+
+  constructor() {
+    effect(() => {
+      const col = this.collection();
+      if (!col) return;
+      this.itemsLoaded.set(false);
+      this.svc.getCollectionItems(col.id).subscribe({
+        next: (items) => { this.items.set(items); this.itemsLoaded.set(true); },
+        error: () => { this.items.set([]); this.itemsLoaded.set(true); },
+      });
     });
   }
 
-  viewAssetDetail(item: CollectionItem): void {
-    // Navigate to asset detail page using the slug
+  ngOnInit(): void {
+    this.svc.loadCollections();
+
+    this.sub = this.route.paramMap.subscribe(params => {
+      this.collectionId.set(params.get('id'));
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+  }
+
+  viewAssetDetail(item: { id: string; name: string; thumbnail: string; slug?: string }): void {
     if (item.slug) {
       this.router.navigate(['/marketplace/asset', item.slug]);
     }
-  }
-
-  goBack(): void {
-    this.router.navigate(['/collections']);
   }
 }

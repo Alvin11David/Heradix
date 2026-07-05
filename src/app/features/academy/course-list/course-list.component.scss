@@ -1,7 +1,3 @@
-/* =====================================================
-   Academy — Course List
-   ===================================================== */
-
 .amx-academy {
   background: var(--amx-bg-soft);
   min-height: 100vh;
@@ -11,7 +7,6 @@
   @media (max-width: 860px) { padding: 24px 16px 48px; }
 }
 
-/* ══ LOADING / SKELETON ══════════════════════════════ */
 .amx-academy__loading {
   display: flex;
   flex-direction: column;
@@ -68,7 +63,6 @@
   100% { background-position: -200% 0; }
 }
 
-/* ══ HERO BANNER ═══════════════════════════════════════ */
 .amx-academy__hero {
   background: var(--amx-card);
   border-radius: 18px;
@@ -91,7 +85,6 @@
   gap: 0;
 }
 
-/* "Exclusive Premium" badge */
 .amx-academy__premium-badge {
   display: inline-flex;
   align-items: center;
@@ -102,7 +95,6 @@
   margin-bottom: 12px;
 }
 
-/* Title row */
 .amx-academy__title-row {
   display: flex;
   align-items: center;
@@ -136,7 +128,6 @@
   margin: 0 0 24px;
 }
 
-/* Stats row */
 .amx-academy__stats {
   display: flex;
   gap: 24px;
@@ -173,7 +164,6 @@
   margin-top: 2px;
 }
 
-/* Right: highlights */
 .amx-academy__hero-right {
   display: flex;
   flex-direction: column;
@@ -212,7 +202,6 @@
   margin-top: 2px;
 }
 
-/* ══ COURSES SECTION ════════════════════════════════════ */
 .amx-academy__courses-section {
   background: transparent;
 }
@@ -237,7 +226,6 @@
   font-weight: 600;
 }
 
-/* Carousel */
 .amx-academy__carousel-wrap {
   position: relative;
   display: flex;
@@ -256,7 +244,6 @@
   @media (max-width: 600px)  { grid-template-columns: 1fr; }
 }
 
-/* Nav arrows */
 .amx-academy__nav {
   width: 36px;
   height: 36px;
@@ -283,7 +270,6 @@
   }
 }
 
-/* Course card */
 .amx-academy__course-card {
   background: var(--amx-card);
   border-radius: 14px;
@@ -299,7 +285,6 @@
   }
 }
 
-/* Thumbnail */
 .amx-academy__thumb {
   position: relative;
   aspect-ratio: 16 / 9;
@@ -326,7 +311,6 @@
   &--advanced     { background: var(--amx-level-advanced-bg); color: var(--amx-level-advanced-text); }
 }
 
-/* Card body */
 .amx-academy__card-body {
   padding: 14px 16px 16px;
   display: flex;
@@ -372,7 +356,6 @@
   color: var(--amx-muted);
 }
 
-// ── Dark Mode Overrides ──────────────────────────────
 [data-theme="dark"] {
   .amx-academy__card   { background: var(--amx-card-bg); border-color: var(--amx-border); }
   .amx-academy__card-title       { color: var(--amx-text); }

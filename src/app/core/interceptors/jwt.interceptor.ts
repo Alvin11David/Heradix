@@ -12,7 +12,6 @@ export const jwtInterceptor: HttpInterceptorFn = (
 
   if (!token) return next(req);
 
-  // ── Pre-flight token expiry check — proactively refresh before attaching ──
   if (authService.isAccessTokenExpired) {
     return authService.refreshToken().pipe(
       switchMap((res) => {

@@ -27,7 +27,6 @@ export class CourseListComponent implements OnInit {
   contentLoading = signal(true);
 
   ngOnInit(): void {
-    // Simulate network fetch
     setTimeout(() => this.contentLoading.set(false), 900);
   }
 

@@ -1,4 +1,3 @@
-// Core models barrel
 export * from './user.model';
 export * from './asset.model';
 export * from './auth.model';

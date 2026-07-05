@@ -9,7 +9,7 @@ import {
   PaperProductOptions, ApparelProductOptions,
 } from '../../../core/models/print.model';
 
-/* ── Static catalogue data ───────────────────────────────────── */
+
 const CATEGORIES: PrintCategory[] = [
   { id: 'business-cards', label: 'Business Cards',      icon: 'business-card', description: 'Premium cards that make a lasting impression' },
   { id: 'brochures',      label: 'Brochures',           icon: 'brochure',      description: 'Fold & finish options for every campaign' },
@@ -320,7 +320,7 @@ export const PRINT_PRODUCTS: PrintProduct[] = [
   },
 ];
 
-/* ── Hero slider samples ─────────────────────────────────────── */
+
 export const HERO_SLIDES = [
   { img: '/assets/images/Branding_Print/All_Branding.jpg',      label: 'Full Branding Packages' },
   { img: '/assets/images/Branding_Print/Tshirt-2.jpg',          label: 'Custom T-Shirts' },
@@ -340,7 +340,7 @@ const SAMPLES = [
   { img: '/assets/images/Branding_Print/Bag_Branding.jpg',      label: 'Branded Bags' },
 ];
 
-/* ── Component ───────────────────────────────────────────────── */
+
 @Component({
   selector: 'amx-print-home',
   standalone: true,
@@ -353,24 +353,24 @@ export class PrintHomeComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private slideTimer?: ReturnType<typeof setInterval>;
 
-  /* State */
+
   offerDismissed   = signal(false);
   activeCategory   = signal<PrintCategoryId>('business-cards');
   activeTab        = signal<'start' | 'upload'>('start');
   selectedSize     = signal<string>('2" × 3.5"');
   heroSlideIndex   = signal(0);
 
-  /* Data */
+
   categories  = CATEGORIES;
   samples     = SAMPLES;
   heroSlides  = HERO_SLIDES;
 
-  /* Derived */
+
   filteredProducts = computed(() =>
     PRINT_PRODUCTS.filter(p => p.categoryId === this.activeCategory())
   );
 
-  /* Quick-start size options for the "Start Printing" tab */
+
   quickSizes = [
     { label: '2" × 3.5"',    width: 2,   height: 3.5 },
     { label: '2.5" × 2.5"',  width: 2.5, height: 2.5 },
@@ -397,14 +397,14 @@ export class PrintHomeComponent implements OnInit, OnDestroy {
     if (this.slideTimer) clearInterval(this.slideTimer);
   }
 
-  /* Helpers */
+
   setCategory(id: PrintCategoryId): void { this.activeCategory.set(id); }
   setTab(t: 'start' | 'upload'): void    { this.activeTab.set(t); }
   selectSize(s: string): void            { this.selectedSize.set(s); }
   dismissOffer(): void                   { this.offerDismissed.set(true); }
   goToSlide(i: number): void             { this.heroSlideIndex.set(i); }
 
-  /** Return a CSS-safe aspect-ratio-like scale for the size shape */
+
   sizeCardStyle(w: number, h: number): { [key: string]: string } {
     if (!w || !h) return { width: '60px', height: '60px' };
     const maxDim = 64;

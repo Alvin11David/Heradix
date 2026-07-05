@@ -1,0 +1,287 @@
+<div class="amx-stg">
+
+  <div class="amx-stg__toast"
+       [class.amx-stg__toast--visible]="!!toast()"
+       [class.amx-stg__toast--error]="toast()?.type === 'error'">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline *ngIf="toast()?.type === 'success'" points="20 6 9 17 4 12"/>
+      <circle *ngIf="toast()?.type === 'error'" cx="12" cy="12" r="10"/>
+      <line *ngIf="toast()?.type === 'error'" x1="15" y1="9" x2="9" y2="15"/>
+      <line *ngIf="toast()?.type === 'error'" x1="9" y1="9" x2="15" y2="15"/>
+    </svg>
+    {{ toast()?.msg }}
+  </div>
+
+  <div class="amx-stg__header">
+    <div>
+      <h1 class="amx-stg__title">Settings</h1>
+      <p class="amx-stg__sub">Customise your experience — security, notifications, and preferences.</p>
+    </div>
+  </div>
+
+  <div class="amx-stg__tabs">
+    <button *ngFor="let tab of tabs"
+            class="amx-stg__tab"
+            [class.amx-stg__tab--active]="activeTab() === tab.id"
+            (click)="setTab(tab.id)">
+      <span class="amx-stg__tab-icon" [innerHTML]="safeIcon(tab.icon)"></span>
+      <span>{{ tab.label }}</span>
+    </button>
+  </div>
+
+  <div class="amx-stg__panel" *ngIf="activeTab() === 'profile'">
+
+    <div class="amx-stg__card">
+      <div class="amx-stg__card-head">
+        <h2 class="amx-stg__card-title">Personal Information</h2>
+        <p class="amx-stg__card-sub">Your name and email are visible on your public profile.</p>
+      </div>
+
+      <div class="amx-stg__fields">
+        <div class="amx-stg__field">
+          <label class="amx-stg__label">Display name</label>
+          <input class="amx-stg__input"
+                 type="text"
+                 [(ngModel)]="displayName"
+                 placeholder="Your full name" />
+        </div>
+
+        <div class="amx-stg__field">
+          <label class="amx-stg__label">Email address</label>
+          <div class="amx-stg__input-wrap">
+            <input class="amx-stg__input"
+                   type="email"
+                   [(ngModel)]="email"
+                   placeholder="your@email.com" />
+            <span class="amx-stg__verified-badge"
+                  [class.amx-stg__verified-badge--unverified]="!user()?.isEmailVerified">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline *ngIf="user()?.isEmailVerified" points="20 6 9 17 4 12"/>
+                <line *ngIf="!user()?.isEmailVerified" x1="12" y1="9" x2="12" y2="13"/>
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+              {{ user()?.isEmailVerified ? 'Verified' : 'Unverified' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="amx-stg__field">
+          <label class="amx-stg__label">Bio</label>
+          <textarea class="amx-stg__input amx-stg__textarea"
+                    [(ngModel)]="bio"
+                    placeholder="A short bio about yourself..."
+                    rows="3"></textarea>
+        </div>
+
+        <div class="amx-stg__field">
+          <label class="amx-stg__label">Timezone</label>
+          <select class="amx-stg__input amx-stg__select" [(ngModel)]="timezone">
+            <option value="" disabled>Select timezone</option>
+            <option *ngFor="let tz of timezones" [value]="tz">{{ tz }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="amx-stg__actions">
+        <button class="amx-stg__btn amx-stg__btn--primary"
+                [disabled]="!profileDirty() || saving()"
+                (click)="saveProfile()">
+          <span *ngIf="saving()" class="amx-stg__btn-spinner"></span>
+          <span *ngIf="!saving()">Save changes</span>
+        </button>
+        <span class="amx-stg__unsaved" *ngIf="profileDirty()">You have unsaved changes</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="amx-stg__panel" *ngIf="activeTab() === 'security'">
+
+    <div class="amx-stg__card">
+      <div class="amx-stg__card-head">
+        <h2 class="amx-stg__card-title">Change Password</h2>
+        <p class="amx-stg__card-sub">Use at least 8 characters with a mix of letters, numbers, and symbols.</p>
+      </div>
+
+      <div class="amx-stg__fields">
+        <div class="amx-stg__field">
+          <label class="amx-stg__label">Current password</label>
+          <div class="amx-stg__input-wrap">
+            <input class="amx-stg__input amx-stg__input--pw"
+                   [type]="pwInputType('current')"
+                   [(ngModel)]="currentPw"
+                   placeholder="Enter current password" />
+            <button class="amx-stg__pw-toggle"
+                    type="button"
+                    tabindex="-1"
+                    (click)="togglePwVisibility('current')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="amx-stg__field">
+          <label class="amx-stg__label">New password</label>
+          <div class="amx-stg__input-wrap">
+            <input class="amx-stg__input amx-stg__input--pw"
+                   [type]="pwInputType('new')"
+                   [(ngModel)]="newPw"
+                   placeholder="Enter new password" />
+            <button class="amx-stg__pw-toggle"
+                    type="button"
+                    tabindex="-1"
+                    (click)="togglePwVisibility('new')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="amx-stg__strength" *ngIf="newPw()">
+            <div class="amx-stg__strength-bars">
+              <div *ngFor="let i of [1,2,3,4,5]"
+                   class="amx-stg__strength-bar"
+                   [class.amx-stg__strength-bar--fill]="pwStrength() >= i"
+                   [style.--bar-color]="strengthColor()">
+              </div>
+            </div>
+            <span class="amx-stg__strength-label" [style.color]="strengthColor()">
+              {{ strengthLabel() }}
+            </span>
+          </div>
+        </div>
+
+        <div class="amx-stg__field">
+          <label class="amx-stg__label">Confirm new password</label>
+          <div class="amx-stg__input-wrap">
+            <input class="amx-stg__input amx-stg__input--pw"
+                   [type]="pwInputType('confirm')"
+                   [(ngModel)]="confirmPw"
+                   [class.amx-stg__input--error]="confirmPw() && !pwMatch()"
+                   placeholder="Repeat new password" />
+            <button class="amx-stg__pw-toggle"
+                    type="button"
+                    tabindex="-1"
+                    (click)="togglePwVisibility('confirm')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <span class="amx-stg__field-hint amx-stg__field-hint--error" *ngIf="confirmPw() && !pwMatch()">
+            Passwords do not match
+          </span>
+        </div>
+      </div>
+
+      <div class="amx-stg__actions">
+        <button class="amx-stg__btn amx-stg__btn--primary"
+                [disabled]="!canChangePw()"
+                (click)="changePassword()">
+          <span *ngIf="changingPw()" class="amx-stg__btn-spinner"></span>
+          <span *ngIf="!changingPw()">Update password</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="amx-stg__card">
+      <div class="amx-stg__card-head">
+        <h2 class="amx-stg__card-title">Active Sessions</h2>
+        <p class="amx-stg__card-sub">Devices and browsers currently logged into your account.</p>
+      </div>
+
+      <div class="amx-stg__session">
+        <div class="amx-stg__session-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <div class="amx-stg__session-info">
+          <span class="amx-stg__session-name">This device</span>
+          <span class="amx-stg__session-meta">Chrome on Windows</span>
+        </div>
+        <span class="amx-stg__session-badge">Current</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="amx-stg__panel" *ngIf="activeTab() === 'preferences'">
+
+    <div class="amx-stg__card">
+      <div class="amx-stg__card-head">
+        <h2 class="amx-stg__card-title">Notifications</h2>
+        <p class="amx-stg__card-sub">Choose what notifications you receive.</p>
+      </div>
+
+      <div class="amx-stg__toggle-group">
+        <div class="amx-stg__toggle-row">
+          <div class="amx-stg__toggle-info">
+            <span class="amx-stg__toggle-name">Email notifications</span>
+            <span class="amx-stg__toggle-desc">Receive email alerts for new assets, orders, and updates.</span>
+          </div>
+          <label class="amx-stg__switch">
+            <input type="checkbox" [ngModel]="emailNotifs()" (ngModelChange)="emailNotifs.set($event)" />
+            <span class="amx-stg__switch-track">
+              <span class="amx-stg__switch-thumb"></span>
+            </span>
+          </label>
+        </div>
+
+        <div class="amx-stg__toggle-row">
+          <div class="amx-stg__toggle-info">
+            <span class="amx-stg__toggle-name">Push notifications</span>
+            <span class="amx-stg__toggle-desc">Get push notifications in your browser for important updates.</span>
+          </div>
+          <label class="amx-stg__switch">
+            <input type="checkbox" [ngModel]="pushNotifs()" (ngModelChange)="pushNotifs.set($event)" />
+            <span class="amx-stg__switch-track">
+              <span class="amx-stg__switch-thumb"></span>
+            </span>
+          </label>
+        </div>
+
+        <div class="amx-stg__toggle-row amx-stg__toggle-row--last">
+          <div class="amx-stg__toggle-info">
+            <span class="amx-stg__toggle-name">Weekly digest</span>
+            <span class="amx-stg__toggle-desc">A curated summary of trending assets and activity every Monday.</span>
+          </div>
+          <label class="amx-stg__switch">
+            <input type="checkbox" [ngModel]="weeklyDigest()" (ngModelChange)="weeklyDigest.set($event)" />
+            <span class="amx-stg__switch-track">
+              <span class="amx-stg__switch-thumb"></span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="amx-stg__card">
+      <div class="amx-stg__card-head">
+        <h2 class="amx-stg__card-title">Display</h2>
+        <p class="amx-stg__card-sub">Customise how the platform looks and feels.</p>
+      </div>
+
+      <div class="amx-stg__fields">
+        <div class="amx-stg__field">
+          <label class="amx-stg__label">Language</label>
+          <select class="amx-stg__input amx-stg__select" [(ngModel)]="language">
+            <option *ngFor="let lang of languages" [value]="lang.value">{{ lang.label }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="amx-stg__actions">
+        <button class="amx-stg__btn amx-stg__btn--primary"
+                [disabled]="savingPrefs()"
+                (click)="savePreferences()">
+          <span *ngIf="savingPrefs()" class="amx-stg__btn-spinner"></span>
+          <span *ngIf="!savingPrefs()">Save preferences</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

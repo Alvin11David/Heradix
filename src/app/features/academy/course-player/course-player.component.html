@@ -1,8 +1,3 @@
-<!-- ════════════════════════════════════════════════════════════
-     COURSE PLAYER — full layout
-     ════════════════════════════════════════════════════════════ -->
-
-<!-- Loading overlay -->
 <div class="amx-player-loading" *ngIf="contentLoading()">
   <amx-spinner></amx-spinner>
   <span>Loading course…</span>
@@ -10,7 +5,6 @@
 
 <div class="amx-player" *ngIf="!contentLoading()">
 
-  <!-- ══ TOP BAR ════════════════════════════════════════════════ -->
   <div class="amx-player__topbar">
     <button class="amx-player__back" (click)="goBack()" aria-label="Back to courses">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -24,7 +18,6 @@
       <span class="amx-player__topbar-meta">Bruno Albin &nbsp;•&nbsp; {{ lessons().length }} lessons &nbsp;•&nbsp; 4h 56min</span>
     </div>
 
-    <!-- Progress bar in top bar -->
     <div class="amx-player__top-progress">
       <div class="amx-player__top-progress-bar">
         <div class="amx-player__top-progress-fill" [style.width.%]="progressPct()"></div>
@@ -33,20 +26,14 @@
     </div>
   </div>
 
-  <!-- ══ BODY ═══════════════════════════════════════════════════ -->
   <div class="amx-player__body">
     <div class="amx-player__container">
 
-    <!-- ── LEFT COLUMN ──────────────────────────────────────── -->
     <div class="amx-player__left">
 
-      <!-- VIDEO CARD -->
       <div class="amx-player__card amx-player__card--video">
-      <!-- VIDEO PLAYER -->
       <div class="amx-player__video-wrap">
-        <!-- The "screen" — black box acting as video -->
         <div class="amx-player__screen" [class.amx-player__screen--playing]="playing()">
-          <!-- Placeholder content showing lesson title -->
           <div class="amx-player__screen-placeholder" *ngIf="!playing()">
             <button class="amx-player__big-play" (click)="togglePlay()" aria-label="Play">
               <svg viewBox="0 0 24 24" fill="white" width="48" height="48">
@@ -56,19 +43,15 @@
             <span class="amx-player__screen-label">{{ activeLesson()?.title }}</span>
           </div>
 
-          <!-- Playing indicator overlay (spinning ring) -->
           <div class="amx-player__playing-indicator" *ngIf="playing()">
             <div class="amx-player__spinner-ring"></div>
           </div>
 
-          <!-- Click overlay to pause -->
           <div class="amx-player__click-zone" (click)="togglePlay()" *ngIf="playing()"></div>
         </div>
 
-        <!-- CONTROLS BAR -->
         <div class="amx-player__controls">
 
-          <!-- Seek slider -->
           <div class="amx-player__seek-wrap">
             <span class="amx-player__time">{{ currentTimeStr() }}</span>
             <input
@@ -82,10 +65,8 @@
             <span class="amx-player__time">{{ activeLesson()?.duration ?? '0:00' }}</span>
           </div>
 
-          <!-- Buttons row -->
           <div class="amx-player__btn-row">
 
-            <!-- Prev lesson -->
             <button class="amx-player__ctrl-btn" (click)="prevLesson()"
                     [disabled]="!hasPrev()" title="Previous lesson">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -94,7 +75,6 @@
               </svg>
             </button>
 
-            <!-- Play / Pause -->
             <button class="amx-player__ctrl-btn amx-player__ctrl-btn--play"
                     (click)="togglePlay()" [attr.aria-label]="playing() ? 'Pause' : 'Play'">
               <svg *ngIf="!playing()" viewBox="0 0 24 24" fill="white" width="22" height="22">
@@ -105,7 +85,6 @@
               </svg>
             </button>
 
-            <!-- Next lesson -->
             <button class="amx-player__ctrl-btn" (click)="nextLesson()"
                     [disabled]="!hasNext()" title="Next lesson">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -114,16 +93,13 @@
               </svg>
             </button>
 
-            <!-- Volume -->
             <div class="amx-player__volume-wrap">
               <button class="amx-player__ctrl-btn" (click)="toggleMute()" aria-label="Toggle mute">
-                <!-- Unmuted -->
                 <svg *ngIf="!muted()" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
                   <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
                   <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
                 </svg>
-                <!-- Muted -->
                 <svg *ngIf="muted()" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
                   <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
@@ -140,10 +116,8 @@
               />
             </div>
 
-            <!-- Spacer -->
             <div class="amx-player__ctrl-spacer"></div>
 
-            <!-- Settings (playback speed) -->
             <div class="amx-player__settings-wrap" (click)="$event.stopPropagation()">
               <button class="amx-player__ctrl-btn" (click)="toggleSettings()" aria-label="Settings">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -165,7 +139,6 @@
               </div>
             </div>
 
-            <!-- Fullscreen -->
             <button class="amx-player__ctrl-btn" aria-label="Fullscreen">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                    stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
@@ -176,9 +149,8 @@
           </div>
         </div>
       </div>
-      </div><!-- /.amx-player__card--video -->
+      </div>
 
-      <!-- LESSON INFO CARD -->
       <div class="amx-player__card amx-player__card--lesson" *ngIf="activeLesson() as lesson">
         <div class="amx-player__lesson-meta">
           <span class="amx-player__lesson-pill">Lesson {{ lesson.number < 10 ? '0' + lesson.number : lesson.number }}</span>
@@ -239,9 +211,8 @@
             </svg>
           </button>
         </div>
-      </div><!-- /.amx-player__card--lesson -->
+      </div>
 
-      <!-- COMMENTS CARD -->
       <div class="amx-player__card amx-player__card--comments">
         <div class="amx-player__comments-heading">
           <svg viewBox="0 0 24 24" fill="#2563eb" width="20" height="20">
@@ -250,7 +221,6 @@
           Class Comments
         </div>
 
-        <!-- Input -->
         <div class="amx-player__comment-input-row">
           <div class="amx-player__comment-avatar amx-player__comment-avatar--self">Y</div>
           <div class="amx-player__comment-box">
@@ -273,7 +243,6 @@
           </div>
         </div>
 
-        <!-- Comment list -->
         <div class="amx-player__comment-list" *ngIf="comments().length > 0; else noComments">
           <div class="amx-player__comment" *ngFor="let c of comments(); trackBy: trackById">
             <div class="amx-player__comment-avatar"
@@ -298,12 +267,10 @@
         </ng-template>
       </div>
 
-    </div><!-- /.amx-player__left -->
+    </div>
 
-    <!-- ── RIGHT SIDEBAR ────────────────────────────────────── -->
     <aside class="amx-player__sidebar">
 
-      <!-- Instructor card -->
       <div class="amx-player__instructor-card">
         <div class="amx-player__instructor-row">
           <div class="amx-player__instructor-avatar">
@@ -319,7 +286,6 @@
           <span class="amx-player__level-pill">Beginner</span>
         </div>
 
-        <!-- Stats grid -->
         <div class="amx-player__stats-grid">
           <div class="amx-player__stat-cell">
             <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"
@@ -345,7 +311,6 @@
 
         <div class="amx-player__divider"></div>
 
-        <!-- Rating & Progress -->
         <div class="amx-player__sidebar-meta">
           <div class="amx-player__rating-row">
             <span class="amx-player__rating-label">Course evaluation</span>
@@ -377,7 +342,6 @@
         </div>
       </div>
 
-      <!-- Course content list -->
       <div class="amx-player__content-card">
         <div class="amx-player__content-heading">
           <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"
@@ -399,7 +363,6 @@
             [class.amx-player__lesson-item--done]="lesson.completed"
             (click)="selectLesson(lesson)"
           >
-            <!-- Play/check icon -->
             <div class="amx-player__lesson-icon">
               <svg *ngIf="activeLesson()?.id === lesson.id && !lesson.completed"
                    viewBox="0 0 24 24" fill="#2563eb" width="14" height="14">
@@ -414,7 +377,6 @@
                     class="amx-player__lesson-num">{{ lesson.number < 10 ? '0' + lesson.number : lesson.number }}</span>
             </div>
 
-            <!-- Title & duration -->
             <div class="amx-player__lesson-item-body">
               <span class="amx-player__lesson-item-title">{{ lesson.title }}</span>
               <span class="amx-player__lesson-item-dur">
@@ -429,9 +391,9 @@
         </div>
       </div>
 
-    </aside><!-- /.amx-player__sidebar -->
+    </aside>
 
-    </div><!-- /.amx-player__container -->
-  </div><!-- /.amx-player__body -->
+    </div>
+  </div>
 
-</div><!-- /.amx-player -->
+</div>

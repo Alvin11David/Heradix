@@ -38,7 +38,6 @@
 
 .empty-state { text-align: center; padding: 40px; color: var(--amx-muted); }
 
-// ── Dark Mode Overrides ──────────────────────────────
 [data-theme="dark"] {
   .order-card { background: var(--amx-bg-card); border-color: var(--amx-border); }
   .empty-state { color: var(--amx-text-muted); }

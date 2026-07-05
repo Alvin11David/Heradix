@@ -1,44 +1,74 @@
-/* =====================================================
-   Pricing Page — single source of truth
-   Matches pricing.component.html exactly
-   ===================================================== */
 
-/* ── Page wrapper ── */
+
 .amx-pricing {
   background: var(--amx-bg-soft);
   min-height: 100vh;
-  font-family: 'Lato', sans-serif;
 }
 
-/* ══════════════════════════════════════════════════════
-   HERO
-   ══════════════════════════════════════════════════════ */
+
 .amx-pricing__hero {
+  position: relative;
   text-align: center;
-  padding: 64px 24px 40px;
+  padding: 72px 24px 52px;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--amx-orange) 6%, var(--amx-bg-soft)) 0%,
+      transparent 100%);
+  overflow: hidden;
+}
+
+.amx-pricing__hero-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--amx-orange) 6%, transparent) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, color-mix(in srgb, var(--amx-orange) 4%, transparent) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.amx-pricing__hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.amx-pricing__hero-badge {
+  display: inline-flex;
+  padding: 5px 14px;
+  border-radius: 50px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--amx-orange) 10%, transparent);
+  color: var(--amx-orange);
+  margin-bottom: 16px;
 }
 
 .amx-pricing__title {
-  font-size: clamp(28px, 4vw, 44px);
+  font-size: clamp(28px, 4.5vw, 46px);
   font-weight: 900;
   color: var(--amx-text);
   margin: 0 0 14px;
   letter-spacing: -1px;
+  line-height: 1.15;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .amx-pricing__sub {
   font-size: 15px;
   color: var(--amx-muted);
-  max-width: 560px;
-  margin: 0 auto 30px;
+  max-width: 480px;
+  margin: 0 auto 32px;
   line-height: 1.7;
 }
 
-/* Billing toggle */
+
 .amx-pricing__toggle {
   display: inline-flex;
   gap: 4px;
-  background: var(--amx-border-3);
+  background: color-mix(in srgb, var(--amx-border) 60%, transparent);
   border-radius: 50px;
   padding: 4px;
 }
@@ -48,7 +78,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 26px;
+  padding: 10px 28px;
   border-radius: 50px;
   border: none;
   font-size: 14px;
@@ -67,25 +97,24 @@
 }
 
 .amx-pricing__save-badge {
-  background: var(--amx-success-bg);
-  color: var(--amx-success);
+  background: color-mix(in srgb, #22c55e 12%, transparent);
+  color: #22c55e;
   font-size: 10px;
   font-weight: 800;
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: 50px;
-  letter-spacing: 0.03em;
 }
 
-/* ══════════════════════════════════════════════════════
-   PLAN CARDS
-   ══════════════════════════════════════════════════════ */
+
 .amx-pricing__plans {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 22px;
   max-width: 1060px;
-  margin: 0 auto;
+  margin: -10px auto 0;
   padding: 0 24px 60px;
+  position: relative;
+  z-index: 1;
 
   @media (max-width: 880px) {
     grid-template-columns: 1fr;
@@ -94,31 +123,116 @@
 }
 
 .amx-plan-card {
-  border-radius: 20px;
-  padding: 28px 24px 24px;
-  border: 2px solid var(--amx-border-3);
   display: flex;
   flex-direction: column;
+  border-radius: 20px;
+  padding: 28px 24px 24px;
+  border: 1.5px solid var(--amx-border);
+  background: var(--amx-card);
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s,
+              border-color 0.3s;
+  animation: amxPricingCardIn 0.5s calc(var(--i, 0) * 0.1s + 0.1s) cubic-bezier(0.16, 1, 0.3, 1) both;
 
-  &:hover {
-    transform: translateY(-4px);
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(ellipse 120% 50% at 50% -10%,
+      color-mix(in srgb, var(--amx-orange) 5%, transparent) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  &:hover:not(&--popular) {
+    transform: translateY(-3px);
     box-shadow: var(--amx-shadow-md);
+    border-color: color-mix(in srgb, var(--amx-orange) 20%, var(--amx-border-2));
   }
 
-  &--selected {
-    border-color: var(--amx-orange) !important;
-    box-shadow: var(--amx-shadow-md) !important;
-    transform: translateY(-4px);
+  &--lite {
+    &::before {
+      background: radial-gradient(ellipse 120% 50% at 50% -10%,
+        color-mix(in srgb, var(--amx-orange) 4%, transparent) 0%, transparent 60%);
+    }
   }
 
-  /* Header row: icon + label */
+  &--plus {
+    &::before {
+      background: radial-gradient(ellipse 120% 50% at 50% -10%,
+        color-mix(in srgb, #6366f1 5%, transparent) 0%, transparent 60%);
+    }
+  }
+
+
+  &--popular {
+    border-color: var(--amx-orange);
+    box-shadow:
+      0 0 0 1px var(--amx-orange),
+      0 8px 32px color-mix(in srgb, var(--amx-orange) 15%, transparent),
+      var(--amx-shadow-sm);
+    transform: translateY(-6px);
+    z-index: 1;
+
+    &::before {
+      background: radial-gradient(ellipse 120% 60% at 50% -15%,
+        color-mix(in srgb, var(--amx-orange) 10%, transparent) 0%, transparent 60%);
+    }
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow:
+        0 0 0 1px var(--amx-orange),
+        0 12px 44px color-mix(in srgb, var(--amx-orange) 20%, transparent),
+        var(--amx-shadow-sm);
+    }
+
+    .amx-plan-card__cta:not(&__cta--hero) {
+      background: var(--amx-btn-bg);
+      color: var(--amx-btn-text);
+      box-shadow: 0 3px 10px color-mix(in srgb, var(--amx-orange) 25%, transparent);
+
+      &:hover {
+        background: var(--amx-btn-bg-hover);
+      }
+    }
+  }
+
+
+  &__ribbon {
+    position: absolute;
+    top: 14px;
+    right: -30px;
+    transform: rotate(45deg);
+    width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 0;
+    background: linear-gradient(135deg, var(--amx-orange), var(--amx-orange-dark));
+    z-index: 2;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--amx-orange) 30%, transparent);
+
+    span {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+  }
+
+
   &__head {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 0;
   }
 
   &__icon-wrap {
@@ -128,117 +242,170 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--amx-orange) 8%, transparent);
+    color: var(--amx-orange);
 
-    svg {
-      width: 24px;
-      height: 24px;
+    svg { width: 20px; height: 20px; }
+
+    .amx-plan-card--plus & {
+      background: color-mix(in srgb, #6366f1 8%, transparent);
+      color: #6366f1;
     }
   }
 
   &__label {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--amx-text);
   }
 
-  /* Price row */
+
   &__price {
     display: flex;
     align-items: baseline;
     gap: 2px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 0;
   }
 
   &__currency {
     font-size: 18px;
     font-weight: 700;
     color: var(--amx-text-2);
-    margin-right: 1px;
     align-self: flex-start;
-    margin-top: 6px;
+    margin-top: 5px;
   }
 
   &__amount {
-    font-size: 44px;
+    font-size: 42px;
     font-weight: 900;
     color: var(--amx-text);
     letter-spacing: -2px;
     line-height: 1;
+
+    .amx-plan-card--popular & { font-size: 46px; }
   }
 
   &__period {
     font-size: 14px;
     color: var(--amx-faint);
-    margin-left: 3px;
+    margin-left: 4px;
   }
 
-  /* Downloads badge */
+  &__annual-note {
+    font-size: 12px;
+    color: var(--amx-muted);
+    margin-bottom: 14px;
+    position: relative;
+    z-index: 0;
+  }
+
+
   &__downloads {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 13px;
     color: var(--amx-muted);
-    margin: 0 0 22px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 0;
+
+    svg {
+      color: var(--amx-orange);
+      flex-shrink: 0;
+    }
 
     strong {
       color: var(--amx-text);
       font-weight: 700;
     }
+
+    .amx-plan-card--plus & svg { color: #6366f1; }
   }
 
-  /* Feature list */
+
   &__features {
     list-style: none;
     padding: 0;
     margin: 0 0 24px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0;
     flex: 1;
+    position: relative;
+    z-index: 0;
+  }
 
-    li {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      font-size: 13.5px;
-      color: var(--amx-text-2);
+  &__features li {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13px;
+    color: var(--amx-text-2);
+    padding: 6px 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--amx-border) 40%, transparent);
+
+    &:last-child { border-bottom: none; }
+
+    .amx-plan-card--lite & {
+      color: var(--amx-muted);
     }
   }
 
-  &__check {
-    width: 16px;
-    height: 16px;
+  &__check-icon {
     flex-shrink: 0;
-    color: var(--amx-success);
+    stroke: #22c55e;
+
+    .amx-plan-card--lite & {
+      stroke: var(--amx-muted);
+    }
   }
 
-  /* CTA button */
+
   &__cta {
     width: 100%;
-    padding: 13px;
+    padding: 12px;
     border-radius: 10px;
-    border: none;
+    border: 1.5px solid var(--amx-border);
+    background: var(--amx-card);
+    color: var(--amx-text);
     font-size: 14px;
     font-weight: 700;
-    color: var(--amx-btn-text);
     cursor: pointer;
     font-family: 'Lato', sans-serif;
-    transition: filter 0.15s, transform 0.12s;
-    letter-spacing: 0.01em;
+    position: relative;
+    z-index: 0;
+    transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.15s;
 
     &:hover {
-      filter: brightness(1.12);
+      border-color: var(--amx-orange);
+      color: var(--amx-orange);
       transform: translateY(-1px);
     }
 
-    &:active {
-      transform: translateY(0);
+    &--hero {
+      background: linear-gradient(135deg, var(--amx-orange), var(--amx-orange-dark));
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 14px color-mix(in srgb, var(--amx-orange) 30%, transparent);
+      font-weight: 800;
+
+      &:hover {
+        background: linear-gradient(135deg, var(--amx-orange-dark), var(--amx-orange));
+        box-shadow: 0 6px 20px color-mix(in srgb, var(--amx-orange) 35%, transparent);
+        transform: translateY(-2px);
+        color: #fff;
+        border: none;
+      }
     }
   }
 }
 
-/* ══════════════════════════════════════════════════════
-   BENEFITS
-   ══════════════════════════════════════════════════════ */
+
 .amx-pricing__benefits {
   background: var(--amx-card);
   padding: 64px 24px;
@@ -249,7 +416,7 @@
   font-size: clamp(22px, 3vw, 32px);
   font-weight: 900;
   color: var(--amx-text);
-  margin: 0 0 40px;
+  margin: 0 0 44px;
   letter-spacing: -0.5px;
 }
 
@@ -260,9 +427,7 @@
   max-width: 900px;
   margin: 0 auto;
 
-  @media (max-width: 720px) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: 720px) { grid-template-columns: 1fr; }
 }
 
 .amx-benefit {
@@ -271,11 +436,11 @@
   align-items: center;
   text-align: center;
 
-  &__icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 16px;
-    background: var(--amx-premium-bg);
+  &__icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--amx-orange) 8%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -283,9 +448,9 @@
     flex-shrink: 0;
 
     svg {
-      width: 26px;
-      height: 26px;
-      color: var(--amx-link);
+      width: 24px;
+      height: 24px;
+      color: var(--amx-orange);
     }
   }
 
@@ -294,35 +459,29 @@
       font-size: 15px;
       font-weight: 800;
       color: var(--amx-text);
-      margin: 0 0 7px;
+      margin: 0 0 6px;
     }
 
     p {
       font-size: 13.5px;
       color: var(--amx-muted);
       line-height: 1.65;
-      max-width: 230px;
+      max-width: 260px;
       margin: 0 auto;
     }
   }
 }
 
-/* ══════════════════════════════════════════════════════
-   FAQ
-   ══════════════════════════════════════════════════════ */
+
 .amx-pricing__faq {
-  background: var(--amx-border-light);
+  background: var(--amx-bg-soft);
   padding: 60px 24px 80px;
   text-align: center;
-
-  .amx-pricing__section-title {
-    margin-bottom: 32px;
-  }
 }
 
 .amx-faq-list {
   max-width: 760px;
-  margin: 0 auto;
+  margin: 32px auto 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -334,12 +493,10 @@
   border-radius: 12px;
   padding: 18px 20px;
   cursor: pointer;
-  border: 1.5px solid var(--amx-border-3);
+  border: 1.5px solid var(--amx-border);
   transition: border-color 0.15s;
 
-  &:hover {
-    border-color: var(--amx-orange);
-  }
+  &:hover { border-color: color-mix(in srgb, var(--amx-orange) 30%, var(--amx-border)); }
 
   &--open {
     border-color: var(--amx-orange);
@@ -349,9 +506,7 @@
       color: var(--amx-orange);
     }
 
-    .amx-faq-item__a {
-      display: block;
-    }
+    .amx-faq-item__a { display: block; }
   }
 
   &__q {
@@ -379,14 +534,12 @@
     line-height: 1.7;
     margin: 12px 0 0;
     padding-top: 12px;
-    border-top: 1px solid var(--amx-border-light);
+    border-top: 1px solid var(--amx-border);
   }
 }
 
-/* ══════════════════════════════════════════════════════
-   CHECKOUT OVERLAY
-   ══════════════════════════════════════════════════════ */
-.amx-overlay {
+
+.amx-checkout-overlay {
   position: fixed;
   inset: 0;
   background: var(--amx-overlay);
@@ -395,8 +548,8 @@
   justify-content: center;
   z-index: 1000;
   padding: 16px;
-  backdrop-filter: blur(3px);
-  animation: amxFadeIn 0.18s ease;
+  backdrop-filter: blur(4px);
+  animation: amxPricingFadeIn 0.18s ease;
 }
 
 .amx-checkout {
@@ -409,7 +562,7 @@
   max-height: 92vh;
   background: var(--amx-card);
   box-shadow: var(--amx-shadow-lg);
-  animation: amxSlideUp 0.22s ease;
+  animation: amxPricingSlideUp 0.22s ease;
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
@@ -417,14 +570,22 @@
     overflow-y: auto;
   }
 
-  /* ── Left panel ── */
+
   &__left {
-    border-right: 1px solid var(--amx-border);
     padding: 28px 26px;
     display: flex;
     flex-direction: column;
     gap: 0;
     overflow-y: auto;
+    background: linear-gradient(160deg,
+      color-mix(in srgb, var(--amx-orange) 5%, var(--amx-card)) 0%,
+      var(--amx-card) 100%);
+
+    &--popular {
+      background: linear-gradient(160deg,
+        color-mix(in srgb, var(--amx-orange) 8%, var(--amx-card)) 0%,
+        var(--amx-card) 100%);
+    }
   }
 
   &__back {
@@ -442,11 +603,7 @@
     font-family: 'Lato', sans-serif;
     transition: color 0.15s;
 
-    svg {
-      width: 16px;
-      height: 16px;
-    }
-
+    svg { width: 16px; height: 16px; }
     &:hover { color: var(--amx-text); }
   }
 
@@ -465,11 +622,14 @@
   }
 
   &__plan-name {
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+    color: var(--amx-orange);
     margin-bottom: 4px;
+
+    &--popular { color: var(--amx-orange); }
   }
 
   &__plan-price {
@@ -485,7 +645,6 @@
     margin-top: 2px;
   }
 
-  /* Currency section */
   &__currency-section {
     margin-bottom: 20px;
   }
@@ -508,7 +667,7 @@
   &__currency-btn {
     padding: 5px 10px;
     border-radius: 7px;
-    border: 1.5px solid var(--amx-border-3);
+    border: 1.5px solid var(--amx-border);
     background: var(--amx-card);
     font-size: 11.5px;
     font-weight: 600;
@@ -528,13 +687,12 @@
     }
   }
 
-  /* Total line */
-  &__line-item {
+  &__total {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    background: rgba(255, 255, 255, 0.7);
+    background: color-mix(in srgb, var(--amx-card) 80%, transparent);
     border: 1px solid var(--amx-border);
     border-radius: 10px;
     padding: 14px 16px;
@@ -550,7 +708,7 @@
     }
   }
 
-  /* ── Right panel ── */
+
   &__right {
     padding: 28px 26px;
     overflow-y: auto;
@@ -584,7 +742,7 @@
     select {
       width: 100%;
       padding: 10px 13px;
-      border: 1.5px solid var(--amx-border-3);
+      border: 1.5px solid var(--amx-border);
       border-radius: 8px;
       font-size: 14px;
       font-family: 'Lato', sans-serif;
@@ -613,13 +771,10 @@
     }
   }
 
-  /* Card number row with icon */
   &__card-row {
     position: relative;
 
-    input {
-      padding-left: 42px;
-    }
+    input { padding-left: 42px; }
   }
 
   &__card-icon {
@@ -632,19 +787,17 @@
     pointer-events: none;
   }
 
-  /* Side-by-side expiry + cvc */
   &__row-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
 
-  /* Submit */
   &__submit {
     width: 100%;
     padding: 14px;
-    background: var(--amx-link);
-    color: var(--amx-btn-text);
+    background: var(--amx-orange);
+    color: #fff;
     border: none;
     border-radius: 10px;
     font-size: 15px;
@@ -656,7 +809,7 @@
     margin-bottom: 12px;
 
     &:hover:not(:disabled) {
-      background: var(--amx-link-hover);
+      background: var(--amx-orange-dark);
       transform: translateY(-1px);
     }
 
@@ -671,9 +824,9 @@
     width: 18px;
     height: 18px;
     border: 2.5px solid rgba(255, 255, 255, 0.35);
-    border-top-color: var(--amx-btn-text);
+    border-top-color: #fff;
     border-radius: 50%;
-    animation: amxSpin 0.7s linear infinite;
+    animation: amxPricingSpin 0.7s linear infinite;
     vertical-align: middle;
   }
 
@@ -687,7 +840,6 @@
     a {
       color: var(--amx-muted);
       text-decoration: underline;
-
       &:hover { color: var(--amx-text); }
     }
   }
@@ -703,61 +855,92 @@
   }
 }
 
-/* ══════════════════════════════════════════════════════
-   KEYFRAMES
-   ══════════════════════════════════════════════════════ */
-@keyframes amxFadeIn {
+
+@keyframes amxPricingCardIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes amxPricingFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-@keyframes amxSlideUp {
+@keyframes amxPricingSlideUp {
   from { opacity: 0; transform: translateY(28px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes amxSpin {
+@keyframes amxPricingSpin {
   to { transform: rotate(360deg); }
 }
 
-// ── Dark Mode Overrides ─────────────────────────────────
-[data-theme="dark"] {
-  .amx-pricing__title,
-  .amx-pricing__hero-text  { color: var(--amx-text); }
 
-  .amx-pricing__toggle-wrap  { background: var(--amx-bg-soft); }
-  .amx-pricing__billing-opt  { color: var(--amx-text-2); }
-  .amx-pricing__billing-opt--active { color: var(--amx-text); }
-  .amx-pricing__toggle-knob  { background: var(--amx-bg-card); }
+@media (min-width: 1600px) {
+  .amx-pricing__hero {
+    padding: 100px 48px 72px;
+  }
+
+  .amx-pricing__title {
+    max-width: 900px;
+  }
+
+  .amx-pricing__sub {
+    max-width: 640px;
+  }
+
+  .amx-pricing__plans {
+    max-width: 1440px;
+    gap: 30px;
+    padding: 0 48px 80px;
+
+    @media (max-width: 880px) {
+      max-width: 440px;
+    }
+  }
 
   .amx-plan-card {
-    background: var(--amx-bg-card);
-    border-color: var(--amx-border);
-    box-shadow: var(--amx-shadow-sm);
+    padding: 36px 30px 30px;
+
+    &__amount {
+      font-size: 50px;
+      .amx-plan-card--popular & { font-size: 56px; }
+    }
+
+    &__currency {
+      font-size: 22px;
+      margin-top: 8px;
+    }
+
+    &__label {
+      font-size: 15px;
+    }
+
+    &__features li {
+      font-size: 14px;
+      padding: 8px 0;
+    }
+
+    &__cta {
+      padding: 14px;
+      font-size: 15px;
+    }
   }
 
-  .amx-plan-card__name    { color: var(--amx-text); }
-  .amx-plan-card__desc    { color: var(--amx-text-muted); }
-  .amx-plan-card__price   { color: var(--amx-text); }
-  .amx-plan-card__period  { color: var(--amx-text-muted); }
-  .amx-plan-card__divider { background: var(--amx-border); }
-  .amx-plan-card__feature { color: var(--amx-text-2); }
-  .amx-plan-card__feature-icon { color: var(--amx-text-faint); }
-
-  .amx-plan-card--free  { background: var(--amx-bg-card); }
-
-  .amx-pricing__table-wrap {
-    background: var(--amx-bg-card);
-    border-color: var(--amx-border);
+  .amx-pricing__benefits {
+    padding: 80px 48px;
   }
 
-  .amx-pricing__table th  { background: var(--amx-bg-soft); color: var(--amx-text-2); }
-  .amx-pricing__table td  { color: var(--amx-text-2); border-color: var(--amx-border); }
-  .amx-pricing__table tr:hover td { background: var(--amx-bg-soft); }
+  .amx-benefits-grid {
+    max-width: 1200px;
+    gap: 48px 36px;
+  }
 
-  .amx-faq__item   { background: var(--amx-bg-card); border-color: var(--amx-border); }
-  .amx-faq__q      { color: var(--amx-text); }
-  .amx-faq__a      { color: var(--amx-text-muted); }
+  .amx-pricing__faq {
+    padding: 80px 48px 100px;
+  }
 
-  .amx-pricing__cta-section { background: var(--amx-bg-soft); }
+  .amx-faq-list {
+    max-width: 960px;
+  }
 }

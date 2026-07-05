@@ -2,10 +2,8 @@ import { Routes } from '@angular/router';
 import { authGuard, guestGuard, premiumGuard, adminGuard } from './core/guards';
 
 export const routes: Routes = [
-  // Default redirect
   { path: '', redirectTo: 'marketplace', pathMatch: 'full' },
 
-  // Auth (guest only)
   {
     path: 'auth',
     canActivate: [guestGuard],
@@ -17,7 +15,6 @@ export const routes: Routes = [
     ],
   },
 
-  // Marketplace
   {
     path: 'marketplace',
     children: [
@@ -26,14 +23,12 @@ export const routes: Routes = [
     ],
   },
 
-  // Canvas Editor (auth required)
   {
     path: 'editor',
     canActivate: [authGuard],
     loadComponent: () => import('./features/editor/canvas-editor/canvas-editor.component').then(m => m.CanvasEditorComponent),
   },
 
-  // Academy
   {
     path: 'academy',
     children: [
@@ -42,13 +37,11 @@ export const routes: Routes = [
     ],
   },
 
-  // Pricing / Subscriptions
   {
     path: 'pricing',
     loadComponent: () => import('./features/subscription/pricing/pricing.component').then(m => m.PricingComponent),
   },
 
-  // Workspace (auth required)
   {
     path: 'workspace',
     canActivate: [authGuard],
@@ -57,7 +50,13 @@ export const routes: Routes = [
     ],
   },
 
-  // Collections (premium required)
+  {
+    path: 'account',
+    loadChildren: () => import('./features/account/account.routes'),
+  },
+  { path: 'profile',  redirectTo: 'account/profile',  pathMatch: 'full' },
+  { path: 'settings', redirectTo: 'account/settings', pathMatch: 'full' },
+
   {
     path: 'collections',
     canActivate: [premiumGuard],
@@ -67,14 +66,12 @@ export const routes: Routes = [
     ],
   },
 
-  // Affiliate (auth required)
   {
     path: 'affiliate',
     canActivate: [authGuard],
     loadComponent: () => import('./features/affiliate/affiliate-dashboard/affiliate-dashboard.component').then(m => m.AffiliateDashboardComponent),
   },
 
-  // Print (auth required)
   {
     path: 'print',
     canActivate: [authGuard],
@@ -91,14 +88,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/print/print-orders/print-orders.component').then(m => m.PrintOrdersComponent),
   },
 
-  // Admin (admin guard)
   {
     path: 'admin',
     canActivate: [adminGuard],
     loadComponent: () => import('./features/admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
   },
 
-  // Fallback
   { path: 'unauthorized', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) },
   { path: '**', redirectTo: 'marketplace' },
 ];

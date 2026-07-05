@@ -10,12 +10,10 @@ import { PaginatedResponse } from '../../core/models/asset.model';
 export class AdminService {
   private readonly api = inject(ApiService);
 
-  // Users
   getUsers(page = 1): Observable<PaginatedResponse<User>> {
     return this.api.get<PaginatedResponse<User>>('/admin/users', { page });
   }
 
-  // Assets
   createAsset(form: FormData): Observable<Asset> {
     return this.api.postFormData<Asset>('/assets', form);
   }
@@ -28,7 +26,6 @@ export class AdminService {
     return this.api.delete<void>(`/assets/${id}`);
   }
 
-  // Submissions / Moderation
   reviewSubmission(id: string, action: 'APPROVED' | 'REJECTED', note?: string): Observable<Submission> {
     return this.api.patch<Submission>(`/admin/submissions/${id}`, { action, note });
   }

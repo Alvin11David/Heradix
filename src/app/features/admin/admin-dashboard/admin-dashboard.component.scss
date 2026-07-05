@@ -56,7 +56,6 @@
   overflow-y: auto;
 }
 
-// ── Dark Mode Overrides ──────────────────────────────
 [data-theme="dark"] {
   .admin-card,
   .admin-table-wrap { background: var(--amx-bg-card); border-color: var(--amx-border); }

@@ -13,7 +13,7 @@
     animation: spin 0.7s linear infinite;
   }
 
-  // ── Size variants ────────────────────────────────
+
   &--sm {
     padding: 0;
     .spinner__ring {
@@ -26,7 +26,7 @@
   }
 
   &--md {
-    // default — no override needed
+
   }
 
   &--lg {

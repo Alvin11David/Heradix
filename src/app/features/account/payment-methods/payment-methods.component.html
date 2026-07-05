@@ -1,0 +1,411 @@
+<div class="amx-pm">
+
+  <div class="amx-pm__header">
+    <div>
+      <h1 class="amx-pm__title">Payment Methods</h1>
+      <p class="amx-pm__sub">Add, remove, or update your payment methods.</p>
+    </div>
+    <button class="amx-pm__btn amx-pm__btn--primary" (click)="openAddModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Add method
+    </button>
+  </div>
+
+  <div class="amx-pm__geo">
+    <div class="amx-pm__geo-globe">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/>
+      </svg>
+    </div>
+    <span>Billing country</span>
+    <button class="amx-pm__geo-btn" (click)="toggleCountry()">
+      <span class="amx-pm__geo-flag">{{ billingCountry() === 'UG' ? '🇺🇬' : '🌍' }}</span>
+      {{ billingCountry() === 'UG' ? 'Uganda' : 'Other' }}
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <span class="amx-pm__geo-hint" *ngIf="billingCountry() === 'UG'">
+      <span class="amx-pm__geo-dot"></span>
+      Mobile Money available
+    </span>
+  </div>
+
+  <div class="amx-pm__list" #methodList>
+    <div *ngFor="let m of savedMethods(); let i = index"
+         class="amx-pm__method"
+         [class.amx-pm__method--default]="m.isDefault"
+         [class.amx-pm__method--expiring]="isExpiringSoon(m)"
+         [style.--i]="i">
+
+      <div class="amx-pm__pill"
+           [style.--pill-bg]="providerColor[providerKey(m)]"
+           [class.amx-pm__pill--dark-logo]="providerLogoWhite[providerKey(m)]">
+        <span *ngIf="m.network === 'visa'" [innerHTML]="safeIcon(providerIcon['visa'])"></span>
+        <span *ngIf="m.network === 'mastercard'" [innerHTML]="safeIcon(providerIcon['mastercard'])"></span>
+        <span *ngIf="m.type === 'paypal'" [innerHTML]="safeIcon(providerIcon['paypal'])"></span>
+        <span *ngIf="m.type === 'mtn'" [innerHTML]="safeIcon(providerIcon['mtn'])"></span>
+        <span *ngIf="m.type === 'airtel'" [innerHTML]="safeIcon(providerIcon['airtel'])"></span>
+      </div>
+
+      <div class="amx-pm__method-body">
+        <div class="amx-pm__method-top">
+          <div class="amx-pm__method-info">
+            <span class="amx-pm__method-name">
+              <span class="amx-pm__method-icon"
+                    [style.--icon-bg]="providerColor[providerKey(m)]"
+                    [class.amx-pm__method-icon--dark]="providerLogoWhite[providerKey(m)]">
+                <span *ngIf="m.network === 'visa'" [innerHTML]="safeIcon(providerIcon['visa'])"></span>
+                <span *ngIf="m.network === 'mastercard'" [innerHTML]="safeIcon(providerIcon['mastercard'])"></span>
+                <span *ngIf="m.type === 'paypal'" [innerHTML]="safeIcon(providerIcon['paypal'])"></span>
+                <span *ngIf="m.type === 'mtn'" [innerHTML]="safeIcon(providerIcon['mtn'])"></span>
+                <span *ngIf="m.type === 'airtel'" [innerHTML]="safeIcon(providerIcon['airtel'])"></span>
+              </span>
+              <ng-container *ngIf="m.network === 'visa'">Visa</ng-container>
+              <ng-container *ngIf="m.network === 'mastercard'">Mastercard</ng-container>
+              <ng-container *ngIf="m.type === 'paypal'">PayPal</ng-container>
+              <ng-container *ngIf="m.type === 'mtn'">MTN Mobile Money</ng-container>
+              <ng-container *ngIf="m.type === 'airtel'">Airtel Money</ng-container>
+            </span>
+            <span class="amx-pm__method-detail">
+              <ng-container *ngIf="m.type === 'card'">•••• {{ m.last4 }}</ng-container>
+              <ng-container *ngIf="m.type === 'paypal'">{{ m.email }}</ng-container>
+              <ng-container *ngIf="m.type === 'mtn' || m.type === 'airtel'">{{ m.phoneNumber }}</ng-container>
+            </span>
+          </div>
+          <div class="amx-pm__method-badges">
+            <span class="amx-pm__expiry-warn" *ngIf="isExpiringSoon(m)" title="Expiring soon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </span>
+            <span class="amx-pm__default-badge" *ngIf="m.isDefault">
+              <span class="amx-pm__default-dot"></span>
+              Default
+            </span>
+          </div>
+        </div>
+
+        <div class="amx-pm__method-actions">
+          <button class="amx-pm__action-btn amx-pm__action-btn--default"
+                  *ngIf="!m.isDefault"
+                  (click)="setDefault(m.id)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Set as default
+          </button>
+          <button class="amx-pm__action-btn amx-pm__action-btn--remove" (click)="removeMethod(m.id)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="amx-pm__empty" *ngIf="savedMethods().length === 0">
+      <div class="amx-pm__empty-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+      </div>
+      <p class="amx-pm__empty-text">No payment methods yet</p>
+      <p class="amx-pm__empty-sub">Add a card or mobile money to get started.</p>
+    </div>
+  </div>
+
+  <div class="amx-pm__toast" *ngIf="removingMethod()">
+    <span class="amx-pm__toast-text">
+      <ng-container *ngIf="removingMethod()!.network === 'visa'">Visa</ng-container>
+      <ng-container *ngIf="removingMethod()!.network === 'mastercard'">Mastercard</ng-container>
+      <ng-container *ngIf="removingMethod()!.type === 'paypal'">PayPal</ng-container>
+      <ng-container *ngIf="removingMethod()!.type === 'mtn'">MTN Mobile Money</ng-container>
+      <ng-container *ngIf="removingMethod()!.type === 'airtel'">Airtel Money</ng-container>
+      removed
+    </span>
+    <button class="amx-pm__toast-undo" (click)="undoRemove()">Undo</button>
+  </div>
+
+  <div class="amx-pm__providers">
+    <h3 class="amx-pm__providers-title">Quick add</h3>
+    <div class="amx-pm__provider-grid">
+      <button class="amx-pm__provider-logo" (click)="openAddModalWith('visa')" [innerHTML]="safeIcon(providerIcon['visa'])"></button>
+      <button class="amx-pm__provider-logo" (click)="openAddModalWith('mastercard')" [innerHTML]="safeIcon(providerIcon['mastercard'])"></button>
+      <button class="amx-pm__provider-logo" (click)="openAddModalWith('paypal')" [innerHTML]="safeIcon(providerIcon['paypal'])"></button>
+      <button class="amx-pm__provider-logo amx-pm__provider-logo--mm" *ngIf="showMobileMoney()" (click)="openAddModalWith('mtn')" [innerHTML]="safeIcon(providerIcon['mtn'])"></button>
+      <button class="amx-pm__provider-logo amx-pm__provider-logo--mm" *ngIf="showMobileMoney()" (click)="openAddModalWith('airtel')" [innerHTML]="safeIcon(providerIcon['airtel'])"></button>
+    </div>
+  </div>
+
+  <div class="amx-pm__backdrop" [class.amx-pm__backdrop--visible]="showAddModal()" (click)="closeAddModal()">
+    <div class="amx-pm__modal" [class.amx-pm__modal--success]="addSuccess()" (click)="$event.stopPropagation()">
+
+      <div class="amx-pm__success" *ngIf="addSuccess()">
+        <div class="amx-pm__success-ring"></div>
+        <div class="amx-pm__success-check">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span class="amx-pm__success-title">Payment method added</span>
+        <span class="amx-pm__success-sub">Your new payment method is ready to use.</span>
+      </div>
+
+      <ng-container *ngIf="addStep() === 0 && !addSuccess()">
+        <div class="amx-pm__modal-head">
+          <div>
+            <h2 class="amx-pm__modal-title">Add payment method</h2>
+            <p class="amx-pm__modal-desc">Choose a provider to get started</p>
+          </div>
+        </div>
+
+        <div class="amx-pm__grid">
+          <button class="amx-pm__card"
+                  [style.--brand]="providerColor['visa']"
+                  [class.amx-pm__card--active]="newMethodType() === 'visa'"
+                  (click)="selectProvider('visa')">
+            <span class="amx-pm__card-bg"></span>
+            <span class="amx-pm__card-logo" [innerHTML]="safeIcon(providerIcon['visa'])"></span>
+            <span class="amx-pm__card-label">Visa</span>
+            <span class="amx-pm__card-desc">Credit &amp; Debit</span>
+            <span class="amx-pm__card-check">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+          </button>
+          <button class="amx-pm__card"
+                  [style.--brand]="providerColor['mastercard']"
+                  [class.amx-pm__card--active]="newMethodType() === 'mastercard'"
+                  (click)="selectProvider('mastercard')">
+            <span class="amx-pm__card-bg"></span>
+            <span class="amx-pm__card-logo" [innerHTML]="safeIcon(providerIcon['mastercard'])"></span>
+            <span class="amx-pm__card-label">Mastercard</span>
+            <span class="amx-pm__card-desc">Credit &amp; Debit</span>
+            <span class="amx-pm__card-check">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+          </button>
+          <button class="amx-pm__card"
+                  [style.--brand]="providerColor['paypal']"
+                  [class.amx-pm__card--active]="newMethodType() === 'paypal'"
+                  (click)="selectProvider('paypal')">
+            <span class="amx-pm__card-bg"></span>
+            <span class="amx-pm__card-logo" [innerHTML]="safeIcon(providerIcon['paypal'])"></span>
+            <span class="amx-pm__card-label">PayPal</span>
+            <span class="amx-pm__card-desc">Online payments</span>
+            <span class="amx-pm__card-check">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+          </button>
+          <button class="amx-pm__card"
+                  *ngIf="showMobileMoney()"
+                  [style.--brand]="providerColor['mtn']"
+                  [class.amx-pm__card--active]="newMethodType() === 'mtn'"
+                  (click)="selectProvider('mtn')">
+            <span class="amx-pm__card-bg"></span>
+            <span class="amx-pm__card-logo" [innerHTML]="safeIcon(providerIcon['mtn'])"></span>
+            <span class="amx-pm__card-label">MTN</span>
+            <span class="amx-pm__card-desc">Mobile Money</span>
+            <span class="amx-pm__card-check">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+          </button>
+          <button class="amx-pm__card"
+                  *ngIf="showMobileMoney()"
+                  [style.--brand]="providerColor['airtel']"
+                  [class.amx-pm__card--active]="newMethodType() === 'airtel'"
+                  (click)="selectProvider('airtel')">
+            <span class="amx-pm__card-bg"></span>
+            <span class="amx-pm__card-logo" [innerHTML]="safeIcon(providerIcon['airtel'])"></span>
+            <span class="amx-pm__card-label">Airtel</span>
+            <span class="amx-pm__card-desc">Mobile Money</span>
+            <span class="amx-pm__card-check">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+          </button>
+        </div>
+
+        <div class="amx-pm__modal-foot">
+          <button class="amx-pm__btn amx-pm__btn--ghost" (click)="closeAddModal()">Cancel</button>
+          <button class="amx-pm__btn amx-pm__btn--primary" (click)="nextStep()">
+            Continue
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="addStep() === 1 && !addSuccess()">
+
+        <div class="amx-pm__details"
+             [style.--details-bg]="providerGradient[newMethodType()]"
+             [class.amx-pm__details--mtn]="newMethodType() === 'mtn'"
+             [class.amx-pm__details--airtel]="newMethodType() === 'airtel'">
+
+          <div class="amx-pm__preview" *ngIf="newMethodType() === 'visa' || newMethodType() === 'mastercard'">
+            <div class="amx-pm__preview-card"
+                 [class.amx-pm__preview-card--visa]="previewNetwork() === 'visa'"
+                 [class.amx-pm__preview-card--mastercard]="previewNetwork() === 'mastercard'">
+              <div class="amx-pm__preview-glare"></div>
+              <div class="amx-pm__preview-chip">
+                <svg width="18" height="14" viewBox="0 0 30 22" fill="none">
+                  <rect x="1" y="1" width="28" height="20" rx="3" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
+                  <rect x="7" y="5" width="16" height="12" rx="1.5" fill="rgba(255,255,255,0.06)"/>
+                </svg>
+              </div>
+              <div class="amx-pm__preview-brand">
+                <span *ngIf="previewNetwork() === 'visa'" [innerHTML]="safeIcon(providerIcon['visa'])"></span>
+                <span *ngIf="previewNetwork() === 'mastercard'" [innerHTML]="safeIcon(providerIcon['mastercard'])"></span>
+              </div>
+              <div class="amx-pm__preview-number">{{ previewDisplay() }}</div>
+              <div class="amx-pm__preview-row">
+                <div class="amx-pm__preview-expiry">
+                  <span class="amx-pm__preview-label">VALID THRU</span>
+                  <span>{{ previewExpiry() }}</span>
+                </div>
+                <div class="amx-pm__preview-cvc" *ngIf="newCardCvc()">
+                  <span class="amx-pm__preview-label">CVC</span>
+                  <span>{{ newCardCvc() }}</span>
+                </div>
+              </div>
+              <div class="amx-pm__preview-name">{{ previewName() }}</div>
+            </div>
+          </div>
+
+          <div class="amx-pm__card-preview" *ngIf="newMethodType() === 'paypal' || newMethodType() === 'mtn' || newMethodType() === 'airtel'">
+            <img *ngIf="newMethodType() === 'paypal'" src="assets/images/payment/paypal-card.jpeg" alt="PayPal">
+            <img *ngIf="newMethodType() === 'mtn'" src="assets/images/payment/mtn-card.jpeg" alt="MTN">
+            <img *ngIf="newMethodType() === 'airtel'" src="assets/images/payment/airtel-card.jpeg" alt="Airtel">
+          </div>
+
+          <div class="amx-pm__details-head">
+            <button class="amx-pm__modal-back" (click)="prevStep()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div>
+              <h2 class="amx-pm__modal-title">
+                <ng-container *ngIf="newMethodType() === 'visa' || newMethodType() === 'mastercard'">Card details</ng-container>
+                <ng-container *ngIf="newMethodType() === 'paypal'">PayPal email</ng-container>
+                <ng-container *ngIf="newMethodType() === 'mtn' || newMethodType() === 'airtel'">Mobile Money details</ng-container>
+              </h2>
+              <p class="amx-pm__modal-desc">Enter your payment information</p>
+            </div>
+          </div>
+
+          <div class="amx-pm__details-body">
+            <ng-container *ngIf="newMethodType() === 'visa' || newMethodType() === 'mastercard'">
+              <div class="amx-pm__field">
+                <div class="amx-pm__field-frame">
+                  <label class="amx-pm__label" [class.amx-pm__label--float]="!!newCardNumber()">Card number</label>
+                  <input class="amx-pm__input"
+                         type="text" inputmode="numeric"
+                         [ngModel]="newCardNumber()"
+                         (ngModelChange)="onCardNumberInput($event)"
+                         placeholder="1234 5678 9012 3456" />
+                  <span class="amx-pm__input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35">
+                      <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+              <div class="amx-pm__field-row">
+                <div class="amx-pm__field amx-pm__field--half">
+                  <div class="amx-pm__field-frame">
+                    <label class="amx-pm__label" [class.amx-pm__label--float]="!!newCardExpiry()">Expiry</label>
+                    <input class="amx-pm__input"
+                           type="text"
+                           [ngModel]="newCardExpiry()"
+                           (ngModelChange)="onCardExpiryInput($event)"
+                           placeholder="MM/YY" />
+                  </div>
+                </div>
+                <div class="amx-pm__field amx-pm__field--half">
+                  <div class="amx-pm__field-frame">
+                    <label class="amx-pm__label" [class.amx-pm__label--float]="!!newCardCvc()">CVC</label>
+                    <input class="amx-pm__input" type="text" inputmode="numeric"
+                           [(ngModel)]="newCardCvc" placeholder="123" maxlength="4" />
+                    <span class="amx-pm__input-icon amx-pm__input-icon--right">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+                        <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 12h4M16 12h2M6 16h2M14 16h4"/>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="amx-pm__field">
+                <div class="amx-pm__field-frame">
+                  <label class="amx-pm__label" [class.amx-pm__label--float]="!!newCardName()">Cardholder name</label>
+                  <input class="amx-pm__input" type="text" [(ngModel)]="newCardName" placeholder="Full name on card" />
+                  <span class="amx-pm__input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="newMethodType() === 'paypal'">
+              <div class="amx-pm__field">
+                <div class="amx-pm__field-frame">
+                  <label class="amx-pm__label" [class.amx-pm__label--float]="!!newEmail()">PayPal email</label>
+                  <input class="amx-pm__input" type="email" [(ngModel)]="newEmail" placeholder="your@email.com" />
+                  <span class="amx-pm__input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+              <p class="amx-pm__field-hint">You will be redirected to PayPal to complete linking.</p>
+            </ng-container>
+
+            <ng-container *ngIf="newMethodType() === 'mtn' || newMethodType() === 'airtel'">
+              <div class="amx-pm__field">
+                <div class="amx-pm__field-frame">
+                  <label class="amx-pm__label" [class.amx-pm__label--float]="!!newPhoneNumber()">Phone number</label>
+                  <input class="amx-pm__input" type="tel" [(ngModel)]="newPhoneNumber" placeholder="+256 77 123 4567" />
+                  <span class="amx-pm__input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+              <div class="amx-pm__field">
+                <div class="amx-pm__field-frame">
+                  <label class="amx-pm__label" [class.amx-pm__label--float]="!!newCardName()">Full name</label>
+                  <input class="amx-pm__input" type="text" [(ngModel)]="newCardName" placeholder="Account holder name" />
+                  <span class="amx-pm__input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+              <p class="amx-pm__field-hint">You will receive a payment request on your phone.</p>
+            </ng-container>
+
+            <label class="amx-pm__checkbox">
+              <input type="checkbox" [ngModel]="newIsDefault()" (ngModelChange)="newIsDefault.set($event)" />
+              <span class="amx-pm__checkbox-mark"></span>
+              Set as default payment method
+            </label>
+          </div>
+
+          <div class="amx-pm__modal-foot">
+            <button class="amx-pm__btn amx-pm__btn--ghost" (click)="closeAddModal()" [disabled]="newMethodSaving()">Cancel</button>
+            <button class="amx-pm__btn amx-pm__btn--primary" [disabled]="newMethodSaving()" (click)="confirmAdd()">
+              <span *ngIf="newMethodSaving()" class="amx-pm__spinner"></span>
+              <span *ngIf="!newMethodSaving()">
+                <ng-container *ngIf="newMethodType() === 'visa' || newMethodType() === 'mastercard'">Add card</ng-container>
+                <ng-container *ngIf="newMethodType() === 'paypal'">Link PayPal</ng-container>
+                <ng-container *ngIf="newMethodType() === 'mtn' || newMethodType() === 'airtel'">Add mobile money</ng-container>
+              </span>
+            </button>
+          </div>
+
+        </div>
+      </ng-container>
+
+    </div>
+  </div>
+
+</div>
