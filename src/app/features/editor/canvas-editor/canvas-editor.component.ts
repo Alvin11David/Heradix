@@ -109,6 +109,17 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private _selectionProps = signal<Record<string, any>>({});
   readonly selectionProps = this._selectionProps.asReadonly();
 
+  private panKeyPressed = false;
+  private isPanning = false;
+  private panStartPoint: { x: number; y: number } | null = null;
+  private panOriginTransform: [number, number, number, number, number, number] | null = null;
+  private readonly canvasWheelHandler = this.handleCanvasWheel.bind(this);
+  private readonly canvasMouseDownHandler = this.handleCanvasMouseDown.bind(this);
+  private readonly canvasMouseMoveHandler = this.handleCanvasMouseMove.bind(this);
+  private readonly canvasMouseUpHandler = this.handleCanvasMouseUp.bind(this);
+  private readonly windowKeyDownHandler = this.handleWindowKeyDown.bind(this);
+  private readonly windowKeyUpHandler = this.handleWindowKeyUp.bind(this);
+
   readonly selectedFill = computed(() => this._selectionProps()['fill'] ?? '');
   readonly selectedStroke = computed(() => this._selectionProps()['stroke'] ?? '');
   readonly selectedStrokeWidth = computed(() => this._selectionProps()['strokeWidth'] ?? 0);
@@ -320,6 +331,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.updateGrid();
     this.onModify();
+    this.setupCanvasPanning();
 
     // Setup ResizeObserver to resize canvas when container changes
     if (this.canvasAreaRef) {
@@ -338,6 +350,128 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     } else if (this._assetImageUrl) {
       this.loadAssetImage(this._assetImageUrl);
     }
+  }
+
+  private setupCanvasPanning(): void {
+    if (!this.canvas || !this.canvasAreaRef?.nativeElement) return;
+
+    const viewport = this.canvasAreaRef.nativeElement;
+    viewport.addEventListener('wheel', this.canvasWheelHandler, { passive: false });
+    viewport.addEventListener('mousedown', this.canvasMouseDownHandler);
+    window.addEventListener('mousemove', this.canvasMouseMoveHandler);
+    window.addEventListener('mouseup', this.canvasMouseUpHandler);
+    window.addEventListener('keydown', this.windowKeyDownHandler);
+    window.addEventListener('keyup', this.windowKeyUpHandler);
+  }
+
+  private handleWindowKeyDown(event: KeyboardEvent): void {
+    if (event.code === 'Space' && !this.panKeyPressed) {
+      this.panKeyPressed = true;
+      this.updateCanvasCursor();
+    }
+  }
+
+  private handleWindowKeyUp(event: KeyboardEvent): void {
+    if (event.code === 'Space') {
+      this.panKeyPressed = false;
+      this.updateCanvasCursor();
+    }
+  }
+
+  private handleCanvasMouseDown(event: MouseEvent): void {
+    const shouldPan = this.panKeyPressed || event.button === 1;
+    if (!this.canvas || !shouldPan) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.isPanning = true;
+    this.panStartPoint = { x: event.clientX, y: event.clientY };
+    this.panOriginTransform = (this.canvas.viewportTransform?.slice() ?? [1, 0, 0, 1, 0, 0]) as [
+      number,
+      number,
+      number,
+      number,
+      number,
+      number,
+    ];
+    this.canvas.selection = false;
+    this.canvas.discardActiveObject();
+    this.canvas.renderAll();
+    this.canvas.setCursor('grabbing');
+  }
+
+  private handleCanvasMouseMove(event: MouseEvent): void {
+    if (!this.isPanning || !this.canvas || !this.panStartPoint || !this.panOriginTransform) return;
+
+    const dx = event.clientX - this.panStartPoint.x;
+    const dy = event.clientY - this.panStartPoint.y;
+    const nextTransform = this.panOriginTransform.slice() as [
+      number,
+      number,
+      number,
+      number,
+      number,
+      number,
+    ];
+    nextTransform[4] -= dx;
+    nextTransform[5] -= dy;
+
+    this.canvas.setViewportTransform(nextTransform);
+    this.canvas.requestRenderAll();
+    this.panStartPoint = { x: event.clientX, y: event.clientY };
+  }
+
+  private handleCanvasMouseUp(): void {
+    if (!this.isPanning) return;
+
+    this.isPanning = false;
+    this.panStartPoint = null;
+    this.panOriginTransform = null;
+    this.canvas?.selection && (this.canvas.selection = true);
+    this.updateCanvasCursor();
+  }
+
+  private handleCanvasWheel(event: WheelEvent): void {
+    if (!this.canvas) return;
+
+    if (event.ctrlKey || event.metaKey) {
+      event.preventDefault();
+      event.stopPropagation();
+      const rect = this.canvasAreaRef?.nativeElement?.getBoundingClientRect();
+      const point = rect
+        ? { x: event.clientX - rect.left, y: event.clientY - rect.top }
+        : this.getCanvasCenter();
+      const delta = event.deltaY < 0 ? 0.1 : -0.1;
+      this.setZoom(this.ed.zoom() + delta, point);
+      return;
+    }
+
+    const shouldPan = Math.abs(event.deltaX) > 0 || Math.abs(event.deltaY) > 0;
+    if (!shouldPan) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const currentTransform = (this.canvas.viewportTransform?.slice() ?? [1, 0, 0, 1, 0, 0]) as [
+      number,
+      number,
+      number,
+      number,
+      number,
+      number,
+    ];
+    const nextTransform = currentTransform.slice() as [
+      number,
+      number,
+      number,
+      number,
+      number,
+      number,
+    ];
+    nextTransform[4] += event.deltaX;
+    nextTransform[5] += event.deltaY;
+    this.canvas.setViewportTransform(nextTransform);
+    this.canvas.requestRenderAll();
   }
 
   private loadAssetImage(url: string): void {
@@ -1096,6 +1230,16 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.toggleGrid();
       return;
     }
+    if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '=')) {
+      e.preventDefault();
+      this.zoomIn();
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && (e.key === '-' || e.key === '_')) {
+      e.preventDefault();
+      this.zoomOut();
+      return;
+    }
     if (e.key === 'Delete' || e.key === 'Backspace') {
       this.deleteSelected();
       return;
@@ -1254,6 +1398,14 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private updateCanvasCursor(): void {
     if (!this.canvas) return;
     const mode = this.ed.toolMode();
+    if (this.isPanning || this.panKeyPressed) {
+      this.canvas.defaultCursor = 'grab';
+      this.canvas.hoverCursor = 'grab';
+      this.canvas.moveCursor = 'grabbing';
+      this.canvas.renderAll();
+      return;
+    }
+
     const cursors: Record<string, string> = {
       select: 'default',
       text: 'text',
@@ -1264,6 +1416,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       ai: 'default',
     };
     this.canvas.defaultCursor = cursors[mode] ?? 'default';
+    this.canvas.hoverCursor = cursors[mode] ?? 'default';
+    this.canvas.moveCursor = cursors[mode] ?? 'default';
     this.canvas.renderAll();
   }
 
@@ -1561,12 +1715,13 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onDeselect();
   }
 
-  setZoom(level: number): void {
-    this.ed.zoom.set(level);
+  setZoom(level: number, origin?: { x: number; y: number }): void {
     if (!this.canvas) return;
-    const z = level;
-    this.canvas.setZoom(z);
-    this.canvas.renderAll();
+    const safeLevel = Math.max(0.1, Math.min(5, level));
+    this.ed.zoom.set(safeLevel);
+    const point = origin ?? this.getCanvasCenter();
+    this.canvas.zoomToPoint(point, safeLevel);
+    this.canvas.requestRenderAll();
   }
 
   zoomIn(): void {
@@ -1820,6 +1975,17 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.resizeObserver.disconnect();
       this.resizeObserver = null;
     }
+    if (this.canvasAreaRef?.nativeElement) {
+      this.canvasAreaRef.nativeElement.removeEventListener('wheel', this.canvasWheelHandler);
+      this.canvasAreaRef.nativeElement.removeEventListener(
+        'mousedown',
+        this.canvasMouseDownHandler,
+      );
+    }
+    window.removeEventListener('mousemove', this.canvasMouseMoveHandler);
+    window.removeEventListener('mouseup', this.canvasMouseUpHandler);
+    window.removeEventListener('keydown', this.windowKeyDownHandler);
+    window.removeEventListener('keyup', this.windowKeyUpHandler);
     this.ed.stopAutosave();
     this.removeTextSelectionHandler();
     this.canvas?.dispose();
