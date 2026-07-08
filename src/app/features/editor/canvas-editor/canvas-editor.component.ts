@@ -1112,6 +1112,72 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ed.setDirty();
   }
 
+  private bringObjectForward(obj: any): void {
+    if (!this.canvas || !obj) return;
+    if (typeof this.canvas.bringForward === 'function') {
+      this.canvas.bringForward(obj);
+    } else if (typeof obj.bringForward === 'function') {
+      obj.bringForward();
+    }
+  }
+
+  private sendObjectBackward(obj: any): void {
+    if (!this.canvas || !obj) return;
+    if (typeof this.canvas.sendBackwards === 'function') {
+      this.canvas.sendBackwards(obj);
+    } else if (typeof obj.sendBackwards === 'function') {
+      obj.sendBackwards();
+    }
+  }
+
+  moveSelectedForward(): void {
+    if (!this.canvas) return;
+    const objects =
+      this.canvas.getActiveObjects?.() ??
+      this.canvas
+        .getObjects()
+        .filter((obj: any) => obj._id && this.ed.selectedLayerIds().has(obj._id));
+    if (!objects.length) return;
+    this.ed.pushUndoState();
+    objects.forEach((obj: any) => this.bringObjectForward(obj));
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
+  moveSelectedBackward(): void {
+    if (!this.canvas) return;
+    const objects =
+      this.canvas.getActiveObjects?.() ??
+      this.canvas
+        .getObjects()
+        .filter((obj: any) => obj._id && this.ed.selectedLayerIds().has(obj._id));
+    if (!objects.length) return;
+    this.ed.pushUndoState();
+    objects.forEach((obj: any) => this.sendObjectBackward(obj));
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
+  moveLayerForward(id: string): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getObjects().find((o: any) => o._id === id);
+    if (!obj) return;
+    this.ed.pushUndoState();
+    this.bringObjectForward(obj);
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
+  moveLayerBackward(id: string): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getObjects().find((o: any) => o._id === id);
+    if (!obj) return;
+    this.ed.pushUndoState();
+    this.sendObjectBackward(obj);
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
   applyLayerBlur(value: number): void {
     const obj = this._selectedObject;
     if (!obj) return;

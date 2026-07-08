@@ -260,4 +260,60 @@ describe('CanvasEditorComponent page actions', () => {
     component.groupSelected();
     expect((component as any).canvas.getObjects()[0].type).toBe('group');
   });
+
+  it('moves selected and individual layers forward and backward', () => {
+    const first = {
+      _id: 'layer-1',
+      set: function (props: Record<string, any>) {
+        Object.assign(this, props);
+      },
+      type: 'rect',
+      left: 0,
+      top: 0,
+      width: 40,
+      height: 40,
+    };
+    const second = {
+      _id: 'layer-2',
+      set: function (props: Record<string, any>) {
+        Object.assign(this, props);
+      },
+      type: 'circle',
+      left: 20,
+      top: 20,
+      width: 40,
+      height: 40,
+    };
+    const canvasObjects = [first, second];
+    const bringForwardSpy = jasmine.createSpy('bringForward');
+    const sendBackwardsSpy = jasmine.createSpy('sendBackwards');
+
+    (component as any).canvas = {
+      getObjects: () => canvasObjects,
+      getActiveObjects: () => [first],
+      bringForward: bringForwardSpy,
+      sendBackwards: sendBackwardsSpy,
+      renderAll: () => {},
+      requestRenderAll: () => {},
+      setActiveObject: () => {},
+      discardActiveObject: () => {},
+      add: (obj: any) => {
+        canvasObjects.push(obj);
+      },
+      remove: (obj: any) => {
+        const index = canvasObjects.indexOf(obj);
+        if (index >= 0) {
+          canvasObjects.splice(index, 1);
+        }
+      },
+    };
+
+    component.ed.selectedLayerIds.set(new Set(['layer-1']));
+
+    component.moveSelectedForward();
+    expect(bringForwardSpy).toHaveBeenCalledWith(first);
+
+    component.moveLayerBackward('layer-2');
+    expect(sendBackwardsSpy).toHaveBeenCalledWith(second);
+  });
 });

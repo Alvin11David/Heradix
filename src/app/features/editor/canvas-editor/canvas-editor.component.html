@@ -379,6 +379,40 @@
               </button>
               <button
                 class="layer-act"
+                (click)="moveLayerForward(layer.id); $event.stopPropagation()"
+                title="Move forward"
+              >
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 19V5" />
+                  <polyline points="5 12 12 5 19 12" />
+                </svg>
+              </button>
+              <button
+                class="layer-act"
+                (click)="moveLayerBackward(layer.id); $event.stopPropagation()"
+                title="Move backward"
+              >
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 5v14" />
+                  <polyline points="5 12 12 19 19 12" />
+                </svg>
+              </button>
+              <button
+                class="layer-act"
                 (click)="toggleLayerVisibility(layer.id); $event.stopPropagation()"
                 [class.layer-act--off]="!layer.visible"
                 title="Toggle visibility"
@@ -696,8 +730,12 @@
           <div class="prop-section">
             <label class="prop-label">Actions</label>
             <div style="display: flex; gap: 8px; flex-wrap: wrap">
-              <button class="panel-footer-btn" (click)="groupSelected()">Group</button>
+              <button class="panel-footer-btn" (click)="groupSelected()">Nest Groups</button>
               <button class="panel-footer-btn" (click)="ungroupSelected()">Ungroup</button>
+              <button class="panel-footer-btn" (click)="moveSelectedForward()">Move Forward</button>
+              <button class="panel-footer-btn" (click)="moveSelectedBackward()">
+                Move Backward
+              </button>
             </div>
           </div>
 
