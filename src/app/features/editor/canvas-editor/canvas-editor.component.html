@@ -243,6 +243,22 @@
         </button>
       </div>
       <div class="panel-scroll">
+        <div class="panel-actions" style="padding: 8px 12px 4px">
+          <button class="panel-footer-btn" (click)="createLayer()">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+            Create Layer
+          </button>
+        </div>
         <div class="layer-list" *ngIf="layers().length; else emptyLayers">
           <button
             class="layer-item"
@@ -294,8 +310,72 @@
                 <polyline points="21 15 16 10 5 21" />
               </svg>
             </span>
-            <span class="layer-name">{{ layer.name }}</span>
+            <span
+              class="layer-name"
+              *ngIf="layerActionTarget() !== layer.id; else renameLayerInput"
+              >{{ layer.name }}</span
+            >
+            <ng-template #renameLayerInput>
+              <input
+                class="prop-input prop-input--sm"
+                style="width: 100%; min-width: 0"
+                [value]="layerRenameValue()"
+                (input)="layerRenameValue.set($any($event.target).value)"
+                (click)="$event.stopPropagation()"
+                (keydown.enter)="commitRenameLayer()"
+                (keydown.escape)="cancelRenameLayer()"
+                autofocus
+              />
+            </ng-template>
             <span class="layer-actions">
+              <input
+                class="prop-input prop-input--sm"
+                style="width: 54px; margin-right: 6px"
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                [value]="layer.opacity ?? 1"
+                (input)="
+                  setLayerOpacity(layer.id, +$any($event.target).value); $event.stopPropagation()
+                "
+                (click)="$event.stopPropagation()"
+                title="Opacity"
+              />
+              <button
+                class="layer-act"
+                (click)="startRenameLayer(layer.id); $event.stopPropagation()"
+                title="Rename layer"
+              >
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                </svg>
+              </button>
+              <button
+                class="layer-act"
+                (click)="duplicateLayer(layer.id); $event.stopPropagation()"
+                title="Duplicate layer"
+              >
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+              </button>
               <button
                 class="layer-act"
                 (click)="toggleLayerVisibility(layer.id); $event.stopPropagation()"

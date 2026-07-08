@@ -155,4 +155,42 @@ describe('CanvasEditorComponent page actions', () => {
     expect(snapped.left).toBe(page!.margin);
     expect(snapped.top).toBe(page!.margin);
   });
+
+  it('toggles layer visibility, lock state, and opacity', () => {
+    const layerObject = {
+      _id: 'layer-1',
+      visible: true,
+      opacity: 0.75,
+      lockMovementX: false,
+      lockMovementY: false,
+      lockRotation: false,
+      lockScalingX: false,
+      lockScalingY: false,
+      selectable: true,
+      evented: true,
+      set: function (props: Record<string, any>) {
+        Object.assign(this, props);
+      },
+    };
+
+    (component as any).canvas = {
+      getObjects: () => [layerObject],
+      renderAll: () => {},
+      getActiveObject: () => null,
+      discardActiveObject: () => {},
+    };
+
+    spyOn(component as any, 'onModify').and.callThrough();
+
+    component.toggleLayerVisibility('layer-1');
+    expect(layerObject.visible).toBeFalse();
+    expect(layerObject.selectable).toBeFalse();
+
+    component.toggleLayerLock('layer-1');
+    expect(layerObject.lockMovementX).toBeTrue();
+    expect(layerObject.selectable).toBeFalse();
+
+    component.setLayerOpacity('layer-1', 0.4);
+    expect(layerObject.opacity).toBe(0.4);
+  });
 });

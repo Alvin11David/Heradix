@@ -133,6 +133,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private _selectionProps = signal<Record<string, any>>({});
   readonly selectionProps = this._selectionProps.asReadonly();
 
+  readonly layerActionTarget = signal<string | null>(null);
+  readonly layerRenameValue = signal('');
   private _dragPreview: any = null;
   private panKeyPressed = false;
   private isPanning = false;
@@ -1467,29 +1469,44 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.canvas || !this.fabric || !target) return;
     this.clearDragPreview();
 
-    const preview = target.clone();
-    preview.set({
-      left: target.left,
-      top: target.top,
-      opacity: 0.28,
-      evented: false,
-      selectable: false,
-      hasControls: false,
-      hasBorders: false,
-      lockMovementX: true,
-      lockMovementY: true,
-      shadow: new this.fabric.Shadow({
-        color: 'rgba(37, 99, 235, 0.24)',
-        blur: 16,
-        offsetX: 0,
-        offsetY: 8,
-      }),
-      _isDragPreview: true,
-    });
-    preview.setCoords();
-    this.canvas.add(preview);
-    this._dragPreview = preview;
-    this.canvas.requestRenderAll();
+    const applyPreview = (preview: any): void => {
+      if (!preview || typeof preview.set !== 'function') return;
+      preview.set({
+        left: target.left,
+        top: target.top,
+        opacity: 0.28,
+        evented: false,
+        selectable: false,
+        hasControls: false,
+        hasBorders: false,
+        lockMovementX: true,
+        lockMovementY: true,
+        shadow: new this.fabric.Shadow({
+          color: 'rgba(37, 99, 235, 0.24)',
+          blur: 16,
+          offsetX: 0,
+          offsetY: 8,
+        }),
+        _isDragPreview: true,
+      });
+      preview.setCoords();
+      this.canvas.add(preview);
+      this._dragPreview = preview;
+      this.canvas.requestRenderAll();
+    };
+
+    try {
+      const cloneResult = target.clone((cloned: any) => applyPreview(cloned));
+      if (cloneResult && typeof cloneResult.set === 'function') {
+        applyPreview(cloneResult);
+      }
+    } catch {
+      const fallback = target.toObject?.();
+      if (fallback) {
+        const preview = new this.fabric.Object(fallback);
+        applyPreview(preview);
+      }
+    }
   }
 
   private clearDragPreview(): void {
@@ -2286,10 +2303,81 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  createLayer(): void {
+    if (!this.canvas || !this.fabric) return;
+    this.ed.pushUndoState();
+    const id = `layer-${Date.now()}`;
+    const layer = new this.fabric.Rect({
+      _id: id,
+      name: 'New Layer',
+      left: 180,
+      top: 180,
+      width: 120,
+      height: 80,
+      fill: '#3b82f6',
+      opacity: 1,
+    });
+    this.canvas.add(layer);
+    this.canvas.setActiveObject(layer);
+    this.canvas.renderAll();
+    this.onSelect({ target: layer });
+    this.ed.setDirty();
+  }
+
+  startRenameLayer(id: string): void {
+    const obj = this.canvas?.getObjects().find((o: any) => o._id === id);
+    if (!obj) return;
+    this.layerActionTarget.set(id);
+    this.layerRenameValue.set(obj.name ?? 'Layer');
+  }
+
+  commitRenameLayer(): void {
+    const id = this.layerActionTarget();
+    if (!id) return;
+    const obj = this.canvas?.getObjects().find((o: any) => o._id === id);
+    if (!obj) return;
+    const nextName = (this.layerRenameValue() || 'Layer').trim();
+    if (!nextName) return;
+    obj.name = nextName;
+    this.layerActionTarget.set(null);
+    this.layerRenameValue.set('');
+    this.canvas?.renderAll();
+    this.onModify();
+  }
+
+  cancelRenameLayer(): void {
+    this.layerActionTarget.set(null);
+    this.layerRenameValue.set('');
+  }
+
+  duplicateLayer(id: string): void {
+    const obj = this.canvas?.getObjects().find((o: any) => o._id === id);
+    if (!obj || !this.canvas || !this.fabric) return;
+    this.ed.pushUndoState();
+    const clone = obj.clone();
+    clone.set({
+      _id: `layer-${Date.now()}`,
+      name: `${obj.name ?? 'Layer'} Copy`,
+      left: (obj.left ?? 0) + 24,
+      top: (obj.top ?? 0) + 24,
+      opacity: obj.opacity ?? 1,
+    });
+    clone.setCoords();
+    this.canvas.add(clone);
+    this.canvas.setActiveObject(clone);
+    this.canvas.renderAll();
+    this.onSelect({ target: clone });
+    this.ed.setDirty();
+  }
+
   toggleLayerVisibility(id: string): void {
     const obj = this.canvas?.getObjects().find((o: any) => o._id === id);
     if (obj) {
-      obj.visible = !obj.visible;
+      const nextVisible = !obj.visible;
+      obj.set?.({ visible: nextVisible });
+      obj.visible = nextVisible;
+      obj.selectable = nextVisible && !obj.lockMovementX;
+      obj.evented = nextVisible;
       this.canvas?.renderAll();
       this.onModify();
     }
@@ -2298,14 +2386,34 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleLayerLock(id: string): void {
     const obj = this.canvas?.getObjects().find((o: any) => o._id === id);
     if (obj) {
-      obj.lockMovementX = !obj.lockMovementX;
-      obj.lockMovementY = obj.lockMovementX;
-      obj.lockRotation = obj.lockMovementX;
-      obj.lockScalingX = obj.lockMovementX;
-      obj.lockScalingY = obj.lockMovementX;
+      const locked = !obj.lockMovementX;
+      obj.set?.({
+        lockMovementX: locked,
+        lockMovementY: locked,
+        lockRotation: locked,
+        lockScalingX: locked,
+        lockScalingY: locked,
+      });
+      obj.lockMovementX = locked;
+      obj.lockMovementY = locked;
+      obj.lockRotation = locked;
+      obj.lockScalingX = locked;
+      obj.lockScalingY = locked;
+      obj.selectable = obj.visible && !locked;
+      obj.evented = obj.visible && !locked;
       this.canvas?.renderAll();
       this.onModify();
     }
+  }
+
+  setLayerOpacity(id: string, value: number): void {
+    const obj = this.canvas?.getObjects().find((o: any) => o._id === id);
+    if (!obj) return;
+    const nextOpacity = Math.max(0, Math.min(1, value));
+    obj.set?.({ opacity: nextOpacity });
+    obj.opacity = nextOpacity;
+    this.canvas?.renderAll();
+    this.onModify();
   }
 
   updateProperty(key: string, value: any): void {

@@ -2,7 +2,12 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable, of, interval } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ApiService } from '../../core/api/api.service';
-import { EditorProject, CreateProjectPayload, ExportProjectPayload, ExportJob } from '../../core/models/editor.model';
+import {
+  EditorProject,
+  CreateProjectPayload,
+  ExportProjectPayload,
+  ExportJob,
+} from '../../core/models/editor.model';
 
 export type ToolMode = 'select' | 'text' | 'shape' | 'image' | 'upload' | 'templates' | 'ai';
 export type SaveState = 'saved' | 'saving' | 'failed';
@@ -13,6 +18,7 @@ export interface EditorLayer {
   type: 'text' | 'rect' | 'circle' | 'polygon' | 'star' | 'triangle' | 'image' | 'line' | 'path';
   visible: boolean;
   locked: boolean;
+  opacity: number;
   selected: boolean;
   index: number;
 }
@@ -51,14 +57,23 @@ export class EditorService {
   readonly selectedLayerType = computed(() => {
     const ids = this.selectedLayerIds();
     if (ids.size !== 1) return null;
-    const layer = this.layers().find(l => l.id === [...ids][0]);
+    const layer = this.layers().find((l) => l.id === [...ids][0]);
     return layer?.type ?? null;
   });
 
   readonly colorPalette = signal<string[]>([
-    '#1a1a2e', '#16213e', '#0f3460', '#e94560',
-    '#f5820a', '#ffffff', '#f5f5f5', '#e0e0e0',
-    '#3b82f6', '#22c55e', '#ef4444', '#8b5cf6',
+    '#1a1a2e',
+    '#16213e',
+    '#0f3460',
+    '#e94560',
+    '#f5820a',
+    '#ffffff',
+    '#f5f5f5',
+    '#e0e0e0',
+    '#3b82f6',
+    '#22c55e',
+    '#ef4444',
+    '#8b5cf6',
   ]);
 
   readonly exportState = signal<ExportJobState>({ status: 'idle' });
@@ -144,7 +159,7 @@ export class EditorService {
         this.dirty.set(false);
         this.saveState.set('saved');
         return of(mock);
-      })
+      }),
     );
   }
 
@@ -186,7 +201,7 @@ export class EditorService {
       catchError(() => {
         this.saveState.set('failed');
         return of({ ...p, canvasJson: json });
-      })
+      }),
     );
   }
 
@@ -194,48 +209,58 @@ export class EditorService {
     const p = this.project();
     if (!p) return;
     this.exportState.set({ status: 'queued' });
-    this.api.post<ExportJob>(`/editor/projects/${p.id}/export`, { format, ...options }).pipe(
-      catchError(() => {
-        const mockJob: ExportJob = {
-          jobId: `job-${Date.now()}`,
-          status: 'DONE',
-          downloadUrl: '#',
-          expiresAt: new Date(Date.now() + 3600000).toISOString(),
-        };
-        return of(mockJob);
-      })
-    ).subscribe({
-      next: (job) => {
-        this.exportState.set({ status: 'rendering', jobId: job.jobId });
-        this.pollExportJob(job.jobId);
-      },
-      error: () => this.exportState.set({ status: 'failed', error: 'Failed to start export' }),
-    });
+    this.api
+      .post<ExportJob>(`/editor/projects/${p.id}/export`, { format, ...options })
+      .pipe(
+        catchError(() => {
+          const mockJob: ExportJob = {
+            jobId: `job-${Date.now()}`,
+            status: 'DONE',
+            downloadUrl: '#',
+            expiresAt: new Date(Date.now() + 3600000).toISOString(),
+          };
+          return of(mockJob);
+        }),
+      )
+      .subscribe({
+        next: (job) => {
+          this.exportState.set({ status: 'rendering', jobId: job.jobId });
+          this.pollExportJob(job.jobId);
+        },
+        error: () => this.exportState.set({ status: 'failed', error: 'Failed to start export' }),
+      });
   }
 
   private pollExportJob(jobId: string): void {
     const p = this.project();
     if (!p) return;
-    this.api.get<ExportJob>(`/editor/projects/${p.id}/export/${jobId}`).pipe(
-      catchError(() => {
-        const ready: ExportJob = { jobId, status: 'DONE', downloadUrl: '#', expiresAt: '' };
-        return of(ready);
-      })
-    ).subscribe({
-      next: (job) => {
-        if (job.status === 'DONE' || job.status === 'PROCESSING' || job.status === 'QUEUED') {
-          if (job.status === 'DONE') {
-            this.exportState.set({ status: 'ready', jobId: job.jobId, downloadUrl: job.downloadUrl });
+    this.api
+      .get<ExportJob>(`/editor/projects/${p.id}/export/${jobId}`)
+      .pipe(
+        catchError(() => {
+          const ready: ExportJob = { jobId, status: 'DONE', downloadUrl: '#', expiresAt: '' };
+          return of(ready);
+        }),
+      )
+      .subscribe({
+        next: (job) => {
+          if (job.status === 'DONE' || job.status === 'PROCESSING' || job.status === 'QUEUED') {
+            if (job.status === 'DONE') {
+              this.exportState.set({
+                status: 'ready',
+                jobId: job.jobId,
+                downloadUrl: job.downloadUrl,
+              });
+            } else {
+              this.exportState.set({ status: 'rendering', jobId: job.jobId });
+              setTimeout(() => this.pollExportJob(jobId), 2000);
+            }
           } else {
-            this.exportState.set({ status: 'rendering', jobId: job.jobId });
-            setTimeout(() => this.pollExportJob(jobId), 2000);
+            this.exportState.set({ status: 'failed', error: 'Export failed' });
           }
-        } else {
-          this.exportState.set({ status: 'failed', error: 'Export failed' });
-        }
-      },
-      error: () => this.exportState.set({ status: 'failed', error: 'Export failed' }),
-    });
+        },
+        error: () => this.exportState.set({ status: 'failed', error: 'Export failed' }),
+      });
   }
 
   resetExportState(): void {
@@ -262,24 +287,35 @@ export class EditorService {
 
   syncLayers(canvasObjects: any[]): void {
     const currentIds = new Set(this.selectedLayerIds());
-    const layers: EditorLayer[] = canvasObjects.map((obj: any, index: number) => {
-      const id = obj._id ?? obj.id ?? `layer-${index}`;
-      obj._id = id;
-      let type = obj.type as string;
-      if (type === 'i-text') type = 'text';
-      else if (type === 'path' && obj._shapeType) type = obj._shapeType;
-      else if (type === 'rect' || type === 'circle' || type === 'polygon' || type === 'star' || type === 'triangle' || type === 'line') type = type;
-      else if (type === 'image') type = type;
-      return {
-        id,
-        name: obj.name ?? `${type}-${index + 1}`,
-        type: type as any,
-        visible: obj.visible ?? true,
-        locked: obj.lockMovementX ?? false,
-        selected: currentIds.has(id),
-        index,
-      };
-    }).reverse();
+    const layers: EditorLayer[] = canvasObjects
+      .map((obj: any, index: number) => {
+        const id = obj._id ?? obj.id ?? `layer-${index}`;
+        obj._id = id;
+        let type = obj.type as string;
+        if (type === 'i-text') type = 'text';
+        else if (type === 'path' && obj._shapeType) type = obj._shapeType;
+        else if (
+          type === 'rect' ||
+          type === 'circle' ||
+          type === 'polygon' ||
+          type === 'star' ||
+          type === 'triangle' ||
+          type === 'line'
+        )
+          type = type;
+        else if (type === 'image') type = type;
+        return {
+          id,
+          name: obj.name ?? `${type}-${index + 1}`,
+          type: type as any,
+          visible: obj.visible ?? true,
+          locked: obj.lockMovementX ?? false,
+          opacity: obj.opacity ?? 1,
+          selected: currentIds.has(id),
+          index,
+        };
+      })
+      .reverse();
     this.layers.set(layers);
   }
 
