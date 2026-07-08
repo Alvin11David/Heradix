@@ -335,7 +335,7 @@
                 min="0"
                 max="1"
                 step="0.05"
-                [value]="layer.opacity ?? 1"
+                [value]="layer.opacity"
                 (input)="
                   setLayerOpacity(layer.id, +$any($event.target).value); $event.stopPropagation()
                 "
