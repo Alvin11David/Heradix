@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { WorkspaceService } from '../workspace.service';
 import { Workspace } from '../../../core/models/workspace.model';
-import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+
 
 @Component({
   selector: 'amx-workspace-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, SpinnerComponent],
+  imports: [CommonModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="workspace-page">
@@ -17,7 +17,9 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
         <button class="btn btn--primary" (click)="showCreate.set(true)">+ New Workspace</button>
       </div>
 
-      <amx-spinner *ngIf="loading()" />
+      <div class="workspace-grid" *ngIf="loading()">
+        <div class="skeleton skeleton--card" *ngFor="let _ of [1,2,3,4,5,6]"></div>
+      </div>
 
       <div class="workspace-grid" *ngIf="!loading()">
         <a

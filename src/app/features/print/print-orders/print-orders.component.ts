@@ -2,18 +2,20 @@ import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { PrintService } from '../print.service';
 import { PrintOrder } from '../../../core/models/print.model';
-import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+
 
 @Component({
   selector: 'amx-print-orders',
   standalone: true,
-  imports: [CommonModule, SpinnerComponent],
+  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="print-page">
       <h1 class="print-page__title">Print Orders</h1>
 
-      <amx-spinner *ngIf="loading()" />
+      <div class="orders-list" *ngIf="loading()">
+        <div class="skeleton skeleton--card" style="height:90px;margin-bottom:12px" *ngFor="let _ of [1,2,3]"></div>
+      </div>
 
       <div class="orders-list" *ngIf="!loading()">
         <div *ngFor="let order of orders()" class="order-card">

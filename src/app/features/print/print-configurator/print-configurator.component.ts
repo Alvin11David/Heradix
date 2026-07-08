@@ -10,7 +10,6 @@ import {
   Lamination, PrintSide, ShirtSize, SleeveType,
 } from '../../../core/models/print.model';
 import { PRINT_PRODUCTS } from '../print-home/print-home.component';
-import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 const UGX_RATE = 3700;
 const DELIVERY_FEE_UGX = 8000;
@@ -21,7 +20,7 @@ export type PaymentMethod   = 'mtn' | 'airtel' | 'visa';
 @Component({
   selector: 'amx-print-configurator',
   standalone: true,
-  imports: [CommonModule, FormsModule, SpinnerComponent],
+  imports: [CommonModule, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './print-configurator.component.html',
   styleUrl:    './print-configurator.component.scss',

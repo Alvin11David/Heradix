@@ -18,7 +18,10 @@ import { Submission } from '../../../core/models/affiliate.model';
           <a routerLink="assets"      routerLinkActive="active" class="admin-nav__link">Assets</a>
           <a routerLink="submissions" routerLinkActive="active" class="admin-nav__link">
             Submissions
-            <span class="badge" *ngIf="pendingCount() > 0">{{ pendingCount() }}</span>
+            <span class="badge" *ngIf="loading()">
+              <span class="skeleton skeleton--chip" style="width:28px;height:18px;display:inline-block;vertical-align:middle"></span>
+            </span>
+            <span class="badge" *ngIf="!loading() && pendingCount() > 0">{{ pendingCount() }}</span>
           </a>
           <a routerLink="analytics"   routerLinkActive="active" class="admin-nav__link">Analytics</a>
         </nav>
@@ -33,8 +36,12 @@ import { Submission } from '../../../core/models/affiliate.model';
 export class AdminDashboardComponent implements OnInit {
   private readonly svc = inject(AdminService);
   pendingCount = signal(0);
+  loading = signal(true);
 
   ngOnInit(): void {
-    this.svc.getPendingSubmissions().subscribe((s) => this.pendingCount.set(s.length));
+    this.svc.getPendingSubmissions().subscribe((s) => {
+      this.pendingCount.set(s.length);
+      this.loading.set(false);
+    });
   }
 }

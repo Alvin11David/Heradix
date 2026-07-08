@@ -6,16 +6,7 @@
   position: relative;
 }
 
-.amx-ad-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  gap: 14px;
-  color: var(--amx-muted);
-  font-size: 14px;
-}
+
 
 .amx-ad-toast {
   position: fixed;
@@ -41,8 +32,6 @@
     transform: translateX(-50%) translateY(0);
   }
 }
-
-/* ━━━━━━━━━━━━━━━━ DECORATIVE BLOBS ━━━━━━━━━━━━━━━━ */
 
 .amx-ad__bg {
   position: fixed;
@@ -81,8 +70,6 @@
   0% { transform: translate(0, 0) scale(1); }
   100% { transform: translate(40px, 30px) scale(1.12); }
 }
-
-/* ━━━━━━━━━━━━━━━━ TOPBAR ━━━━━━━━━━━━━━━━ */
 
 .amx-ad {
   position: relative;
@@ -138,8 +125,6 @@
   font-weight: 600;
 }
 
-/* ━━━━━━━━━━━━━━━━ MAIN GRID ━━━━━━━━━━━━━━━━ */
-
 .amx-ad__grid {
   max-width: 1260px;
   margin: 32px auto 0;
@@ -152,8 +137,6 @@
   @media (max-width: 1060px) { grid-template-columns: 1fr 380px; gap: 20px; }
   @media (max-width: 820px)  { grid-template-columns: 1fr; padding: 0 16px; }
 }
-
-/* ━━━━━━━━━━━━━━━━ PREVIEW CARD ━━━━━━━━━━━━━━━━ */
 
 .amx-ad__preview-card {
   background: var(--amx-card);
@@ -308,8 +291,6 @@
   margin-left: auto;
 }
 
-/* ━━━━━━━━━━━━━━━━ PANEL ━━━━━━━━━━━━━━━━ */
-
 .amx-ad__panel {
   display: flex;
   flex-direction: column;
@@ -428,8 +409,6 @@
   text-decoration: underline;
 }
 
-/* ━━━━━━━━━━━━━━━━ FORMATS ━━━━━━━━━━━━━━━━ */
-
 .amx-ad__formats-section {
   background: var(--amx-card);
   border-radius: 14px;
@@ -521,8 +500,6 @@
   margin-left: auto;
 }
 
-/* ━━━━━━━━━━━━━━━━ DOWNLOAD BUTTON ━━━━━━━━━━━━━━━━ */
-
 .amx-ad__download-btn {
   width: 100%;
   display: flex;
@@ -602,8 +579,6 @@
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
-
-/* ━━━━━━━━━━━━━━━━ SHARE ━━━━━━━━━━━━━━━━ */
 
 .amx-ad__share-wrap {
   position: relative;
@@ -709,8 +684,6 @@
   background: var(--amx-border-light);
   margin: 4px 0;
 }
-
-/* ━━━━━━━━━━━━━━━━ QUICK ACTIONS ━━━━━━━━━━━━━━━━ */
 
 .amx-ad__actions-strip {
   max-width: 1260px;
@@ -821,8 +794,6 @@
     color: var(--amx-faint);
   }
 }
-
-/* ━━━━━━━━━━━━━━━━ RELATED ITEMS ━━━━━━━━━━━━━━━━ */
 
 .amx-ad__related {
   max-width: 1260px;

@@ -1,6 +1,61 @@
 <div class="amx-ad-loading" *ngIf="loading()">
-  <amx-spinner [size]="'lg'" />
-  <p>Loading asset…</p>
+  <div class="amx-ad-skeleton__topbar">
+    <div class="skeleton skeleton--circle"></div>
+    <div class="skeleton skeleton--text skeleton--w-32"></div>
+  </div>
+  <div class="amx-ad-skeleton__grid">
+    <div class="amx-ad-skeleton__preview">
+      <div class="skeleton skeleton--ribbon"></div>
+      <div class="skeleton skeleton--image"></div>
+      <div class="amx-ad-skeleton__meta">
+        <div class="skeleton skeleton--chip"></div>
+        <div class="skeleton skeleton--chip skeleton--w-24"></div>
+        <div class="skeleton skeleton--chip skeleton--w-28"></div>
+      </div>
+    </div>
+    <div class="amx-ad-skeleton__panel">
+      <div class="skeleton skeleton--text skeleton--w-64 skeleton--h-8"></div>
+      <div class="skeleton skeleton--text skeleton--w-80"></div>
+      <div class="skeleton skeleton--text skeleton--w-48"></div>
+      <div class="amx-ad-skeleton__tags">
+        <div class="skeleton skeleton--chip skeleton--w-16"></div>
+        <div class="skeleton skeleton--chip skeleton--w-20"></div>
+        <div class="skeleton skeleton--chip skeleton--w-14"></div>
+      </div>
+      <div class="amx-ad-skeleton__checklist">
+        <div class="skeleton skeleton--text skeleton--w-32 skeleton--h-6"></div>
+        <div class="skeleton skeleton--text skeleton--w-56"></div>
+        <div class="skeleton skeleton--text skeleton--w-56"></div>
+        <div class="skeleton skeleton--text skeleton--w-56"></div>
+        <div class="skeleton skeleton--text skeleton--w-56"></div>
+        <div class="skeleton skeleton--text skeleton--w-56"></div>
+      </div>
+      <div class="amx-ad-skeleton__formats">
+        <div class="skeleton skeleton--chip skeleton--w-20"></div>
+        <div class="skeleton skeleton--chip skeleton--w-20"></div>
+        <div class="skeleton skeleton--chip skeleton--w-20"></div>
+      </div>
+      <div class="skeleton skeleton--btn skeleton--w-48"></div>
+    </div>
+  </div>
+  <div class="amx-ad-skeleton__actions">
+    <div class="skeleton skeleton--btn skeleton--w-28"></div>
+    <div class="skeleton skeleton--btn skeleton--w-28"></div>
+    <div class="skeleton skeleton--btn skeleton--w-28"></div>
+    <div class="skeleton skeleton--btn skeleton--w-28"></div>
+    <div class="skeleton skeleton--btn skeleton--w-28"></div>
+  </div>
+  <div class="amx-ad-skeleton__related">
+    <div class="amx-ad-skeleton__related-header">
+      <div class="skeleton skeleton--text skeleton--w-36"></div>
+    </div>
+    <div class="amx-ad-skeleton__related-track">
+      <div class="skeleton skeleton--related"></div>
+      <div class="skeleton skeleton--related"></div>
+      <div class="skeleton skeleton--related"></div>
+      <div class="skeleton skeleton--related"></div>
+    </div>
+  </div>
 </div>
 
 <div class="amx-ad-toast" [class.amx-ad-toast--visible]="toast()">
@@ -12,13 +67,11 @@
 
 <div class="amx-ad" *ngIf="!loading() && asset()">
 
-  <!-- ========== DECORATIVE BLOBS ========== -->
   <div class="amx-ad__bg">
     <div class="amx-ad__blob amx-ad__blob--1"></div>
     <div class="amx-ad__blob amx-ad__blob--2"></div>
   </div>
 
-  <!-- ========== TOPBAR ========== -->
   <div class="amx-ad__topbar">
     <button class="amx-ad__back" (click)="goBack()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -32,10 +85,8 @@
     </nav>
   </div>
 
-  <!-- ========== MAIN GRID ========== -->
   <div class="amx-ad__grid">
 
-    <!-- ── Preview Card ── -->
     <div class="amx-ad__preview-card">
       <div class="amx-ad__ribbon" *ngIf="asset()!.isPremium">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
@@ -69,7 +120,6 @@
       </div>
     </div>
 
-    <!-- ── Panel ── -->
     <div class="amx-ad__panel">
 
       <h1 class="amx-ad__title">{{ asset()!.title }}</h1>
@@ -211,7 +261,6 @@
     </div>
   </div>
 
-  <!-- ========== QUICK ACTIONS ========== -->
   <div class="amx-ad__actions-strip" *ngIf="asset()">
     <p class="amx-ad__qa-label">Quick Actions</p>
     <div class="amx-ad__qa-row">
@@ -299,7 +348,6 @@
     </div>
   </div>
 
-  <!-- ========== RELATED ========== -->
   <section class="amx-ad__related">
     <div class="amx-ad__related-header">
       <h2 class="amx-ad__related-title">

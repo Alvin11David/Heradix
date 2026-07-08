@@ -2,18 +2,25 @@ import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { AffiliateService } from '../affiliate.service';
 import { Affiliate, Submission } from '../../../core/models/affiliate.model';
-import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+
 
 @Component({
   selector: 'amx-affiliate-dashboard',
   standalone: true,
-  imports: [CommonModule, SpinnerComponent],
+  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="affiliate-page">
       <h1 class="affiliate-page__title">Contributor Dashboard</h1>
 
-      <amx-spinner *ngIf="loading()" />
+      <div *ngIf="loading()" style="display:flex;flex-direction:column;gap:24px">
+        <div class="stats-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+          <div class="skeleton skeleton--card" style="height:100px" *ngFor="let _ of [1,2,3,4]"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="skeleton skeleton--row" *ngFor="let _ of [1,2,3,4,5]"></div>
+        </div>
+      </div>
 
       <ng-container *ngIf="!loading() && profile()">
         <div class="stats-grid">

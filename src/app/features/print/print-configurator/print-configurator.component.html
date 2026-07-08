@@ -434,7 +434,19 @@
 
 <ng-template #loading>
   <div class="amx-pc__loading">
-    <amx-spinner [size]="'lg'" />
-    <p>Loading product…</p>
+    <div class="amx-pc__layout">
+      <div class="amx-pc__left">
+        <div class="skeleton skeleton--image" style="height:350px"></div>
+      </div>
+      <div class="amx-pc__right" style="display:flex;flex-direction:column;gap:16px">
+        <div class="skeleton skeleton--text skeleton--w-64 skeleton--h-8"></div>
+        <div class="skeleton skeleton--row"></div>
+        <div class="skeleton skeleton--row"></div>
+        <div class="skeleton skeleton--row"></div>
+        <div class="skeleton skeleton--row"></div>
+        <div class="skeleton skeleton--row"></div>
+        <div class="skeleton skeleton--btn skeleton--w-48"></div>
+      </div>
+    </div>
   </div>
 </ng-template>

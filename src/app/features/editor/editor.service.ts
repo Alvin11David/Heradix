@@ -10,7 +10,7 @@ export type SaveState = 'saved' | 'saving' | 'failed';
 export interface EditorLayer {
   id: string;
   name: string;
-  type: 'text' | 'rect' | 'circle' | 'triangle' | 'image' | 'line' | 'path';
+  type: 'text' | 'rect' | 'circle' | 'polygon' | 'star' | 'triangle' | 'image' | 'line' | 'path';
   visible: boolean;
   locked: boolean;
   selected: boolean;
@@ -190,11 +190,11 @@ export class EditorService {
     );
   }
 
-  exportProject(format: 'PNG' | 'PDF' | 'SVG'): void {
+  exportProject(format: string, options?: { quality?: number; transparent?: boolean }): void {
     const p = this.project();
     if (!p) return;
     this.exportState.set({ status: 'queued' });
-    this.api.post<ExportJob>(`/editor/projects/${p.id}/export`, { format }).pipe(
+    this.api.post<ExportJob>(`/editor/projects/${p.id}/export`, { format, ...options }).pipe(
       catchError(() => {
         const mockJob: ExportJob = {
           jobId: `job-${Date.now()}`,
@@ -267,7 +267,8 @@ export class EditorService {
       obj._id = id;
       let type = obj.type as string;
       if (type === 'i-text') type = 'text';
-      else if (type === 'rect' || type === 'circle' || type === 'triangle' || type === 'line') type = type;
+      else if (type === 'path' && obj._shapeType) type = obj._shapeType;
+      else if (type === 'rect' || type === 'circle' || type === 'polygon' || type === 'star' || type === 'triangle' || type === 'line') type = type;
       else if (type === 'image') type = type;
       return {
         id,

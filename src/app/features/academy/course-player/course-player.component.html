@@ -1,6 +1,14 @@
 <div class="amx-player-loading" *ngIf="contentLoading()">
-  <amx-spinner></amx-spinner>
-  <span>Loading course…</span>
+  <div style="display:flex;gap:24px;max-width:1200px;margin:0 auto;padding:24px">
+    <div style="flex:1;display:flex;flex-direction:column;gap:16px">
+      <div class="skeleton skeleton--image" style="height:360px"></div>
+      <div class="skeleton skeleton--text skeleton--w-64"></div>
+      <div class="skeleton skeleton--text skeleton--w-48"></div>
+    </div>
+    <div style="width:320px;display:flex;flex-direction:column;gap:8px">
+      <div class="skeleton skeleton--row" *ngFor="let _ of [1,2,3,4,5,6,7,8]"></div>
+    </div>
+  </div>
 </div>
 
 <div class="amx-player" *ngIf="!contentLoading()">

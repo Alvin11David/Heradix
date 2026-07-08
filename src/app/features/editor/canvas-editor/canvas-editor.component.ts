@@ -6,7 +6,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EditorService, ToolMode, EditorLayer, SaveState } from '../editor.service';
-import { EditorProject } from '../../../core/models/editor.model';
+import { EditorProject, ExportFormat } from '../../../core/models/editor.model';
+import { MarketplaceService } from '../../marketplace/marketplace.service';
+import { Asset } from '../../../core/models/asset.model';
 
 @Component({
   selector: 'amx-canvas-editor',
@@ -20,6 +22,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   readonly ed = inject(EditorService);
+  private readonly marketplace = inject(MarketplaceService);
 
   @ViewChild('canvasEl') canvasElRef!: ElementRef<HTMLCanvasElement>;
 
@@ -46,9 +49,12 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly snapEnabled = this.ed.snapEnabled;
 
   readonly projectTitle = computed(() => this.ed.project()?.title ?? 'Untitled');
+  readonly assets = signal<Asset[]>([]);
+  readonly loadingAssets = signal(false);
+  assetsSearchQuery = '';
 
   fontFamilies = ['Inter', 'Lato', 'Roboto', 'Poppins', 'Playfair Display', 'Courier New', 'Georgia', 'Arial'];
-  shapeTypes = ['rect', 'circle', 'triangle', 'line'] as const;
+  shapeTypes = ['rect', 'circle', 'polygon', 'star', 'line'] as const;
 
   readonly fontWeights = [
     { value: 100, label: 'Thin' },
@@ -69,7 +75,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly FILE_SIZE_LIMIT = 10 * 1024 * 1024;
   private readonly ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
   private _selectedObject: any = null;
-  private _exportFormat: 'PNG' | 'PDF' | 'SVG' = 'PNG';
+  private _exportFormat: ExportFormat = 'PNG';
+  exportQuality = 92;
+  exportTransparent = true;
+  private _assetImageUrl: string | null = null;
   private _textSelHandler: (() => void) | null = null;
   private _hasTextSelection = false;
 
@@ -97,6 +106,49 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const s = this._selectionProps()['shadow'];
     return !!s && typeof s === 'object';
   });
+
+  readonly selectedCornerRx = computed(() => this._selectionProps()['cornerRx'] ?? 0);
+  readonly selectedCornerRy = computed(() => this._selectionProps()['cornerRy'] ?? 0);
+  readonly selectedStrokeTop = computed(() => !!this._selectionProps()['strokeTop']);
+  readonly selectedStrokeBottom = computed(() => !!this._selectionProps()['strokeBottom']);
+  readonly selectedStrokeLeft = computed(() => !!this._selectionProps()['strokeLeft']);
+  readonly selectedStrokeRight = computed(() => !!this._selectionProps()['strokeRight']);
+  readonly maxCornerSmoothing = computed(() => {
+    const w = this._selectionProps()['width'] ?? 120;
+    const h = this._selectionProps()['height'] ?? 80;
+    return Math.round(Math.min(Math.abs(w), Math.abs(h)) / 2);
+  });
+
+  readonly selectedCircleArc = computed(() => this._selectionProps()['_arc'] ?? 0);
+  readonly selectedCircleSweep = computed(() => this._selectionProps()['_sweep'] ?? 360);
+  readonly selectedCircleRatio = computed(() => this._selectionProps()['_ratio'] ?? 0);
+
+  readonly selectedStrokeLineCap = computed(() => this._selectionProps()['strokeLineCap'] ?? 'butt');
+  readonly selectedStrokeLineJoin = computed(() => this._selectionProps()['strokeLineJoin'] ?? 'miter');
+  readonly selectedArrowStart = computed(() => !!this._selectionProps()['_arrowStart']);
+  readonly selectedArrowEnd = computed(() => !!this._selectionProps()['_arrowEnd']);
+
+  readonly selectedPolygonSides = computed(() => this._selectionProps()['_sides'] ?? 3);
+  readonly selectedPolygonCornerRadius = computed(() => this._selectionProps()['_cornerRadius'] ?? 0);
+  readonly selectedStarPoints = computed(() => this._selectionProps()['_starPoints'] ?? 5);
+  readonly selectedStarRatio = computed(() => this._selectionProps()['_starRatio'] ?? 0.5);
+  readonly maxPolygonCornerRadius = computed(() => {
+    const sides = this._selectionProps()['_sides'] ?? 3;
+    const w = this._selectionProps()['width'] ?? 100;
+    const h = this._selectionProps()['height'] ?? 100;
+    const radius = Math.min(Math.abs(w), Math.abs(h)) / 2;
+    return Math.max(0, radius * Math.sin(Math.PI / sides));
+  });
+  readonly selectedBlendMode = computed(() => this._selectionProps()['globalCompositeOperation'] ?? 'source-over');
+  readonly selectedLayerBlur = computed(() => this._selectionProps()['_layerBlur'] ?? 0);
+  readonly selectedFillType = computed(() => this._selectionProps()['_fillType'] ?? 'solid');
+  readonly selectedGradientColors = computed(() => this._selectionProps()['_gradientColors'] ?? ['#3b82f6', '#8b5cf6']);
+  readonly selectedGradientAngle = computed(() => this._selectionProps()['_gradientAngle'] ?? 0);
+  readonly selectedGradientRadius = computed(() => this._selectionProps()['_gradientRadius'] ?? 50);
+
+  blendModes = ['source-over', 'multiply', 'screen', 'overlay', 'darken', 'lighten',
+    'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion'];
+
   readonly shadowColor = computed(() => {
     const s = this._selectionProps()['shadow'];
     return s?.color ?? 'rgba(0,0,0,0.3)';
@@ -128,16 +180,28 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     return layer.id;
   }
 
+  trackAsset(_: number, asset: Asset): string {
+    return asset.id;
+  }
+
   ngOnInit(): void {
     const projectId = this.route.snapshot.queryParamMap.get('projectId');
     const assetId = this.route.snapshot.queryParamMap.get('assetId');
+    this._assetImageUrl = this.route.snapshot.queryParamMap.get('imageUrl');
+    const assetTitle = this.route.snapshot.queryParamMap.get('title');
 
     this.ed.initProject(assetId ?? undefined).subscribe({
-      next: () => this.loading.set(false),
+      next: () => {
+        this.loading.set(false);
+        if (assetTitle) {
+          this.ed.project.update(p => p ? { ...p, title: assetTitle } : p);
+        }
+      },
       error: () => this.loading.set(false),
     });
 
     this.ed.startAutosave();
+    this.loadAssets();
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -178,7 +242,11 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.canvas.on('selection:created', (e: any) => this.onSelect(e));
     this.canvas.on('selection:updated', (e: any) => this.onSelect(e));
     this.canvas.on('selection:cleared', () => this.onDeselect());
-    this.canvas.on('object:modified', () => this.onModify());
+    this.canvas.on('object:modified', (e: any) => {
+      this.syncStrokeSides(e.target);
+      this.syncArrows(e.target);
+      this.onModify();
+    });
 
     this.canvas.on('object:moving', (e: any) => {
       if (this.ed.snapEnabled()) {
@@ -203,6 +271,563 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       try {
         this.canvas.loadFromJSON(JSON.parse(this.ed.project()!.canvasJson), () => this.canvas.renderAll());
       } catch {}
+    } else if (this._assetImageUrl) {
+      this.loadAssetImage(this._assetImageUrl);
+    }
+  }
+
+  private loadAssetImage(url: string): void {
+    if (!this.canvas || !this.fabric) return;
+    this.ed.pushUndoState();
+    const attemptLoad = (crossOrigin: string | null) => {
+      const opts: any = {};
+      if (crossOrigin) opts.crossOrigin = crossOrigin;
+      this.fabric.Image.fromURL(url, (img: any, isError?: boolean) => {
+        if (!img || isError) {
+          if (crossOrigin === 'anonymous') attemptLoad(null);
+          return;
+        }
+        const cw = this.canvas!.getWidth();
+        const ch = this.canvas!.getHeight();
+        const maxW = cw * 0.8;
+        const maxH = ch * 0.8;
+        const scale = Math.min(maxW / (img.width || 1), maxH / (img.height || 1), 1);
+        img.set({
+          _id: `asset-img-${Date.now()}`,
+          name: 'Asset Image',
+          left: (cw - img.width * scale) / 2,
+          top: (ch - img.height * scale) / 2,
+          scaleX: scale,
+          scaleY: scale,
+        });
+        this.canvas!.add(img);
+        this.canvas!.setActiveObject(img);
+        this.canvas!.renderAll();
+        this.onSelect({ target: img });
+        this.ed.toolMode.set('select');
+        this.updateCanvasCursor();
+      }, opts);
+    };
+    attemptLoad('anonymous');
+  }
+
+  updateCornerSmoothing(value: number): void {
+    const obj = this._selectedObject;
+    if (!obj || !obj.isType || !obj.isType('rect')) return;
+    this.ed.pushUndoState();
+    const v = Math.round(value);
+    const maxVal = Math.round(Math.min(Math.abs(obj.width), Math.abs(obj.height)) / 2);
+    const clamped = Math.min(v, maxVal);
+    obj.set('rx', clamped);
+    obj.set('ry', clamped);
+    obj._cornerRx = clamped;
+    obj._cornerRy = clamped;
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  updateStrokeSide(side: 'top' | 'bottom' | 'left' | 'right'): void {
+    const obj = this._selectedObject;
+    if (!obj || !obj.isType || !obj.isType('rect')) return;
+    this.ed.pushUndoState();
+    if (!obj._strokeSides) obj._strokeSides = { top: false, bottom: false, left: false, right: false };
+    obj._strokeSides[side] = !obj._strokeSides[side];
+    this.syncStrokeSides(obj);
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  private syncStrokeSides(obj: any): void {
+    if (!obj || !obj._strokeSides || !this.canvas || !this.fabric) return;
+    const sides = obj._strokeSides;
+    const id = obj._id;
+    const stroke = obj.stroke || '#000000';
+    const sw = obj.strokeWidth || 1;
+
+    const existing = this.canvas.getObjects().filter((o: any) => o._isStrokeSide && o._parentId === id);
+    existing.forEach((o: any) => this.canvas?.remove(o));
+
+    if (!sides.top && !sides.bottom && !sides.left && !sides.right) {
+      obj.set('stroke', stroke);
+      obj.set('strokeWidth', sw);
+      this.canvas.renderAll();
+      return;
+    }
+
+    obj.set('stroke', 'transparent');
+    obj.set('strokeWidth', 0);
+
+    const b = obj.getBoundingRect();
+    const half = sw / 2;
+
+    if (sides.top) {
+      this.canvas.add(new this.fabric.Line([b.left, b.top + half, b.left + b.width, b.top + half], {
+        _isStrokeSide: true, _parentId: id, selectable: false, evented: false,
+        stroke, strokeWidth: sw, strokeUniform: true,
+      }));
+    }
+    if (sides.bottom) {
+      this.canvas.add(new this.fabric.Line([b.left, b.top + b.height - half, b.left + b.width, b.top + b.height - half], {
+        _isStrokeSide: true, _parentId: id, selectable: false, evented: false,
+        stroke, strokeWidth: sw, strokeUniform: true,
+      }));
+    }
+    if (sides.left) {
+      this.canvas.add(new this.fabric.Line([b.left + half, b.top, b.left + half, b.top + b.height], {
+        _isStrokeSide: true, _parentId: id, selectable: false, evented: false,
+        stroke, strokeWidth: sw, strokeUniform: true,
+      }));
+    }
+    if (sides.right) {
+      this.canvas.add(new this.fabric.Line([b.left + b.width - half, b.top, b.left + b.width - half, b.top + b.height], {
+        _isStrokeSide: true, _parentId: id, selectable: false, evented: false,
+        stroke, strokeWidth: sw, strokeUniform: true,
+      }));
+    }
+
+    this.canvas.renderAll();
+  }
+
+  private buildSectorPath(R: number, startDeg: number, sweepDeg: number, ratio: number): string {
+    const startRad = startDeg * Math.PI / 180;
+    const sweepRad = sweepDeg * Math.PI / 180;
+    const endRad = startRad + sweepRad;
+    const r = R * Math.max(0, Math.min(0.95, ratio));
+
+    const cosS = Math.cos(startRad), sinS = Math.sin(startRad);
+    const cosE = Math.cos(endRad), sinE = Math.sin(endRad);
+
+    const ox = R * cosS, oy = R * sinS;
+    const ex = R * cosE, ey = R * sinE;
+    const large = sweepDeg > 180 ? 1 : 0;
+
+    if (sweepDeg >= 360) {
+      const mx = R * Math.cos(startRad + Math.PI), my = R * Math.sin(startRad + Math.PI);
+      if (r <= 0) {
+        return `M ${ox} ${oy} A ${R} ${R} 0 0 1 ${mx} ${my} A ${R} ${R} 0 0 1 ${ox} ${oy} Z`;
+      }
+      const ix = r * cosS, iy = r * sinS;
+      const imx = r * Math.cos(startRad + Math.PI), imy = r * Math.sin(startRad + Math.PI);
+      return `M ${ox} ${oy} A ${R} ${R} 0 0 1 ${mx} ${my} A ${R} ${R} 0 0 1 ${ox} ${oy} Z M ${ix} ${iy} A ${r} ${r} 0 0 0 ${imx} ${imy} A ${r} ${r} 0 0 0 ${ix} ${iy} Z`;
+    }
+
+    if (r <= 0) {
+      return `M ${ox} ${oy} A ${R} ${R} 0 ${large} 1 ${ex} ${ey} L 0 0 Z`;
+    }
+
+    const ix = r * cosS, iy = r * sinS;
+    const iex = r * cosE, iey = r * sinE;
+    return `M ${ox} ${oy} A ${R} ${R} 0 ${large} 1 ${ex} ${ey} L ${iex} ${iey} A ${r} ${r} 0 ${large} 0 ${ix} ${iy} Z`;
+  }
+
+  private replaceCircleShape(obj: any, arc: number, sweep: number, ratio: number): void {
+    if (!this.canvas || !this.fabric) return;
+    const R = Math.min(Math.abs(obj.width || obj.radius || 50), Math.abs(obj.height || obj.radius || 50)) / 2;
+    const cx = obj.left + (obj.width || obj.radius * 2) / 2;
+    const cy = obj.top + (obj.height || obj.radius * 2) / 2;
+    const pathStr = this.buildSectorPath(R, arc, sweep, ratio);
+    const isDefault = arc === 0 && sweep === 360 && ratio === 0;
+
+    let newObj: any;
+
+    if (isDefault) {
+      newObj = new this.fabric.Circle({
+        _id: obj._id, name: obj.name ?? 'Circle',
+        radius: R, fill: obj.fill ?? '#3b82f6',
+        stroke: obj.stroke, strokeWidth: obj.strokeWidth,
+        opacity: obj.opacity, shadow: obj.shadow,
+        lockMovementX: obj.lockMovementX, lockMovementY: obj.lockMovementY,
+        visible: obj.visible, angle: obj.angle,
+        _arc: 0, _sweep: 360, _ratio: 0,
+      });
+    } else {
+      newObj = new this.fabric.Path(pathStr, {
+        _id: obj._id, name: obj.name ?? 'Circle',
+        fill: obj.fill ?? '#3b82f6',
+        stroke: obj.stroke ?? '', strokeWidth: obj.strokeWidth ?? 0,
+        opacity: obj.opacity ?? 1, shadow: obj.shadow,
+        lockMovementX: obj.lockMovementX, lockMovementY: obj.lockMovementY,
+        visible: obj.visible, angle: obj.angle,
+        _arc: arc, _sweep: sweep, _ratio: ratio, _shapeType: 'circle',
+      });
+    }
+
+    newObj.set({ left: cx - (newObj.width ?? R * 2) / 2, top: cy - (newObj.height ?? R * 2) / 2, originX: 'center', originY: 'center' });
+    this.canvas.remove(obj);
+    this.canvas.add(newObj);
+    this.canvas.setActiveObject(newObj);
+    this._selectedObject = newObj;
+    this.canvas.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  updateCircleArc(value: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    const isCircle = obj.isType?.('circle') || obj._shapeType === 'circle';
+    if (!isCircle) return;
+    this.ed.pushUndoState();
+    const clamped = Math.min(Math.max(Math.round(value), 0), 359);
+    const sweep = obj._sweep ?? 360;
+    const ratio = obj._ratio ?? 0;
+    this.replaceCircleShape(obj, clamped, sweep, ratio);
+  }
+
+  updateCircleSweep(value: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    const isCircle = obj.isType?.('circle') || obj._shapeType === 'circle';
+    if (!isCircle) return;
+    this.ed.pushUndoState();
+    const clamped = Math.min(Math.max(Math.round(value), 1), 360);
+    const arc = obj._arc ?? 0;
+    const ratio = obj._ratio ?? 0;
+    this.replaceCircleShape(obj, arc, clamped, ratio);
+  }
+
+  updateCircleRatio(value: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    const isCircle = obj.isType?.('circle') || obj._shapeType === 'circle';
+    if (!isCircle) return;
+    this.ed.pushUndoState();
+    const clamped = Math.min(Math.max(value, 0), 0.95);
+    const arc = obj._arc ?? 0;
+    const sweep = obj._sweep ?? 360;
+    this.replaceCircleShape(obj, arc, sweep, clamped);
+  }
+
+  updateStrokeCap(cap: 'butt' | 'round' | 'square'): void {
+    const obj = this._selectedObject;
+    if (!obj || !obj.isType || !obj.isType('line')) return;
+    this.ed.pushUndoState();
+    obj.set('strokeLineCap', cap);
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  updateStrokeJoin(join: 'miter' | 'round' | 'bevel'): void {
+    const obj = this._selectedObject;
+    if (!obj || !obj.isType || !obj.isType('line')) return;
+    this.ed.pushUndoState();
+    obj.set('strokeLineJoin', join);
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  updateArrowStart(): void {
+    const obj = this._selectedObject;
+    if (!obj || !obj.isType || !obj.isType('line')) return;
+    this.ed.pushUndoState();
+    obj._arrowStart = !obj._arrowStart;
+    this.syncArrows(obj);
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  updateArrowEnd(): void {
+    const obj = this._selectedObject;
+    if (!obj || !obj.isType || !obj.isType('line')) return;
+    this.ed.pushUndoState();
+    obj._arrowEnd = !obj._arrowEnd;
+    this.syncArrows(obj);
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  private syncArrows(obj: any): void {
+    if (!obj || !this.canvas || !this.fabric) return;
+    const id = obj._id;
+    const stroke = obj.stroke || '#000000';
+    const sw = obj.strokeWidth || 3;
+
+    const existing = this.canvas.getObjects().filter((o: any) => o._isArrow && o._parentId === id);
+    existing.forEach((o: any) => this.canvas?.remove(o));
+
+    const x1 = obj.x1 ?? 0, y1 = obj.y1 ?? 0;
+    const x2 = obj.x2 ?? 100, y2 = obj.y2 ?? 0;
+    const dx = x2 - x1, dy = y2 - y1;
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const arrowSize = sw * 4;
+
+    if (obj._arrowStart) {
+      const startPath = `M 0,-${arrowSize} L -${arrowSize * 2},0 L 0,${arrowSize} Z`;
+      this.canvas.add(new this.fabric.Path(startPath, {
+        _isArrow: true, _parentId: id, selectable: false, evented: false,
+        left: x1, top: y1, angle: angle + 180,
+        fill: stroke, originX: 'center', originY: 'center',
+      }));
+    }
+
+    if (obj._arrowEnd) {
+      const endPath = `M 0,-${arrowSize} L ${arrowSize * 2},0 L 0,${arrowSize} Z`;
+      this.canvas.add(new this.fabric.Path(endPath, {
+        _isArrow: true, _parentId: id, selectable: false, evented: false,
+        left: x2, top: y2, angle: angle,
+        fill: stroke, originX: 'center', originY: 'center',
+      }));
+    }
+  }
+
+  private buildPolygonPath(radius: number, sides: number, cornerR: number): string {
+    const n = sides;
+    const r = Math.min(cornerR, radius * Math.sin(Math.PI / n));
+    const verts: { x: number; y: number }[] = [];
+    for (let i = 0; i < n; i++) {
+      const a = (2 * Math.PI * i / n) - Math.PI / 2;
+      verts.push({ x: radius * Math.cos(a), y: radius * Math.sin(a) });
+    }
+    if (r <= 0) {
+      let path = `M ${verts[0].x} ${verts[0].y}`;
+      for (let i = 1; i < n; i++) path += ` L ${verts[i].x} ${verts[i].y}`;
+      return path + ' Z';
+    }
+    const starts: { x: number; y: number }[] = [];
+    const ends: { x: number; y: number }[] = [];
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      const dx = verts[j].x - verts[i].x;
+      const dy = verts[j].y - verts[i].y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const ux = dx / len;
+      const uy = dy / len;
+      starts.push({ x: verts[i].x + r * ux, y: verts[i].y + r * uy });
+      ends.push({ x: verts[j].x - r * ux, y: verts[j].y - r * uy });
+    }
+    let path = `M ${starts[0].x} ${starts[0].y}`;
+    for (let i = 1; i < n; i++) {
+      path += ` L ${ends[i - 1].x} ${ends[i - 1].y}`;
+      path += ` A ${r} ${r} 0 0 0 ${starts[i].x} ${starts[i].y}`;
+    }
+    path += ` L ${ends[n - 1].x} ${ends[n - 1].y}`;
+    path += ` A ${r} ${r} 0 0 0 ${starts[0].x} ${starts[0].y} Z`;
+    return path;
+  }
+
+  private replacePolygonShape(obj: any, sides: number, cornerR: number): void {
+    if (!this.canvas || !this.fabric) return;
+    const radius = Math.min(Math.abs(obj.width || 100), Math.abs(obj.height || 100)) / 2;
+    const pathStr = this.buildPolygonPath(radius, sides, cornerR);
+    const newObj = new this.fabric.Path(pathStr, {
+      _id: obj._id, name: obj.name ?? 'Polygon',
+      fill: obj.fill ?? '#8b5cf6',
+      stroke: obj.stroke ?? '', strokeWidth: obj.strokeWidth ?? 0,
+      opacity: obj.opacity ?? 1, shadow: obj.shadow,
+      lockMovementX: obj.lockMovementX, lockMovementY: obj.lockMovementY,
+      visible: obj.visible, angle: obj.angle,
+      _sides: sides, _cornerRadius: cornerR, _shapeType: 'polygon',
+    });
+    const cx = obj.left + (obj.width || 100) / 2;
+    const cy = obj.top + (obj.height || 100) / 2;
+    newObj.set({ left: cx - (newObj.width || radius * 2) / 2, top: cy - (newObj.height || radius * 2) / 2 });
+    this.canvas.remove(obj);
+    this.canvas.add(newObj);
+    this.canvas.setActiveObject(newObj);
+    this._selectedObject = newObj;
+    this.canvas.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  updatePolygonSides(value: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    const isPolygon = obj.isType?.('polygon') || obj._shapeType === 'polygon';
+    if (!isPolygon) return;
+    this.ed.pushUndoState();
+    const clamped = Math.min(Math.max(Math.round(value), 3), 24);
+    const cornerR = obj._cornerRadius ?? 0;
+    this.replacePolygonShape(obj, clamped, Math.min(cornerR, this.maxPolygonCornerRadius()));
+  }
+
+  updatePolygonCornerRadius(value: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    const isPolygon = obj.isType?.('polygon') || obj._shapeType === 'polygon';
+    if (!isPolygon) return;
+    this.ed.pushUndoState();
+    const sides = obj._sides ?? 3;
+    const clamped = Math.min(Math.max(value, 0), this.maxPolygonCornerRadius());
+    this.replacePolygonShape(obj, sides, clamped);
+  }
+
+  private buildStarPath(R: number, points: number, ratio: number): string {
+    const n = points;
+    const r = R * Math.max(0.05, Math.min(0.95, ratio));
+    let path = '';
+    for (let i = 0; i < n; i++) {
+      const outerAngle = (2 * Math.PI * i / n) - Math.PI / 2;
+      const innerAngle = outerAngle + Math.PI / n;
+      const ox = R * Math.cos(outerAngle);
+      const oy = R * Math.sin(outerAngle);
+      const ix = r * Math.cos(innerAngle);
+      const iy = r * Math.sin(innerAngle);
+      path += (i === 0 ? 'M' : 'L') + ` ${ox} ${oy}`;
+      path += ` L ${ix} ${iy}`;
+    }
+    return path + ' Z';
+  }
+
+  private replaceStarShape(obj: any, points: number, ratio: number): void {
+    if (!this.canvas || !this.fabric) return;
+    const radius = Math.min(Math.abs(obj.width || 100), Math.abs(obj.height || 100)) / 2;
+    const pathStr = this.buildStarPath(radius, points, ratio);
+    const newObj = new this.fabric.Path(pathStr, {
+      _id: obj._id, name: obj.name ?? 'Star',
+      fill: obj.fill ?? '#f59e0b',
+      stroke: obj.stroke ?? '', strokeWidth: obj.strokeWidth ?? 0,
+      opacity: obj.opacity ?? 1, shadow: obj.shadow,
+      lockMovementX: obj.lockMovementX, lockMovementY: obj.lockMovementY,
+      visible: obj.visible, angle: obj.angle,
+      _starPoints: points, _starRatio: ratio, _shapeType: 'star',
+    });
+    const cx = obj.left + (obj.width || 100) / 2;
+    const cy = obj.top + (obj.height || 100) / 2;
+    newObj.set({ left: cx - (newObj.width || radius * 2) / 2, top: cy - (newObj.height || radius * 2) / 2 });
+    this.canvas.remove(obj);
+    this.canvas.add(newObj);
+    this.canvas.setActiveObject(newObj);
+    this._selectedObject = newObj;
+    this.canvas.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  updateStarPoints(value: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    const isStar = obj._shapeType === 'star';
+    if (!isStar) return;
+    this.ed.pushUndoState();
+    const clamped = Math.min(Math.max(Math.round(value), 3), 24);
+    const ratio = obj._starRatio ?? 0.5;
+    this.replaceStarShape(obj, clamped, ratio);
+  }
+
+  updateStarRatio(value: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    const isStar = obj._shapeType === 'star';
+    if (!isStar) return;
+    this.ed.pushUndoState();
+    const points = obj._starPoints ?? 5;
+    const clamped = Math.min(Math.max(value, 0.05), 0.95);
+    this.replaceStarShape(obj, points, clamped);
+  }
+
+  applyBlendMode(mode: string): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    this.ed.pushUndoState();
+    obj.set('globalCompositeOperation', mode);
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  applyLayerBlur(value: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    this.ed.pushUndoState();
+    const clamped = Math.min(Math.max(value, 0), 20);
+    obj._layerBlur = clamped;
+    obj.filters = clamped > 0
+      ? [new this.fabric.Image.filters.Blur({ blur: clamped / 10 })]
+      : [];
+    obj.applyFilters();
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  applyFillType(type: 'solid' | 'linear' | 'radial'): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    this.ed.pushUndoState();
+    obj._fillType = type;
+    this.applyFillToObject(obj);
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  applyGradientColor(index: number, color: string): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    this.ed.pushUndoState();
+    const colors = [...(obj._gradientColors ?? ['#3b82f6', '#8b5cf6'])];
+    colors[index] = color;
+    obj._gradientColors = colors;
+    this.applyFillToObject(obj);
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  applyGradientAngle(angle: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    this.ed.pushUndoState();
+    obj._gradientAngle = angle;
+    this.applyFillToObject(obj);
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  applyGradientRadius(radius: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    this.ed.pushUndoState();
+    obj._gradientRadius = radius;
+    this.applyFillToObject(obj);
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  private applyFillToObject(obj: any): void {
+    if (!this.fabric) return;
+    const type = obj._fillType ?? 'solid';
+    if (type === 'solid') {
+      const solidColor = obj._gradientColors?.[0] || obj.fill || '#000000';
+      obj.set('fill', solidColor);
+      return;
+    }
+
+    const colors = obj._gradientColors ?? ['#3b82f6', '#8b5cf6'];
+    const colorStops = colors.map((c: string, i: number) => ({
+      offset: colors.length === 1 ? 0 : i / (colors.length - 1),
+      color: c,
+    }));
+
+    if (type === 'linear') {
+      const angle = (obj._gradientAngle ?? 0) * Math.PI / 180;
+      const cos = Math.cos(angle), sin = Math.sin(angle);
+      const gradient = new this.fabric.Gradient({
+        type: 'linear', gradientUnits: 'percentage',
+        coords: {
+          x1: 0.5 - cos * 0.5, y1: 0.5 - sin * 0.5,
+          x2: 0.5 + cos * 0.5, y2: 0.5 + sin * 0.5,
+        },
+        colorStops,
+      });
+      obj.set('fill', gradient);
+    } else if (type === 'radial') {
+      const r = (obj._gradientRadius ?? 50) / 100;
+      const gradient = new this.fabric.Gradient({
+        type: 'radial', gradientUnits: 'percentage',
+        coords: { x1: 0.5, y1: 0.5, r1: 0, x2: 0.5, y2: 0.5, r2: r },
+        colorStops,
+      });
+      obj.set('fill', gradient);
     }
   }
 
@@ -212,7 +837,14 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       'lineHeight', 'charSpacing', 'underline', 'strikethrough', 'textBackgroundColor',
       'direction', 'paragraphSpacing', 'shadow',
       'width', 'height', 'left', 'top', 'scaleX', 'scaleY', 'angle',
-      'visible', 'lockMovementX', 'lockMovementY', 'text', 'styles'];
+      'visible', 'lockMovementX', 'lockMovementY', 'text', 'styles',
+      'rx', 'ry', '_cornerRx', '_cornerRy', '_strokeSides',
+      '_arc', '_sweep', '_ratio', '_shapeType',
+      'strokeLineCap', 'strokeLineJoin', '_arrowStart', '_arrowEnd',
+      '_sides', '_cornerRadius',
+      '_starPoints', '_starRatio',
+      'globalCompositeOperation', '_layerBlur', '_fillType',
+      '_gradientColors', '_gradientAngle', '_gradientRadius'];
   }
 
   ngOnDestroy(): void {
@@ -356,6 +988,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private readPropsFromSelected(): void {
     const obj = this._selectedObject;
     if (!obj) { this._selectionProps.set({}); return; }
+    const sides = obj._strokeSides ?? { top: false, bottom: false, left: false, right: false };
     this._selectionProps.set({
       fill: obj.fill,
       stroke: obj.stroke,
@@ -380,6 +1013,31 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       left: obj.left,
       top: obj.top,
       angle: obj.angle,
+      rx: obj.rx ?? 0,
+      ry: obj.ry ?? 0,
+      cornerRx: obj._cornerRx ?? obj.rx ?? 0,
+      cornerRy: obj._cornerRy ?? obj.ry ?? 0,
+      strokeTop: sides.top,
+      strokeBottom: sides.bottom,
+      strokeLeft: sides.left,
+      strokeRight: sides.right,
+      _arc: obj._arc ?? 0,
+      _sweep: obj._sweep ?? 360,
+      _ratio: obj._ratio ?? 0,
+      strokeLineCap: obj.strokeLineCap ?? 'butt',
+      strokeLineJoin: obj.strokeLineJoin ?? 'miter',
+      _arrowStart: !!obj._arrowStart,
+      _arrowEnd: !!obj._arrowEnd,
+      _sides: obj._sides ?? 3,
+      _cornerRadius: obj._cornerRadius ?? 0,
+      _starPoints: obj._starPoints ?? 5,
+      _starRatio: obj._starRatio ?? 0.5,
+      globalCompositeOperation: obj.globalCompositeOperation ?? 'source-over',
+      _layerBlur: obj._layerBlur ?? 0,
+      _fillType: obj._fillType ?? 'solid',
+      _gradientColors: obj._gradientColors ?? ['#3b82f6', '#8b5cf6'],
+      _gradientAngle: obj._gradientAngle ?? 0,
+      _gradientRadius: obj._gradientRadius ?? 50,
     });
   }
 
@@ -444,6 +1102,30 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  loadAssets(query?: string): void {
+    this.loadingAssets.set(true);
+    const params: Record<string, any> = { limit: 24 };
+    if (query) params['q'] = query;
+    this.marketplace.getAssets(params).subscribe({
+      next: (res) => { this.assets.set(res.data.filter(a => a.previewUrl)); this.loadingAssets.set(false); },
+      error: () => this.loadingAssets.set(false),
+    });
+  }
+
+  searchAssets(query: string): void {
+    this.assetsSearchQuery = query;
+    this.loadAssets(query);
+  }
+
+  onImageDragStart(e: DragEvent, url: string): void {
+    e.dataTransfer?.setData('text/plain', url);
+    if (e.dataTransfer) e.dataTransfer.effectAllowed = 'copy';
+  }
+
+  onImageClick(url: string): void {
+    this.addImage(url);
+  }
+
   setTool(mode: ToolMode): void {
     this.ed.toolMode.set(mode);
     this.showFontPicker.set(false);
@@ -463,16 +1145,27 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     let obj: any;
     switch (type) {
       case 'circle':
-        obj = new this.fabric.Circle({ _id: id, name: 'Circle', left: c.x - 50, top: c.y - 50, radius: 50, fill: '#3b82f6' });
+        obj = new this.fabric.Circle({ _id: id, name: 'Circle', left: c.x - 50, top: c.y - 50, radius: 50, fill: '#3b82f6', _arc: 0, _sweep: 360, _ratio: 0 });
         break;
-      case 'triangle':
-        obj = new this.fabric.Triangle({ _id: id, name: 'Triangle', left: c.x - 50, top: c.y - 50, width: 100, height: 100, fill: '#8b5cf6' });
+      case 'polygon': {
+        const r = 50;
+        const pStr = this.buildPolygonPath(r, 3, 0);
+        obj = new this.fabric.Path(pStr, { _id: id, name: 'Polygon', fill: '#8b5cf6', _sides: 3, _cornerRadius: 0, _shapeType: 'polygon' });
+        obj.set({ left: c.x - (obj.width || r * 2) / 2, top: c.y - (obj.height || r * 2) / 2 });
         break;
+      }
+      case 'star': {
+        const sR = 50;
+        const sStr = this.buildStarPath(sR, 5, 0.5);
+        obj = new this.fabric.Path(sStr, { _id: id, name: 'Star', fill: '#f59e0b', _starPoints: 5, _starRatio: 0.5, _shapeType: 'star' });
+        obj.set({ left: c.x - (obj.width || sR * 2) / 2, top: c.y - (obj.height || sR * 2) / 2 });
+        break;
+      }
       case 'line':
-        obj = new this.fabric.Line([c.x - 100, c.y, c.x + 100, c.y], { _id: id, name: 'Line', stroke: '#e94560', strokeWidth: 3 });
+        obj = new this.fabric.Line([c.x - 100, c.y, c.x + 100, c.y], { _id: id, name: 'Line', stroke: '#e94560', strokeWidth: 3, strokeLineCap: 'butt', strokeLineJoin: 'miter', _arrowStart: false, _arrowEnd: false });
         break;
       default:
-        obj = new this.fabric.Rect({ _id: id, name: 'Rectangle', left: c.x - 60, top: c.y - 40, width: 120, height: 80, fill: '#22c55e', rx: 4, ry: 4 });
+        obj = new this.fabric.Rect({ _id: id, name: 'Rectangle', left: c.x - 60, top: c.y - 40, width: 120, height: 80, fill: '#22c55e', rx: 0, ry: 0, _cornerRx: 0, _cornerRy: 0, _strokeSides: { top: false, bottom: false, left: false, right: false } });
     }
     this.canvas.add(obj);
     this.canvas.setActiveObject(obj);
@@ -517,34 +1210,57 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     input.click();
   }
 
-  private addImage(url: string): void {
+  private addImage(url: string, dropX?: number, dropY?: number): void {
     if (!this.canvas || !this.fabric) return;
     this.ed.pushUndoState();
-    this.fabric.Image.fromURL(url, (img: any) => {
-      const maxW = 300, maxH = 300;
-      const scale = Math.min(maxW / (img.width || 1), maxH / (img.height || 1), 1);
-      const c = this.getCanvasCenter();
-      img.set({
-        _id: `img-${Date.now()}`,
-        name: 'Image',
-        left: c.x - (img.width * scale) / 2,
-        top: c.y - (img.height * scale) / 2,
-        scaleX: scale,
-        scaleY: scale,
-      });
-      this.canvas!.add(img);
-      this.canvas!.setActiveObject(img);
-      this.canvas!.renderAll();
-      this.onSelect({ target: img });
-      this.ed.toolMode.set('select');
-      this.updateCanvasCursor();
-    }, { crossOrigin: 'anonymous' });
+    const attemptLoad = (crossOrigin: string | null) => {
+      const opts: any = {};
+      if (crossOrigin) opts.crossOrigin = crossOrigin;
+      this.fabric.Image.fromURL(url, (img: any, isError?: boolean) => {
+        if (!img || isError) {
+          if (crossOrigin === 'anonymous') {
+            attemptLoad(null);
+          }
+          return;
+        }
+        const maxW = 300, maxH = 300;
+        const scale = Math.min(maxW / (img.width || 1), maxH / (img.height || 1), 1);
+        let left: number, top: number;
+        if (dropX != null && dropY != null) {
+          left = dropX - (img.width * scale) / 2;
+          top = dropY - (img.height * scale) / 2;
+        } else {
+          const c = this.getCanvasCenter();
+          left = c.x - (img.width * scale) / 2;
+          top = c.y - (img.height * scale) / 2;
+        }
+        img.set({
+          _id: `img-${Date.now()}`,
+          name: 'Image',
+          left,
+          top,
+          scaleX: scale,
+          scaleY: scale,
+        });
+        this.canvas!.add(img);
+        this.canvas!.setActiveObject(img);
+        this.canvas!.renderAll();
+        this.onSelect({ target: img });
+        this.ed.toolMode.set('select');
+        this.updateCanvasCursor();
+      }, opts);
+    };
+    attemptLoad('anonymous');
   }
 
   deleteSelected(): void {
     const active = this.canvas?.getActiveObjects();
     if (!active || !active.length) return;
     this.ed.pushUndoState();
+    const ids = new Set(active.map((o: any) => o._id));
+    const helpers = this.canvas!.getObjects().filter((o: any) =>
+      (o._isStrokeSide || o._isArrow) && ids.has(o._parentId));
+    helpers.forEach((o: any) => this.canvas?.remove(o));
     active.forEach((o: any) => this.canvas?.remove(o));
     this.canvas?.discardActiveObject();
     this.canvas?.renderAll();
@@ -685,6 +1401,18 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onFileDrop(e: DragEvent): void {
     e.preventDefault();
+    const url = e.dataTransfer?.getData('text/plain');
+    if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:'))) {
+      try {
+        const pt = this.canvas?.getPointer(e);
+        if (pt && pt.x != null && pt.y != null) {
+          this.addImage(url, pt.x, pt.y);
+          return;
+        }
+      } catch {}
+      this.addImage(url);
+      return;
+    }
     const file = e.dataTransfer?.files?.[0];
     if (!file) return;
     if (!this.ALLOWED_TYPES.includes(file.type)) { return; }
@@ -721,9 +1449,17 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showExport.set(false);
   }
 
-  exportDesign(format: 'PNG' | 'PDF' | 'SVG'): void {
+  exportDesign(format: ExportFormat): void {
     this._exportFormat = format;
-    this.ed.exportProject(format);
+    this.ed.exportProject(format, { quality: this.exportQuality, transparent: this.exportTransparent });
+  }
+
+  setExportQuality(value: number): void {
+    this.exportQuality = Math.min(Math.max(Math.round(value), 10), 100);
+  }
+
+  toggleExportTransparent(): void {
+    this.exportTransparent = !this.exportTransparent;
   }
 
   downloadExport(): void {

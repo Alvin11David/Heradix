@@ -1,6 +1,5 @@
 <div class="editor" *ngIf="!loading()">
 
-  <!-- ═══════════ TOOLBAR ═══════════ -->
   <header class="editor-toolbar">
     <div class="tb-left">
       <button class="tb-btn tb-btn--icon" (click)="saveAndClose()" title="Back to Marketplace">
@@ -61,10 +60,8 @@
     </div>
   </header>
 
-  <!-- ═══════════ BODY ═══════════ -->
   <div class="editor-body">
 
-    <!-- ───── LAYERS ───── -->
     <aside class="panel panel--layers">
       <div class="panel-header">
         <h3 class="panel-title">Layers</h3>
@@ -80,7 +77,7 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 *ngIf="layer.type==='text'"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                *ngIf="layer.type==='rect'||layer.type==='circle'||layer.type==='triangle'"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                *ngIf="layer.type==='rect'||layer.type==='circle'||layer.type==='polygon'||layer.type==='star'"><polygon points="12 2 15 9 22 9 16 14 18 22 12 17 6 22 8 14 2 9 9 9"/></svg>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 *ngIf="layer.type==='image'"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
             </span>
@@ -101,9 +98,40 @@
             <p>No layers yet.<br/>Add text, shapes, or images.</p>
           </div>
         </ng-template>
+
+        <div class="im-section">
+          <div class="im-header">
+            <h3 class="panel-title">Images</h3>
+            <span class="panel-count">{{ assets().length }}</span>
+          </div>
+          <div class="im-search" *ngIf="assets().length">
+            <input type="text" class="prop-input prop-input--sm im-search-input" placeholder="Search images…"
+              [value]="assetsSearchQuery"
+              (input)="searchAssets($any($event.target).value)" />
+          </div>
+          <div class="im-grid" *ngIf="assets().length; else emptyAssets">
+            <div class="im-item" *ngFor="let asset of assets(); trackBy: trackAsset"
+              draggable="true"
+              (dragstart)="onImageDragStart($event, asset.previewUrl)"
+              (click)="onImageClick(asset.previewUrl)"
+              title="{{ asset.title }}">
+              <img [src]="asset.thumbnailUrl || asset.previewUrl" [alt]="asset.title" loading="lazy" draggable="false" />
+              <span class="im-item-label">{{ asset.title }}</span>
+            </div>
+          </div>
+          <ng-template #emptyAssets>
+            <div class="panel-empty" *ngIf="!loadingAssets()">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <p>No images found.</p>
+            </div>
+          </ng-template>
+          <div class="im-loading" *ngIf="loadingAssets()">
+            <span>Loading…</span>
+          </div>
+        </div>
       </div>
 
-      <div class="panel-footer" *ngIf="selectedLayerType()">
+      <div class="panel-footer" *ngIf="selectedLayerType()" style="border-top: none">
         <button class="panel-footer-btn panel-footer-btn--danger" (click)="deleteSelected()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           Delete
@@ -111,13 +139,11 @@
       </div>
     </aside>
 
-    <!-- ───── CANVAS ───── -->
     <main class="canvas-area"
       (drop)="onFileDrop($event)"
       (dragover)="onDragOver($event)">
       <canvas #canvasEl id="amx-fabric-canvas"></canvas>
 
-      <!-- AI Tools menu -->
       <div class="canvas-overlay top-left" *ngIf="toolMode()==='ai'">
         <div class="ai-menu">
           <div class="ai-menu-title">AI Tools</div>
@@ -130,7 +156,6 @@
         </div>
       </div>
 
-      <!-- Upload dialog -->
       <div class="canvas-overlay" *ngIf="showUploadDialog()">
         <div class="upload-card" (click)="$event.stopPropagation()">
           <div class="upload-card-icon">
@@ -144,7 +169,6 @@
         </div>
       </div>
 
-      <!-- Templates picker -->
       <div class="canvas-overlay" *ngIf="showTemplatePicker()" (click)="showTemplatePicker.set(false)">
         <div class="templates-card" (click)="$event.stopPropagation()">
           <div class="templates-header">
@@ -173,7 +197,6 @@
       </div>
     </main>
 
-    <!-- ───── PROPERTIES ───── -->
     <aside class="panel panel--props">
       <div class="panel-header">
         <h3 class="panel-title">Properties</h3>
@@ -181,7 +204,6 @@
       <div class="panel-scroll">
         <ng-container *ngIf="selectedLayerType(); else noSelection">
 
-          <!-- ── Common ── -->
           <div class="prop-section">
             <label class="prop-label">Opacity</label>
             <input type="range" class="prop-range" min="0" max="1" step="0.01"
@@ -189,10 +211,22 @@
             <span class="prop-value">{{ selectedOpacity() | percent }}</span>
           </div>
 
-          <!-- ═══════════ TEXT ═══════════ -->
+          <div class="prop-section">
+            <label class="prop-label">Blend</label>
+            <select class="prop-select" [value]="selectedBlendMode()" (change)="applyBlendMode($any($event.target).value)">
+              <option *ngFor="let m of blendModes" [value]="m">{{ m }}</option>
+            </select>
+          </div>
+
+          <div class="prop-section">
+            <label class="prop-label">Blur</label>
+            <input type="range" class="prop-range" min="0" max="20" step="0.5"
+              [value]="selectedLayerBlur()" (input)="applyLayerBlur(+$any($event.target).value)" />
+            <span class="prop-value">{{ selectedLayerBlur() | number:'1.0-1' }}</span>
+          </div>
+
           <ng-container *ngIf="selectedLayerType()==='text'">
 
-            <!-- Font family — custom picker -->
             <div class="prop-section">
               <label class="prop-label">Font</label>
               <div class="fp-wrap" (click)="$event.stopPropagation()">
@@ -210,7 +244,6 @@
               </div>
             </div>
 
-            <!-- Font size — presets + input -->
             <div class="prop-section">
               <label class="prop-label">Size</label>
               <div class="fs-wrap">
@@ -224,7 +257,6 @@
               </div>
             </div>
 
-            <!-- Font weight — numeric select -->
             <div class="prop-section">
               <label class="prop-label">Weight</label>
               <select class="prop-select" [value]="selectedFontWeight()" (change)="updateProperty('fontWeight', +$any($event.target).value)">
@@ -232,7 +264,6 @@
               </select>
             </div>
 
-            <!-- Bold / Italic / Align row -->
             <div class="prop-row">
               <button class="prop-style-btn" [class.prop-style-btn--active]="selectedFontWeight()>=700" (click)="updateProperty('fontWeight', selectedFontWeight()>=700 ? 400 : 700)" title="Bold">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"/></svg>
@@ -254,7 +285,6 @@
               </select>
             </div>
 
-            <!-- Text color -->
             <div class="prop-section">
               <label class="prop-label">Color</label>
               <div class="color-strip">
@@ -265,7 +295,6 @@
               </div>
             </div>
 
-            <!-- Line height -->
             <div class="prop-section">
               <label class="prop-label">Line H</label>
               <input type="range" class="prop-range" min="0.5" max="3" step="0.05"
@@ -273,7 +302,6 @@
               <span class="prop-value">{{ selectedLineHeight() | number:'1.1-1' }}</span>
             </div>
 
-            <!-- Char spacing -->
             <div class="prop-section">
               <label class="prop-label">Spacing</label>
               <input type="range" class="prop-range" min="-100" max="500" step="1"
@@ -281,7 +309,6 @@
               <span class="prop-value">{{ selectedCharSpacing() }}</span>
             </div>
 
-            <!-- Text background color -->
             <div class="prop-section">
               <label class="prop-label">Bg Color</label>
               <div class="color-strip">
@@ -295,7 +322,6 @@
               </div>
             </div>
 
-            <!-- Direction -->
             <div class="prop-section">
               <label class="prop-label">Dir</label>
               <select class="prop-select" [value]="selectedDirection()" (change)="updateProperty('direction', $any($event.target).value)">
@@ -304,7 +330,6 @@
               </select>
             </div>
 
-            <!-- Paragraph Spacing -->
             <div class="prop-section">
               <label class="prop-label">Para Spc</label>
               <input type="range" class="prop-range" min="0" max="200" step="1"
@@ -312,7 +337,6 @@
               <span class="prop-value">{{ selectedParagraphSpacing() }}</span>
             </div>
 
-            <!-- Text Stroke -->
             <div class="prop-section">
               <label class="prop-label">Outline</label>
               <div class="color-strip">
@@ -332,7 +356,6 @@
               <span class="prop-value">{{ selectedStrokeWidth() }}</span>
             </div>
 
-            <!-- Shadow -->
             <div class="prop-section">
               <label class="prop-label">Shadow</label>
               <button class="prop-style-btn" [class.prop-style-btn--active]="hasShadow()"
@@ -372,17 +395,54 @@
 
           </ng-container>
 
-          <!-- ═══════════ SHAPE ═══════════ -->
-          <ng-container *ngIf="selectedLayerType()==='rect'||selectedLayerType()==='circle'||selectedLayerType()==='triangle'">
-            <div class="prop-section">
+          <ng-container *ngIf="selectedLayerType()==='rect'||selectedLayerType()==='circle'||selectedLayerType()==='polygon'||selectedLayerType()==='star'||selectedLayerType()==='line'">
+            <div class="prop-section" *ngIf="selectedLayerType()!=='line'">
               <label class="prop-label">Fill</label>
               <div class="color-strip">
                 <button class="color-swatch" *ngFor="let c of colorPalette()"
                   [style.background]="c"
-                  [class.color-swatch--active]="selectedFill()===c"
-                  (click)="applyColor(c,'fill')"></button>
+                  [class.color-swatch--active]="selectedFillType()==='solid' && selectedFill()===c"
+                  (click)="applyFillType('solid'); applyColor(c,'fill')"></button>
+              </div>
+              <div class="fill-type-pills">
+                <button class="pill-btn" [class.pill-btn--on]="selectedFillType()==='solid'" (click)="applyFillType('solid'); applyColor(selectedGradientColors()[0],'fill')">Solid</button>
+                <button class="pill-btn" [class.pill-btn--on]="selectedFillType()==='linear'" (click)="applyFillType('linear')">Linear</button>
+                <button class="pill-btn" [class.pill-btn--on]="selectedFillType()==='radial'" (click)="applyFillType('radial')">Radial</button>
               </div>
             </div>
+
+            <ng-container *ngIf="selectedLayerType()!=='line' && selectedFillType()!=='solid'">
+              <div class="prop-section">
+                <label class="prop-label">Stop 1</label>
+                <div class="color-strip">
+                  <button class="color-swatch" *ngFor="let c of colorPalette()"
+                    [style.background]="c"
+                    [class.color-swatch--active]="selectedGradientColors()[0]===c"
+                    (click)="applyGradientColor(0, c)"></button>
+                </div>
+              </div>
+              <div class="prop-section">
+                <label class="prop-label">Stop 2</label>
+                <div class="color-strip">
+                  <button class="color-swatch" *ngFor="let c of colorPalette()"
+                    [style.background]="c"
+                    [class.color-swatch--active]="selectedGradientColors()[1]===c"
+                    (click)="applyGradientColor(1,c)"></button>
+                </div>
+              </div>
+              <div class="prop-section" *ngIf="selectedFillType()==='linear'">
+                <label class="prop-label">Angle</label>
+                <input type="range" class="prop-range" min="0" max="360" step="1"
+                  [value]="selectedGradientAngle()" (input)="applyGradientAngle(+$any($event.target).value)" />
+                <span class="prop-value">{{ selectedGradientAngle() }}°</span>
+              </div>
+              <div class="prop-section" *ngIf="selectedFillType()==='radial'">
+                <label class="prop-label">Radius</label>
+                <input type="range" class="prop-range" min="10" max="100" step="1"
+                  [value]="selectedGradientRadius()" (input)="applyGradientRadius(+$any($event.target).value)" />
+                <span class="prop-value">{{ selectedGradientRadius() }}%</span>
+              </div>
+            </ng-container>
             <div class="prop-section">
               <label class="prop-label">Stroke</label>
               <div class="color-strip">
@@ -398,9 +458,182 @@
                 [value]="selectedStrokeWidth()" (input)="updateProperty('strokeWidth', +$any($event.target).value)" />
               <span class="prop-value">{{ selectedStrokeWidth() }}px</span>
             </div>
+
+            <ng-container *ngIf="selectedLayerType()==='rect'">
+              <div class="prop-divider"></div>
+
+              <div class="prop-section">
+                <label class="prop-label">
+                  Corner
+                  <span class="prop-hint">Smoothing</span>
+                </label>
+                <input type="range" class="prop-range" min="0" [max]="maxCornerSmoothing()" step="1"
+                  [value]="selectedCornerRx()" (input)="updateCornerSmoothing(+$any($event.target).value)" />
+                <span class="prop-value">{{ selectedCornerRx() }}px</span>
+              </div>
+
+              <div class="prop-section">
+                <label class="prop-label">
+                  Stroke Sides
+                  <span class="prop-hint">Per-edge border</span>
+                </label>
+                <div class="stroke-sides">
+                  <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeTop()"
+                    (click)="updateStrokeSide('top')" title="Top stroke">
+                    <svg width="14" height="14" viewBox="0 0 24 8" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <line x1="2" y1="4" x2="22" y2="4"/>
+                    </svg>
+                  </button>
+                  <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeBottom()"
+                    (click)="updateStrokeSide('bottom')" title="Bottom stroke">
+                    <svg width="14" height="14" viewBox="0 0 24 8" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <line x1="2" y1="4" x2="22" y2="4"/>
+                    </svg>
+                  </button>
+                  <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeLeft()"
+                    (click)="updateStrokeSide('left')" title="Left stroke">
+                    <svg width="14" height="14" viewBox="0 0 8 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <line x1="4" y1="2" x2="4" y2="22"/>
+                    </svg>
+                  </button>
+                  <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeRight()"
+                    (click)="updateStrokeSide('right')" title="Right stroke">
+                    <svg width="14" height="14" viewBox="0 0 8 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <line x1="4" y1="2" x2="4" y2="22"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="selectedLayerType()==='circle'">
+              <div class="prop-divider"></div>
+
+              <div class="prop-section">
+                <label class="prop-label">
+                  Arc
+                  <span class="prop-hint">Start</span>
+                </label>
+                <input type="range" class="prop-range" min="0" max="359" step="1"
+                  [value]="selectedCircleArc()" (input)="updateCircleArc(+$any($event.target).value)" />
+                <span class="prop-value">{{ selectedCircleArc() }}°</span>
+              </div>
+
+              <div class="prop-section">
+                <label class="prop-label">
+                  Sweep
+                  <span class="prop-hint">Extent</span>
+                </label>
+                <input type="range" class="prop-range" min="1" max="360" step="1"
+                  [value]="selectedCircleSweep()" (input)="updateCircleSweep(+$any($event.target).value)" />
+                <span class="prop-value">{{ selectedCircleSweep() }}°</span>
+              </div>
+
+              <div class="prop-section">
+                <label class="prop-label">
+                  Ratio
+                  <span class="prop-hint">Hollow</span>
+                </label>
+                <input type="range" class="prop-range" min="0" max="0.95" step="0.01"
+                  [value]="selectedCircleRatio()" (input)="updateCircleRatio(+$any($event.target).value)" />
+                <span class="prop-value">{{ selectedCircleRatio() | number:'1.0-2' }}</span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="selectedLayerType()==='line'">
+              <div class="prop-divider"></div>
+
+              <div class="prop-section">
+                <label class="prop-label">
+                  Caps
+                  <span class="prop-hint">Endpoint shape</span>
+                </label>
+                <div class="cap-join-pills">
+                  <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineCap()==='butt'" (click)="updateStrokeCap('butt')">Butt</button>
+                  <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineCap()==='round'" (click)="updateStrokeCap('round')">Round</button>
+                  <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineCap()==='square'" (click)="updateStrokeCap('square')">Square</button>
+                </div>
+              </div>
+
+              <div class="prop-section">
+                <label class="prop-label">
+                  Joints
+                  <span class="prop-hint">Corner style</span>
+                </label>
+                <div class="cap-join-pills">
+                  <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineJoin()==='miter'" (click)="updateStrokeJoin('miter')">Miter</button>
+                  <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineJoin()==='round'" (click)="updateStrokeJoin('round')">Round</button>
+                  <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineJoin()==='bevel'" (click)="updateStrokeJoin('bevel')">Bevel</button>
+                </div>
+              </div>
+
+              <div class="prop-section">
+                <label class="prop-label">
+                  Arrows
+                  <span class="prop-hint">Line ends</span>
+                </label>
+                <div class="cap-join-pills">
+                  <button class="pill-btn" [class.pill-btn--on]="selectedArrowStart()" (click)="updateArrowStart()" title="Arrow at start">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="20" y1="12" x2="4" y2="12"/><polyline points="10 6 4 12 10 18"/></svg>
+                    Start
+                  </button>
+                  <button class="pill-btn" [class.pill-btn--on]="selectedArrowEnd()" (click)="updateArrowEnd()" title="Arrow at end">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="14 6 20 12 14 18"/></svg>
+                    End
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="selectedLayerType()==='polygon'">
+              <div class="prop-divider"></div>
+
+              <div class="prop-section">
+                <label class="prop-label">
+                  Sides
+                  <span class="prop-hint">Vertices</span>
+                </label>
+                <input type="range" class="prop-range" min="3" max="24" step="1"
+                  [value]="selectedPolygonSides()" (input)="updatePolygonSides(+$any($event.target).value)" />
+                <span class="prop-value">{{ selectedPolygonSides() }}</span>
+              </div>
+
+              <div class="prop-section">
+                <label class="prop-label">
+                  Radius
+                  <span class="prop-hint">Corner smoothing</span>
+                </label>
+                <input type="range" class="prop-range" min="0" [max]="maxPolygonCornerRadius()" step="0.5"
+                  [value]="selectedPolygonCornerRadius()" (input)="updatePolygonCornerRadius(+$any($event.target).value)" />
+                <span class="prop-value">{{ selectedPolygonCornerRadius() | number:'1.0-1' }}</span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="selectedLayerType()==='star'">
+              <div class="prop-divider"></div>
+
+              <div class="prop-section">
+                <label class="prop-label">
+                  Points
+                  <span class="prop-hint">Star tips</span>
+                </label>
+                <input type="range" class="prop-range" min="3" max="24" step="1"
+                  [value]="selectedStarPoints()" (input)="updateStarPoints(+$any($event.target).value)" />
+                <span class="prop-value">{{ selectedStarPoints() }}</span>
+              </div>
+
+              <div class="prop-section">
+                <label class="prop-label">
+                  Ratio
+                  <span class="prop-hint">Valley depth</span>
+                </label>
+                <input type="range" class="prop-range" min="0.05" max="0.95" step="0.01"
+                  [value]="selectedStarRatio()" (input)="updateStarRatio(+$any($event.target).value)" />
+                <span class="prop-value">{{ selectedStarRatio() | number:'1.0-2' }}</span>
+              </div>
+            </ng-container>
           </ng-container>
 
-          <!-- ═══════════ IMAGE ═══════════ -->
           <ng-container *ngIf="selectedLayerType()==='image'">
             <div class="prop-section">
               <label class="prop-label">Opacity</label>
@@ -427,7 +660,6 @@
     </aside>
   </div>
 
-  <!-- ═══════════ STATUS BAR ═══════════ -->
   <footer class="editor-statusbar">
     <div class="sb-left">
       <span class="sb-item">{{ layers().length }} objects</span>
@@ -469,13 +701,26 @@
   </footer>
 </div>
 
-<!-- ═══════════ LOADING ═══════════ -->
-<div class="editor-loading" *ngIf="loading()">
-  <div class="editor-loading-spinner"></div>
-  <p>Loading editor…</p>
+<div class="editor-loading" *ngIf="loading()" style="display:flex;flex-direction:column;height:100vh;background:#0f0f13;padding:16px">
+  <div style="display:flex;gap:12px;padding:12px;margin-bottom:16px">
+    <div class="skeleton skeleton--circle" style="background:#2a2a30"></div>
+    <div class="skeleton skeleton--text skeleton--w-32" style="background:#2a2a30"></div>
+    <div style="flex:1"></div>
+    <div class="skeleton skeleton--chip" style="background:#2a2a30;width:60px" *ngFor="let _ of [1,2,3,4]"></div>
+  </div>
+  <div style="display:flex;flex:1;gap:16px">
+    <div style="width:240px;display:flex;flex-direction:column;gap:8px">
+      <div class="skeleton skeleton--row" style="background:#2a2a30" *ngFor="let _ of [1,2,3,4,5]"></div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center">
+      <div class="skeleton" style="width:80%;height:80%;background:#2a2a30;border-radius:4px"></div>
+    </div>
+    <div style="width:260px;display:flex;flex-direction:column;gap:12px">
+      <div class="skeleton skeleton--row" style="background:#2a2a30" *ngFor="let _ of [1,2,3,4,5,6]"></div>
+    </div>
+  </div>
 </div>
 
-<!-- ═══════════ EXPORT DIALOG ═══════════ -->
 <div class="editor-modal" *ngIf="showExport()" (click)="closeExport()">
   <div class="export-dialog" (click)="$event.stopPropagation()">
     <div class="export-header">
@@ -501,7 +746,29 @@
           <span>SVG</span>
           <small>Vector, editable in any design tool</small>
         </button>
+        <button class="export-fmt" (click)="exportDesign('JPG')" [disabled]="exportState().status==='rendering'||exportState().status==='queued'">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span>JPG</span>
+          <small>Small file, universal support</small>
+        </button>
       </div>
+
+      <div class="export-options">
+        <div class="prop-section">
+          <label class="prop-label">Quality</label>
+          <input type="range" class="prop-range" min="10" max="100" step="1"
+            [value]="exportQuality" (input)="setExportQuality(+$any($event.target).value)" />
+          <span class="prop-value">{{ exportQuality }}%</span>
+        </div>
+        <div class="prop-section">
+          <label class="prop-label">Transparent</label>
+          <button class="pill-btn" [class.pill-btn--on]="exportTransparent" (click)="toggleExportTransparent()">
+            {{ exportTransparent ? 'On' : 'Off' }}
+          </button>
+          <span class="prop-hint">Only for PNG</span>
+        </div>
+      </div>
+
       <div class="export-progress" *ngIf="exportState().status==='rendering'||exportState().status==='queued'">
         <div class="export-spinner"></div>
         <span>{{ exportState().status==='queued' ? 'Queued…' : 'Rendering…' }}</span>
@@ -519,7 +786,6 @@
   </div>
 </div>
 
-<!-- ═══════════ AI RESULT ═══════════ -->
 <div class="editor-modal" *ngIf="showAiResult()" (click)="showAiResult.set(false)">
   <div class="export-dialog" (click)="$event.stopPropagation()">
     <div class="export-header">

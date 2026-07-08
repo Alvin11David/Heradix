@@ -320,7 +320,8 @@ export class AssetDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openEditor(): void {
-    this.router.navigate(['/editor'], { queryParams: { assetId: this.asset()!.id } });
+    const a = this.asset()!;
+    this.router.navigate(['/editor'], { queryParams: { assetId: a.id, imageUrl: a.previewUrl, title: a.title } });
   }
 
   openPrint(): void {

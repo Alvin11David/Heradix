@@ -175,6 +175,10 @@ interface CalendarEvent {
         </a>
       </div>
 
+      <div class="asset-grid" *ngIf="loading()">
+        <div class="skeleton skeleton--card" *ngFor="let _ of [1,2,3,4,5,6]"></div>
+      </div>
+
       <div class="asset-grid" *ngIf="!loading() && assets().length > 0">
         <amx-asset-card
           *ngFor="let asset of assets(); trackBy: trackById"
@@ -503,7 +507,7 @@ export class AssetListComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  onEdit(asset: Asset): void { this.router.navigate(['/editor'], { queryParams: { assetId: asset.id } }); }
+  onEdit(asset: Asset): void { this.router.navigate(['/editor'], { queryParams: { assetId: asset.id, imageUrl: asset.previewUrl, title: asset.title } }); }
   onSave(data: { asset: Asset; event: MouseEvent }): void {
     this.saveAssetId.set(data.asset.id);
     this.saveMenuOpen.set(true);

@@ -1,4 +1,4 @@
-export type ExportFormat = 'PNG' | 'PDF' | 'SVG';
+export type ExportFormat = 'PNG' | 'JPG' | 'PDF' | 'SVG';
 
 export interface EditorProject {
   id: string;
