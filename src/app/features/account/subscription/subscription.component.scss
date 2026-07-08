@@ -1,6 +1,125 @@
 :host {
   display: block;
   font-family: 'Manrope', sans-serif;
+
+  // Component Properties for Design System Reusability
+  --amx-sub-card-bg: var(--amx-card);
+  --amx-sub-card-border: var(--amx-border);
+  --amx-sub-card-radius: calc(var(--amx-sub-base-radius) * 2.5);
+  --amx-sub-card-padding: calc(var(--amx-sub-base-spacing) * 3.5) calc(var(--amx-sub-base-spacing) * 4) calc(var(--amx-sub-base-spacing) * 2.5);
+  --amx-sub-card-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+
+  --amx-sub-title-font: 'Space Grotesk', sans-serif;
+  --amx-sub-title-size: calc(var(--amx-sub-base-font-size) * var(--amx-sub-scale-factor) * 1.625);
+  --amx-sub-title-weight: 800;
+  --amx-sub-title-color: var(--amx-text);
+  --amx-sub-title-spacing: -0.5px;
+  --amx-sub-title-line-height: 1.2;
+  --amx-sub-title-vertical-align: top;
+  --amx-sub-title-paragraph-indent: 0;
+
+  --amx-sub-sub-font: 'Manrope', sans-serif;
+  --amx-sub-sub-size: calc(var(--amx-sub-base-font-size) * var(--amx-sub-scale-factor) * 0.844);
+  --amx-sub-sub-weight: 500;
+  --amx-sub-sub-color: var(--amx-muted);
+  --amx-sub-sub-spacing: 0.1px;
+  --amx-sub-sub-line-height: 1.7;
+  --amx-sub-sub-vertical-align: top;
+  --amx-sub-sub-paragraph-indent: 0;
+
+  --amx-sub-badge-bg: color-mix(in srgb, var(--amx-orange) 15%, transparent);
+  --amx-sub-badge-color: var(--amx-orange);
+  --amx-sub-badge-border: color-mix(in srgb, var(--amx-orange) 20%, transparent);
+  --amx-sub-badge-radius: calc(var(--amx-sub-base-radius) * 6.25);
+  --amx-sub-badge-padding: calc(var(--amx-sub-base-spacing)) calc(var(--amx-sub-base-spacing) * 2.25);
+  --amx-sub-badge-vertical-align: center;
+
+  --amx-sub-price-font: 'Space Grotesk', sans-serif;
+  --amx-sub-price-size: calc(var(--amx-sub-base-font-size) * var(--amx-sub-scale-factor) * 2.25);
+  --amx-sub-price-weight: 800;
+  --amx-sub-price-color: var(--amx-text);
+  --amx-sub-price-spacing: -1.5px;
+  --amx-sub-price-line-height: 1.1;
+  --amx-sub-price-vertical-align: baseline;
+
+  --amx-sub-chip-bg: color-mix(in srgb, var(--amx-bg-soft) 50%, transparent);
+  --amx-sub-chip-border: color-mix(in srgb, var(--amx-border) 30%, transparent);
+  --amx-sub-chip-radius: var(--amx-sub-base-radius);
+  --amx-sub-chip-padding: calc(var(--amx-sub-base-spacing) * 0.875) calc(var(--amx-sub-base-spacing) * 1.625);
+  --amx-sub-chip-vertical-align: center;
+
+  --amx-sub-section-title-font: 'Space Grotesk', sans-serif;
+  --amx-sub-section-title-size: calc(var(--amx-sub-base-font-size) * var(--amx-sub-scale-factor) * 1.125);
+  --amx-sub-section-title-weight: 700;
+  --amx-sub-section-title-color: var(--amx-text);
+  --amx-sub-section-title-vertical-align: top;
+  --amx-sub-section-title-paragraph-indent: 0;
+
+  --amx-sub-section-sub-font: 'Manrope', sans-serif;
+  --amx-sub-section-sub-size: calc(var(--amx-sub-base-font-size) * var(--amx-sub-scale-factor) * 0.8125);
+  --amx-sub-section-sub-weight: 400;
+  --amx-sub-section-sub-color: var(--amx-muted);
+  --amx-sub-section-sub-vertical-align: top;
+  --amx-sub-section-sub-paragraph-indent: 0;
+
+  --amx-sub-plan-name-font: 'Space Grotesk', sans-serif;
+  --amx-sub-plan-name-size: calc(var(--amx-sub-base-font-size) * var(--amx-sub-scale-factor));
+  --amx-sub-plan-name-weight: 700;
+  --amx-sub-plan-name-color: var(--amx-text);
+  --amx-sub-plan-name-vertical-align: top;
+  --amx-sub-plan-name-paragraph-indent: 0;
+
+  --amx-sub-plan-amount-font: 'Space Grotesk', sans-serif;
+  --amx-sub-plan-amount-size: calc(var(--amx-sub-base-font-size) * var(--amx-sub-scale-factor) * 1.875);
+  --amx-sub-plan-amount-weight: 800;
+  --amx-sub-plan-amount-color: var(--amx-text);
+  --amx-sub-plan-amount-vertical-align: baseline;
+  --amx-sub-plan-amount-paragraph-indent: 0;
+
+  --amx-sub-plan-feature-font: 'Manrope', sans-serif;
+  --amx-sub-plan-feature-size: calc(var(--amx-sub-base-font-size) * var(--amx-sub-scale-factor) * 0.78125);
+  --amx-sub-plan-feature-weight: 400;
+  --amx-sub-plan-feature-color: var(--amx-text-2);
+  --amx-sub-plan-feature-vertical-align: middle;
+  --amx-sub-plan-feature-paragraph-indent: 0;
+
+  --amx-sub-list-spacing: var(--amx-sub-base-spacing);
+  --amx-sub-list-item-indent: 0;
+
+  // Micro-Typography & Hidden Layout Properties
+  // Note: leading-trim and text-edge are experimental CSS properties
+  // Using standard alternatives for cross-browser compatibility
+  --amx-sub-hanging-punctuation: none;
+  --amx-sub-case-sensitive-forms: normal;
+
+  // Advanced OpenType Controls
+  --amx-sub-fractions: normal;
+  --amx-sub-ordinals: normal;
+  --amx-sub-subscript: normal;
+  --amx-sub-superscript: normal;
+  --amx-sub-scientific: normal;
+
+  // Text Variables & Dynamic Binding (UI3 Context)
+  // String Variables for translation strings and dynamic content
+  --amx-sub-title-text: 'Subscription';
+  --amx-sub-sub-text: 'Manage your subscription and billing';
+  --amx-sub-badge-text: 'Current Plan';
+  --amx-sub-status-text: 'Active';
+  --amx-sub-price-text: '$0';
+  --amx-sub-interval-text: '/month';
+  --amx-sub-chip-text: '1 workspace seat';
+  --amx-sub-section-title-text: 'Available Plans';
+  --amx-sub-section-sub-text: 'Choose the plan that works best for you';
+  --amx-sub-plan-name-text: 'Free';
+  --amx-sub-plan-amount-text: '$0';
+  --amx-sub-plan-feature-text: 'Feature description';
+
+  // Dynamic Font/Sizing Variables for responsive scaling
+  --amx-sub-scale-factor: 1;
+  --amx-sub-base-font-size: 16px;
+  --amx-sub-base-line-height: 1.5;
+  --amx-sub-base-spacing: 8px;
+  --amx-sub-base-radius: 8px;
 }
 
 .amx-sub {
@@ -12,20 +131,45 @@
   }
 
   &__title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 26px;
-    font-weight: 800;
-    color: var(--amx-text);
+    font-family: var(--amx-sub-title-font);
+    font-size: var(--amx-sub-title-size);
+    font-weight: var(--amx-sub-title-weight);
+    color: var(--amx-sub-title-color);
     margin: 0 0 4px;
-    letter-spacing: -0.5px;
+    letter-spacing: var(--amx-sub-title-spacing);
+    line-height: var(--amx-sub-title-line-height);
+    vertical-align: var(--amx-sub-title-vertical-align);
+    text-indent: var(--amx-sub-title-paragraph-indent);
+    hanging-punctuation: var(--amx-sub-hanging-punctuation);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    opacity: 0.98;
+    text-decoration: none;
+    text-transform: none;
+    font-variant: normal;
+    font-feature-settings: 'ss01' on, 'ss02' on, 'case' on;
+    font-variant-ligatures: common-ligatures, discretionary-ligatures;
+    font-variant-numeric: proportional-nums;
   }
 
   &__sub {
-    font-size: 13.5px;
-    color: var(--amx-muted);
+    font-family: var(--amx-sub-sub-font);
+    font-size: var(--amx-sub-sub-size);
+    font-weight: var(--amx-sub-sub-weight);
+    letter-spacing: var(--amx-sub-sub-spacing);
+    line-height: var(--amx-sub-sub-line-height);
+    vertical-align: var(--amx-sub-sub-vertical-align);
+    text-indent: var(--amx-sub-sub-paragraph-indent);
+    hanging-punctuation: var(--amx-sub-hanging-punctuation);
+    color: var(--amx-sub-sub-color);
     margin: 0;
     max-width: 500px;
-    line-height: 1.6;
+    opacity: 0.9;
+    text-decoration: none;
+    text-transform: none;
+    font-variant: normal;
+    font-feature-settings: normal, 'ordn' on;
+    font-variant-ligatures: normal;
+    font-variant-numeric: proportional-nums;
   }
 
   &__dunning {
@@ -75,14 +219,18 @@
   }
 
   &__card {
-    background: var(--amx-card);
-    border: 1px solid var(--amx-border);
-    border-radius: 20px;
+    background: var(--amx-sub-card-bg);
+    border: 1px solid var(--amx-sub-card-border);
+    border-radius: var(--amx-sub-card-radius);
     margin-bottom: 24px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--amx-sub-card-shadow);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
+    min-width: 0;
+    max-width: 100%;
+    width: auto;
+    height: auto;
 
     &::before {
       content: '';
@@ -128,15 +276,20 @@
       align-items: center;
       justify-content: space-between;
       gap: 24px;
-      padding: 28px 32px 20px;
+      padding: var(--amx-sub-card-padding);
       position: relative;
       z-index: 1;
+      min-width: 0;
+      width: 100%;
+      height: auto;
+      flex-wrap: nowrap;
 
       @media (max-width: 600px) {
         flex-direction: column;
         align-items: flex-start;
         gap: 16px;
         padding: 24px 20px 16px;
+        flex-wrap: wrap;
       }
     }
 
@@ -148,11 +301,16 @@
       padding: 16px 32px 24px;
       position: relative;
       z-index: 1;
+      min-width: 0;
+      width: 100%;
+      height: auto;
+      flex-wrap: nowrap;
 
       @media (max-width: 600px) {
         flex-direction: column;
         align-items: stretch;
         padding: 8px 20px 20px;
+        flex-wrap: wrap;
       }
     }
 
@@ -160,6 +318,10 @@
       display: flex;
       align-items: center;
       gap: 16px;
+      min-width: 0;
+      flex: 1;
+      height: auto;
+      flex-wrap: nowrap;
 
       @media (max-width: 600px) {
         flex-wrap: wrap;
@@ -171,23 +333,42 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 18px;
-      border-radius: 50px;
+      padding: var(--amx-sub-badge-padding);
+      border-radius: var(--amx-sub-badge-radius);
       font-size: 14px;
       font-weight: 700;
-      background: linear-gradient(135deg,
-        color-mix(in srgb, var(--amx-orange) 15%, transparent),
-        color-mix(in srgb, var(--amx-orange) 6%, transparent));
-      color: var(--amx-orange);
-      border: 1px solid color-mix(in srgb, var(--amx-orange) 20%, transparent);
-      box-shadow: 0 2px 8px rgba(245, 130, 10, 0.15);
+      letter-spacing: 0.3px;
+      line-height: 1.2;
+      vertical-align: var(--amx-sub-badge-vertical-align);
+      background: var(--amx-sub-badge-bg);
+      color: var(--amx-sub-badge-color);
+      border: 1px solid var(--amx-sub-badge-border);
+      box-shadow: 0 2px 8px rgba(245, 130, 10, 0.15), 0 0 0 1px rgba(245, 130, 10, 0.05);
       transition: all 0.2s ease;
+      opacity: 0.98;
+      min-width: fit-content;
+      max-width: 100%;
+      flex-shrink: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      hanging-punctuation: var(--amx-sub-hanging-punctuation);
+      text-decoration: none;
+      text-transform: none;
+      font-variant: normal;
+      font-feature-settings: 'ss01' on, 'case' on;
+      font-variant-ligatures: common-ligatures;
+      font-variant-numeric: proportional-nums;
 
-      svg { stroke: var(--amx-orange); }
+      svg { 
+        stroke: var(--amx-orange); 
+        filter: drop-shadow(0 1px 2px rgba(245, 130, 10, 0.2));
+      }
 
       &:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 14px rgba(245, 130, 10, 0.2);
+        box-shadow: 0 4px 14px rgba(245, 130, 10, 0.2), 0 0 0 1px rgba(245, 130, 10, 0.1);
+        opacity: 1;
       }
 
       &--free {
@@ -208,11 +389,25 @@
       border-radius: 50px;
       font-size: 11.5px;
       font-weight: 700;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.4px;
+      line-height: 1.2;
       text-transform: uppercase;
       background: color-mix(in srgb, #22c55e 8%, transparent);
       border: 1px solid color-mix(in srgb, #22c55e 15%, transparent);
       transition: all 0.2s ease;
+      opacity: 0.95;
+      text-shadow: 0 1px 2px rgba(34, 197, 94, 0.1);
+      min-width: fit-content;
+      max-width: 100%;
+      flex-shrink: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-decoration: none;
+      font-variant: small-caps;
+      font-feature-settings: 'smcp' on;
+      font-variant-ligatures: common-ligatures;
+      font-variant-numeric: tabular-nums;
     }
   }
 
@@ -247,12 +442,19 @@
 
   &__card-pricing {
     flex-shrink: 0;
+    min-width: fit-content;
+    max-width: 100%;
+    height: auto;
   }
 
   &__card-price {
     display: flex;
     align-items: baseline;
     gap: 2px;
+    min-width: fit-content;
+    max-width: 100%;
+    height: auto;
+    flex-wrap: nowrap;
   }
 
   &__card-price-free {
@@ -260,62 +462,143 @@
     font-size: 32px;
     font-weight: 800;
     letter-spacing: -1px;
+    line-height: 1.1;
     color: var(--amx-text-2);
+    min-width: fit-content;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    text-transform: none;
+    font-variant: normal;
+    font-feature-settings: 'ss01' on;
+    font-variant-ligatures: common-ligatures;
+    font-variant-numeric: proportional-nums;
   }
 
   &__card-price-symbol {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 20px;
     font-weight: 700;
+    letter-spacing: 0.1px;
+    line-height: 1.1;
     color: var(--amx-muted);
     align-self: flex-start;
     margin-top: 4px;
+    min-width: fit-content;
+    flex-shrink: 0;
+    text-decoration: none;
+    text-transform: none;
+    font-variant: normal;
+    font-feature-settings: normal;
+    font-variant-ligatures: normal;
+    font-variant-numeric: tabular-nums;
   }
 
   &__card-price-amount {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 36px;
-    font-weight: 800;
-    letter-spacing: -1.5px;
-    background: linear-gradient(135deg, var(--amx-text), var(--amx-text-2));
+    font-family: var(--amx-sub-price-font);
+    font-size: var(--amx-sub-price-size);
+    font-weight: var(--amx-sub-price-weight);
+    letter-spacing: var(--amx-sub-price-spacing);
+    line-height: var(--amx-sub-price-line-height);
+    vertical-align: var(--amx-sub-price-vertical-align);
+    background: linear-gradient(135deg, var(--amx-text) 0%, var(--amx-text-2) 50%, var(--amx-text) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05));
+    opacity: 0.98;
+    min-width: fit-content;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    hanging-punctuation: var(--amx-sub-hanging-punctuation);
+    text-decoration: none;
+    text-transform: none;
+    font-variant: normal;
+    font-feature-settings: 'ss01' on, 'ss02' on, 'case' on, 'frac' on, 'ordn' on;
+    font-variant-ligatures: common-ligatures, discretionary-ligatures;
+    font-variant-numeric: proportional-nums;
   }
 
   &__card-price-interval {
     font-size: 15px;
     font-weight: 600;
+    letter-spacing: 0.1px;
+    line-height: 1.2;
     color: var(--amx-muted);
     margin-left: 4px;
+    min-width: fit-content;
+    flex-shrink: 0;
+    white-space: nowrap;
+    text-decoration: none;
+    text-transform: none;
+    font-variant: normal;
+    font-feature-settings: normal;
+    font-variant-ligatures: normal;
+    font-variant-numeric: proportional-nums;
   }
 
   &__card-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    height: auto;
   }
 
   &__card-chip {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    padding: 7px 13px;
-    border-radius: 8px;
+    padding: var(--amx-sub-chip-padding);
+    border-radius: var(--amx-sub-chip-radius);
     font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    line-height: 1.3;
+    vertical-align: var(--amx-sub-chip-vertical-align);
     color: var(--amx-text-2);
-    background: color-mix(in srgb, var(--amx-bg-soft) 50%, transparent);
-    border: 1px solid color-mix(in srgb, var(--amx-border) 30%, transparent);
+    background: var(--amx-sub-chip-bg);
+    border: 1px solid var(--amx-sub-chip-border);
     transition: all 0.2s ease;
     white-space: nowrap;
+    opacity: 0.95;
+    min-width: fit-content;
+    max-width: 100%;
+    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    text-transform: none;
+    font-variant: normal;
+    font-feature-settings: normal;
+    font-variant-ligatures: common-ligatures;
+    font-variant-numeric: proportional-nums;
 
-    svg { stroke: var(--amx-orange); flex-shrink: 0; }
+    svg { 
+      stroke: var(--amx-orange); 
+      flex-shrink: 0;
+      filter: drop-shadow(0 1px 2px rgba(245, 130, 10, 0.15));
+    }
 
-    strong { font-weight: 700; color: var(--amx-text); }
+    strong { 
+      font-weight: 700; 
+      color: var(--amx-text);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
 
     &:hover {
       background: color-mix(in srgb, var(--amx-bg-soft) 70%, transparent);
       border-color: color-mix(in srgb, var(--amx-border) 50%, transparent);
+      transform: translateX(2px);
+      opacity: 1;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
   }
 
@@ -324,6 +607,10 @@
     align-items: center;
     gap: 10px;
     flex-shrink: 0;
+    min-width: fit-content;
+    max-width: 100%;
+    height: auto;
+    flex-wrap: wrap;
 
     @media (max-width: 600px) {
       flex-wrap: wrap;
@@ -336,17 +623,27 @@
   }
 
   &__section-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--amx-text);
+    font-family: var(--amx-sub-section-title-font);
+    font-size: var(--amx-sub-section-title-size);
+    font-weight: var(--amx-sub-section-title-weight);
+    color: var(--amx-sub-section-title-color);
     margin: 0 0 4px;
+    vertical-align: var(--amx-sub-section-title-vertical-align);
+    text-indent: var(--amx-sub-section-title-paragraph-indent);
+    hanging-punctuation: var(--amx-sub-hanging-punctuation);
+    font-feature-settings: 'case' on;
   }
 
   &__section-sub {
-    font-size: 13px;
-    color: var(--amx-muted);
+    font-family: var(--amx-sub-section-sub-font);
+    font-size: var(--amx-sub-section-sub-size);
+    font-weight: var(--amx-sub-section-sub-weight);
+    color: var(--amx-sub-section-sub-color);
     margin: 0 0 20px;
+    vertical-align: var(--amx-sub-section-sub-vertical-align);
+    text-indent: var(--amx-sub-section-sub-paragraph-indent);
+    hanging-punctuation: var(--amx-sub-hanging-punctuation);
+    font-feature-settings: 'case' on, 'ordn' on;
   }
 
   &__grid {
@@ -577,10 +874,14 @@
   }
 
   &__plan-name {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--amx-text);
+    font-family: var(--amx-sub-plan-name-font);
+    font-size: var(--amx-sub-plan-name-size);
+    font-weight: var(--amx-sub-plan-name-weight);
+    color: var(--amx-sub-plan-name-color);
+    vertical-align: var(--amx-sub-plan-name-vertical-align);
+    text-indent: var(--amx-sub-plan-name-paragraph-indent);
+    hanging-punctuation: var(--amx-sub-hanging-punctuation);
+    font-feature-settings: 'case' on;
 
     .amx-sub__plan-card--popular & {
       font-size: 17px;
@@ -595,11 +896,15 @@
   }
 
   &__plan-amount {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--amx-text);
+    font-family: var(--amx-sub-plan-amount-font);
+    font-size: var(--amx-sub-plan-amount-size);
+    font-weight: var(--amx-sub-plan-amount-weight);
+    color: var(--amx-sub-plan-amount-color);
     letter-spacing: -1px;
+    vertical-align: var(--amx-sub-plan-amount-vertical-align);
+    text-indent: var(--amx-sub-plan-amount-paragraph-indent);
+    hanging-punctuation: var(--amx-sub-hanging-punctuation);
+    font-feature-settings: 'case' on, 'frac' on, 'ordn' on, 'sinf' on, 'sups' on;
 
     .amx-sub__plan-card--popular & {
       font-size: 34px;
@@ -643,7 +948,7 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: var(--amx-sub-list-spacing);
     flex: 1;
     position: relative;
     z-index: 0;
@@ -653,11 +958,17 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 12.5px;
-    color: var(--amx-text-2);
+    font-family: var(--amx-sub-plan-feature-font);
+    font-size: var(--amx-sub-plan-feature-size);
+    font-weight: var(--amx-sub-plan-feature-weight);
+    color: var(--amx-sub-plan-feature-color);
     line-height: 1.4;
     padding: 7px 0;
     border-bottom: 1px solid color-mix(in srgb, var(--amx-border) 40%, transparent);
+    text-indent: var(--amx-sub-plan-feature-paragraph-indent);
+    vertical-align: var(--amx-sub-plan-feature-vertical-align);
+    hanging-punctuation: var(--amx-sub-hanging-punctuation);
+    font-feature-settings: 'case' on;
 
     &:last-child { border-bottom: none; }
 

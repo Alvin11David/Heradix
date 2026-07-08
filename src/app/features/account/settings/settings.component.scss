@@ -1,6 +1,7 @@
 :host {
   display: block;
   font-family: 'Manrope', sans-serif;
+  direction: var(--amx-text-direction, ltr);
 }
 
 .amx-stg {

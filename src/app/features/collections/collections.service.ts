@@ -141,29 +141,19 @@ export class CollectionsService {
     );
   }
 
-  private addAssetToCollection(collectionId: string, assetId: string): Observable<void> {
+  addAsset(collectionId: string, assetId: string): Observable<void> {
     return this.api.post<void>(`/collections/${collectionId}/assets`, { assetId }).pipe(
       catchError(() => {
-        this.collections.update(list =>
-          list.map(c => c.id === collectionId ? { ...c, assetCount: c.assetCount + 1 } : c)
-        );
         const existing = this._assetCollections.get(assetId) ?? [];
-        this._assetCollections.set(assetId, [...existing, collectionId]);
+        if (!existing.includes(collectionId)) {
+          this._assetCollections.set(assetId, [...existing, collectionId]);
+          this.collections.update(list =>
+            list.map(c => c.id === collectionId ? { ...c, assetCount: c.assetCount + 1 } : c)
+          );
+        }
         return of(void 0);
       })
     );
-  }
-
-  addAsset(collectionId: string, assetId: string): Observable<void> {
-    this.addAssetToCollection(collectionId, assetId);
-    const existing = this._assetCollections.get(assetId) ?? [];
-    if (!existing.includes(collectionId)) {
-      this._assetCollections.set(assetId, [...existing, collectionId]);
-      this.collections.update(list =>
-        list.map(c => c.id === collectionId ? { ...c, assetCount: c.assetCount + 1 } : c)
-      );
-    }
-    return of(void 0);
   }
 
   removeAsset(collectionId: string, assetId: string): Observable<void> {

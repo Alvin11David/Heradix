@@ -272,6 +272,13 @@
             <option *ngFor="let lang of languages" [value]="lang.value">{{ lang.label }}</option>
           </select>
         </div>
+        <div class="amx-stg__field">
+          <label class="amx-stg__label">Text direction</label>
+          <select class="amx-stg__input amx-stg__select" [(ngModel)]="textDirection">
+            <option value="ltr">Left to right (LTR)</option>
+            <option value="rtl">Right to left (RTL)</option>
+          </select>
+        </div>
       </div>
 
       <div class="amx-stg__actions">

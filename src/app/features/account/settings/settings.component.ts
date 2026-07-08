@@ -166,6 +166,7 @@ export class SettingsComponent {
   pushNotifs = signal(true);
   weeklyDigest = signal(false);
   language = signal('en');
+  textDirection = signal<'ltr' | 'rtl'>('ltr');
 
   readonly languages = [
     { value: 'en', label: 'English' },
@@ -181,6 +182,9 @@ export class SettingsComponent {
 
   savePreferences(): void {
     this.savingPrefs.set(true);
+    // Apply text direction to document
+    document.documentElement.dir = this.textDirection();
+    document.documentElement.style.setProperty('--amx-text-direction', this.textDirection());
     setTimeout(() => {
       this.savingPrefs.set(false);
       this.showToast('Preferences saved', 'success');

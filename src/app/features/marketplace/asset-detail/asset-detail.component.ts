@@ -1,5 +1,5 @@
 import {
-  Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, AfterViewInit, OnDestroy, ElementRef,
+  Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, AfterViewInit, OnDestroy, ElementRef, HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -13,6 +13,24 @@ import { AddToCollectionMenuComponent } from '../../../shared/components/add-to-
 import { CollectionsService } from '../../collections/collections.service';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const SLUG_TO_ID: Record<string, string> = {
+  'safe-birth-main': 'sb-1', 'safe-birth-breathe': 'sb-2', 'safe-birth-left': 'sb-3',
+  'safe-birth-campaign': 'sb-4', 'safe-birth-alt': 'sb-5',
+  'easter-design-1': 'er-1', 'easter-design-2': 'er-2', 'soar-away-easter': 'er-3',
+  'image-gen-4': 'er-4', 'easter-theme-1': 'er-5', 'easter-theme-2': 'er-6',
+  'easter-theme-3': 'er-7', 'easter-theme-4': 'er-8',
+  'african-day': 'ad-1', 'african-leaders': 'ad-2', 'intl-day-5': 'ad-3',
+  'soar-away-quotes-4': 'ad-4',
+  'p7-candidates': 'es-1', 's6-candidates': 'es-2', 'kisoro-school': 'es-3',
+  'bombo-secondary': 'es-4',
+  'dr-jp-cards': 'bc-1', 'be-sincere-cards': 'bc-2', 'creative-design-2': 'bc-3',
+  'denis-cards': 'bc-4',
+  'be-sincere-quote': 'mq-1', 'soar-away-quote-4': 'mq-2', 'happy-new-month': 'mq-3',
+  'creative-quote': 'mq-4',
+  'coach-paul': 'pp-1', 'denis-portrait': 'pp-2', 'kisoro-portrait': 'pp-3',
+  'tshirt-design': 'am-1', 'apparel-variant': 'am-2',
+};
 
 export interface DownloadFormat {
   type: string;      // e.g. 'PSD', 'AI', 'EPS', 'JPG', 'PNG', 'VECTOR', 'ZIP'
@@ -201,7 +219,7 @@ export class AssetDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     };
     const overrides = slugMap[slug] ?? {};
     return {
-      id:            overrides.id    ?? slug,
+      id:            overrides.id    ?? SLUG_TO_ID[slug] ?? slug,
       title:         overrides.title ?? slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
       slug,
       description:   'A high-quality, professionally designed asset ready for your next creative project. Fully customisable and optimised for digital and print use.',
@@ -323,9 +341,21 @@ export class AssetDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.shareOpen.update(v => !v);
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocClick(event: MouseEvent): void {
+    if (this.shareOpen() && !(event.target as HTMLElement).closest('.amx-ad__share-wrap')) {
+      this.shareOpen.set(false);
+    }
+  }
+
   shareToSocial(platform: string): void {
     const url = encodeURIComponent(window.location.href);
     const title = encodeURIComponent(this.asset()?.title ?? '');
+    if (platform === 'email') {
+      window.location.href = `mailto:?subject=${title}&body=Check this out: ${url}`;
+      this.shareOpen.set(false);
+      return;
+    }
     const links: Record<string, string> = {
       twitter:   `https://twitter.com/intent/tweet?url=${url}&text=${title}`,
       facebook:  `https://www.facebook.com/sharer/sharer.php?u=${url}`,
@@ -333,7 +363,11 @@ export class AssetDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       linkedin:  `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
       whatsapp:  `https://api.whatsapp.com/send?text=${title}%20${url}`,
     };
-    if (links[platform]) window.open(links[platform], '_blank', 'width=600,height=450');
+    if (navigator.share) {
+      navigator.share({ title: this.asset()?.title ?? '', url: window.location.href });
+    } else if (links[platform]) {
+      window.open(links[platform], '_blank', 'width=600,height=450');
+    }
     this.shareOpen.set(false);
   }
 
