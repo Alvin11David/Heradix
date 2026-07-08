@@ -313,6 +313,7 @@
             <span
               class="layer-name"
               *ngIf="layerActionTarget() !== layer.id; else renameLayerInput"
+              title="{{ layer.name }}"
               >{{ layer.name }}</span
             >
             <ng-template #renameLayerInput>
@@ -690,6 +691,14 @@
             >
               <option *ngFor="let m of blendModes" [value]="m">{{ m }}</option>
             </select>
+          </div>
+
+          <div class="prop-section">
+            <label class="prop-label">Actions</label>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap">
+              <button class="panel-footer-btn" (click)="groupSelected()">Group</button>
+              <button class="panel-footer-btn" (click)="ungroupSelected()">Ungroup</button>
+            </div>
           </div>
 
           <div class="prop-section">

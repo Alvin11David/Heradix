@@ -193,4 +193,71 @@ describe('CanvasEditorComponent page actions', () => {
     component.setLayerOpacity('layer-1', 0.4);
     expect(layerObject.opacity).toBe(0.4);
   });
+
+  it('applies blend mode and groups selected objects', () => {
+    const first = {
+      _id: 'layer-1',
+      set: function (props: Record<string, any>) {
+        Object.assign(this, props);
+      },
+      globalCompositeOperation: 'source-over',
+      type: 'rect',
+      left: 0,
+      top: 0,
+      width: 40,
+      height: 40,
+    };
+    const second = {
+      _id: 'layer-2',
+      set: function (props: Record<string, any>) {
+        Object.assign(this, props);
+      },
+      globalCompositeOperation: 'source-over',
+      type: 'circle',
+      left: 20,
+      top: 20,
+      width: 40,
+      height: 40,
+    };
+
+    const canvasObjects = [first, second];
+    (component as any).canvas = {
+      getObjects: () => canvasObjects,
+      getActiveObjects: () => [first, second],
+      renderAll: () => {},
+      requestRenderAll: () => {},
+      setActiveObject: () => {},
+      discardActiveObject: () => {},
+      add: (obj: any) => {
+        canvasObjects.push(obj);
+      },
+      remove: (obj: any) => {
+        const index = canvasObjects.indexOf(obj);
+        if (index >= 0) {
+          canvasObjects.splice(index, 1);
+        }
+      },
+    };
+    (component as any).fabric = {
+      Group: function (objects: any[]) {
+        return {
+          type: 'group',
+          objects,
+          isType: function (type: string) {
+            return type === 'group';
+          },
+          _objects: objects,
+        };
+      },
+      Shadow: function () {},
+    };
+    component.ed.selectedLayerIds.set(new Set(['layer-1', 'layer-2']));
+    (component as any)._selectedObject = first;
+
+    component.applyBlendMode('multiply');
+    expect(first.globalCompositeOperation).toBe('multiply');
+
+    component.groupSelected();
+    expect((component as any).canvas.getObjects()[0].type).toBe('group');
+  });
 });

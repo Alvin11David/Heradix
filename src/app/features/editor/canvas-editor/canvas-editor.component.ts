@@ -1062,12 +1062,53 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   applyBlendMode(mode: string): void {
-    const obj = this._selectedObject;
+    const obj = this._selectedObject ?? this.canvas?.getActiveObject?.();
     if (!obj) return;
     this.ed.pushUndoState();
-    obj.set('globalCompositeOperation', mode);
+    obj.set?.({ globalCompositeOperation: mode });
+    obj.globalCompositeOperation = mode;
     this.canvas?.renderAll();
     this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  groupSelected(): void {
+    if (!this.canvas || !this.fabric) return;
+    const activeObjects = this.canvas.getActiveObjects?.() ?? [];
+    const selected =
+      activeObjects.length > 1
+        ? activeObjects
+        : this.canvas
+            .getObjects()
+            .filter((obj: any) => obj._id && this.ed.selectedLayerIds().has(obj._id));
+    if (!selected.length || selected.length < 2) return;
+    this.ed.pushUndoState();
+    const group = new this.fabric.Group(selected, { subTargetCheck: true });
+    selected.forEach((obj: any) => this.canvas.remove(obj));
+    this.canvas.add(group);
+    this.canvas.setActiveObject(group);
+    this._selectedObject = group;
+    this.canvas.renderAll();
+    this.onSelect({ target: group, selected: [group] });
+    this.ed.setDirty();
+  }
+
+  ungroupSelected(): void {
+    if (!this.canvas) return;
+    const obj = this._selectedObject;
+    if (!obj?.isType?.('group')) return;
+    this.ed.pushUndoState();
+    const items = obj._objects ?? [];
+    this.canvas.remove(obj);
+    items.forEach((item: any) => this.canvas.add(item));
+    this.canvas.setActiveObject(items[0] ?? null);
+    this._selectedObject = items[0] ?? null;
+    this.canvas.renderAll();
+    if (items[0]) {
+      this.onSelect({ target: items[0], selected: [items[0]] });
+    } else {
+      this.onDeselect();
+    }
     this.ed.setDirty();
   }
 
@@ -1441,7 +1482,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private applySelectionAppearance(target: any): void {
     if (!target || !this.fabric) return;
-    target.set({
+    const props = {
       transparentCorners: false,
       cornerColor: '#ffffff',
       cornerStrokeColor: '#2563eb',
@@ -1461,8 +1502,18 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         offsetX: 0,
         offsetY: 4,
       }),
-    });
-    target.setCoords();
+    };
+
+    if (typeof target.set === 'function') {
+      target.set(props);
+      target.setCoords?.();
+      return;
+    }
+
+    Object.assign(target, props);
+    if (typeof target.setCoords === 'function') {
+      target.setCoords();
+    }
   }
 
   private showDragPreview(target: any): void {
