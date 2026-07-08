@@ -64,15 +64,28 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly snapEnabled = this.ed.snapEnabled;
   readonly rulersVisible = signal(false);
   readonly gridView = signal(false);
+  readonly guidesVisible = signal(true);
+  readonly smartGuidesEnabled = signal(true);
+  readonly pageMarginsVisible = signal(true);
+  readonly snapToGridEnabled = signal(true);
+  readonly snapToObjectsEnabled = signal(true);
 
   readonly projectTitle = computed(() => this.ed.project()?.title ?? 'Untitled');
   readonly assets = signal<Asset[]>([]);
   readonly loadingAssets = signal(false);
   readonly pages = signal<
-    Array<{ id: string; name: string; x: number; y: number; width: number; height: number }>
+    Array<{
+      id: string;
+      name: string;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      margin?: number;
+    }>
   >([
-    { id: 'page-1', name: 'Page 1', x: 0, y: 0, width: 1400, height: 900 },
-    { id: 'page-2', name: 'Page 2', x: 1800, y: 0, width: 1400, height: 900 },
+    { id: 'page-1', name: 'Page 1', x: 0, y: 0, width: 1400, height: 900, margin: 120 },
+    { id: 'page-2', name: 'Page 2', x: 1800, y: 0, width: 1400, height: 900, margin: 120 },
   ]);
   readonly currentPageIndex = signal(0);
   readonly currentPage = computed(() => this.pages()[this.currentPageIndex()] ?? this.pages()[0]);
@@ -120,6 +133,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private _selectionProps = signal<Record<string, any>>({});
   readonly selectionProps = this._selectionProps.asReadonly();
 
+  private _dragPreview: any = null;
   private panKeyPressed = false;
   private isPanning = false;
   private panStartPoint: { x: number; y: number } | null = null;
@@ -302,13 +316,18 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.fabric.Object.prototype.set({
       transparentCorners: false,
-      cornerColor: '#3b82f6',
-      cornerStrokeColor: '#3b82f6',
-      cornerSize: 8,
+      cornerColor: '#ffffff',
+      cornerStrokeColor: '#2563eb',
+      cornerSize: 9,
       cornerStyle: 'circle',
-      borderColor: '#3b82f6',
-      borderScaleFactor: 1.5,
-      padding: 4,
+      borderColor: '#2563eb',
+      borderScaleFactor: 1.35,
+      padding: 6,
+      borderOpacityWhenMoving: 0.9,
+      hasBorders: true,
+      hasControls: true,
+      objectCaching: false,
+      strokeUniform: true,
     });
 
     this.canvas.on('selection:created', (e: any) => this.onSelect(e));
@@ -321,14 +340,21 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.canvas.on('object:moving', (e: any) => {
-      if (this.ed.snapEnabled()) {
-        const obj = e.target;
-        const gs = 20;
-        obj.set({
-          left: Math.round(obj.left / gs) * gs,
-          top: Math.round(obj.top / gs) * gs,
-        });
+      const obj = e.target;
+      if (this.ed.snapEnabled() && (this.snapToGridEnabled() || this.snapToObjectsEnabled())) {
+        const snapped = this.applySnapping(obj);
+        obj.set({ left: snapped.left, top: snapped.top });
+        obj.setCoords();
       }
+      this.applySelectionAppearance(obj);
+      this.showDragPreview(obj);
+      this.renderGuidesForObject(e.target);
+    });
+
+    this.canvas.on('object:modified', (e: any) => {
+      this.applySelectionAppearance(e.target);
+      this.clearDragPreview();
+      this.renderGuidesForObject(e.target);
     });
 
     this.ed.registerCanvasApi(
@@ -1295,12 +1321,16 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!objs || !objs.length) return;
     this._selectedObject = objs.length === 1 ? objs[0] : null;
     const ids = new Set<string>();
-    objs.forEach((o: any) => ids.add(o._id ?? `obj-${Date.now()}`));
+    objs.forEach((o: any) => {
+      ids.add(o._id ?? `obj-${Date.now()}`);
+      this.applySelectionAppearance(o);
+    });
     this.ed.selectedLayerIds.set(ids);
     this.readPropsFromSelected();
     this.ed.syncLayers(this.canvas?.getObjects() ?? []);
     this.updateCanvasCursor();
     this.wireTextSelectionHandler();
+    this.canvas?.requestRenderAll();
   }
 
   private wireTextSelectionHandler(): void {
@@ -1322,6 +1352,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private onDeselect(): void {
     this.removeTextSelectionHandler();
+    this.clearDragPreview();
     this._selectedObject = null;
     this.ed.selectedLayerIds.set(new Set());
     this._selectionProps.set({});
@@ -1406,6 +1437,68 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private applySelectionAppearance(target: any): void {
+    if (!target || !this.fabric) return;
+    target.set({
+      transparentCorners: false,
+      cornerColor: '#ffffff',
+      cornerStrokeColor: '#2563eb',
+      cornerSize: 10,
+      cornerStyle: 'circle',
+      borderColor: '#2563eb',
+      borderScaleFactor: 1.25,
+      padding: 7,
+      borderOpacityWhenMoving: 0.95,
+      hasBorders: true,
+      hasControls: true,
+      objectCaching: false,
+      strokeUniform: true,
+      shadow: new this.fabric.Shadow({
+        color: 'rgba(15, 23, 42, 0.18)',
+        blur: 12,
+        offsetX: 0,
+        offsetY: 4,
+      }),
+    });
+    target.setCoords();
+  }
+
+  private showDragPreview(target: any): void {
+    if (!this.canvas || !this.fabric || !target) return;
+    this.clearDragPreview();
+
+    const preview = target.clone();
+    preview.set({
+      left: target.left,
+      top: target.top,
+      opacity: 0.28,
+      evented: false,
+      selectable: false,
+      hasControls: false,
+      hasBorders: false,
+      lockMovementX: true,
+      lockMovementY: true,
+      shadow: new this.fabric.Shadow({
+        color: 'rgba(37, 99, 235, 0.24)',
+        blur: 16,
+        offsetX: 0,
+        offsetY: 8,
+      }),
+      _isDragPreview: true,
+    });
+    preview.setCoords();
+    this.canvas.add(preview);
+    this._dragPreview = preview;
+    this.canvas.requestRenderAll();
+  }
+
+  private clearDragPreview(): void {
+    if (!this.canvas || !this._dragPreview) return;
+    this.canvas.remove(this._dragPreview);
+    this._dragPreview = null;
+    this.canvas.requestRenderAll();
+  }
+
   private updateCanvasCursor(): void {
     if (!this.canvas) return;
     const mode = this.ed.toolMode();
@@ -1439,6 +1532,71 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       return { x: page.x + page.width / 2, y: page.y + page.height / 2 };
     }
     return { x: this.canvas.getWidth() / 2, y: this.canvas.getHeight() / 2 };
+  }
+
+  private applySnapping(target: any): { left: number; top: number } {
+    if (!target || !this.canvas) {
+      return { left: target?.left ?? 0, top: target?.top ?? 0 };
+    }
+
+    const gridSize = 20;
+    const threshold = 12;
+    const page = this.currentPage();
+    const margin = page?.margin ?? 96;
+    const bounds = target.getBoundingRect();
+    let left = target.left;
+    let top = target.top;
+
+    if (this.snapToGridEnabled()) {
+      left = Math.round(left / gridSize) * gridSize;
+      top = Math.round(top / gridSize) * gridSize;
+    }
+
+    if (this.snapToObjectsEnabled()) {
+      const candidatesX: number[] = [];
+      const candidatesY: number[] = [];
+
+      if (page) {
+        candidatesX.push(page.x + margin, page.x + page.width - margin, page.x + page.width / 2);
+        candidatesY.push(page.y + margin, page.y + page.height - margin, page.y + page.height / 2);
+      }
+
+      this.canvas.getObjects().forEach((obj: any) => {
+        if (obj === target || obj._isPageGuide || obj._isGrid || obj._isGuideOverlay) return;
+        const objBounds = obj.getBoundingRect();
+        const centerX = objBounds.left + objBounds.width / 2;
+        const centerY = objBounds.top + objBounds.height / 2;
+        candidatesX.push(objBounds.left, objBounds.left + objBounds.width, centerX);
+        candidatesY.push(objBounds.top, objBounds.top + objBounds.height, centerY);
+      });
+
+      left = this.snapToNearest(left, candidatesX, threshold, bounds.width);
+      top = this.snapToNearest(top, candidatesY, threshold, bounds.height);
+    }
+
+    return { left, top };
+  }
+
+  private snapToNearest(
+    value: number,
+    candidates: number[],
+    threshold: number,
+    size: number,
+  ): number {
+    let snapped = value;
+    let nearestDistance = threshold + 1;
+
+    candidates.forEach((candidate) => {
+      const distance = Math.abs(value - candidate);
+      const distanceToEdge = Math.abs(value + size - candidate);
+      const effectiveDistance = Math.min(distance, distanceToEdge);
+      if (effectiveDistance < nearestDistance) {
+        snapped = candidate;
+        nearestDistance = effectiveDistance;
+      }
+    });
+
+    return nearestDistance <= threshold ? snapped : value;
   }
 
   private updateGrid(): void {
@@ -1491,6 +1649,20 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updateGrid();
   }
 
+  togglePageMargins(): void {
+    this.pageMarginsVisible.update((value) => !value);
+    this.renderPageGuides();
+  }
+
+  toggleSnapToGrid(): void {
+    this.snapToGridEnabled.update((value) => !value);
+  }
+
+  toggleSnapToObjects(): void {
+    this.snapToObjectsEnabled.update((value) => !value);
+    this.renderGuidesForObject(this._selectedObject);
+  }
+
   toggleGridView(): void {
     this.gridView.update((value) => !value);
     this.renderPageGuides();
@@ -1499,6 +1671,17 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleRulers(): void {
     this.rulersVisible.update((value) => !value);
     this.renderPageGuides();
+  }
+
+  toggleGuides(): void {
+    this.guidesVisible.update((value) => !value);
+    this.renderPageGuides();
+    this.renderGuidesForObject(this._selectedObject);
+  }
+
+  toggleSmartGuides(): void {
+    this.smartGuidesEnabled.update((value) => !value);
+    this.renderGuidesForObject(this._selectedObject);
   }
 
   movePage(fromIndex: number, direction: -1 | 1): void {
@@ -1528,6 +1711,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       y: Math.floor(nextIndex / 3) * 1200,
       width: 1400,
       height: 900,
+      margin: 120,
     };
     this.pages.update((items) => [...items, page]);
     this.currentPageIndex.set(this.pages().length - 1);
@@ -1545,6 +1729,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       name: `${current.name} Copy`,
       x: current.x + 220,
       y: current.y + 220,
+      margin: current.margin ?? 120,
     };
 
     this.pages.update((items) => [...items, duplicate]);
@@ -1597,6 +1782,23 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         evented: false,
         _isPageGuide: true,
       });
+      if (this.pageMarginsVisible()) {
+        const margin = page.margin ?? 96;
+        const marginRect = new this.fabric.Rect({
+          left: page.x + margin,
+          top: page.y + margin,
+          width: page.width - margin * 2,
+          height: page.height - margin * 2,
+          fill: 'transparent',
+          stroke: isCurrent ? '#38bdf8' : 'rgba(56, 189, 248, 0.38)',
+          strokeWidth: 1,
+          strokeDashArray: [6, 6],
+          selectable: false,
+          evented: false,
+          _isPageGuide: true,
+        });
+        this.canvas.add(marginRect);
+      }
       const label = new this.fabric.Text(page.name, {
         left: page.x + 18,
         top: page.y + 16,
@@ -1634,6 +1836,99 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.canvas.add(rect);
       this.canvas.add(label);
     });
+    this.canvas.requestRenderAll();
+  }
+
+  private renderGuidesForObject(target: any): void {
+    if (!this.canvas || !this.fabric || !this.guidesVisible()) return;
+
+    const existing = this.canvas.getObjects().filter((obj: any) => obj._isGuideOverlay);
+    existing.forEach((obj: any) => this.canvas.remove(obj));
+
+    if (!target || !this.smartGuidesEnabled()) return;
+
+    const bounds = target.getBoundingRect();
+    const centerX = bounds.left + bounds.width / 2;
+    const centerY = bounds.top + bounds.height / 2;
+    const page = this.currentPage();
+
+    const guideLines: Array<{ points: [number, number, number, number]; color: string }> = [];
+    const addGuide = (points: [number, number, number, number], color: string): void => {
+      guideLines.push({ points, color });
+    };
+
+    if (page) {
+      addGuide([page.x, centerY, page.x + page.width, centerY], '#38bdf8');
+      addGuide([centerX, page.y, centerX, page.y + page.height], '#38bdf8');
+      addGuide(
+        [page.x + page.width / 2, page.y, page.x + page.width / 2, page.y + page.height],
+        '#f59e0b',
+      );
+      addGuide(
+        [page.x, page.y + page.height / 2, page.x + page.width, page.y + page.height / 2],
+        '#f59e0b',
+      );
+    }
+
+    const objects = this.canvas
+      .getObjects()
+      .filter((obj: any) => obj !== target && !obj._isPageGuide);
+    objects.forEach((obj: any) => {
+      const otherBounds = obj.getBoundingRect();
+      const edges = [
+        { key: 'top', value: otherBounds.top },
+        { key: 'bottom', value: otherBounds.top + otherBounds.height },
+        { key: 'centerY', value: otherBounds.top + otherBounds.height / 2 },
+        { key: 'left', value: otherBounds.left },
+        { key: 'right', value: otherBounds.left + otherBounds.width },
+        { key: 'centerX', value: otherBounds.left + otherBounds.width / 2 },
+      ];
+
+      const verticalMatches =
+        edges.some((edge) => Math.abs(edge.value - bounds.left) < 8) ||
+        edges.some((edge) => Math.abs(edge.value - (bounds.left + bounds.width)) < 8) ||
+        edges.some((edge) => Math.abs(edge.value - centerX) < 8);
+      const horizontalMatches =
+        edges.some((edge) => Math.abs(edge.value - bounds.top) < 8) ||
+        edges.some((edge) => Math.abs(edge.value - (bounds.top + bounds.height)) < 8) ||
+        edges.some((edge) => Math.abs(edge.value - centerY) < 8);
+
+      if (verticalMatches) {
+        addGuide(
+          [
+            otherBounds.left + otherBounds.width / 2,
+            page?.y ?? 0,
+            otherBounds.left + otherBounds.width / 2,
+            (page?.y ?? 0) + (page?.height ?? 0),
+          ],
+          '#38bdf8',
+        );
+      }
+      if (horizontalMatches) {
+        addGuide(
+          [
+            page?.x ?? 0,
+            otherBounds.top + otherBounds.height / 2,
+            (page?.x ?? 0) + (page?.width ?? 0),
+            otherBounds.top + otherBounds.height / 2,
+          ],
+          '#f59e0b',
+        );
+      }
+    });
+
+    guideLines.forEach((guide, index) => {
+      const line = new this.fabric.Line(guide.points, {
+        stroke: guide.color,
+        strokeWidth: index % 2 === 0 ? 1.5 : 1,
+        selectable: false,
+        evented: false,
+        opacity: 0.95,
+        _isGuideOverlay: true,
+      });
+      this.canvas.add(line);
+    });
+
     this.canvas.requestRenderAll();
   }
 
@@ -2228,7 +2523,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     window.removeEventListener('keyup', this.windowKeyUpHandler);
     this.ed.stopAutosave();
     this.removeTextSelectionHandler();
-    this.canvas?.dispose();
+    this.clearDragPreview();
+    this.canvas?.dispose?.();
     this.canvas = null;
     this._aiStatusEffect?.destroy();
   }

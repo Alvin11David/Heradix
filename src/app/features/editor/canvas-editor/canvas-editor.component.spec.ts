@@ -104,4 +104,55 @@ describe('CanvasEditorComponent page actions', () => {
     component.toggleRulers();
     expect(component.rulersVisible()).toBeFalse();
   });
+
+  it('toggles guide overlays and smart guides', () => {
+    component.toggleGuides();
+    expect(component.guidesVisible()).toBeFalse();
+
+    component.toggleSmartGuides();
+    expect(component.smartGuidesEnabled()).toBeFalse();
+
+    component.toggleGuides();
+    component.toggleSmartGuides();
+
+    expect(component.guidesVisible()).toBeTrue();
+    expect(component.smartGuidesEnabled()).toBeTrue();
+  });
+
+  it('toggles page margins and independent snap modes', () => {
+    expect(component.pageMarginsVisible()).toBeTrue();
+    expect(component.snapToGridEnabled()).toBeTrue();
+    expect(component.snapToObjectsEnabled()).toBeTrue();
+
+    component.togglePageMargins();
+    component.toggleSnapToGrid();
+    component.toggleSnapToObjects();
+
+    expect(component.pageMarginsVisible()).toBeFalse();
+    expect(component.snapToGridEnabled()).toBeFalse();
+    expect(component.snapToObjectsEnabled()).toBeFalse();
+  });
+
+  it('snaps an object to the closest page margin edge and center', () => {
+    const page = component.currentPage();
+    const target = {
+      left: 110,
+      top: 122,
+      width: 80,
+      height: 60,
+      getBoundingRect: () => ({ left: 110, top: 122, width: 80, height: 60 }),
+    };
+
+    (component as any).canvas = {
+      getObjects: () => [],
+      getWidth: () => 1200,
+      getHeight: () => 900,
+    };
+
+    const snapped = (component as any).applySnapping(target);
+
+    expect(page).toBeDefined();
+    expect(snapped.left).toBe(page!.margin);
+    expect(snapped.top).toBe(page!.margin);
+  });
 });
