@@ -66,6 +66,15 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly projectTitle = computed(() => this.ed.project()?.title ?? 'Untitled');
   readonly assets = signal<Asset[]>([]);
   readonly loadingAssets = signal(false);
+  readonly pages = signal<
+    Array<{ id: string; name: string; x: number; y: number; width: number; height: number }>
+  >([
+    { id: 'page-1', name: 'Page 1', x: 0, y: 0, width: 1400, height: 900 },
+    { id: 'page-2', name: 'Page 2', x: 1800, y: 0, width: 1400, height: 900 },
+  ]);
+  readonly currentPageIndex = signal(0);
+  readonly currentPage = computed(() => this.pages()[this.currentPageIndex()] ?? this.pages()[0]);
+  readonly currentPageLabel = computed(() => this.currentPage()?.name ?? 'Page 1');
   assetsSearchQuery = '';
 
   fontFamilies = [
@@ -332,8 +341,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updateGrid();
     this.onModify();
     this.setupCanvasPanning();
+    this.renderPageGuides();
 
-    // Setup ResizeObserver to resize canvas when container changes
     if (this.canvasAreaRef) {
       this.resizeObserver = new ResizeObserver(() => {
         this.resizeCanvas();
@@ -1423,6 +1432,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private getCanvasCenter(): { x: number; y: number } {
     if (!this.canvas) return { x: 400, y: 300 };
+    const page = this.currentPage();
+    if (page) {
+      return { x: page.x + page.width / 2, y: page.y + page.height / 2 };
+    }
     return { x: this.canvas.getWidth() / 2, y: this.canvas.getHeight() / 2 };
   }
 
@@ -1433,8 +1446,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.ed.gridVisible()) {
       const gs = 20;
-      const cw = 2000;
-      const ch = 2000;
+      const cw = 6000;
+      const ch = 4000;
 
       for (let i = 0; i <= cw; i += gs) {
         this.canvas.add(
@@ -1470,6 +1483,83 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleGrid(): void {
     this.ed.gridVisible.update((v) => !v);
     this.updateGrid();
+  }
+
+  addPage(): void {
+    const current = this.currentPage();
+    const nextIndex = this.pages().length;
+    const page = {
+      id: `page-${Date.now()}`,
+      name: `Page ${nextIndex + 1}`,
+      x: (nextIndex % 3) * 1800,
+      y: Math.floor(nextIndex / 3) * 1200,
+      width: 1400,
+      height: 900,
+    };
+    this.pages.update((items) => [...items, page]);
+    this.currentPageIndex.set(this.pages().length - 1);
+    this.renderPageGuides();
+    this.centerOnPage(page);
+  }
+
+  previousPage(): void {
+    this.currentPageIndex.update((index) => Math.max(0, index - 1));
+    this.centerOnPage(this.currentPage());
+  }
+
+  nextPage(): void {
+    this.currentPageIndex.update((index) => Math.min(this.pages().length - 1, index + 1));
+    this.centerOnPage(this.currentPage());
+  }
+
+  private renderPageGuides(): void {
+    if (!this.canvas || !this.fabric) return;
+    const existing = this.canvas.getObjects().filter((obj: any) => obj._isPageGuide);
+    existing.forEach((obj: any) => this.canvas.remove(obj));
+
+    this.pages().forEach((page) => {
+      const rect = new this.fabric.Rect({
+        left: page.x,
+        top: page.y,
+        width: page.width,
+        height: page.height,
+        fill: 'rgba(59, 130, 246, 0.04)',
+        stroke: page.id === this.currentPage().id ? '#60a5fa' : 'rgba(255,255,255,0.16)',
+        strokeWidth: page.id === this.currentPage().id ? 2 : 1,
+        rx: 16,
+        ry: 16,
+        selectable: false,
+        evented: false,
+        _isPageGuide: true,
+      });
+      const label = new this.fabric.Text(page.name, {
+        left: page.x + 18,
+        top: page.y + 16,
+        fontSize: 13,
+        fill: page.id === this.currentPage().id ? '#60a5fa' : '#b6b6bf',
+        fontWeight: '600',
+        selectable: false,
+        evented: false,
+        _isPageGuide: true,
+      });
+      this.canvas.add(rect);
+      this.canvas.add(label);
+    });
+    this.canvas.requestRenderAll();
+  }
+
+  private centerOnPage(page: any): void {
+    if (!this.canvas || !page) return;
+    const centerX = page.x + page.width / 2;
+    const centerY = page.y + page.height / 2;
+    const viewportWidth = this.canvas.getWidth();
+    const viewportHeight = this.canvas.getHeight();
+    const zoom = this.ed.zoom();
+    const panX = viewportWidth / 2 - centerX * zoom;
+    const panY = viewportHeight / 2 - centerY * zoom;
+    this.canvas.setViewportTransform([zoom, 0, 0, zoom, panX, panY]);
+    this.canvas.requestRenderAll();
+    this.renderPageGuides();
   }
 
   toggleSnap(): void {
@@ -1727,11 +1817,72 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   zoomIn(): void {
     this.setZoom(Math.min(this.ed.zoom() + 0.1, 5));
   }
+
   zoomOut(): void {
     this.setZoom(Math.max(this.ed.zoom() - 0.1, 0.1));
   }
+
   zoomToFit(): void {
-    this.setZoom(1);
+    this.zoomToObjects(this.canvas?.getObjects?.() ?? []);
+  }
+
+  zoomToSelection(): void {
+    const selected = this.canvas?.getActiveObjects?.() ?? [];
+    if (selected.length) {
+      this.zoomToObjects(selected);
+      return;
+    }
+    this.zoomToObjects(this.canvas?.getObjects?.() ?? []);
+  }
+
+  private zoomToObjects(objects: any[]): void {
+    if (!this.canvas || !this.fabric) return;
+
+    const visibleObjects = (objects || []).filter((obj: any) => {
+      if (!obj || obj.visible === false) return false;
+      if (obj._isGrid || obj._isStrokeSide || obj._isArrow) return false;
+      return true;
+    });
+
+    if (!visibleObjects.length) {
+      this.setZoom(1);
+      return;
+    }
+
+    let minLeft = Number.POSITIVE_INFINITY;
+    let minTop = Number.POSITIVE_INFINITY;
+    let maxRight = Number.NEGATIVE_INFINITY;
+    let maxBottom = Number.NEGATIVE_INFINITY;
+
+    visibleObjects.forEach((obj: any) => {
+      const rect = obj.getBoundingRect(true, true);
+      minLeft = Math.min(minLeft, rect.left);
+      minTop = Math.min(minTop, rect.top);
+      maxRight = Math.max(maxRight, rect.left + rect.width);
+      maxBottom = Math.max(maxBottom, rect.top + rect.height);
+    });
+
+    if (!Number.isFinite(minLeft) || !Number.isFinite(minTop)) {
+      this.setZoom(1);
+      return;
+    }
+
+    const width = Math.max(1, maxRight - minLeft);
+    const height = Math.max(1, maxBottom - minTop);
+    const padding = 40;
+    const canvasWidth = this.canvas.getWidth();
+    const canvasHeight = this.canvas.getHeight();
+    const scaleX = (canvasWidth - padding * 2) / width;
+    const scaleY = (canvasHeight - padding * 2) / height;
+    const nextZoom = Math.max(0.1, Math.min(5, Math.min(scaleX, scaleY)));
+    const centerX = minLeft + width / 2;
+    const centerY = minTop + height / 2;
+    const panX = canvasWidth / 2 - centerX * nextZoom;
+    const panY = canvasHeight / 2 - centerY * nextZoom;
+
+    this.ed.zoom.set(nextZoom);
+    this.canvas.setViewportTransform([nextZoom, 0, 0, nextZoom, panX, panY]);
+    this.canvas.requestRenderAll();
   }
 
   undo(): void {

@@ -1,21 +1,12 @@
 #!/usr/bin/env node
 
-/**
- * Amarapix UI - PDF Export Script
- * Converts HTML documentation to PDF for easy sharing
- */
-
 const fs = require('fs');
 const path = require('path');
-
-// Simple HTML to PDF using Node.js
-// This creates a printable HTML that can be saved as PDF from browser
 
 function generatePrintableHTML() {
   const htmlPath = path.join(__dirname, 'index.html');
   const htmlContent = fs.readFileSync(htmlPath, 'utf-8');
   
-  // Add print styles
   const printStyled = htmlContent.replace(
     '</style>',
     `

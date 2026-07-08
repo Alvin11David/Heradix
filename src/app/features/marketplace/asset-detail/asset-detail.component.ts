@@ -33,8 +33,8 @@ const SLUG_TO_ID: Record<string, string> = {
 };
 
 export interface DownloadFormat {
-  type: string;      // e.g. 'PSD', 'AI', 'EPS', 'JPG', 'PNG', 'VECTOR', 'ZIP'
-  sizeLabel: string; // e.g. '3.44 MB', '458 KB'
+  type: string;
+  sizeLabel: string;
   isPrimary?: boolean;
 }
 

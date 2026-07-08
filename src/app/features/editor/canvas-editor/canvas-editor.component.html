@@ -1,104 +1,356 @@
 <div class="editor" *ngIf="!loading()">
-
   <header class="editor-toolbar">
     <div class="tb-left">
       <button class="tb-btn tb-btn--icon" (click)="saveAndClose()" title="Back to Marketplace">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
       </button>
       <span class="tb-title">{{ projectTitle() }}</span>
       <span class="tb-badge">Editing</span>
     </div>
 
     <div class="tb-center">
-      <button class="tb-tool" [class.tb-tool--active]="toolMode()==='select'" (click)="setTool('select')" title="Select (V)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+      <button
+        class="tb-tool"
+        [class.tb-tool--active]="toolMode() === 'select'"
+        (click)="setTool('select')"
+        title="Select (V)"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
+        </svg>
         <span class="tb-tool-label">Select</span>
       </button>
-      <button class="tb-tool" [class.tb-tool--active]="toolMode()==='text'" (click)="setTool('text')" title="Text (T)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+      <button
+        class="tb-tool"
+        [class.tb-tool--active]="toolMode() === 'text'"
+        (click)="setTool('text')"
+        title="Text (T)"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="4 7 4 4 20 4 20 7" />
+          <line x1="9" y1="20" x2="15" y2="20" />
+          <line x1="12" y1="4" x2="12" y2="20" />
+        </svg>
         <span class="tb-tool-label">Text</span>
       </button>
-      <button class="tb-tool" [class.tb-tool--active]="toolMode()==='shape'" (click)="setTool('shape')" title="Shape (R)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+      <button
+        class="tb-tool"
+        [class.tb-tool--active]="toolMode() === 'shape'"
+        (click)="setTool('shape')"
+        title="Shape (R)"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+        </svg>
         <span class="tb-tool-label">Shape</span>
       </button>
-      <button class="tb-tool" [class.tb-tool--active]="toolMode()==='image'" (click)="setTool('image')" title="Image">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <button
+        class="tb-tool"
+        [class.tb-tool--active]="toolMode() === 'image'"
+        (click)="setTool('image')"
+        title="Image"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <polyline points="21 15 16 10 5 21" />
+        </svg>
         <span class="tb-tool-label">Image</span>
       </button>
-      <button class="tb-tool" [class.tb-tool--active]="toolMode()==='upload'" (click)="setTool('upload')" title="Upload">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <button
+        class="tb-tool"
+        [class.tb-tool--active]="toolMode() === 'upload'"
+        (click)="setTool('upload')"
+        title="Upload"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
         <span class="tb-tool-label">Upload</span>
       </button>
       <button class="tb-tool" (click)="showTemplatePicker.set(true)" title="Templates">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
         <span class="tb-tool-label">Templates</span>
       </button>
       <div class="tb-sep"></div>
       <button class="tb-tool tb-tool--ai" (click)="setTool('ai')" title="AI Tools">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 0 1 5 5c0 2.5-1.5 4.6-3.5 5.5L15 21H9l1.5-8.5C8.5 11.6 7 9.5 7 7a5 5 0 0 1 5-5z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M12 2a5 5 0 0 1 5 5c0 2.5-1.5 4.6-3.5 5.5L15 21H9l1.5-8.5C8.5 11.6 7 9.5 7 7a5 5 0 0 1 5-5z"
+          />
+          <line x1="9" y1="21" x2="15" y2="21" />
+        </svg>
         <span class="tb-tool-label">AI</span>
       </button>
     </div>
 
     <div class="tb-right">
-      <button class="tb-btn" (click)="undo()" [class.tb-btn--disabled]="!canUndo()" title="Undo (Ctrl+Z)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      <button
+        class="tb-btn"
+        (click)="undo()"
+        [class.tb-btn--disabled]="!canUndo()"
+        title="Undo (Ctrl+Z)"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="1 4 1 10 7 10" />
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+        </svg>
       </button>
-      <button class="tb-btn" (click)="redo()" [class.tb-btn--disabled]="!canRedo()" title="Redo (Ctrl+Shift+Z)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      <button
+        class="tb-btn"
+        (click)="redo()"
+        [class.tb-btn--disabled]="!canRedo()"
+        title="Redo (Ctrl+Shift+Z)"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="23 4 23 10 17 10" />
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+        </svg>
       </button>
       <div class="tb-sep"></div>
       <button class="tb-btn tb-btn--export" (click)="openExport()" title="Export">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
         Export
       </button>
       <button class="tb-btn tb-btn--save" (click)="save()" title="Save (Ctrl+S)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+          <polyline points="17 21 17 13 7 13 7 21" />
+          <polyline points="7 3 7 8 15 8" />
+        </svg>
         Save
       </button>
     </div>
   </header>
 
-  <div class="editor-body" [class.editor-body--left-collapsed]="leftPanelCollapsed()" [class.editor-body--right-collapsed]="rightPanelCollapsed()">
-
+  <div
+    class="editor-body"
+    [class.editor-body--left-collapsed]="leftPanelCollapsed()"
+    [class.editor-body--right-collapsed]="rightPanelCollapsed()"
+  >
     <aside class="panel panel--layers" *ngIf="!leftPanelCollapsed()">
       <div class="panel-header">
         <h3 class="panel-title">Layers</h3>
         <span class="panel-count">{{ layers().length }}</span>
         <button class="panel-collapse-btn" (click)="toggleLeftPanel()" title="Toggle panel">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
         </button>
       </div>
       <div class="panel-scroll">
         <div class="layer-list" *ngIf="layers().length; else emptyLayers">
-          <button class="layer-item"
+          <button
+            class="layer-item"
             *ngFor="let layer of layers(); trackBy: trackLayer"
             [class.layer-item--selected]="selectedLayerIds().has(layer.id)"
-            (click)="onLayerSelect(layer.id)">
+            (click)="onLayerSelect(layer.id)"
+          >
             <span class="layer-icon" [class]="'layer-icon--' + layer.type">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                *ngIf="layer.type==='text'"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                *ngIf="layer.type==='rect'||layer.type==='circle'||layer.type==='polygon'||layer.type==='star'"><polygon points="12 2 15 9 22 9 16 14 18 22 12 17 6 22 8 14 2 9 9 9"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                *ngIf="layer.type==='image'"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                *ngIf="layer.type === 'text'"
+              >
+                <polyline points="4 7 4 4 20 4 20 7" />
+                <line x1="9" y1="20" x2="15" y2="20" />
+                <line x1="12" y1="4" x2="12" y2="20" />
+              </svg>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                *ngIf="
+                  layer.type === 'rect' ||
+                  layer.type === 'circle' ||
+                  layer.type === 'polygon' ||
+                  layer.type === 'star'
+                "
+              >
+                <polygon points="12 2 15 9 22 9 16 14 18 22 12 17 6 22 8 14 2 9 9 9" />
+              </svg>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                *ngIf="layer.type === 'image'"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
             </span>
             <span class="layer-name">{{ layer.name }}</span>
             <span class="layer-actions">
-              <button class="layer-act" (click)="toggleLayerVisibility(layer.id); $event.stopPropagation()" [class.layer-act--off]="!layer.visible" title="Toggle visibility">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <button
+                class="layer-act"
+                (click)="toggleLayerVisibility(layer.id); $event.stopPropagation()"
+                [class.layer-act--off]="!layer.visible"
+                title="Toggle visibility"
+              >
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
               </button>
-              <button class="layer-act" (click)="toggleLayerLock(layer.id); $event.stopPropagation()" [class.layer-act--off]="!layer.locked" title="Lock/unlock">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <button
+                class="layer-act"
+                (click)="toggleLayerLock(layer.id); $event.stopPropagation()"
+                [class.layer-act--off]="!layer.locked"
+                title="Lock/unlock"
+              >
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="3" y="11" width="18" height="11" rx="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
               </button>
             </span>
           </button>
         </div>
         <ng-template #emptyLayers>
           <div class="panel-empty">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-            <p>No layers yet.<br/>Add text, shapes, or images.</p>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              opacity="0.3"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="9" y1="3" x2="9" y2="21" />
+            </svg>
+            <p>No layers yet.<br />Add text, shapes, or images.</p>
           </div>
         </ng-template>
 
@@ -108,23 +360,47 @@
             <span class="panel-count">{{ assets().length }}</span>
           </div>
           <div class="im-search" *ngIf="assets().length">
-            <input type="text" class="prop-input prop-input--sm im-search-input" placeholder="Search images…"
+            <input
+              type="text"
+              class="prop-input prop-input--sm im-search-input"
+              placeholder="Search images…"
               [value]="assetsSearchQuery"
-              (input)="searchAssets($any($event.target).value)" />
+              (input)="searchAssets($any($event.target).value)"
+            />
           </div>
           <div class="im-grid" *ngIf="assets().length; else emptyAssets">
-            <div class="im-item" *ngFor="let asset of assets(); trackBy: trackAsset"
+            <div
+              class="im-item"
+              *ngFor="let asset of assets(); trackBy: trackAsset"
               draggable="true"
               (dragstart)="onImageDragStart($event, asset.previewUrl)"
               (click)="onImageClick(asset.previewUrl)"
-              title="{{ asset.title }}">
-              <img [src]="asset.thumbnailUrl || asset.previewUrl" [alt]="asset.title" loading="lazy" draggable="false" />
+              title="{{ asset.title }}"
+            >
+              <img
+                [src]="asset.thumbnailUrl || asset.previewUrl"
+                [alt]="asset.title"
+                loading="lazy"
+                draggable="false"
+              />
               <span class="im-item-label">{{ asset.title }}</span>
             </div>
           </div>
           <ng-template #emptyAssets>
             <div class="panel-empty" *ngIf="!loadingAssets()">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                opacity="0.3"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
               <p>No images found.</p>
             </div>
           </ng-template>
@@ -136,30 +412,90 @@
 
       <div class="panel-footer" *ngIf="selectedLayerType()" style="border-top: none">
         <button class="panel-footer-btn panel-footer-btn--danger" (click)="deleteSelected()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="3 6 5 6 21 6" />
+            <path
+              d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+            />
+          </svg>
           Delete
         </button>
       </div>
     </aside>
 
-    <main class="canvas-area" #canvasArea
+    <main
+      class="canvas-area"
+      #canvasArea
       (drop)="onFileDrop($event)"
-      (dragover)="onDragOver($event)">
-      <button class="panel-expand-btn panel-expand-btn--left" *ngIf="leftPanelCollapsed()" (click)="toggleLeftPanel()" title="Show Layers">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      (dragover)="onDragOver($event)"
+    >
+      <button
+        class="panel-expand-btn panel-expand-btn--left"
+        *ngIf="leftPanelCollapsed()"
+        (click)="toggleLeftPanel()"
+        title="Show Layers"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
       </button>
-      <button class="panel-expand-btn panel-expand-btn--right" *ngIf="rightPanelCollapsed()" (click)="toggleRightPanel()" title="Show Properties">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      <button
+        class="panel-expand-btn panel-expand-btn--right"
+        *ngIf="rightPanelCollapsed()"
+        (click)="toggleRightPanel()"
+        title="Show Properties"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
       </button>
       <canvas #canvasEl id="amx-fabric-canvas"></canvas>
 
-      <div class="canvas-overlay top-left" *ngIf="toolMode()==='ai'">
+      <div class="canvas-overlay top-left" *ngIf="toolMode() === 'ai'">
         <div class="ai-menu">
           <div class="ai-menu-title">AI Tools</div>
-          <button class="ai-menu-btn" (click)="removeBg()" [disabled]="aiJobState().status==='processing'">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+          <button
+            class="ai-menu-btn"
+            (click)="removeBg()"
+            [disabled]="aiJobState().status === 'processing'"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="3" y1="15" x2="21" y2="15" />
+              <line x1="9" y1="3" x2="9" y2="21" />
+              <line x1="15" y1="3" x2="15" y2="21" />
+            </svg>
             Remove Background
-            <span class="ai-badge" *ngIf="aiJobState().status==='processing'">Processing…</span>
+            <span class="ai-badge" *ngIf="aiJobState().status === 'processing'">Processing…</span>
           </button>
           <p class="ai-menu-hint">Select an image on canvas first, then remove its background.</p>
         </div>
@@ -168,7 +504,18 @@
       <div class="canvas-overlay" *ngIf="showUploadDialog()">
         <div class="upload-card" (click)="$event.stopPropagation()">
           <div class="upload-card-icon">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
           </div>
           <h4>Upload Files</h4>
           <p>Drag & drop or click to browse</p>
@@ -178,7 +525,11 @@
         </div>
       </div>
 
-      <div class="canvas-overlay" *ngIf="showTemplatePicker()" (click)="showTemplatePicker.set(false)">
+      <div
+        class="canvas-overlay"
+        *ngIf="showTemplatePicker()"
+        (click)="showTemplatePicker.set(false)"
+      >
         <div class="templates-card" (click)="$event.stopPropagation()">
           <div class="templates-header">
             <h4>Templates</h4>
@@ -186,19 +537,31 @@
           </div>
           <div class="templates-grid">
             <div class="template-item" (click)="showTemplatePicker.set(false)">
-              <div class="template-preview" style="background:linear-gradient(135deg,#667eea,#764ba2)"></div>
+              <div
+                class="template-preview"
+                style="background: linear-gradient(135deg, #667eea, #764ba2)"
+              ></div>
               <span>Modern Business Card</span>
             </div>
             <div class="template-item" (click)="showTemplatePicker.set(false)">
-              <div class="template-preview" style="background:linear-gradient(135deg,#f093fb,#f5576c)"></div>
+              <div
+                class="template-preview"
+                style="background: linear-gradient(135deg, #f093fb, #f5576c)"
+              ></div>
               <span>Social Media Post</span>
             </div>
             <div class="template-item" (click)="showTemplatePicker.set(false)">
-              <div class="template-preview" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"></div>
+              <div
+                class="template-preview"
+                style="background: linear-gradient(135deg, #4facfe, #00f2fe)"
+              ></div>
               <span>Presentation Slide</span>
             </div>
             <div class="template-item" (click)="showTemplatePicker.set(false)">
-              <div class="template-preview" style="background:linear-gradient(135deg,#43e97b,#38f9d7)"></div>
+              <div
+                class="template-preview"
+                style="background: linear-gradient(135deg, #43e97b, #38f9d7)"
+              ></div>
               <span>Flyer / Poster</span>
             </div>
           </div>
@@ -210,46 +573,85 @@
       <div class="panel-header">
         <h3 class="panel-title">Properties</h3>
         <button class="panel-collapse-btn" (click)="toggleRightPanel()" title="Toggle panel">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </button>
       </div>
       <div class="panel-scroll">
         <ng-container *ngIf="selectedLayerType(); else noSelection">
-
           <div class="prop-section">
             <label class="prop-label">Opacity</label>
-            <input type="range" class="prop-range" min="0" max="1" step="0.01"
-              [value]="selectedOpacity()" (input)="updateProperty('opacity', +$any($event.target).value)" />
+            <input
+              type="range"
+              class="prop-range"
+              min="0"
+              max="1"
+              step="0.01"
+              [value]="selectedOpacity()"
+              (input)="updateProperty('opacity', +$any($event.target).value)"
+            />
             <span class="prop-value">{{ selectedOpacity() | percent }}</span>
           </div>
 
           <div class="prop-section">
             <label class="prop-label">Blend</label>
-            <select class="prop-select" [value]="selectedBlendMode()" (change)="applyBlendMode($any($event.target).value)">
+            <select
+              class="prop-select"
+              [value]="selectedBlendMode()"
+              (change)="applyBlendMode($any($event.target).value)"
+            >
               <option *ngFor="let m of blendModes" [value]="m">{{ m }}</option>
             </select>
           </div>
 
           <div class="prop-section">
             <label class="prop-label">Blur</label>
-            <input type="range" class="prop-range" min="0" max="20" step="0.5"
-              [value]="selectedLayerBlur()" (input)="applyLayerBlur(+$any($event.target).value)" />
-            <span class="prop-value">{{ selectedLayerBlur() | number:'1.0-1' }}</span>
+            <input
+              type="range"
+              class="prop-range"
+              min="0"
+              max="20"
+              step="0.5"
+              [value]="selectedLayerBlur()"
+              (input)="applyLayerBlur(+$any($event.target).value)"
+            />
+            <span class="prop-value">{{ selectedLayerBlur() | number: '1.0-1' }}</span>
           </div>
 
-          <ng-container *ngIf="selectedLayerType()==='text'">
-
+          <ng-container *ngIf="selectedLayerType() === 'text'">
             <div class="prop-section">
               <label class="prop-label">Font</label>
               <div class="fp-wrap" (click)="$event.stopPropagation()">
                 <button class="fp-trigger" (click)="showFontPicker.set(!showFontPicker())">
-                  <span class="fp-current" [style.font-family]="selectedFontFamily()">{{ selectedFontFamily() }}</span>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  <span class="fp-current" [style.font-family]="selectedFontFamily()">{{
+                    selectedFontFamily()
+                  }}</span>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
                 </button>
                 <div class="fp-dropdown" *ngIf="showFontPicker()">
-                  <button class="fp-item" *ngFor="let f of fontFamilies"
-                    [class.fp-item--active]="selectedFontFamily()===f"
-                    (click)="updateProperty('fontFamily', f); showFontPicker.set(false)">
+                  <button
+                    class="fp-item"
+                    *ngFor="let f of fontFamilies"
+                    [class.fp-item--active]="selectedFontFamily() === f"
+                    (click)="updateProperty('fontFamily', f); showFontPicker.set(false)"
+                  >
                     <span [style.font-family]="f">{{ f }}</span>
                   </button>
                 </div>
@@ -260,37 +662,110 @@
               <label class="prop-label">Size</label>
               <div class="fs-wrap">
                 <div class="fs-presets">
-                  <button class="fs-preset" *ngFor="let s of fontSizePresets"
-                    [class.fs-preset--active]="selectedFontSize()===s"
-                    (click)="updateProperty('fontSize', s)">{{ s }}</button>
+                  <button
+                    class="fs-preset"
+                    *ngFor="let s of fontSizePresets"
+                    [class.fs-preset--active]="selectedFontSize() === s"
+                    (click)="updateProperty('fontSize', s)"
+                  >
+                    {{ s }}
+                  </button>
                 </div>
-                <input type="number" class="prop-input prop-input--sm" [value]="selectedFontSize()"
-                  (change)="updateProperty('fontSize', +$any($event.target).value)" />
+                <input
+                  type="number"
+                  class="prop-input prop-input--sm"
+                  [value]="selectedFontSize()"
+                  (change)="updateProperty('fontSize', +$any($event.target).value)"
+                />
               </div>
             </div>
 
             <div class="prop-section">
               <label class="prop-label">Weight</label>
-              <select class="prop-select" [value]="selectedFontWeight()" (change)="updateProperty('fontWeight', +$any($event.target).value)">
-                <option *ngFor="let w of fontWeights" [value]="w.value">{{ w.value }} — {{ w.label }}</option>
+              <select
+                class="prop-select"
+                [value]="selectedFontWeight()"
+                (change)="updateProperty('fontWeight', +$any($event.target).value)"
+              >
+                <option *ngFor="let w of fontWeights" [value]="w.value">
+                  {{ w.value }} — {{ w.label }}
+                </option>
               </select>
             </div>
 
             <div class="prop-row">
-              <button class="prop-style-btn" [class.prop-style-btn--active]="selectedFontWeight()>=700" (click)="updateProperty('fontWeight', selectedFontWeight()>=700 ? 400 : 700)" title="Bold">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"/></svg>
+              <button
+                class="prop-style-btn"
+                [class.prop-style-btn--active]="selectedFontWeight() >= 700"
+                (click)="updateProperty('fontWeight', selectedFontWeight() >= 700 ? 400 : 700)"
+                title="Bold"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"
+                  />
+                </svg>
               </button>
-              <button class="prop-style-btn" [class.prop-style-btn--active]="selectedFontStyle()==='italic'" (click)="updateProperty('fontStyle', selectedFontStyle()==='italic'?'normal':'italic')" title="Italic">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"/></svg>
+              <button
+                class="prop-style-btn"
+                [class.prop-style-btn--active]="selectedFontStyle() === 'italic'"
+                (click)="
+                  updateProperty(
+                    'fontStyle',
+                    selectedFontStyle() === 'italic' ? 'normal' : 'italic'
+                  )
+                "
+                title="Italic"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z" />
+                </svg>
               </button>
-              <button class="prop-style-btn" [class.prop-style-btn--active]="selectedUnderline()" (click)="updateProperty('underline', !selectedUnderline())" title="Underline">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
+              <button
+                class="prop-style-btn"
+                [class.prop-style-btn--active]="selectedUnderline()"
+                (click)="updateProperty('underline', !selectedUnderline())"
+                title="Underline"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3" />
+                  <line x1="4" y1="21" x2="20" y2="21" />
+                </svg>
               </button>
-              <button class="prop-style-btn" [class.prop-style-btn--active]="selectedStrikethrough()" (click)="updateProperty('strikethrough', !selectedStrikethrough())" title="Strikethrough">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.3 4.9c-2.3-.6-4.4-1-6.2-.9-2.7 0-5.3.7-5.3 3.6 0 1.6 1.2 2.4 4.2 3.2 3 .8 7.3 1.6 7.3 5.2 0 3.5-3.6 4.9-7.7 4.2-1.8-.3-3.2-.9-4.5-1.8"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+              <button
+                class="prop-style-btn"
+                [class.prop-style-btn--active]="selectedStrikethrough()"
+                (click)="updateProperty('strikethrough', !selectedStrikethrough())"
+                title="Strikethrough"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M17.3 4.9c-2.3-.6-4.4-1-6.2-.9-2.7 0-5.3.7-5.3 3.6 0 1.6 1.2 2.4 4.2 3.2 3 .8 7.3 1.6 7.3 5.2 0 3.5-3.6 4.9-7.7 4.2-1.8-.3-3.2-.9-4.5-1.8"
+                  />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                </svg>
               </button>
               <div class="tb-sep"></div>
-              <select class="prop-select prop-select--sm" [value]="selectedTextAlign()" (change)="updateProperty('textAlign', $any($event.target).value)" title="Text align">
+              <select
+                class="prop-select prop-select--sm"
+                [value]="selectedTextAlign()"
+                (change)="updateProperty('textAlign', $any($event.target).value)"
+                title="Text align"
+              >
                 <option value="left">L</option>
                 <option value="center">C</option>
                 <option value="right">R</option>
@@ -300,43 +775,72 @@
             <div class="prop-section">
               <label class="prop-label">Color</label>
               <div class="color-strip">
-                <button class="color-swatch" *ngFor="let c of colorPalette()"
+                <button
+                  class="color-swatch"
+                  *ngFor="let c of colorPalette()"
                   [style.background]="c"
-                  [class.color-swatch--active]="selectedFill()===c"
-                  (click)="applyColor(c,'fill')"></button>
+                  [class.color-swatch--active]="selectedFill() === c"
+                  (click)="applyColor(c, 'fill')"
+                ></button>
               </div>
             </div>
 
             <div class="prop-section">
               <label class="prop-label">Line H</label>
-              <input type="range" class="prop-range" min="0.5" max="3" step="0.05"
-                [value]="selectedLineHeight()" (input)="updateProperty('lineHeight', +$any($event.target).value)" />
-              <span class="prop-value">{{ selectedLineHeight() | number:'1.1-1' }}</span>
+              <input
+                type="range"
+                class="prop-range"
+                min="0.5"
+                max="3"
+                step="0.05"
+                [value]="selectedLineHeight()"
+                (input)="updateProperty('lineHeight', +$any($event.target).value)"
+              />
+              <span class="prop-value">{{ selectedLineHeight() | number: '1.1-1' }}</span>
             </div>
 
             <div class="prop-section">
               <label class="prop-label">Spacing</label>
-              <input type="range" class="prop-range" min="-100" max="500" step="1"
-                [value]="selectedCharSpacing()" (input)="updateProperty('charSpacing', +$any($event.target).value)" />
+              <input
+                type="range"
+                class="prop-range"
+                min="-100"
+                max="500"
+                step="1"
+                [value]="selectedCharSpacing()"
+                (input)="updateProperty('charSpacing', +$any($event.target).value)"
+              />
               <span class="prop-value">{{ selectedCharSpacing() }}</span>
             </div>
 
             <div class="prop-section">
               <label class="prop-label">Bg Color</label>
               <div class="color-strip">
-                <button class="color-swatch" *ngFor="let c of colorPalette()"
+                <button
+                  class="color-swatch"
+                  *ngFor="let c of colorPalette()"
                   [style.background]="c"
-                  [class.color-swatch--active]="selectedTextBackgroundColor()===c"
-                  (click)="updateProperty('textBackgroundColor', c)"></button>
-                <button class="color-swatch color-swatch--none"
+                  [class.color-swatch--active]="selectedTextBackgroundColor() === c"
+                  (click)="updateProperty('textBackgroundColor', c)"
+                ></button>
+                <button
+                  class="color-swatch color-swatch--none"
                   [class.color-swatch--active]="!selectedTextBackgroundColor()"
-                  (click)="updateProperty('textBackgroundColor', '')" title="No background">∅</button>
+                  (click)="updateProperty('textBackgroundColor', '')"
+                  title="No background"
+                >
+                  ∅
+                </button>
               </div>
             </div>
 
             <div class="prop-section">
               <label class="prop-label">Dir</label>
-              <select class="prop-select" [value]="selectedDirection()" (change)="updateProperty('direction', $any($event.target).value)">
+              <select
+                class="prop-select"
+                [value]="selectedDirection()"
+                (change)="updateProperty('direction', $any($event.target).value)"
+              >
                 <option value="ltr">LTR</option>
                 <option value="rtl">RTL</option>
               </select>
@@ -344,134 +848,255 @@
 
             <div class="prop-section">
               <label class="prop-label">Para Spc</label>
-              <input type="range" class="prop-range" min="0" max="200" step="1"
-                [value]="selectedParagraphSpacing()" (input)="updateProperty('paragraphSpacing', +$any($event.target).value)" />
+              <input
+                type="range"
+                class="prop-range"
+                min="0"
+                max="200"
+                step="1"
+                [value]="selectedParagraphSpacing()"
+                (input)="updateProperty('paragraphSpacing', +$any($event.target).value)"
+              />
               <span class="prop-value">{{ selectedParagraphSpacing() }}</span>
             </div>
 
             <div class="prop-section">
               <label class="prop-label">Outline</label>
               <div class="color-strip">
-                <button class="color-swatch" *ngFor="let c of colorPalette()"
+                <button
+                  class="color-swatch"
+                  *ngFor="let c of colorPalette()"
                   [style.background]="c"
-                  [class.color-swatch--active]="selectedStroke()===c"
-                  (click)="applyColor(c,'stroke')"></button>
-                <button class="color-swatch color-swatch--none"
+                  [class.color-swatch--active]="selectedStroke() === c"
+                  (click)="applyColor(c, 'stroke')"
+                ></button>
+                <button
+                  class="color-swatch color-swatch--none"
                   [class.color-swatch--active]="!selectedStroke()"
-                  (click)="updateProperty('stroke', '')" title="No outline">∅</button>
+                  (click)="updateProperty('stroke', '')"
+                  title="No outline"
+                >
+                  ∅
+                </button>
               </div>
             </div>
             <div class="prop-section" *ngIf="selectedStroke()">
               <label class="prop-label">Width</label>
-              <input type="range" class="prop-range" min="0" max="20" step="0.5"
-                [value]="selectedStrokeWidth()" (input)="updateProperty('strokeWidth', +$any($event.target).value)" />
+              <input
+                type="range"
+                class="prop-range"
+                min="0"
+                max="20"
+                step="0.5"
+                [value]="selectedStrokeWidth()"
+                (input)="updateProperty('strokeWidth', +$any($event.target).value)"
+              />
               <span class="prop-value">{{ selectedStrokeWidth() }}</span>
             </div>
 
             <div class="prop-section">
               <label class="prop-label">Shadow</label>
-              <button class="prop-style-btn" [class.prop-style-btn--active]="hasShadow()"
-                (click)="toggleShadow()" title="Toggle shadow">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 0 1 5 5c0 2.5-1.5 4.6-3.5 5.5L15 21H9l1.5-8.5C8.5 11.6 7 9.5 7 7a5 5 0 0 1 5-5z"/></svg>
+              <button
+                class="prop-style-btn"
+                [class.prop-style-btn--active]="hasShadow()"
+                (click)="toggleShadow()"
+                title="Toggle shadow"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M12 2a5 5 0 0 1 5 5c0 2.5-1.5 4.6-3.5 5.5L15 21H9l1.5-8.5C8.5 11.6 7 9.5 7 7a5 5 0 0 1 5-5z"
+                  />
+                </svg>
               </button>
             </div>
             <ng-container *ngIf="hasShadow()">
               <div class="prop-section">
                 <label class="prop-label">Blur</label>
-                <input type="range" class="prop-range" min="0" max="30" step="0.5"
-                  [value]="shadowBlur()" (input)="shadowProp('blur', +$any($event.target).value)" />
-                <span class="prop-value">{{ shadowBlur() | number:'1.0-1' }}</span>
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="0"
+                  max="30"
+                  step="0.5"
+                  [value]="shadowBlur()"
+                  (input)="shadowProp('blur', +$any($event.target).value)"
+                />
+                <span class="prop-value">{{ shadowBlur() | number: '1.0-1' }}</span>
               </div>
               <div class="prop-section">
                 <label class="prop-label">Offset X</label>
-                <input type="range" class="prop-range" min="-20" max="20" step="0.5"
-                  [value]="shadowOffsetX()" (input)="shadowProp('offsetX', +$any($event.target).value)" />
-                <span class="prop-value">{{ shadowOffsetX() | number:'1.0-1' }}</span>
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="-20"
+                  max="20"
+                  step="0.5"
+                  [value]="shadowOffsetX()"
+                  (input)="shadowProp('offsetX', +$any($event.target).value)"
+                />
+                <span class="prop-value">{{ shadowOffsetX() | number: '1.0-1' }}</span>
               </div>
               <div class="prop-section">
                 <label class="prop-label">Offset Y</label>
-                <input type="range" class="prop-range" min="-20" max="20" step="0.5"
-                  [value]="shadowOffsetY()" (input)="shadowProp('offsetY', +$any($event.target).value)" />
-                <span class="prop-value">{{ shadowOffsetY() | number:'1.0-1' }}</span>
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="-20"
+                  max="20"
+                  step="0.5"
+                  [value]="shadowOffsetY()"
+                  (input)="shadowProp('offsetY', +$any($event.target).value)"
+                />
+                <span class="prop-value">{{ shadowOffsetY() | number: '1.0-1' }}</span>
               </div>
               <div class="prop-section">
                 <label class="prop-label">Color</label>
                 <div class="color-strip">
-                  <button class="color-swatch" *ngFor="let c of colorPalette()"
+                  <button
+                    class="color-swatch"
+                    *ngFor="let c of colorPalette()"
                     [style.background]="c"
-                    [class.color-swatch--active]="shadowColor()===c"
-                    (click)="shadowProp('color', c)"></button>
+                    [class.color-swatch--active]="shadowColor() === c"
+                    (click)="shadowProp('color', c)"
+                  ></button>
                 </div>
               </div>
             </ng-container>
-
           </ng-container>
 
-          <ng-container *ngIf="selectedLayerType()==='rect'||selectedLayerType()==='circle'||selectedLayerType()==='polygon'||selectedLayerType()==='star'||selectedLayerType()==='line'">
-            <div class="prop-section" *ngIf="selectedLayerType()!=='line'">
+          <ng-container
+            *ngIf="
+              selectedLayerType() === 'rect' ||
+              selectedLayerType() === 'circle' ||
+              selectedLayerType() === 'polygon' ||
+              selectedLayerType() === 'star' ||
+              selectedLayerType() === 'line'
+            "
+          >
+            <div class="prop-section" *ngIf="selectedLayerType() !== 'line'">
               <label class="prop-label">Fill</label>
               <div class="color-strip">
-                <button class="color-swatch" *ngFor="let c of colorPalette()"
+                <button
+                  class="color-swatch"
+                  *ngFor="let c of colorPalette()"
                   [style.background]="c"
-                  [class.color-swatch--active]="selectedFillType()==='solid' && selectedFill()===c"
-                  (click)="applyFillType('solid'); applyColor(c,'fill')"></button>
+                  [class.color-swatch--active]="
+                    selectedFillType() === 'solid' && selectedFill() === c
+                  "
+                  (click)="applyFillType('solid'); applyColor(c, 'fill')"
+                ></button>
               </div>
               <div class="fill-type-pills">
-                <button class="pill-btn" [class.pill-btn--on]="selectedFillType()==='solid'" (click)="applyFillType('solid'); applyColor(selectedGradientColors()[0],'fill')">Solid</button>
-                <button class="pill-btn" [class.pill-btn--on]="selectedFillType()==='linear'" (click)="applyFillType('linear')">Linear</button>
-                <button class="pill-btn" [class.pill-btn--on]="selectedFillType()==='radial'" (click)="applyFillType('radial')">Radial</button>
+                <button
+                  class="pill-btn"
+                  [class.pill-btn--on]="selectedFillType() === 'solid'"
+                  (click)="applyFillType('solid'); applyColor(selectedGradientColors()[0], 'fill')"
+                >
+                  Solid
+                </button>
+                <button
+                  class="pill-btn"
+                  [class.pill-btn--on]="selectedFillType() === 'linear'"
+                  (click)="applyFillType('linear')"
+                >
+                  Linear
+                </button>
+                <button
+                  class="pill-btn"
+                  [class.pill-btn--on]="selectedFillType() === 'radial'"
+                  (click)="applyFillType('radial')"
+                >
+                  Radial
+                </button>
               </div>
             </div>
 
-            <ng-container *ngIf="selectedLayerType()!=='line' && selectedFillType()!=='solid'">
+            <ng-container *ngIf="selectedLayerType() !== 'line' && selectedFillType() !== 'solid'">
               <div class="prop-section">
                 <label class="prop-label">Stop 1</label>
                 <div class="color-strip">
-                  <button class="color-swatch" *ngFor="let c of colorPalette()"
+                  <button
+                    class="color-swatch"
+                    *ngFor="let c of colorPalette()"
                     [style.background]="c"
-                    [class.color-swatch--active]="selectedGradientColors()[0]===c"
-                    (click)="applyGradientColor(0, c)"></button>
+                    [class.color-swatch--active]="selectedGradientColors()[0] === c"
+                    (click)="applyGradientColor(0, c)"
+                  ></button>
                 </div>
               </div>
               <div class="prop-section">
                 <label class="prop-label">Stop 2</label>
                 <div class="color-strip">
-                  <button class="color-swatch" *ngFor="let c of colorPalette()"
+                  <button
+                    class="color-swatch"
+                    *ngFor="let c of colorPalette()"
                     [style.background]="c"
-                    [class.color-swatch--active]="selectedGradientColors()[1]===c"
-                    (click)="applyGradientColor(1,c)"></button>
+                    [class.color-swatch--active]="selectedGradientColors()[1] === c"
+                    (click)="applyGradientColor(1, c)"
+                  ></button>
                 </div>
               </div>
-              <div class="prop-section" *ngIf="selectedFillType()==='linear'">
+              <div class="prop-section" *ngIf="selectedFillType() === 'linear'">
                 <label class="prop-label">Angle</label>
-                <input type="range" class="prop-range" min="0" max="360" step="1"
-                  [value]="selectedGradientAngle()" (input)="applyGradientAngle(+$any($event.target).value)" />
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="0"
+                  max="360"
+                  step="1"
+                  [value]="selectedGradientAngle()"
+                  (input)="applyGradientAngle(+$any($event.target).value)"
+                />
                 <span class="prop-value">{{ selectedGradientAngle() }}°</span>
               </div>
-              <div class="prop-section" *ngIf="selectedFillType()==='radial'">
+              <div class="prop-section" *ngIf="selectedFillType() === 'radial'">
                 <label class="prop-label">Radius</label>
-                <input type="range" class="prop-range" min="10" max="100" step="1"
-                  [value]="selectedGradientRadius()" (input)="applyGradientRadius(+$any($event.target).value)" />
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="10"
+                  max="100"
+                  step="1"
+                  [value]="selectedGradientRadius()"
+                  (input)="applyGradientRadius(+$any($event.target).value)"
+                />
                 <span class="prop-value">{{ selectedGradientRadius() }}%</span>
               </div>
             </ng-container>
             <div class="prop-section">
               <label class="prop-label">Stroke</label>
               <div class="color-strip">
-                <button class="color-swatch" *ngFor="let c of colorPalette()"
+                <button
+                  class="color-swatch"
+                  *ngFor="let c of colorPalette()"
                   [style.background]="c"
-                  [class.color-swatch--active]="selectedStroke()===c"
-                  (click)="applyColor(c,'stroke')"></button>
+                  [class.color-swatch--active]="selectedStroke() === c"
+                  (click)="applyColor(c, 'stroke')"
+                ></button>
               </div>
             </div>
             <div class="prop-section">
               <label class="prop-label">Stroke W</label>
-              <input type="range" class="prop-range" min="0" max="20" step="1"
-                [value]="selectedStrokeWidth()" (input)="updateProperty('strokeWidth', +$any($event.target).value)" />
+              <input
+                type="range"
+                class="prop-range"
+                min="0"
+                max="20"
+                step="1"
+                [value]="selectedStrokeWidth()"
+                (input)="updateProperty('strokeWidth', +$any($event.target).value)"
+              />
               <span class="prop-value">{{ selectedStrokeWidth() }}px</span>
             </div>
 
-            <ng-container *ngIf="selectedLayerType()==='rect'">
+            <ng-container *ngIf="selectedLayerType() === 'rect'">
               <div class="prop-divider"></div>
 
               <div class="prop-section">
@@ -479,8 +1104,15 @@
                   Corner
                   <span class="prop-hint">Smoothing</span>
                 </label>
-                <input type="range" class="prop-range" min="0" [max]="maxCornerSmoothing()" step="1"
-                  [value]="selectedCornerRx()" (input)="updateCornerSmoothing(+$any($event.target).value)" />
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="0"
+                  [max]="maxCornerSmoothing()"
+                  step="1"
+                  [value]="selectedCornerRx()"
+                  (input)="updateCornerSmoothing(+$any($event.target).value)"
+                />
                 <span class="prop-value">{{ selectedCornerRx() }}px</span>
               </div>
 
@@ -490,35 +1122,79 @@
                   <span class="prop-hint">Per-edge border</span>
                 </label>
                 <div class="stroke-sides">
-                  <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeTop()"
-                    (click)="updateStrokeSide('top')" title="Top stroke">
-                    <svg width="14" height="14" viewBox="0 0 24 8" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <line x1="2" y1="4" x2="22" y2="4"/>
+                  <button
+                    class="stroke-side-btn"
+                    [class.stroke-side-btn--on]="selectedStrokeTop()"
+                    (click)="updateStrokeSide('top')"
+                    title="Top stroke"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 8"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <line x1="2" y1="4" x2="22" y2="4" />
                     </svg>
                   </button>
-                  <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeBottom()"
-                    (click)="updateStrokeSide('bottom')" title="Bottom stroke">
-                    <svg width="14" height="14" viewBox="0 0 24 8" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <line x1="2" y1="4" x2="22" y2="4"/>
+                  <button
+                    class="stroke-side-btn"
+                    [class.stroke-side-btn--on]="selectedStrokeBottom()"
+                    (click)="updateStrokeSide('bottom')"
+                    title="Bottom stroke"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 8"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <line x1="2" y1="4" x2="22" y2="4" />
                     </svg>
                   </button>
-                  <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeLeft()"
-                    (click)="updateStrokeSide('left')" title="Left stroke">
-                    <svg width="14" height="14" viewBox="0 0 8 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <line x1="4" y1="2" x2="4" y2="22"/>
+                  <button
+                    class="stroke-side-btn"
+                    [class.stroke-side-btn--on]="selectedStrokeLeft()"
+                    (click)="updateStrokeSide('left')"
+                    title="Left stroke"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 8 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <line x1="4" y1="2" x2="4" y2="22" />
                     </svg>
                   </button>
-                  <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeRight()"
-                    (click)="updateStrokeSide('right')" title="Right stroke">
-                    <svg width="14" height="14" viewBox="0 0 8 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <line x1="4" y1="2" x2="4" y2="22"/>
+                  <button
+                    class="stroke-side-btn"
+                    [class.stroke-side-btn--on]="selectedStrokeRight()"
+                    (click)="updateStrokeSide('right')"
+                    title="Right stroke"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 8 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <line x1="4" y1="2" x2="4" y2="22" />
                     </svg>
                   </button>
                 </div>
               </div>
             </ng-container>
 
-            <ng-container *ngIf="selectedLayerType()==='circle'">
+            <ng-container *ngIf="selectedLayerType() === 'circle'">
               <div class="prop-divider"></div>
 
               <div class="prop-section">
@@ -526,8 +1202,15 @@
                   Arc
                   <span class="prop-hint">Start</span>
                 </label>
-                <input type="range" class="prop-range" min="0" max="359" step="1"
-                  [value]="selectedCircleArc()" (input)="updateCircleArc(+$any($event.target).value)" />
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="0"
+                  max="359"
+                  step="1"
+                  [value]="selectedCircleArc()"
+                  (input)="updateCircleArc(+$any($event.target).value)"
+                />
                 <span class="prop-value">{{ selectedCircleArc() }}°</span>
               </div>
 
@@ -536,8 +1219,15 @@
                   Sweep
                   <span class="prop-hint">Extent</span>
                 </label>
-                <input type="range" class="prop-range" min="1" max="360" step="1"
-                  [value]="selectedCircleSweep()" (input)="updateCircleSweep(+$any($event.target).value)" />
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="1"
+                  max="360"
+                  step="1"
+                  [value]="selectedCircleSweep()"
+                  (input)="updateCircleSweep(+$any($event.target).value)"
+                />
                 <span class="prop-value">{{ selectedCircleSweep() }}°</span>
               </div>
 
@@ -546,13 +1236,20 @@
                   Ratio
                   <span class="prop-hint">Hollow</span>
                 </label>
-                <input type="range" class="prop-range" min="0" max="0.95" step="0.01"
-                  [value]="selectedCircleRatio()" (input)="updateCircleRatio(+$any($event.target).value)" />
-                <span class="prop-value">{{ selectedCircleRatio() | number:'1.0-2' }}</span>
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="0"
+                  max="0.95"
+                  step="0.01"
+                  [value]="selectedCircleRatio()"
+                  (input)="updateCircleRatio(+$any($event.target).value)"
+                />
+                <span class="prop-value">{{ selectedCircleRatio() | number: '1.0-2' }}</span>
               </div>
             </ng-container>
 
-            <ng-container *ngIf="selectedLayerType()==='line'">
+            <ng-container *ngIf="selectedLayerType() === 'line'">
               <div class="prop-divider"></div>
 
               <div class="prop-section">
@@ -561,9 +1258,27 @@
                   <span class="prop-hint">Endpoint shape</span>
                 </label>
                 <div class="cap-join-pills">
-                  <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineCap()==='butt'" (click)="updateStrokeCap('butt')">Butt</button>
-                  <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineCap()==='round'" (click)="updateStrokeCap('round')">Round</button>
-                  <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineCap()==='square'" (click)="updateStrokeCap('square')">Square</button>
+                  <button
+                    class="pill-btn"
+                    [class.pill-btn--on]="selectedStrokeLineCap() === 'butt'"
+                    (click)="updateStrokeCap('butt')"
+                  >
+                    Butt
+                  </button>
+                  <button
+                    class="pill-btn"
+                    [class.pill-btn--on]="selectedStrokeLineCap() === 'round'"
+                    (click)="updateStrokeCap('round')"
+                  >
+                    Round
+                  </button>
+                  <button
+                    class="pill-btn"
+                    [class.pill-btn--on]="selectedStrokeLineCap() === 'square'"
+                    (click)="updateStrokeCap('square')"
+                  >
+                    Square
+                  </button>
                 </div>
               </div>
 
@@ -573,9 +1288,27 @@
                   <span class="prop-hint">Corner style</span>
                 </label>
                 <div class="cap-join-pills">
-                  <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineJoin()==='miter'" (click)="updateStrokeJoin('miter')">Miter</button>
-                  <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineJoin()==='round'" (click)="updateStrokeJoin('round')">Round</button>
-                  <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineJoin()==='bevel'" (click)="updateStrokeJoin('bevel')">Bevel</button>
+                  <button
+                    class="pill-btn"
+                    [class.pill-btn--on]="selectedStrokeLineJoin() === 'miter'"
+                    (click)="updateStrokeJoin('miter')"
+                  >
+                    Miter
+                  </button>
+                  <button
+                    class="pill-btn"
+                    [class.pill-btn--on]="selectedStrokeLineJoin() === 'round'"
+                    (click)="updateStrokeJoin('round')"
+                  >
+                    Round
+                  </button>
+                  <button
+                    class="pill-btn"
+                    [class.pill-btn--on]="selectedStrokeLineJoin() === 'bevel'"
+                    (click)="updateStrokeJoin('bevel')"
+                  >
+                    Bevel
+                  </button>
                 </div>
               </div>
 
@@ -585,19 +1318,49 @@
                   <span class="prop-hint">Line ends</span>
                 </label>
                 <div class="cap-join-pills">
-                  <button class="pill-btn" [class.pill-btn--on]="selectedArrowStart()" (click)="updateArrowStart()" title="Arrow at start">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="20" y1="12" x2="4" y2="12"/><polyline points="10 6 4 12 10 18"/></svg>
+                  <button
+                    class="pill-btn"
+                    [class.pill-btn--on]="selectedArrowStart()"
+                    (click)="updateArrowStart()"
+                    title="Arrow at start"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <line x1="20" y1="12" x2="4" y2="12" />
+                      <polyline points="10 6 4 12 10 18" />
+                    </svg>
                     Start
                   </button>
-                  <button class="pill-btn" [class.pill-btn--on]="selectedArrowEnd()" (click)="updateArrowEnd()" title="Arrow at end">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="14 6 20 12 14 18"/></svg>
+                  <button
+                    class="pill-btn"
+                    [class.pill-btn--on]="selectedArrowEnd()"
+                    (click)="updateArrowEnd()"
+                    title="Arrow at end"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <line x1="4" y1="12" x2="20" y2="12" />
+                      <polyline points="14 6 20 12 14 18" />
+                    </svg>
                     End
                   </button>
                 </div>
               </div>
             </ng-container>
 
-            <ng-container *ngIf="selectedLayerType()==='polygon'">
+            <ng-container *ngIf="selectedLayerType() === 'polygon'">
               <div class="prop-divider"></div>
 
               <div class="prop-section">
@@ -605,8 +1368,15 @@
                   Sides
                   <span class="prop-hint">Vertices</span>
                 </label>
-                <input type="range" class="prop-range" min="3" max="24" step="1"
-                  [value]="selectedPolygonSides()" (input)="updatePolygonSides(+$any($event.target).value)" />
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="3"
+                  max="24"
+                  step="1"
+                  [value]="selectedPolygonSides()"
+                  (input)="updatePolygonSides(+$any($event.target).value)"
+                />
                 <span class="prop-value">{{ selectedPolygonSides() }}</span>
               </div>
 
@@ -615,13 +1385,22 @@
                   Radius
                   <span class="prop-hint">Corner smoothing</span>
                 </label>
-                <input type="range" class="prop-range" min="0" [max]="maxPolygonCornerRadius()" step="0.5"
-                  [value]="selectedPolygonCornerRadius()" (input)="updatePolygonCornerRadius(+$any($event.target).value)" />
-                <span class="prop-value">{{ selectedPolygonCornerRadius() | number:'1.0-1' }}</span>
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="0"
+                  [max]="maxPolygonCornerRadius()"
+                  step="0.5"
+                  [value]="selectedPolygonCornerRadius()"
+                  (input)="updatePolygonCornerRadius(+$any($event.target).value)"
+                />
+                <span class="prop-value">{{
+                  selectedPolygonCornerRadius() | number: '1.0-1'
+                }}</span>
               </div>
             </ng-container>
 
-            <ng-container *ngIf="selectedLayerType()==='star'">
+            <ng-container *ngIf="selectedLayerType() === 'star'">
               <div class="prop-divider"></div>
 
               <div class="prop-section">
@@ -629,8 +1408,15 @@
                   Points
                   <span class="prop-hint">Star tips</span>
                 </label>
-                <input type="range" class="prop-range" min="3" max="24" step="1"
-                  [value]="selectedStarPoints()" (input)="updateStarPoints(+$any($event.target).value)" />
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="3"
+                  max="24"
+                  step="1"
+                  [value]="selectedStarPoints()"
+                  (input)="updateStarPoints(+$any($event.target).value)"
+                />
                 <span class="prop-value">{{ selectedStarPoints() }}</span>
               </div>
 
@@ -639,32 +1425,73 @@
                   Ratio
                   <span class="prop-hint">Valley depth</span>
                 </label>
-                <input type="range" class="prop-range" min="0.05" max="0.95" step="0.01"
-                  [value]="selectedStarRatio()" (input)="updateStarRatio(+$any($event.target).value)" />
-                <span class="prop-value">{{ selectedStarRatio() | number:'1.0-2' }}</span>
+                <input
+                  type="range"
+                  class="prop-range"
+                  min="0.05"
+                  max="0.95"
+                  step="0.01"
+                  [value]="selectedStarRatio()"
+                  (input)="updateStarRatio(+$any($event.target).value)"
+                />
+                <span class="prop-value">{{ selectedStarRatio() | number: '1.0-2' }}</span>
               </div>
             </ng-container>
           </ng-container>
 
-          <ng-container *ngIf="selectedLayerType()==='image'">
+          <ng-container *ngIf="selectedLayerType() === 'image'">
             <div class="prop-section">
               <label class="prop-label">Opacity</label>
-              <input type="range" class="prop-range" min="0" max="1" step="0.01"
-                [value]="selectedOpacity()" (input)="updateProperty('opacity', +$any($event.target).value)" />
+              <input
+                type="range"
+                class="prop-range"
+                min="0"
+                max="1"
+                step="0.01"
+                [value]="selectedOpacity()"
+                (input)="updateProperty('opacity', +$any($event.target).value)"
+              />
               <span class="prop-value">{{ selectedOpacity() | percent }}</span>
             </div>
             <div class="prop-section">
-              <button class="ai-menu-btn" (click)="removeBg()" [disabled]="aiJobState().status==='processing'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+              <button
+                class="ai-menu-btn"
+                (click)="removeBg()"
+                [disabled]="aiJobState().status === 'processing'"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <line x1="3" y1="9" x2="21" y2="9" />
+                  <line x1="3" y1="15" x2="21" y2="15" />
+                  <line x1="9" y1="3" x2="9" y2="21" />
+                  <line x1="15" y1="3" x2="15" y2="21" />
+                </svg>
                 Remove Background
               </button>
             </div>
           </ng-container>
-
         </ng-container>
         <ng-template #noSelection>
           <div class="panel-empty">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              opacity="0.3"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            </svg>
             <p>Select an element on the canvas to see its properties.</p>
           </div>
         </ng-template>
@@ -676,59 +1503,216 @@
     <div class="sb-left">
       <span class="sb-item">{{ layers().length }} objects</span>
       <span class="sb-dot"></span>
-      <span class="sb-item">{{ ed.project()?.width ?? 800 }} × {{ ed.project()?.height ?? 600 }}</span>
+      <span class="sb-item"
+        >{{ ed.project()?.width ?? 800 }} × {{ ed.project()?.height ?? 600 }}</span
+      >
     </div>
     <div class="sb-center">
       <button class="sb-btn" (click)="toggleGrid()" [class.sb-btn--active]="gridVisible()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
         Grid
       </button>
       <button class="sb-btn" (click)="toggleSnap()" [class.sb-btn--active]="snapEnabled()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+          <path d="M2 17l10 5 10-5" />
+          <path d="M2 12l10 5 10-5" />
+        </svg>
         Snap
+      </button>
+      <button
+        class="sb-btn"
+        (click)="previousPage()"
+        [disabled]="currentPageIndex() === 0"
+        title="Previous page"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+        Prev
+      </button>
+      <span class="sb-zoom" style="min-width: 72px; justify-content: center">{{
+        currentPageLabel()
+      }}</span>
+      <button
+        class="sb-btn"
+        (click)="nextPage()"
+        [disabled]="currentPageIndex() === pages().length - 1"
+        title="Next page"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+        Next
+      </button>
+      <button class="sb-btn" (click)="addPage()" title="Add page">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>
+        Add Page
       </button>
     </div>
     <div class="sb-right">
       <button class="sb-btn" (click)="zoomOut()" title="Zoom out">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          <line x1="8" y1="11" x2="14" y2="11" />
+        </svg>
       </button>
-      <span class="sb-zoom">{{ zoom() * 100 | number:'1.0-0' }}%</span>
+      <span class="sb-zoom">{{ zoom() * 100 | number: '1.0-0' }}%</span>
       <button class="sb-btn" (click)="zoomIn()" title="Zoom in">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          <line x1="11" y1="8" x2="11" y2="14" />
+          <line x1="8" y1="11" x2="14" y2="11" />
+        </svg>
       </button>
-      <button class="sb-btn" (click)="zoomToFit()" title="Fit to screen">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      <button class="sb-btn" (click)="zoomToFit()" title="Zoom to fit">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+          />
+        </svg>
+      </button>
+      <button class="sb-btn" (click)="zoomToSelection()" title="Zoom to selection">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="4" y="4" width="16" height="16" rx="3" />
+          <path d="M8 8h8v8H8z" />
+        </svg>
       </button>
       <div class="sb-sep"></div>
-      <div class="sb-save" [class.sb-save--saving]="saveState()==='saving'" [class.sb-save--failed]="saveState()==='failed'">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline points="20 6 9 17 4 12" *ngIf="saveState()==='saved'"/>
-          <circle cx="12" cy="12" r="10" *ngIf="saveState()==='saving'"/>
-          <line x1="18" y1="6" x2="6" y2="18" *ngIf="saveState()==='failed'"/>
-          <line x1="6" y1="6" x2="18" y2="18" *ngIf="saveState()==='failed'"/>
+      <div
+        class="sb-save"
+        [class.sb-save--saving]="saveState() === 'saving'"
+        [class.sb-save--failed]="saveState() === 'failed'"
+      >
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <polyline points="20 6 9 17 4 12" *ngIf="saveState() === 'saved'" />
+          <circle cx="12" cy="12" r="10" *ngIf="saveState() === 'saving'" />
+          <line x1="18" y1="6" x2="6" y2="18" *ngIf="saveState() === 'failed'" />
+          <line x1="6" y1="6" x2="18" y2="18" *ngIf="saveState() === 'failed'" />
         </svg>
-        <span>{{ saveState()==='saving' ? 'Saving…' : saveState()==='failed' ? 'Save failed' : 'Saved' }}</span>
+        <span>{{
+          saveState() === 'saving' ? 'Saving…' : saveState() === 'failed' ? 'Save failed' : 'Saved'
+        }}</span>
       </div>
     </div>
   </footer>
 </div>
 
-<div class="editor-loading" *ngIf="loading()" style="display:flex;flex-direction:column;height:100vh;background:#0f0f13;padding:16px">
-  <div style="display:flex;gap:12px;padding:12px;margin-bottom:16px">
-    <div class="skeleton skeleton--circle" style="background:#2a2a30"></div>
-    <div class="skeleton skeleton--text skeleton--w-32" style="background:#2a2a30"></div>
-    <div style="flex:1"></div>
-    <div class="skeleton skeleton--chip" style="background:#2a2a30;width:60px" *ngFor="let _ of [1,2,3,4]"></div>
+<div
+  class="editor-loading"
+  *ngIf="loading()"
+  style="display: flex; flex-direction: column; height: 100vh; background: #0f0f13; padding: 16px"
+>
+  <div style="display: flex; gap: 12px; padding: 12px; margin-bottom: 16px">
+    <div class="skeleton skeleton--circle" style="background: #2a2a30"></div>
+    <div class="skeleton skeleton--text skeleton--w-32" style="background: #2a2a30"></div>
+    <div style="flex: 1"></div>
+    <div
+      class="skeleton skeleton--chip"
+      style="background: #2a2a30; width: 60px"
+      *ngFor="let _ of [1, 2, 3, 4]"
+    ></div>
   </div>
-  <div style="display:flex;flex:1;gap:16px">
-    <div style="width:240px;display:flex;flex-direction:column;gap:8px">
-      <div class="skeleton skeleton--row" style="background:#2a2a30" *ngFor="let _ of [1,2,3,4,5]"></div>
+  <div style="display: flex; flex: 1; gap: 16px">
+    <div style="width: 240px; display: flex; flex-direction: column; gap: 8px">
+      <div
+        class="skeleton skeleton--row"
+        style="background: #2a2a30"
+        *ngFor="let _ of [1, 2, 3, 4, 5]"
+      ></div>
     </div>
-    <div style="flex:1;display:flex;align-items:center;justify-content:center">
-      <div class="skeleton" style="width:80%;height:80%;background:#2a2a30;border-radius:4px"></div>
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center">
+      <div
+        class="skeleton"
+        style="width: 80%; height: 80%; background: #2a2a30; border-radius: 4px"
+      ></div>
     </div>
-    <div style="width:260px;display:flex;flex-direction:column;gap:12px">
-      <div class="skeleton skeleton--row" style="background:#2a2a30" *ngFor="let _ of [1,2,3,4,5,6]"></div>
+    <div style="width: 260px; display: flex; flex-direction: column; gap: 12px">
+      <div
+        class="skeleton skeleton--row"
+        style="background: #2a2a30"
+        *ngFor="let _ of [1, 2, 3, 4, 5, 6]"
+      ></div>
     </div>
   </div>
 </div>
@@ -738,28 +1722,96 @@
     <div class="export-header">
       <h3>Export Design</h3>
       <button class="export-close" (click)="closeExport()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
       </button>
     </div>
     <div class="export-body">
       <div class="export-formats">
-        <button class="export-fmt" (click)="exportDesign('PNG')" [disabled]="exportState().status==='rendering'||exportState().status==='queued'">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <button
+          class="export-fmt"
+          (click)="exportDesign('PNG')"
+          [disabled]="exportState().status === 'rendering' || exportState().status === 'queued'"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
           <span>PNG</span>
           <small>Lossless, supports transparency</small>
         </button>
-        <button class="export-fmt" (click)="exportDesign('PDF')" [disabled]="exportState().status==='rendering'||exportState().status==='queued'">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <button
+          class="export-fmt"
+          (click)="exportDesign('PDF')"
+          [disabled]="exportState().status === 'rendering' || exportState().status === 'queued'"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
           <span>PDF</span>
           <small>Vector, print-ready</small>
         </button>
-        <button class="export-fmt" (click)="exportDesign('SVG')" [disabled]="exportState().status==='rendering'||exportState().status==='queued'">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        <button
+          class="export-fmt"
+          (click)="exportDesign('SVG')"
+          [disabled]="exportState().status === 'rendering' || exportState().status === 'queued'"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <polyline points="4 17 10 11 4 5" />
+            <line x1="12" y1="19" x2="20" y2="19" />
+          </svg>
           <span>SVG</span>
           <small>Vector, editable in any design tool</small>
         </button>
-        <button class="export-fmt" (click)="exportDesign('JPG')" [disabled]="exportState().status==='rendering'||exportState().status==='queued'">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <button
+          class="export-fmt"
+          (click)="exportDesign('JPG')"
+          [disabled]="exportState().status === 'rendering' || exportState().status === 'queued'"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
           <span>JPG</span>
           <small>Small file, universal support</small>
         </button>
@@ -768,29 +1820,53 @@
       <div class="export-options">
         <div class="prop-section">
           <label class="prop-label">Quality</label>
-          <input type="range" class="prop-range" min="10" max="100" step="1"
-            [value]="exportQuality" (input)="setExportQuality(+$any($event.target).value)" />
+          <input
+            type="range"
+            class="prop-range"
+            min="10"
+            max="100"
+            step="1"
+            [value]="exportQuality"
+            (input)="setExportQuality(+$any($event.target).value)"
+          />
           <span class="prop-value">{{ exportQuality }}%</span>
         </div>
         <div class="prop-section">
           <label class="prop-label">Transparent</label>
-          <button class="pill-btn" [class.pill-btn--on]="exportTransparent" (click)="toggleExportTransparent()">
+          <button
+            class="pill-btn"
+            [class.pill-btn--on]="exportTransparent"
+            (click)="toggleExportTransparent()"
+          >
             {{ exportTransparent ? 'On' : 'Off' }}
           </button>
           <span class="prop-hint">Only for PNG</span>
         </div>
       </div>
 
-      <div class="export-progress" *ngIf="exportState().status==='rendering'||exportState().status==='queued'">
+      <div
+        class="export-progress"
+        *ngIf="exportState().status === 'rendering' || exportState().status === 'queued'"
+      >
         <div class="export-spinner"></div>
-        <span>{{ exportState().status==='queued' ? 'Queued…' : 'Rendering…' }}</span>
+        <span>{{ exportState().status === 'queued' ? 'Queued…' : 'Rendering…' }}</span>
       </div>
-      <div class="export-ready" *ngIf="exportState().status==='ready'">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <div class="export-ready" *ngIf="exportState().status === 'ready'">
+        <svg
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#22c55e"
+          stroke-width="2"
+        >
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
         <p>Your export is ready!</p>
         <button class="tb-btn tb-btn--save" (click)="downloadExport()">Download</button>
       </div>
-      <div class="export-error" *ngIf="exportState().status==='failed'">
+      <div class="export-error" *ngIf="exportState().status === 'failed'">
         <p>{{ exportState().error || 'Export failed' }}</p>
         <button class="tb-btn" (click)="exportDesign('PNG')">Retry</button>
       </div>
@@ -803,14 +1879,27 @@
     <div class="export-header">
       <h3>AI Result</h3>
       <button class="export-close" (click)="showAiResult.set(false)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
       </button>
     </div>
     <div class="export-body">
       <div class="ai-preview" *ngIf="aiJobState().previewUrl">
         <img [src]="aiJobState().previewUrl" alt="AI result preview" />
       </div>
-      <p *ngIf="!aiJobState().previewUrl" style="text-align:center;color:var(--amx-muted);padding:20px 0">
+      <p
+        *ngIf="!aiJobState().previewUrl"
+        style="text-align: center; color: var(--amx-muted); padding: 20px 0"
+      >
         Background removed successfully. Apply the result to your canvas?
       </p>
       <div class="ai-actions">

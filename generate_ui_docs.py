@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
-"""
-Amarapix UI Documentation Generator
-Generates comprehensive UI documentation with journey flows for backend developers
-"""
 
 import json
 import os
 from datetime import datetime
 from pathlib import Path
 
-# Document structure with all user journeys
 PROJECT_STRUCTURE = {
     "project": "Amarapix Client UI",
     "version": "1.0.0",
@@ -175,13 +170,11 @@ PROJECT_STRUCTURE = {
 }
 
 def generate_json_export(output_path):
-    """Generate JSON documentation"""
     with open(output_path, 'w') as f:
         json.dump(PROJECT_STRUCTURE, f, indent=2)
     print(f"✓ JSON documentation saved: {output_path}")
 
 def generate_markdown_export(output_path):
-    """Generate comprehensive Markdown documentation"""
     md_content = f"""# Amarapix Client UI - Developer Documentation
 
 **Generated:** {datetime.now().strftime('%B %d, %Y at %H:%M')}
@@ -595,7 +588,6 @@ For questions about the UI implementation or integration, please refer to the co
     print(f"✓ Markdown documentation saved: {output_path}")
 
 def generate_html_export(output_path):
-    """Generate interactive HTML documentation"""
     html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -904,7 +896,6 @@ def generate_html_export(output_path):
     print(f"✓ HTML documentation saved: {output_path}")
 
 def main():
-    """Generate all documentation files"""
     docs_dir = Path("/Volumes/Untitled 3/Amarapix company/Amarapix_Platform/Amarapix_ClientUI/UI_DOCUMENTATION")
     docs_dir.mkdir(exist_ok=True)
     

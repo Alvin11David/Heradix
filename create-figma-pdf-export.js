@@ -1,14 +1,8 @@
 #!/usr/bin/env node
 
-/**
- * Generate Figma .fig file and PDF with application screenshots
- * This simplified version uses html2canvas and existing screenshots
- */
-
 const fs = require('fs');
 const path = require('path');
 
-// Try to use available PDF libraries
 let PDFDocument;
 try {
   PDFDocument = require('pdfkit');
@@ -30,7 +24,6 @@ class FigmaExporter {
   }
 
   createSampleComponents() {
-    // Create sample component screenshots as base64 for demo
     const components = [
       {
         name: 'Header Component',
@@ -457,7 +450,6 @@ class FigmaExporter {
 
       doc.pipe(writeStream);
 
-      // Title page
       doc.fontSize(32).font('Helvetica-Bold').text('Amarapix UI', {
         align: 'center'
       });
@@ -477,7 +469,6 @@ class FigmaExporter {
 
       doc.addPage();
 
-      // Table of Contents
       doc.fontSize(18).font('Helvetica-Bold').text('Table of Contents', { underline: true });
       doc.moveDown();
       doc.fontSize(11).font('Helvetica');
@@ -487,7 +478,6 @@ class FigmaExporter {
 
       doc.addPage();
 
-      // Component pages
       components.forEach((comp, idx) => {
         doc.fontSize(16).font('Helvetica-Bold').text(comp.name, { underline: true });
         doc.moveDown(0.5);
@@ -598,11 +588,8 @@ Generated: ${new Date().toLocaleDateString()}
     
     const figPath = path.join(this.outputDir, 'Amarapix-DesignSystem.fig');
     
-    // Create a simple JSON representation that can be imported into Figma
     const figContent = JSON.stringify(this.createFigmaStructure(), null, 2);
     
-    // For now, save as .figma (text-based) which contains the structure
-    // Users can import this into Figma using the API or manually
     const figmaPath = figPath.replace('.fig', '.figma');
     fs.writeFileSync(figmaPath, figContent);
     
@@ -961,6 +948,5 @@ A: Run the export script again and share updated files
   }
 }
 
-// Run the exporter
 const exporter = new FigmaExporter();
 exporter.run();

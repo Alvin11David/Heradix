@@ -47,7 +47,7 @@ export interface ApparelProductOptions {
   materials: string[];
   printAreas: string[];
   quantities: number[];
-  basePriceMap: Record<string, number>; // brand → base price
+  basePriceMap: Record<string, number>;
 }
 
 export interface PrintProduct {
@@ -118,5 +118,5 @@ export interface CreatePrintOrderPayload {
   quantity: number;
   shippingAddress: ShippingAddress;
   paymentProvider: 'stripe' | 'paypal' | 'mtn' | 'airtel';
-  phoneNumber?: string; // required for mobile money
+  phoneNumber?: string;
 }

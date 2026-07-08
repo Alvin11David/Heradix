@@ -17,7 +17,7 @@ export interface PlayerLesson {
   id: number;
   number: number;
   title: string;
-  duration: string; // e.g. "7:29"
+  duration: string;
   durationSecs: number;
   completed: boolean;
   isFree: boolean;

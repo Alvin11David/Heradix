@@ -270,7 +270,6 @@ button {
   display: none !important;
 }
 
-// Update grid when panels are collapsed
 .editor-body--left-collapsed {
   grid-template-columns: 0 1fr 280px !important;
 }

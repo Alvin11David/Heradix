@@ -1,5 +1,4 @@
 
-// @ts-nocheck
 import { Component, ElementRef, Input, ViewChild, AfterViewInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
@@ -55,7 +54,7 @@ export class SplashCursorComponent implements AfterViewInit, OnDestroy {
       this.color = [0, 0, 0];
     }
 
-    const config: Record<string, any> = {
+    const config: any = {
       SIM_RESOLUTION: this.SIM_RESOLUTION,
       DYE_RESOLUTION: this.DYE_RESOLUTION,
       CAPTURE_RESOLUTION: this.CAPTURE_RESOLUTION,
@@ -77,8 +76,9 @@ export class SplashCursorComponent implements AfterViewInit, OnDestroy {
 
     const pointers: any[] = [new (pointerPrototype as any)()];
 
-    const { gl, ext } = getWebGLContext(canvas);
-    if (!gl) return;
+    const { gl: _gl, ext } = getWebGLContext(canvas);
+    if (!_gl) return;
+    const gl = _gl;
     if (!ext.supportLinearFiltering) {
       config.DYE_RESOLUTION = 256;
       config.SHADING = false;
@@ -94,7 +94,7 @@ export class SplashCursorComponent implements AfterViewInit, OnDestroy {
       };
       let gl = canvas.getContext('webgl2', params) as WebGLRenderingContext | null;
       const isWebGL2 = !!gl;
-      if (!isWebGL2) gl = canvas.getContext('webgl', params) || canvas.getContext('experimental-webgl', params);
+      if (!isWebGL2) gl = (canvas.getContext('webgl', params) || canvas.getContext('experimental-webgl', params)) as WebGLRenderingContext;
 
       let halfFloat: any;
       let supportLinearFiltering: any;
@@ -107,7 +107,7 @@ export class SplashCursorComponent implements AfterViewInit, OnDestroy {
       }
       gl!.clearColor(0.0, 0.0, 0.0, 1.0);
 
-      const halfFloatTexType = isWebGL2 ? gl!.HALF_FLOAT : halfFloat && halfFloat.HALF_FLOAT_OES;
+      const halfFloatTexType = isWebGL2 ? (gl as any).HALF_FLOAT : halfFloat && halfFloat.HALF_FLOAT_OES;
       let formatRGBA: any;
       let formatRG: any;
       let formatR: any;
@@ -168,14 +168,14 @@ export class SplashCursorComponent implements AfterViewInit, OnDestroy {
       fragmentShaderSource: string;
       programs: any[];
       activeProgram: any;
-      uniforms: any[];
+      uniforms: any;
 
       constructor(vertexShader: WebGLShader, fragmentShaderSource: string) {
         this.vertexShader = vertexShader;
         this.fragmentShaderSource = fragmentShaderSource;
         this.programs = [];
         this.activeProgram = null;
-        this.uniforms = [];
+        this.uniforms = {};
       }
       setKeywords(keywords: string[]) {
         let hash = 0;
@@ -196,11 +196,11 @@ export class SplashCursorComponent implements AfterViewInit, OnDestroy {
     }
 
     class Program {
-      uniforms: any[];
+      uniforms: any;
       program: WebGLProgram;
 
       constructor(vertexShader: WebGLShader, fragmentShader: WebGLShader) {
-        this.uniforms = [];
+        this.uniforms = {};
         this.program = createProgram(vertexShader, fragmentShader);
         this.uniforms = getUniforms(this.program);
       }
@@ -219,10 +219,10 @@ export class SplashCursorComponent implements AfterViewInit, OnDestroy {
     }
 
     function getUniforms(program: WebGLProgram) {
-      let uniforms: any[] = [];
+      let uniforms: any = {};
       let uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
       for (let i = 0; i < uniformCount; i++) {
-        let uniformName = gl.getActiveUniform(program, i).name;
+        let uniformName = gl.getActiveUniform(program, i)!.name;
         uniforms[uniformName] = gl.getUniformLocation(program, uniformName);
       }
       return uniforms;
@@ -230,7 +230,7 @@ export class SplashCursorComponent implements AfterViewInit, OnDestroy {
 
     function compileShader(type: number, source: string, keywords?: string[]) {
       source = addKeywords(source, keywords);
-      const shader = gl.createShader(type);
+      const shader = gl.createShader(type)!;
       gl.shaderSource(shader, source);
       gl.compileShader(shader);
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) console.trace(gl.getShaderInfoLog(shader));
@@ -399,7 +399,7 @@ export class SplashCursorComponent implements AfterViewInit, OnDestroy {
             gl_FragColor = result / decay;
         }
       `,
-      ext.supportLinearFiltering ? null : ['MANUAL_FILTERING']
+      !ext.supportLinearFiltering ? ['MANUAL_FILTERING'] : undefined
     );
 
     const divergenceShader = compileShader(
@@ -566,15 +566,15 @@ export class SplashCursorComponent implements AfterViewInit, OnDestroy {
 
     let dye: any, velocity: any, divergence: any, curl: any, pressure: any;
 
-    const copyProgram = new Program(baseVertexShader, copyShader);
-    const clearProgram = new Program(baseVertexShader, clearShader);
-    const splatProgram = new Program(baseVertexShader, splatShader);
-    const advectionProgram = new Program(baseVertexShader, advectionShader);
-    const divergenceProgram = new Program(baseVertexShader, divergenceShader);
-    const curlProgram = new Program(baseVertexShader, curlShader);
-    const vorticityProgram = new Program(baseVertexShader, vorticityShader);
-    const pressureProgram = new Program(baseVertexShader, pressureShader);
-    const gradienSubtractProgram = new Program(baseVertexShader, gradientSubtractShader);
+    const copyProgram = new Program(baseVertexShader, copyShader!);
+    const clearProgram = new Program(baseVertexShader, clearShader!);
+    const splatProgram = new Program(baseVertexShader, splatShader!);
+    const advectionProgram = new Program(baseVertexShader, advectionShader!);
+    const divergenceProgram = new Program(baseVertexShader, divergenceShader!);
+    const curlProgram = new Program(baseVertexShader, curlShader!);
+    const vorticityProgram = new Program(baseVertexShader, vorticityShader!);
+    const pressureProgram = new Program(baseVertexShader, pressureShader!);
+    const gradienSubtractProgram = new Program(baseVertexShader, gradientSubtractShader!);
     const displayMaterial = new Material(baseVertexShader, displayShaderSource);
 
     function initFramebuffers() {

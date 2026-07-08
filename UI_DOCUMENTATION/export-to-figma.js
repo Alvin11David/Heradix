@@ -1,26 +1,10 @@
 #!/usr/bin/env node
 
-/**
- * Amarapix UI - Figma Export Script
- * Automatically creates Figma frames from component documentation
- * 
- * Prerequisites:
- * 1. Install: npm install figma-api
- * 2. Get Figma API token from: https://www.figma.com/developers/api
- * 3. Create .env file with: FIGMA_TOKEN=your_token_here
- */
-
 const fs = require('fs');
 const path = require('path');
 
-// Load project structure
 const projectStructurePath = path.join(__dirname, 'amarapix-ui-structure.json');
 const PROJECT_STRUCTURE = JSON.parse(fs.readFileSync(projectStructurePath, 'utf-8'));
-
-/**
- * Manual Figma Export Guide
- * Since Figma API is limited for frame creation, use this guide for manual setup
- */
 
 const FIGMA_SETUP_GUIDE = `
 # Manual Figma File Setup for Amarapix UI
@@ -186,9 +170,6 @@ Keep Figma file in sync:
 - Link to commits in GitHub
 `;
 
-/**
- * Generate comprehensive Figma setup instructions
- */
 function generateFigmaGuide() {
   const outputPath = path.join(__dirname, 'FIGMA_SETUP_INSTRUCTIONS.md');
   
@@ -196,9 +177,6 @@ function generateFigmaGuide() {
   console.log(`✓ Figma setup instructions saved: ${outputPath}`);
 }
 
-/**
- * Generate component inventory CSV for Figma
- */
 function generateComponentInventory() {
   let csv = 'Component Name,Location,Type,States,Notes\n';
   
@@ -322,9 +300,6 @@ function generateComponentInventory() {
   console.log(`✓ Component inventory saved: ${outputPath}`);
 }
 
-/**
- * Generate API endpoints reference for Figma annotations
- */
 function generateAPIReference() {
   let reference = '# API Endpoints Reference for UI Annotations\n\n';
   
@@ -345,9 +320,6 @@ function generateAPIReference() {
   console.log(`✓ API reference saved: ${outputPath}`);
 }
 
-/**
- * Main execution
- */
 function main() {
   console.log('\n🎨 Generating Figma Export Assets...\n');
   
