@@ -221,7 +221,9 @@ export class CollectionDetailComponent implements OnInit, OnDestroy {
 
   viewAssetDetail(item: { id: string; name: string; thumbnail: string; slug?: string }): void {
     if (item.slug) {
-      this.router.navigate(['/marketplace/asset', item.slug]);
+      this.router.navigate(['/marketplace/asset', item.slug], {
+        queryParams: { thumb: item.thumbnail, label: item.name }
+      });
     }
   }
 }

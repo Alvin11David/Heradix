@@ -1,6 +1,16 @@
 import {
-  Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, AfterViewInit, OnDestroy,
-  ElementRef, HostListener, ViewChild, effect,
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+  computed,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  ElementRef,
+  HostListener,
+  ViewChild,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -25,6 +35,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly marketplace = inject(MarketplaceService);
 
   @ViewChild('canvasEl') canvasElRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvasArea') canvasAreaRef!: ElementRef<HTMLDivElement>;
+
+  private resizeObserver: ResizeObserver | null = null;
 
   readonly loading = signal(true);
   readonly showExport = signal(false);
@@ -32,6 +45,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly showTemplatePicker = signal(false);
   readonly showUploadDialog = signal(false);
   readonly showFontPicker = signal(false);
+  readonly leftPanelCollapsed = signal(false);
+  readonly rightPanelCollapsed = signal(false);
 
   readonly toolMode = this.ed.toolMode;
   readonly zoom = this.ed.zoom;
@@ -53,7 +68,16 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly loadingAssets = signal(false);
   assetsSearchQuery = '';
 
-  fontFamilies = ['Inter', 'Lato', 'Roboto', 'Poppins', 'Playfair Display', 'Courier New', 'Georgia', 'Arial'];
+  fontFamilies = [
+    'Inter',
+    'Lato',
+    'Roboto',
+    'Poppins',
+    'Playfair Display',
+    'Courier New',
+    'Georgia',
+    'Arial',
+  ];
   shapeTypes = ['rect', 'circle', 'polygon', 'star', 'line'] as const;
 
   readonly fontWeights = [
@@ -99,9 +123,13 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly selectedCharSpacing = computed(() => this._selectionProps()['charSpacing'] ?? 0);
   readonly selectedUnderline = computed(() => !!this._selectionProps()['underline']);
   readonly selectedStrikethrough = computed(() => !!this._selectionProps()['strikethrough']);
-  readonly selectedTextBackgroundColor = computed(() => this._selectionProps()['textBackgroundColor'] ?? '');
+  readonly selectedTextBackgroundColor = computed(
+    () => this._selectionProps()['textBackgroundColor'] ?? '',
+  );
   readonly selectedDirection = computed(() => this._selectionProps()['direction'] ?? 'ltr');
-  readonly selectedParagraphSpacing = computed(() => this._selectionProps()['paragraphSpacing'] ?? 0);
+  readonly selectedParagraphSpacing = computed(
+    () => this._selectionProps()['paragraphSpacing'] ?? 0,
+  );
   readonly hasShadow = computed(() => {
     const s = this._selectionProps()['shadow'];
     return !!s && typeof s === 'object';
@@ -123,13 +151,19 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly selectedCircleSweep = computed(() => this._selectionProps()['_sweep'] ?? 360);
   readonly selectedCircleRatio = computed(() => this._selectionProps()['_ratio'] ?? 0);
 
-  readonly selectedStrokeLineCap = computed(() => this._selectionProps()['strokeLineCap'] ?? 'butt');
-  readonly selectedStrokeLineJoin = computed(() => this._selectionProps()['strokeLineJoin'] ?? 'miter');
+  readonly selectedStrokeLineCap = computed(
+    () => this._selectionProps()['strokeLineCap'] ?? 'butt',
+  );
+  readonly selectedStrokeLineJoin = computed(
+    () => this._selectionProps()['strokeLineJoin'] ?? 'miter',
+  );
   readonly selectedArrowStart = computed(() => !!this._selectionProps()['_arrowStart']);
   readonly selectedArrowEnd = computed(() => !!this._selectionProps()['_arrowEnd']);
 
   readonly selectedPolygonSides = computed(() => this._selectionProps()['_sides'] ?? 3);
-  readonly selectedPolygonCornerRadius = computed(() => this._selectionProps()['_cornerRadius'] ?? 0);
+  readonly selectedPolygonCornerRadius = computed(
+    () => this._selectionProps()['_cornerRadius'] ?? 0,
+  );
   readonly selectedStarPoints = computed(() => this._selectionProps()['_starPoints'] ?? 5);
   readonly selectedStarRatio = computed(() => this._selectionProps()['_starRatio'] ?? 0.5);
   readonly maxPolygonCornerRadius = computed(() => {
@@ -139,15 +173,31 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const radius = Math.min(Math.abs(w), Math.abs(h)) / 2;
     return Math.max(0, radius * Math.sin(Math.PI / sides));
   });
-  readonly selectedBlendMode = computed(() => this._selectionProps()['globalCompositeOperation'] ?? 'source-over');
+  readonly selectedBlendMode = computed(
+    () => this._selectionProps()['globalCompositeOperation'] ?? 'source-over',
+  );
   readonly selectedLayerBlur = computed(() => this._selectionProps()['_layerBlur'] ?? 0);
   readonly selectedFillType = computed(() => this._selectionProps()['_fillType'] ?? 'solid');
-  readonly selectedGradientColors = computed(() => this._selectionProps()['_gradientColors'] ?? ['#3b82f6', '#8b5cf6']);
+  readonly selectedGradientColors = computed(
+    () => this._selectionProps()['_gradientColors'] ?? ['#3b82f6', '#8b5cf6'],
+  );
   readonly selectedGradientAngle = computed(() => this._selectionProps()['_gradientAngle'] ?? 0);
   readonly selectedGradientRadius = computed(() => this._selectionProps()['_gradientRadius'] ?? 50);
 
-  blendModes = ['source-over', 'multiply', 'screen', 'overlay', 'darken', 'lighten',
-    'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion'];
+  blendModes = [
+    'source-over',
+    'multiply',
+    'screen',
+    'overlay',
+    'darken',
+    'lighten',
+    'color-dodge',
+    'color-burn',
+    'hard-light',
+    'soft-light',
+    'difference',
+    'exclusion',
+  ];
 
   readonly shadowColor = computed(() => {
     const s = this._selectionProps()['shadow'];
@@ -194,7 +244,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       next: () => {
         this.loading.set(false);
         if (assetTitle) {
-          this.ed.project.update(p => p ? { ...p, title: assetTitle } : p);
+          this.ed.project.update((p) => (p ? { ...p, title: assetTitle } : p));
         }
       },
       error: () => this.loading.set(false),
@@ -215,9 +265,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const el = this.canvasElRef.nativeElement;
-    const parent = el.parentElement!;
-    const w = Math.min(parent.clientWidth, 1200);
-    const h = Math.min(parent.clientHeight, 800);
+    const container = this.canvasAreaRef?.nativeElement ?? el.parentElement!;
+    const w = Math.max(Math.min(container.clientWidth, 1200), 400);
+    const h = Math.max(Math.min(container.clientHeight, 800), 300);
 
     this.canvas = new this.fabric.Canvas(el, {
       width: w,
@@ -261,15 +311,29 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.ed.registerCanvasApi(
       () => JSON.stringify(this.canvas?.toJSON(this.canfulProperties()) ?? {}),
-      (json: string) => { try { this.canvas?.loadFromJSON(JSON.parse(json), () => this.canvas?.renderAll()); } catch {} }
+      (json: string) => {
+        try {
+          this.canvas?.loadFromJSON(JSON.parse(json), () => this.canvas?.renderAll());
+        } catch {}
+      },
     );
 
     this.updateGrid();
     this.onModify();
 
+    // Setup ResizeObserver to resize canvas when container changes
+    if (this.canvasAreaRef) {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.resizeCanvas();
+      });
+      this.resizeObserver.observe(this.canvasAreaRef.nativeElement);
+    }
+
     if (this.ed.project()?.canvasJson && this.ed.project()!.canvasJson !== '{}') {
       try {
-        this.canvas.loadFromJSON(JSON.parse(this.ed.project()!.canvasJson), () => this.canvas.renderAll());
+        this.canvas.loadFromJSON(JSON.parse(this.ed.project()!.canvasJson), () =>
+          this.canvas.renderAll(),
+        );
       } catch {}
     } else if (this._assetImageUrl) {
       this.loadAssetImage(this._assetImageUrl);
@@ -279,36 +343,28 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private loadAssetImage(url: string): void {
     if (!this.canvas || !this.fabric) return;
     this.ed.pushUndoState();
-    const attemptLoad = (crossOrigin: string | null) => {
-      const opts: any = {};
-      if (crossOrigin) opts.crossOrigin = crossOrigin;
-      this.fabric.Image.fromURL(url, (img: any, isError?: boolean) => {
-        if (!img || isError) {
-          if (crossOrigin === 'anonymous') attemptLoad(null);
-          return;
-        }
-        const cw = this.canvas!.getWidth();
-        const ch = this.canvas!.getHeight();
-        const maxW = cw * 0.8;
-        const maxH = ch * 0.8;
-        const scale = Math.min(maxW / (img.width || 1), maxH / (img.height || 1), 1);
-        img.set({
-          _id: `asset-img-${Date.now()}`,
-          name: 'Asset Image',
-          left: (cw - img.width * scale) / 2,
-          top: (ch - img.height * scale) / 2,
-          scaleX: scale,
-          scaleY: scale,
-        });
-        this.canvas!.add(img);
-        this.canvas!.setActiveObject(img);
-        this.canvas!.renderAll();
-        this.onSelect({ target: img });
-        this.ed.toolMode.set('select');
-        this.updateCanvasCursor();
-      }, opts);
-    };
-    attemptLoad('anonymous');
+    void this.loadFabricImage(url, true).then((img) => {
+      if (!img) return;
+      const cw = this.canvas!.getWidth();
+      const ch = this.canvas!.getHeight();
+      const maxW = cw * 0.8;
+      const maxH = ch * 0.8;
+      const scale = Math.min(maxW / (img.width || 1), maxH / (img.height || 1), 1);
+      img.set({
+        _id: `asset-img-${Date.now()}`,
+        name: 'Asset Image',
+        left: (cw - img.width * scale) / 2,
+        top: (ch - img.height * scale) / 2,
+        scaleX: scale,
+        scaleY: scale,
+      });
+      this.canvas!.add(img);
+      this.canvas!.setActiveObject(img);
+      this.canvas!.renderAll();
+      this.onSelect({ target: img });
+      this.ed.toolMode.set('select');
+      this.updateCanvasCursor();
+    });
   }
 
   updateCornerSmoothing(value: number): void {
@@ -331,7 +387,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const obj = this._selectedObject;
     if (!obj || !obj.isType || !obj.isType('rect')) return;
     this.ed.pushUndoState();
-    if (!obj._strokeSides) obj._strokeSides = { top: false, bottom: false, left: false, right: false };
+    if (!obj._strokeSides)
+      obj._strokeSides = { top: false, bottom: false, left: false, right: false };
     obj._strokeSides[side] = !obj._strokeSides[side];
     this.syncStrokeSides(obj);
     this.canvas?.renderAll();
@@ -346,7 +403,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const stroke = obj.stroke || '#000000';
     const sw = obj.strokeWidth || 1;
 
-    const existing = this.canvas.getObjects().filter((o: any) => o._isStrokeSide && o._parentId === id);
+    const existing = this.canvas
+      .getObjects()
+      .filter((o: any) => o._isStrokeSide && o._parentId === id);
     existing.forEach((o: any) => this.canvas?.remove(o));
 
     if (!sides.top && !sides.bottom && !sides.left && !sides.right) {
@@ -363,53 +422,94 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const half = sw / 2;
 
     if (sides.top) {
-      this.canvas.add(new this.fabric.Line([b.left, b.top + half, b.left + b.width, b.top + half], {
-        _isStrokeSide: true, _parentId: id, selectable: false, evented: false,
-        stroke, strokeWidth: sw, strokeUniform: true,
-      }));
+      this.canvas.add(
+        new this.fabric.Line([b.left, b.top + half, b.left + b.width, b.top + half], {
+          _isStrokeSide: true,
+          _parentId: id,
+          selectable: false,
+          evented: false,
+          stroke,
+          strokeWidth: sw,
+          strokeUniform: true,
+        }),
+      );
     }
     if (sides.bottom) {
-      this.canvas.add(new this.fabric.Line([b.left, b.top + b.height - half, b.left + b.width, b.top + b.height - half], {
-        _isStrokeSide: true, _parentId: id, selectable: false, evented: false,
-        stroke, strokeWidth: sw, strokeUniform: true,
-      }));
+      this.canvas.add(
+        new this.fabric.Line(
+          [b.left, b.top + b.height - half, b.left + b.width, b.top + b.height - half],
+          {
+            _isStrokeSide: true,
+            _parentId: id,
+            selectable: false,
+            evented: false,
+            stroke,
+            strokeWidth: sw,
+            strokeUniform: true,
+          },
+        ),
+      );
     }
     if (sides.left) {
-      this.canvas.add(new this.fabric.Line([b.left + half, b.top, b.left + half, b.top + b.height], {
-        _isStrokeSide: true, _parentId: id, selectable: false, evented: false,
-        stroke, strokeWidth: sw, strokeUniform: true,
-      }));
+      this.canvas.add(
+        new this.fabric.Line([b.left + half, b.top, b.left + half, b.top + b.height], {
+          _isStrokeSide: true,
+          _parentId: id,
+          selectable: false,
+          evented: false,
+          stroke,
+          strokeWidth: sw,
+          strokeUniform: true,
+        }),
+      );
     }
     if (sides.right) {
-      this.canvas.add(new this.fabric.Line([b.left + b.width - half, b.top, b.left + b.width - half, b.top + b.height], {
-        _isStrokeSide: true, _parentId: id, selectable: false, evented: false,
-        stroke, strokeWidth: sw, strokeUniform: true,
-      }));
+      this.canvas.add(
+        new this.fabric.Line(
+          [b.left + b.width - half, b.top, b.left + b.width - half, b.top + b.height],
+          {
+            _isStrokeSide: true,
+            _parentId: id,
+            selectable: false,
+            evented: false,
+            stroke,
+            strokeWidth: sw,
+            strokeUniform: true,
+          },
+        ),
+      );
     }
 
     this.canvas.renderAll();
   }
 
   private buildSectorPath(R: number, startDeg: number, sweepDeg: number, ratio: number): string {
-    const startRad = startDeg * Math.PI / 180;
-    const sweepRad = sweepDeg * Math.PI / 180;
+    const startRad = (startDeg * Math.PI) / 180;
+    const sweepRad = (sweepDeg * Math.PI) / 180;
     const endRad = startRad + sweepRad;
     const r = R * Math.max(0, Math.min(0.95, ratio));
 
-    const cosS = Math.cos(startRad), sinS = Math.sin(startRad);
-    const cosE = Math.cos(endRad), sinE = Math.sin(endRad);
+    const cosS = Math.cos(startRad),
+      sinS = Math.sin(startRad);
+    const cosE = Math.cos(endRad),
+      sinE = Math.sin(endRad);
 
-    const ox = R * cosS, oy = R * sinS;
-    const ex = R * cosE, ey = R * sinE;
+    const ox = R * cosS,
+      oy = R * sinS;
+    const ex = R * cosE,
+      ey = R * sinE;
     const large = sweepDeg > 180 ? 1 : 0;
 
     if (sweepDeg >= 360) {
-      const mx = R * Math.cos(startRad + Math.PI), my = R * Math.sin(startRad + Math.PI);
+      const mx = R * Math.cos(startRad + Math.PI),
+        my = R * Math.sin(startRad + Math.PI);
       if (r <= 0) {
         return `M ${ox} ${oy} A ${R} ${R} 0 0 1 ${mx} ${my} A ${R} ${R} 0 0 1 ${ox} ${oy} Z`;
       }
-      const ix = r * cosS, iy = r * sinS;
-      const imx = r * Math.cos(startRad + Math.PI), imy = r * Math.sin(startRad + Math.PI);
+      const ix = r * cosS,
+        iy = r * sinS;
+      const imx = r * Math.cos(startRad + Math.PI),
+        imy = r * Math.sin(startRad + Math.PI);
       return `M ${ox} ${oy} A ${R} ${R} 0 0 1 ${mx} ${my} A ${R} ${R} 0 0 1 ${ox} ${oy} Z M ${ix} ${iy} A ${r} ${r} 0 0 0 ${imx} ${imy} A ${r} ${r} 0 0 0 ${ix} ${iy} Z`;
     }
 
@@ -417,14 +517,18 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       return `M ${ox} ${oy} A ${R} ${R} 0 ${large} 1 ${ex} ${ey} L 0 0 Z`;
     }
 
-    const ix = r * cosS, iy = r * sinS;
-    const iex = r * cosE, iey = r * sinE;
+    const ix = r * cosS,
+      iy = r * sinS;
+    const iex = r * cosE,
+      iey = r * sinE;
     return `M ${ox} ${oy} A ${R} ${R} 0 ${large} 1 ${ex} ${ey} L ${iex} ${iey} A ${r} ${r} 0 ${large} 0 ${ix} ${iy} Z`;
   }
 
   private replaceCircleShape(obj: any, arc: number, sweep: number, ratio: number): void {
     if (!this.canvas || !this.fabric) return;
-    const R = Math.min(Math.abs(obj.width || obj.radius || 50), Math.abs(obj.height || obj.radius || 50)) / 2;
+    const R =
+      Math.min(Math.abs(obj.width || obj.radius || 50), Math.abs(obj.height || obj.radius || 50)) /
+      2;
     const cx = obj.left + (obj.width || obj.radius * 2) / 2;
     const cy = obj.top + (obj.height || obj.radius * 2) / 2;
     const pathStr = this.buildSectorPath(R, arc, sweep, ratio);
@@ -434,27 +538,48 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (isDefault) {
       newObj = new this.fabric.Circle({
-        _id: obj._id, name: obj.name ?? 'Circle',
-        radius: R, fill: obj.fill ?? '#3b82f6',
-        stroke: obj.stroke, strokeWidth: obj.strokeWidth,
-        opacity: obj.opacity, shadow: obj.shadow,
-        lockMovementX: obj.lockMovementX, lockMovementY: obj.lockMovementY,
-        visible: obj.visible, angle: obj.angle,
-        _arc: 0, _sweep: 360, _ratio: 0,
+        _id: obj._id,
+        name: obj.name ?? 'Circle',
+        radius: R,
+        fill: obj.fill ?? '#3b82f6',
+        stroke: obj.stroke,
+        strokeWidth: obj.strokeWidth,
+        opacity: obj.opacity,
+        shadow: obj.shadow,
+        lockMovementX: obj.lockMovementX,
+        lockMovementY: obj.lockMovementY,
+        visible: obj.visible,
+        angle: obj.angle,
+        _arc: 0,
+        _sweep: 360,
+        _ratio: 0,
       });
     } else {
       newObj = new this.fabric.Path(pathStr, {
-        _id: obj._id, name: obj.name ?? 'Circle',
+        _id: obj._id,
+        name: obj.name ?? 'Circle',
         fill: obj.fill ?? '#3b82f6',
-        stroke: obj.stroke ?? '', strokeWidth: obj.strokeWidth ?? 0,
-        opacity: obj.opacity ?? 1, shadow: obj.shadow,
-        lockMovementX: obj.lockMovementX, lockMovementY: obj.lockMovementY,
-        visible: obj.visible, angle: obj.angle,
-        _arc: arc, _sweep: sweep, _ratio: ratio, _shapeType: 'circle',
+        stroke: obj.stroke ?? '',
+        strokeWidth: obj.strokeWidth ?? 0,
+        opacity: obj.opacity ?? 1,
+        shadow: obj.shadow,
+        lockMovementX: obj.lockMovementX,
+        lockMovementY: obj.lockMovementY,
+        visible: obj.visible,
+        angle: obj.angle,
+        _arc: arc,
+        _sweep: sweep,
+        _ratio: ratio,
+        _shapeType: 'circle',
       });
     }
 
-    newObj.set({ left: cx - (newObj.width ?? R * 2) / 2, top: cy - (newObj.height ?? R * 2) / 2, originX: 'center', originY: 'center' });
+    newObj.set({
+      left: cx - (newObj.width ?? R * 2) / 2,
+      top: cy - (newObj.height ?? R * 2) / 2,
+      originX: 'center',
+      originY: 'center',
+    });
     this.canvas.remove(obj);
     this.canvas.add(newObj);
     this.canvas.setActiveObject(newObj);
@@ -551,28 +676,49 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const existing = this.canvas.getObjects().filter((o: any) => o._isArrow && o._parentId === id);
     existing.forEach((o: any) => this.canvas?.remove(o));
 
-    const x1 = obj.x1 ?? 0, y1 = obj.y1 ?? 0;
-    const x2 = obj.x2 ?? 100, y2 = obj.y2 ?? 0;
-    const dx = x2 - x1, dy = y2 - y1;
-    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const x1 = obj.x1 ?? 0,
+      y1 = obj.y1 ?? 0;
+    const x2 = obj.x2 ?? 100,
+      y2 = obj.y2 ?? 0;
+    const dx = x2 - x1,
+      dy = y2 - y1;
+    const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
     const arrowSize = sw * 4;
 
     if (obj._arrowStart) {
       const startPath = `M 0,-${arrowSize} L -${arrowSize * 2},0 L 0,${arrowSize} Z`;
-      this.canvas.add(new this.fabric.Path(startPath, {
-        _isArrow: true, _parentId: id, selectable: false, evented: false,
-        left: x1, top: y1, angle: angle + 180,
-        fill: stroke, originX: 'center', originY: 'center',
-      }));
+      this.canvas.add(
+        new this.fabric.Path(startPath, {
+          _isArrow: true,
+          _parentId: id,
+          selectable: false,
+          evented: false,
+          left: x1,
+          top: y1,
+          angle: angle + 180,
+          fill: stroke,
+          originX: 'center',
+          originY: 'center',
+        }),
+      );
     }
 
     if (obj._arrowEnd) {
       const endPath = `M 0,-${arrowSize} L ${arrowSize * 2},0 L 0,${arrowSize} Z`;
-      this.canvas.add(new this.fabric.Path(endPath, {
-        _isArrow: true, _parentId: id, selectable: false, evented: false,
-        left: x2, top: y2, angle: angle,
-        fill: stroke, originX: 'center', originY: 'center',
-      }));
+      this.canvas.add(
+        new this.fabric.Path(endPath, {
+          _isArrow: true,
+          _parentId: id,
+          selectable: false,
+          evented: false,
+          left: x2,
+          top: y2,
+          angle: angle,
+          fill: stroke,
+          originX: 'center',
+          originY: 'center',
+        }),
+      );
     }
   }
 
@@ -581,7 +727,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const r = Math.min(cornerR, radius * Math.sin(Math.PI / n));
     const verts: { x: number; y: number }[] = [];
     for (let i = 0; i < n; i++) {
-      const a = (2 * Math.PI * i / n) - Math.PI / 2;
+      const a = (2 * Math.PI * i) / n - Math.PI / 2;
       verts.push({ x: radius * Math.cos(a), y: radius * Math.sin(a) });
     }
     if (r <= 0) {
@@ -616,17 +762,27 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const radius = Math.min(Math.abs(obj.width || 100), Math.abs(obj.height || 100)) / 2;
     const pathStr = this.buildPolygonPath(radius, sides, cornerR);
     const newObj = new this.fabric.Path(pathStr, {
-      _id: obj._id, name: obj.name ?? 'Polygon',
+      _id: obj._id,
+      name: obj.name ?? 'Polygon',
       fill: obj.fill ?? '#8b5cf6',
-      stroke: obj.stroke ?? '', strokeWidth: obj.strokeWidth ?? 0,
-      opacity: obj.opacity ?? 1, shadow: obj.shadow,
-      lockMovementX: obj.lockMovementX, lockMovementY: obj.lockMovementY,
-      visible: obj.visible, angle: obj.angle,
-      _sides: sides, _cornerRadius: cornerR, _shapeType: 'polygon',
+      stroke: obj.stroke ?? '',
+      strokeWidth: obj.strokeWidth ?? 0,
+      opacity: obj.opacity ?? 1,
+      shadow: obj.shadow,
+      lockMovementX: obj.lockMovementX,
+      lockMovementY: obj.lockMovementY,
+      visible: obj.visible,
+      angle: obj.angle,
+      _sides: sides,
+      _cornerRadius: cornerR,
+      _shapeType: 'polygon',
     });
     const cx = obj.left + (obj.width || 100) / 2;
     const cy = obj.top + (obj.height || 100) / 2;
-    newObj.set({ left: cx - (newObj.width || radius * 2) / 2, top: cy - (newObj.height || radius * 2) / 2 });
+    newObj.set({
+      left: cx - (newObj.width || radius * 2) / 2,
+      top: cy - (newObj.height || radius * 2) / 2,
+    });
     this.canvas.remove(obj);
     this.canvas.add(newObj);
     this.canvas.setActiveObject(newObj);
@@ -663,7 +819,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const r = R * Math.max(0.05, Math.min(0.95, ratio));
     let path = '';
     for (let i = 0; i < n; i++) {
-      const outerAngle = (2 * Math.PI * i / n) - Math.PI / 2;
+      const outerAngle = (2 * Math.PI * i) / n - Math.PI / 2;
       const innerAngle = outerAngle + Math.PI / n;
       const ox = R * Math.cos(outerAngle);
       const oy = R * Math.sin(outerAngle);
@@ -680,17 +836,27 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const radius = Math.min(Math.abs(obj.width || 100), Math.abs(obj.height || 100)) / 2;
     const pathStr = this.buildStarPath(radius, points, ratio);
     const newObj = new this.fabric.Path(pathStr, {
-      _id: obj._id, name: obj.name ?? 'Star',
+      _id: obj._id,
+      name: obj.name ?? 'Star',
       fill: obj.fill ?? '#f59e0b',
-      stroke: obj.stroke ?? '', strokeWidth: obj.strokeWidth ?? 0,
-      opacity: obj.opacity ?? 1, shadow: obj.shadow,
-      lockMovementX: obj.lockMovementX, lockMovementY: obj.lockMovementY,
-      visible: obj.visible, angle: obj.angle,
-      _starPoints: points, _starRatio: ratio, _shapeType: 'star',
+      stroke: obj.stroke ?? '',
+      strokeWidth: obj.strokeWidth ?? 0,
+      opacity: obj.opacity ?? 1,
+      shadow: obj.shadow,
+      lockMovementX: obj.lockMovementX,
+      lockMovementY: obj.lockMovementY,
+      visible: obj.visible,
+      angle: obj.angle,
+      _starPoints: points,
+      _starRatio: ratio,
+      _shapeType: 'star',
     });
     const cx = obj.left + (obj.width || 100) / 2;
     const cy = obj.top + (obj.height || 100) / 2;
-    newObj.set({ left: cx - (newObj.width || radius * 2) / 2, top: cy - (newObj.height || radius * 2) / 2 });
+    newObj.set({
+      left: cx - (newObj.width || radius * 2) / 2,
+      top: cy - (newObj.height || radius * 2) / 2,
+    });
     this.canvas.remove(obj);
     this.canvas.add(newObj);
     this.canvas.setActiveObject(newObj);
@@ -738,9 +904,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ed.pushUndoState();
     const clamped = Math.min(Math.max(value, 0), 20);
     obj._layerBlur = clamped;
-    obj.filters = clamped > 0
-      ? [new this.fabric.Image.filters.Blur({ blur: clamped / 10 })]
-      : [];
+    obj.filters = clamped > 0 ? [new this.fabric.Image.filters.Blur({ blur: clamped / 10 })] : [];
     obj.applyFilters();
     this.canvas?.renderAll();
     this.readPropsFromSelected();
@@ -809,13 +973,17 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }));
 
     if (type === 'linear') {
-      const angle = (obj._gradientAngle ?? 0) * Math.PI / 180;
-      const cos = Math.cos(angle), sin = Math.sin(angle);
+      const angle = ((obj._gradientAngle ?? 0) * Math.PI) / 180;
+      const cos = Math.cos(angle),
+        sin = Math.sin(angle);
       const gradient = new this.fabric.Gradient({
-        type: 'linear', gradientUnits: 'percentage',
+        type: 'linear',
+        gradientUnits: 'percentage',
         coords: {
-          x1: 0.5 - cos * 0.5, y1: 0.5 - sin * 0.5,
-          x2: 0.5 + cos * 0.5, y2: 0.5 + sin * 0.5,
+          x1: 0.5 - cos * 0.5,
+          y1: 0.5 - sin * 0.5,
+          x2: 0.5 + cos * 0.5,
+          y2: 0.5 + sin * 0.5,
         },
         colorStops,
       });
@@ -823,7 +991,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     } else if (type === 'radial') {
       const r = (obj._gradientRadius ?? 50) / 100;
       const gradient = new this.fabric.Gradient({
-        type: 'radial', gradientUnits: 'percentage',
+        type: 'radial',
+        gradientUnits: 'percentage',
         coords: { x1: 0.5, y1: 0.5, r1: 0, x2: 0.5, y2: 0.5, r2: r },
         colorStops,
       });
@@ -832,27 +1001,63 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private canfulProperties(): string[] {
-    return ['_id', 'name', 'type', 'fill', 'stroke', 'strokeWidth', 'opacity',
-      'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'textAlign',
-      'lineHeight', 'charSpacing', 'underline', 'strikethrough', 'textBackgroundColor',
-      'direction', 'paragraphSpacing', 'shadow',
-      'width', 'height', 'left', 'top', 'scaleX', 'scaleY', 'angle',
-      'visible', 'lockMovementX', 'lockMovementY', 'text', 'styles',
-      'rx', 'ry', '_cornerRx', '_cornerRy', '_strokeSides',
-      '_arc', '_sweep', '_ratio', '_shapeType',
-      'strokeLineCap', 'strokeLineJoin', '_arrowStart', '_arrowEnd',
-      '_sides', '_cornerRadius',
-      '_starPoints', '_starRatio',
-      'globalCompositeOperation', '_layerBlur', '_fillType',
-      '_gradientColors', '_gradientAngle', '_gradientRadius'];
-  }
-
-  ngOnDestroy(): void {
-    this.ed.stopAutosave();
-    this.removeTextSelectionHandler();
-    this.canvas?.dispose();
-    this.canvas = null;
-    this._aiStatusEffect?.destroy();
+    return [
+      '_id',
+      'name',
+      'type',
+      'fill',
+      'stroke',
+      'strokeWidth',
+      'opacity',
+      'fontFamily',
+      'fontSize',
+      'fontWeight',
+      'fontStyle',
+      'textAlign',
+      'lineHeight',
+      'charSpacing',
+      'underline',
+      'strikethrough',
+      'textBackgroundColor',
+      'direction',
+      'paragraphSpacing',
+      'shadow',
+      'width',
+      'height',
+      'left',
+      'top',
+      'scaleX',
+      'scaleY',
+      'angle',
+      'visible',
+      'lockMovementX',
+      'lockMovementY',
+      'text',
+      'styles',
+      'rx',
+      'ry',
+      '_cornerRx',
+      '_cornerRy',
+      '_strokeSides',
+      '_arc',
+      '_sweep',
+      '_ratio',
+      '_shapeType',
+      'strokeLineCap',
+      'strokeLineJoin',
+      '_arrowStart',
+      '_arrowEnd',
+      '_sides',
+      '_cornerRadius',
+      '_starPoints',
+      '_starRatio',
+      'globalCompositeOperation',
+      '_layerBlur',
+      '_fillType',
+      '_gradientColors',
+      '_gradientAngle',
+      '_gradientRadius',
+    ];
   }
 
   private removeTextSelectionHandler(): void {
@@ -865,7 +1070,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(e: KeyboardEvent): void {
-    const isInput = (e.target as HTMLElement)?.tagName === 'INPUT' || (e.target as HTMLElement)?.tagName === 'TEXTAREA';
+    const isInput =
+      (e.target as HTMLElement)?.tagName === 'INPUT' ||
+      (e.target as HTMLElement)?.tagName === 'TEXTAREA';
     if (isInput) return;
 
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
@@ -904,23 +1111,23 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.ed.toolMode.set('select');
       return;
     }
-    if (e.key === 'v' && !e.ctrlKey && !e.metaKey) { this.ed.toolMode.set('select'); return; }
-    if (e.key === 't' && !e.ctrlKey && !e.metaKey) { this.ed.toolMode.set('text'); return; }
-    if (e.key === 'r' && !e.ctrlKey && !e.metaKey) { this.ed.toolMode.set('shape'); return; }
+    if (e.key === 'v' && !e.ctrlKey && !e.metaKey) {
+      this.ed.toolMode.set('select');
+      return;
+    }
+    if (e.key === 't' && !e.ctrlKey && !e.metaKey) {
+      this.ed.toolMode.set('text');
+      return;
+    }
+    if (e.key === 'r' && !e.ctrlKey && !e.metaKey) {
+      this.ed.toolMode.set('shape');
+      return;
+    }
   }
 
   @HostListener('window:resize')
   onResize(): void {
-    if (!this.canvas) return;
-    const parent = this.canvasElRef?.nativeElement?.parentElement;
-    if (!parent) return;
-    const w = Math.min(parent.clientWidth, 1200);
-    const h = Math.min(parent.clientHeight, 800);
-    if (this.canvas.getWidth() !== w || this.canvas.getHeight() !== h) {
-      this.canvas.setWidth(w);
-      this.canvas.setHeight(h);
-      this.canvas.renderAll();
-    }
+    this.resizeCanvas();
   }
 
   @HostListener('document:click')
@@ -950,7 +1157,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this._hasTextSelection = obj.selectionStart !== obj.selectionEnd;
       if (this._hasTextSelection) {
         const styles = obj.getSelectionStyles();
-        this._selectionProps.update(p => ({ ...p, ...styles }));
+        this._selectionProps.update((p) => ({ ...p, ...styles }));
       }
     };
 
@@ -987,7 +1194,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private readPropsFromSelected(): void {
     const obj = this._selectedObject;
-    if (!obj) { this._selectionProps.set({}); return; }
+    if (!obj) {
+      this._selectionProps.set({});
+      return;
+    }
     const sides = obj._strokeSides ?? { top: false, bottom: false, left: false, right: false };
     this._selectionProps.set({
       fill: obj.fill,
@@ -1045,8 +1255,13 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.canvas) return;
     const mode = this.ed.toolMode();
     const cursors: Record<string, string> = {
-      select: 'default', text: 'text', shape: 'crosshair',
-      image: 'crosshair', upload: 'crosshair', templates: 'default', ai: 'default',
+      select: 'default',
+      text: 'text',
+      shape: 'crosshair',
+      image: 'crosshair',
+      upload: 'crosshair',
+      templates: 'default',
+      ai: 'default',
     };
     this.canvas.defaultCursor = cursors[mode] ?? 'default';
     this.canvas.renderAll();
@@ -1068,16 +1283,28 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       const ch = 2000;
 
       for (let i = 0; i <= cw; i += gs) {
-        this.canvas.add(new this.fabric.Line([i, 0, i, ch], {
-          _isGrid: true, selectable: false, evented: false,
-          stroke: '#c0c0c0', strokeWidth: i % 100 === 0 ? 0.8 : 0.3, opacity: 0.2,
-        }));
+        this.canvas.add(
+          new this.fabric.Line([i, 0, i, ch], {
+            _isGrid: true,
+            selectable: false,
+            evented: false,
+            stroke: '#c0c0c0',
+            strokeWidth: i % 100 === 0 ? 0.8 : 0.3,
+            opacity: 0.2,
+          }),
+        );
       }
       for (let i = 0; i <= ch; i += gs) {
-        this.canvas.add(new this.fabric.Line([0, i, cw, i], {
-          _isGrid: true, selectable: false, evented: false,
-          stroke: '#c0c0c0', strokeWidth: i % 100 === 0 ? 0.8 : 0.3, opacity: 0.2,
-        }));
+        this.canvas.add(
+          new this.fabric.Line([0, i, cw, i], {
+            _isGrid: true,
+            selectable: false,
+            evented: false,
+            stroke: '#c0c0c0',
+            strokeWidth: i % 100 === 0 ? 0.8 : 0.3,
+            opacity: 0.2,
+          }),
+        );
       }
 
       const gridLines = this.canvas.getObjects().filter((o: any) => o._isGrid);
@@ -1087,17 +1314,20 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleGrid(): void {
-    this.ed.gridVisible.update(v => !v);
+    this.ed.gridVisible.update((v) => !v);
     this.updateGrid();
   }
 
   toggleSnap(): void {
-    this.ed.snapEnabled.update(v => !v);
+    this.ed.snapEnabled.update((v) => !v);
   }
 
   save(): void {
     this.ed.saveProject().subscribe({
-      next: () => { this.ed.saveState.set('saved'); this.ed.dirty.set(false); },
+      next: () => {
+        this.ed.saveState.set('saved');
+        this.ed.dirty.set(false);
+      },
       error: () => this.ed.saveState.set('failed'),
     });
   }
@@ -1107,7 +1337,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const params: Record<string, any> = { limit: 24 };
     if (query) params['q'] = query;
     this.marketplace.getAssets(params).subscribe({
-      next: (res) => { this.assets.set(res.data.filter(a => a.previewUrl)); this.loadingAssets.set(false); },
+      next: (res) => {
+        this.assets.set(res.data.filter((a) => a.previewUrl));
+        this.loadingAssets.set(false);
+      },
       error: () => this.loadingAssets.set(false),
     });
   }
@@ -1145,27 +1378,73 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     let obj: any;
     switch (type) {
       case 'circle':
-        obj = new this.fabric.Circle({ _id: id, name: 'Circle', left: c.x - 50, top: c.y - 50, radius: 50, fill: '#3b82f6', _arc: 0, _sweep: 360, _ratio: 0 });
+        obj = new this.fabric.Circle({
+          _id: id,
+          name: 'Circle',
+          left: c.x - 50,
+          top: c.y - 50,
+          radius: 50,
+          fill: '#3b82f6',
+          _arc: 0,
+          _sweep: 360,
+          _ratio: 0,
+        });
         break;
       case 'polygon': {
         const r = 50;
         const pStr = this.buildPolygonPath(r, 3, 0);
-        obj = new this.fabric.Path(pStr, { _id: id, name: 'Polygon', fill: '#8b5cf6', _sides: 3, _cornerRadius: 0, _shapeType: 'polygon' });
+        obj = new this.fabric.Path(pStr, {
+          _id: id,
+          name: 'Polygon',
+          fill: '#8b5cf6',
+          _sides: 3,
+          _cornerRadius: 0,
+          _shapeType: 'polygon',
+        });
         obj.set({ left: c.x - (obj.width || r * 2) / 2, top: c.y - (obj.height || r * 2) / 2 });
         break;
       }
       case 'star': {
         const sR = 50;
         const sStr = this.buildStarPath(sR, 5, 0.5);
-        obj = new this.fabric.Path(sStr, { _id: id, name: 'Star', fill: '#f59e0b', _starPoints: 5, _starRatio: 0.5, _shapeType: 'star' });
+        obj = new this.fabric.Path(sStr, {
+          _id: id,
+          name: 'Star',
+          fill: '#f59e0b',
+          _starPoints: 5,
+          _starRatio: 0.5,
+          _shapeType: 'star',
+        });
         obj.set({ left: c.x - (obj.width || sR * 2) / 2, top: c.y - (obj.height || sR * 2) / 2 });
         break;
       }
       case 'line':
-        obj = new this.fabric.Line([c.x - 100, c.y, c.x + 100, c.y], { _id: id, name: 'Line', stroke: '#e94560', strokeWidth: 3, strokeLineCap: 'butt', strokeLineJoin: 'miter', _arrowStart: false, _arrowEnd: false });
+        obj = new this.fabric.Line([c.x - 100, c.y, c.x + 100, c.y], {
+          _id: id,
+          name: 'Line',
+          stroke: '#e94560',
+          strokeWidth: 3,
+          strokeLineCap: 'butt',
+          strokeLineJoin: 'miter',
+          _arrowStart: false,
+          _arrowEnd: false,
+        });
         break;
       default:
-        obj = new this.fabric.Rect({ _id: id, name: 'Rectangle', left: c.x - 60, top: c.y - 40, width: 120, height: 80, fill: '#22c55e', rx: 0, ry: 0, _cornerRx: 0, _cornerRy: 0, _strokeSides: { top: false, bottom: false, left: false, right: false } });
+        obj = new this.fabric.Rect({
+          _id: id,
+          name: 'Rectangle',
+          left: c.x - 60,
+          top: c.y - 40,
+          width: 120,
+          height: 80,
+          fill: '#22c55e',
+          rx: 0,
+          ry: 0,
+          _cornerRx: 0,
+          _cornerRy: 0,
+          _strokeSides: { top: false, bottom: false, left: false, right: false },
+        });
     }
     this.canvas.add(obj);
     this.canvas.setActiveObject(obj);
@@ -1201,8 +1480,14 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     input.onchange = (e: any) => {
       const file = e.target?.files?.[0];
       if (!file) return;
-      if (!this.ALLOWED_TYPES.includes(file.type)) { alert('Unsupported format. Use PNG, JPEG, WebP, or SVG.'); return; }
-      if (file.size > this.FILE_SIZE_LIMIT) { alert('File too large (max 10 MB).'); return; }
+      if (!this.ALLOWED_TYPES.includes(file.type)) {
+        alert('Unsupported format. Use PNG, JPEG, WebP, or SVG.');
+        return;
+      }
+      if (file.size > this.FILE_SIZE_LIMIT) {
+        alert('File too large (max 10 MB).');
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (ev) => this.addImage(ev.target?.result as string);
       reader.readAsDataURL(file);
@@ -1213,44 +1498,52 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private addImage(url: string, dropX?: number, dropY?: number): void {
     if (!this.canvas || !this.fabric) return;
     this.ed.pushUndoState();
-    const attemptLoad = (crossOrigin: string | null) => {
-      const opts: any = {};
-      if (crossOrigin) opts.crossOrigin = crossOrigin;
-      this.fabric.Image.fromURL(url, (img: any, isError?: boolean) => {
-        if (!img || isError) {
-          if (crossOrigin === 'anonymous') {
-            attemptLoad(null);
-          }
-          return;
-        }
-        const maxW = 300, maxH = 300;
-        const scale = Math.min(maxW / (img.width || 1), maxH / (img.height || 1), 1);
-        let left: number, top: number;
-        if (dropX != null && dropY != null) {
-          left = dropX - (img.width * scale) / 2;
-          top = dropY - (img.height * scale) / 2;
-        } else {
-          const c = this.getCanvasCenter();
-          left = c.x - (img.width * scale) / 2;
-          top = c.y - (img.height * scale) / 2;
-        }
-        img.set({
-          _id: `img-${Date.now()}`,
-          name: 'Image',
-          left,
-          top,
-          scaleX: scale,
-          scaleY: scale,
-        });
-        this.canvas!.add(img);
-        this.canvas!.setActiveObject(img);
-        this.canvas!.renderAll();
-        this.onSelect({ target: img });
-        this.ed.toolMode.set('select');
-        this.updateCanvasCursor();
-      }, opts);
-    };
-    attemptLoad('anonymous');
+    void this.loadFabricImage(url, true).then((img) => {
+      if (!img) return;
+      const maxW = 300;
+      const maxH = 300;
+      const scale = Math.min(maxW / (img.width || 1), maxH / (img.height || 1), 1);
+      let left: number;
+      let top: number;
+      if (dropX != null && dropY != null) {
+        left = dropX - (img.width * scale) / 2;
+        top = dropY - (img.height * scale) / 2;
+      } else {
+        const c = this.getCanvasCenter();
+        left = c.x - (img.width * scale) / 2;
+        top = c.y - (img.height * scale) / 2;
+      }
+      img.set({
+        _id: `img-${Date.now()}`,
+        name: 'Image',
+        left,
+        top,
+        scaleX: scale,
+        scaleY: scale,
+      });
+      this.canvas!.add(img);
+      this.canvas!.setActiveObject(img);
+      this.canvas!.renderAll();
+      this.onSelect({ target: img });
+      this.ed.toolMode.set('select');
+      this.updateCanvasCursor();
+    });
+  }
+
+  private async loadFabricImage(
+    url: string,
+    tryAnonymousCrossOrigin: boolean,
+  ): Promise<any | null> {
+    if (!this.fabric) return null;
+    try {
+      const options = tryAnonymousCrossOrigin ? { crossOrigin: 'anonymous' } : {};
+      return await this.fabric.Image.fromURL(url, options);
+    } catch {
+      if (tryAnonymousCrossOrigin) {
+        return this.loadFabricImage(url, false);
+      }
+      return null;
+    }
   }
 
   deleteSelected(): void {
@@ -1258,8 +1551,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!active || !active.length) return;
     this.ed.pushUndoState();
     const ids = new Set(active.map((o: any) => o._id));
-    const helpers = this.canvas!.getObjects().filter((o: any) =>
-      (o._isStrokeSide || o._isArrow) && ids.has(o._parentId));
+    const helpers = this.canvas!.getObjects().filter(
+      (o: any) => (o._isStrokeSide || o._isArrow) && ids.has(o._parentId),
+    );
     helpers.forEach((o: any) => this.canvas?.remove(o));
     active.forEach((o: any) => this.canvas?.remove(o));
     this.canvas?.discardActiveObject();
@@ -1275,12 +1569,22 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.canvas.renderAll();
   }
 
-  zoomIn(): void { this.setZoom(Math.min(this.ed.zoom() + 0.1, 5)); }
-  zoomOut(): void { this.setZoom(Math.max(this.ed.zoom() - 0.1, 0.1)); }
-  zoomToFit(): void { this.setZoom(1); }
+  zoomIn(): void {
+    this.setZoom(Math.min(this.ed.zoom() + 0.1, 5));
+  }
+  zoomOut(): void {
+    this.setZoom(Math.max(this.ed.zoom() - 0.1, 0.1));
+  }
+  zoomToFit(): void {
+    this.setZoom(1);
+  }
 
-  undo(): void { this.ed.undo(); }
-  redo(): void { this.ed.redo(); }
+  undo(): void {
+    this.ed.undo();
+  }
+  redo(): void {
+    this.ed.redo();
+  }
 
   onLayerSelect(id: string): void {
     const obj = this.canvas?.getObjects().find((o: any) => o._id === id);
@@ -1392,7 +1696,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   shadowProp(key: string, value: any): void {
-    this._selectionProps.update(p => {
+    this._selectionProps.update((p) => {
       const shadow = { ...(p['shadow'] || {}), [key]: value };
       return { ...p, shadow };
     });
@@ -1402,24 +1706,35 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   onFileDrop(e: DragEvent): void {
     e.preventDefault();
     const url = e.dataTransfer?.getData('text/plain');
-    if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:'))) {
+    if (url) {
       try {
         const pt = this.canvas?.getPointer(e);
         if (pt && pt.x != null && pt.y != null) {
-          this.addImage(url, pt.x, pt.y);
+          this.addImage(this.normalizeImageUrl(url), pt.x, pt.y);
           return;
         }
       } catch {}
-      this.addImage(url);
+      this.addImage(this.normalizeImageUrl(url));
       return;
     }
     const file = e.dataTransfer?.files?.[0];
     if (!file) return;
-    if (!this.ALLOWED_TYPES.includes(file.type)) { return; }
-    if (file.size > this.FILE_SIZE_LIMIT) { return; }
+    if (!this.ALLOWED_TYPES.includes(file.type)) {
+      return;
+    }
+    if (file.size > this.FILE_SIZE_LIMIT) {
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (ev) => this.addImage(ev.target?.result as string);
     reader.readAsDataURL(file);
+  }
+
+  private normalizeImageUrl(url: string): string {
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+      return url;
+    }
+    return new URL(url, window.location.origin).toString();
   }
 
   onDragOver(e: DragEvent): void {
@@ -1451,7 +1766,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   exportDesign(format: ExportFormat): void {
     this._exportFormat = format;
-    this.ed.exportProject(format, { quality: this.exportQuality, transparent: this.exportTransparent });
+    this.ed.exportProject(format, {
+      quality: this.exportQuality,
+      transparent: this.exportTransparent,
+    });
   }
 
   setExportQuality(value: number): void {
@@ -1474,5 +1792,38 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   saveAndClose(): void {
     this.save();
     this.router.navigate(['/marketplace']);
+  }
+
+  toggleLeftPanel(): void {
+    this.leftPanelCollapsed.update((v) => !v);
+    requestAnimationFrame(() => this.resizeCanvas());
+  }
+
+  toggleRightPanel(): void {
+    this.rightPanelCollapsed.update((v) => !v);
+    requestAnimationFrame(() => this.resizeCanvas());
+  }
+
+  private resizeCanvas(): void {
+    if (!this.canvas || !this.canvasAreaRef) return;
+    const container = this.canvasAreaRef.nativeElement;
+    const w = Math.max(Math.min(container.clientWidth, 1200), 400);
+    const h = Math.max(Math.min(container.clientHeight, 800), 300);
+    if (this.canvas.getWidth() === w && this.canvas.getHeight() === h) return;
+
+    this.canvas.setDimensions({ width: w, height: h });
+    this.canvas.requestRenderAll();
+  }
+
+  ngOnDestroy(): void {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
+    this.ed.stopAutosave();
+    this.removeTextSelectionHandler();
+    this.canvas?.dispose();
+    this.canvas = null;
+    this._aiStatusEffect?.destroy();
   }
 }

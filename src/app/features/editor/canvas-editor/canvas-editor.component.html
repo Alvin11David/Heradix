@@ -60,12 +60,15 @@
     </div>
   </header>
 
-  <div class="editor-body">
+  <div class="editor-body" [class.editor-body--left-collapsed]="leftPanelCollapsed()" [class.editor-body--right-collapsed]="rightPanelCollapsed()">
 
-    <aside class="panel panel--layers">
+    <aside class="panel panel--layers" *ngIf="!leftPanelCollapsed()">
       <div class="panel-header">
         <h3 class="panel-title">Layers</h3>
         <span class="panel-count">{{ layers().length }}</span>
+        <button class="panel-collapse-btn" (click)="toggleLeftPanel()" title="Toggle panel">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
       </div>
       <div class="panel-scroll">
         <div class="layer-list" *ngIf="layers().length; else emptyLayers">
@@ -139,9 +142,15 @@
       </div>
     </aside>
 
-    <main class="canvas-area"
+    <main class="canvas-area" #canvasArea
       (drop)="onFileDrop($event)"
       (dragover)="onDragOver($event)">
+      <button class="panel-expand-btn panel-expand-btn--left" *ngIf="leftPanelCollapsed()" (click)="toggleLeftPanel()" title="Show Layers">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="panel-expand-btn panel-expand-btn--right" *ngIf="rightPanelCollapsed()" (click)="toggleRightPanel()" title="Show Properties">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
       <canvas #canvasEl id="amx-fabric-canvas"></canvas>
 
       <div class="canvas-overlay top-left" *ngIf="toolMode()==='ai'">
@@ -197,9 +206,12 @@
       </div>
     </main>
 
-    <aside class="panel panel--props">
+    <aside class="panel panel--props" *ngIf="!rightPanelCollapsed()">
       <div class="panel-header">
         <h3 class="panel-title">Properties</h3>
+        <button class="panel-collapse-btn" (click)="toggleRightPanel()" title="Toggle panel">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
       <div class="panel-scroll">
         <ng-container *ngIf="selectedLayerType(); else noSelection">
