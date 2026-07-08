@@ -1524,6 +1524,39 @@
         </svg>
         Grid
       </button>
+      <button class="sb-btn" (click)="toggleGridView()" [class.sb-btn--active]="gridView()">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
+        Grid View
+      </button>
+      <button class="sb-btn" (click)="toggleRulers()" [class.sb-btn--active]="rulersVisible()">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M4 4h16v16H4z" />
+          <path d="M8 4v16" />
+          <path d="M16 4v16" />
+          <path d="M4 8h16" />
+          <path d="M4 16h16" />
+        </svg>
+        Rulers
+      </button>
       <button class="sb-btn" (click)="toggleSnap()" [class.sb-btn--active]="snapEnabled()">
         <svg
           width="14"
@@ -1562,6 +1595,40 @@
       }}</span>
       <button
         class="sb-btn"
+        (click)="movePage(currentPageIndex(), -1)"
+        [disabled]="currentPageIndex() === 0"
+        title="Move page left"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+      </button>
+      <button
+        class="sb-btn"
+        (click)="movePage(currentPageIndex(), 1)"
+        [disabled]="currentPageIndex() === pages().length - 1"
+        title="Move page right"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
+      <button
+        class="sb-btn"
         (click)="nextPage()"
         [disabled]="currentPageIndex() === pages().length - 1"
         title="Next page"
@@ -1591,6 +1658,40 @@
           <path d="M5 12h14" />
         </svg>
         Add Page
+      </button>
+      <button class="sb-btn" (click)="duplicatePage()" title="Duplicate page">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="9" y="9" width="10" height="10" rx="2" />
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </svg>
+        Duplicate Page
+      </button>
+      <button
+        class="sb-btn"
+        (click)="deletePage()"
+        [disabled]="pages().length === 1"
+        title="Delete page"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M5 7h14" />
+          <path d="M9 7V4h6v3" />
+          <path d="M8 7l1 12h6l1-12" />
+        </svg>
+        Delete Page
       </button>
     </div>
     <div class="sb-right">

@@ -62,6 +62,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly colorPalette = this.ed.colorPalette;
   readonly gridVisible = this.ed.gridVisible;
   readonly snapEnabled = this.ed.snapEnabled;
+  readonly rulersVisible = signal(false);
+  readonly gridView = signal(false);
 
   readonly projectTitle = computed(() => this.ed.project()?.title ?? 'Untitled');
   readonly assets = signal<Asset[]>([]);
@@ -1475,7 +1477,11 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       const gridLines = this.canvas.getObjects().filter((o: any) => o._isGrid);
-      gridLines.forEach((o: any) => this.canvas?.sendToBack(o));
+      gridLines.forEach((o: any) => {
+        if (this.canvas && typeof this.canvas.sendToBack === 'function') {
+          this.canvas.sendToBack(o);
+        }
+      });
     }
     this.canvas.renderAll();
   }
@@ -1485,8 +1491,35 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updateGrid();
   }
 
+  toggleGridView(): void {
+    this.gridView.update((value) => !value);
+    this.renderPageGuides();
+  }
+
+  toggleRulers(): void {
+    this.rulersVisible.update((value) => !value);
+    this.renderPageGuides();
+  }
+
+  movePage(fromIndex: number, direction: -1 | 1): void {
+    if (fromIndex < 0 || fromIndex >= this.pages().length) return;
+    const targetIndex = fromIndex + direction;
+    if (targetIndex < 0 || targetIndex >= this.pages().length) return;
+
+    const items = [...this.pages()];
+    const [page] = items.splice(fromIndex, 1);
+    items.splice(targetIndex, 0, page);
+    this.pages.set(items);
+    if (this.currentPageIndex() === fromIndex) {
+      this.currentPageIndex.set(targetIndex);
+    } else {
+      this.currentPageIndex.update((index) => (index === targetIndex ? fromIndex : index));
+    }
+    this.renderPageGuides();
+    this.centerOnPage(this.currentPage());
+  }
+
   addPage(): void {
-    const current = this.currentPage();
     const nextIndex = this.pages().length;
     const page = {
       id: `page-${Date.now()}`,
@@ -1500,6 +1533,37 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentPageIndex.set(this.pages().length - 1);
     this.renderPageGuides();
     this.centerOnPage(page);
+  }
+
+  duplicatePage(): void {
+    const current = this.currentPage();
+    if (!current) return;
+
+    const duplicate = {
+      ...current,
+      id: `page-${Date.now()}`,
+      name: `${current.name} Copy`,
+      x: current.x + 220,
+      y: current.y + 220,
+    };
+
+    this.pages.update((items) => [...items, duplicate]);
+    this.currentPageIndex.set(this.pages().length - 1);
+    this.renderPageGuides();
+    this.centerOnPage(duplicate);
+  }
+
+  deletePage(): void {
+    if (this.pages().length <= 1) return;
+
+    const currentIndex = this.currentPageIndex();
+    const nextPages = this.pages().filter((_, index) => index !== currentIndex);
+    const nextIndex = Math.min(currentIndex, nextPages.length - 1);
+
+    this.pages.set(nextPages);
+    this.currentPageIndex.set(nextIndex);
+    this.renderPageGuides();
+    this.centerOnPage(this.currentPage());
   }
 
   previousPage(): void {
@@ -1518,14 +1582,15 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     existing.forEach((obj: any) => this.canvas.remove(obj));
 
     this.pages().forEach((page) => {
+      const isCurrent = page.id === this.currentPage().id;
       const rect = new this.fabric.Rect({
         left: page.x,
         top: page.y,
         width: page.width,
         height: page.height,
         fill: 'rgba(59, 130, 246, 0.04)',
-        stroke: page.id === this.currentPage().id ? '#60a5fa' : 'rgba(255,255,255,0.16)',
-        strokeWidth: page.id === this.currentPage().id ? 2 : 1,
+        stroke: isCurrent ? '#60a5fa' : 'rgba(255,255,255,0.16)',
+        strokeWidth: isCurrent ? 2 : 1,
         rx: 16,
         ry: 16,
         selectable: false,
@@ -1536,12 +1601,36 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         left: page.x + 18,
         top: page.y + 16,
         fontSize: 13,
-        fill: page.id === this.currentPage().id ? '#60a5fa' : '#b6b6bf',
+        fill: isCurrent ? '#60a5fa' : '#b6b6bf',
         fontWeight: '600',
         selectable: false,
         evented: false,
         _isPageGuide: true,
       });
+      if (this.rulersVisible()) {
+        const topRuler = new this.fabric.Line(
+          [page.x, page.y - 8, page.x + page.width, page.y - 8],
+          {
+            stroke: '#93c5fd',
+            strokeWidth: 1,
+            selectable: false,
+            evented: false,
+            _isPageGuide: true,
+          },
+        );
+        const leftRuler = new this.fabric.Line(
+          [page.x - 8, page.y, page.x - 8, page.y + page.height],
+          {
+            stroke: '#93c5fd',
+            strokeWidth: 1,
+            selectable: false,
+            evented: false,
+            _isPageGuide: true,
+          },
+        );
+        this.canvas.add(topRuler);
+        this.canvas.add(leftRuler);
+      }
       this.canvas.add(rect);
       this.canvas.add(label);
     });
