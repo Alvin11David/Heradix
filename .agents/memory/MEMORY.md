@@ -1,0 +1,1 @@
+- [Angular Replit setup](angular-replit-setup.md) — this repo's Angular dev server needs allowedHosts/host/port set in angular.json serve.options, not just CLI flags.

@@ -2926,6 +2926,129 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  /** Duplicate the currently selected canvas object(s). */
+  duplicateSelected(): void {
+    if (!this.canvas || !this.fabric) return;
+    const active = this.canvas.getActiveObjects?.() ?? [];
+    if (!active.length) return;
+    this.ed.pushUndoState();
+    active.forEach((obj: any) => {
+      try {
+        const clone = obj.clone((cloned: any) => {
+          if (!cloned) return;
+          cloned.set({
+            _id: `layer-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            name: `${obj.name ?? 'Layer'} Copy`,
+            left: (obj.left ?? 0) + 20,
+            top: (obj.top ?? 0) + 20,
+          });
+          cloned.setCoords?.();
+          this.canvas?.add(cloned);
+          this.canvas?.setActiveObject(cloned);
+          this.canvas?.renderAll();
+          this.onSelect({ target: cloned });
+        });
+        // Sync: some fabric versions return from clone synchronously
+        if (clone && typeof clone.set === 'function') {
+          clone.set({
+            _id: `layer-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            name: `${obj.name ?? 'Layer'} Copy`,
+            left: (obj.left ?? 0) + 20,
+            top: (obj.top ?? 0) + 20,
+          });
+          clone.setCoords?.();
+          this.canvas?.add(clone);
+          this.canvas?.setActiveObject(clone);
+          this.canvas?.renderAll();
+          this.onSelect({ target: clone });
+        }
+      } catch { /* ignore clone errors */ }
+    });
+    this.ed.setDirty();
+  }
+
+  /** Toggle lock on the currently selected object(s). */
+  toggleSelectedLock(): void {
+    if (!this.canvas) return;
+    const active = this.canvas.getActiveObjects?.() ?? [];
+    if (!active.length) return;
+    const locked = !active[0].lockMovementX;
+    this.ed.pushUndoState();
+    active.forEach((obj: any) => {
+      obj.set?.({
+        lockMovementX: locked,
+        lockMovementY: locked,
+        lockRotation: locked,
+        lockScalingX: locked,
+        lockScalingY: locked,
+      });
+      obj.lockMovementX = locked;
+      obj.lockMovementY = locked;
+      obj.selectable = obj.visible && !locked;
+      obj.evented = obj.visible && !locked;
+    });
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
+  /**
+   * Align selected objects relative to each other or to the canvas.
+   * Works for single objects (aligns to canvas center/edges) and
+   * multiple objects (aligns to their collective bounding box).
+   */
+  alignSelected(alignment: 'left' | 'right' | 'top' | 'bottom' | 'centerX' | 'centerY'): void {
+    if (!this.canvas) return;
+    const objects: any[] = this.canvas.getActiveObjects?.() ?? [];
+    if (!objects.length) return;
+    this.ed.pushUndoState();
+
+    // Compute collective bounding box
+    let minLeft = Number.POSITIVE_INFINITY;
+    let minTop = Number.POSITIVE_INFINITY;
+    let maxRight = Number.NEGATIVE_INFINITY;
+    let maxBottom = Number.NEGATIVE_INFINITY;
+
+    objects.forEach((obj: any) => {
+      const b = obj.getBoundingRect(true);
+      minLeft = Math.min(minLeft, b.left);
+      minTop = Math.min(minTop, b.top);
+      maxRight = Math.max(maxRight, b.left + b.width);
+      maxBottom = Math.max(maxBottom, b.top + b.height);
+    });
+
+    objects.forEach((obj: any) => {
+      const b = obj.getBoundingRect(true);
+      switch (alignment) {
+        case 'left':
+          obj.set('left', (obj.left ?? 0) + (minLeft - b.left));
+          break;
+        case 'right':
+          obj.set('left', (obj.left ?? 0) + (maxRight - (b.left + b.width)));
+          break;
+        case 'top':
+          obj.set('top', (obj.top ?? 0) + (minTop - b.top));
+          break;
+        case 'bottom':
+          obj.set('top', (obj.top ?? 0) + (maxBottom - (b.top + b.height)));
+          break;
+        case 'centerX': {
+          const cx = (minLeft + maxRight) / 2;
+          obj.set('left', (obj.left ?? 0) + (cx - (b.left + b.width / 2)));
+          break;
+        }
+        case 'centerY': {
+          const cy = (minTop + maxBottom) / 2;
+          obj.set('top', (obj.top ?? 0) + (cy - (b.top + b.height / 2)));
+          break;
+        }
+      }
+      obj.setCoords?.();
+    });
+
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
   saveAndClose(): void {
     this.save();
     this.router.navigate(['/marketplace']);
