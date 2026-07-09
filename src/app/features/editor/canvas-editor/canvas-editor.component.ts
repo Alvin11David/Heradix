@@ -66,13 +66,32 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly gridView = signal(false);
   readonly guidesVisible = signal(true);
   readonly smartGuidesEnabled = signal(true);
-  readonly pageMarginsVisible = signal(true);
+  // Hide page guide borders by default for a more infinite-canvas feel
+  readonly pageMarginsVisible = signal(false);
   readonly snapToGridEnabled = signal(true);
   readonly snapToObjectsEnabled = signal(true);
 
   readonly projectTitle = computed(() => this.ed.project()?.title ?? 'Untitled');
   readonly assets = signal<Asset[]>([]);
   readonly loadingAssets = signal(false);
+  readonly layerSearchQuery = signal('');
+  readonly filteredLayers = computed(() => {
+    const query = this.layerSearchQuery().trim().toLowerCase();
+    if (!query) {
+      return this.layers();
+    }
+
+    return this.layers().filter((layer) => {
+      return layer.name.toLowerCase().includes(query) || layer.type.toLowerCase().includes(query);
+    });
+  });
+  readonly layerCountLabel = computed(() => {
+    const total = this.layers().length;
+    const visible = this.filteredLayers().length;
+    return this.layerSearchQuery().trim().length ? `${visible} / ${total}` : `${total}`;
+  });
+  // Use a single very large page so the editor feels endless while keeping
+  // export/print dimensions manageable when needed.
   readonly pages = signal<
     Array<{
       id: string;
@@ -84,8 +103,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       margin?: number;
     }>
   >([
-    { id: 'page-1', name: 'Page 1', x: 0, y: 0, width: 1400, height: 900, margin: 120 },
-    { id: 'page-2', name: 'Page 2', x: 1800, y: 0, width: 1400, height: 900, margin: 120 },
+    // 10k x 8k gives a very large working area; adjust if you want larger/smaller
+    { id: 'page-1', name: 'Canvas', x: 0, y: 0, width: 10000, height: 8000, margin: 120 },
   ]);
   readonly currentPageIndex = signal(0);
   readonly currentPage = computed(() => this.pages()[this.currentPageIndex()] ?? this.pages()[0]);
@@ -452,8 +471,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       number,
       number,
     ];
-    nextTransform[4] -= dx;
-    nextTransform[5] -= dy;
+    nextTransform[4] += dx;
+    nextTransform[5] += dy;
 
     this.canvas.setViewportTransform(nextTransform);
     this.canvas.requestRenderAll();
@@ -1130,6 +1149,24 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  private bringObjectToFront(obj: any): void {
+    if (!this.canvas || !obj) return;
+    if (typeof this.canvas.bringToFront === 'function') {
+      this.canvas.bringToFront(obj);
+    } else if (typeof obj.bringToFront === 'function') {
+      obj.bringToFront();
+    }
+  }
+
+  private sendObjectToBack(obj: any): void {
+    if (!this.canvas || !obj) return;
+    if (typeof this.canvas.sendToBack === 'function') {
+      this.canvas.sendToBack(obj);
+    } else if (typeof obj.sendToBack === 'function') {
+      obj.sendToBack();
+    }
+  }
+
   moveSelectedForward(): void {
     if (!this.canvas) return;
     const objects =
@@ -1144,6 +1181,20 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onModify();
   }
 
+  bringSelectedToFront(): void {
+    if (!this.canvas) return;
+    const objects =
+      this.canvas.getActiveObjects?.() ??
+      this.canvas
+        .getObjects()
+        .filter((obj: any) => obj._id && this.ed.selectedLayerIds().has(obj._id));
+    if (!objects.length) return;
+    this.ed.pushUndoState();
+    objects.forEach((obj: any) => this.bringObjectToFront(obj));
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
   moveSelectedBackward(): void {
     if (!this.canvas) return;
     const objects =
@@ -1154,6 +1205,20 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!objects.length) return;
     this.ed.pushUndoState();
     objects.forEach((obj: any) => this.sendObjectBackward(obj));
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
+  sendSelectedToBack(): void {
+    if (!this.canvas) return;
+    const objects =
+      this.canvas.getActiveObjects?.() ??
+      this.canvas
+        .getObjects()
+        .filter((obj: any) => obj._id && this.ed.selectedLayerIds().has(obj._id));
+    if (!objects.length) return;
+    this.ed.pushUndoState();
+    objects.forEach((obj: any) => this.sendObjectToBack(obj));
     this.canvas.renderAll();
     this.onModify();
   }
@@ -1174,6 +1239,26 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!obj) return;
     this.ed.pushUndoState();
     this.sendObjectBackward(obj);
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
+  bringLayerToFront(id: string): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getObjects().find((o: any) => o._id === id);
+    if (!obj) return;
+    this.ed.pushUndoState();
+    this.bringObjectToFront(obj);
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
+  sendLayerToBack(id: string): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getObjects().find((o: any) => o._id === id);
+    if (!obj) return;
+    this.ed.pushUndoState();
+    this.sendObjectToBack(obj);
     this.canvas.renderAll();
     this.onModify();
   }
@@ -1423,6 +1508,27 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostListener('document:click')
   onDocClick(): void {
     this.showFontPicker.set(false);
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onKeydown(e: KeyboardEvent): void {
+    // Select All: Ctrl/Cmd + A
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const mod = isMac ? e.metaKey : e.ctrlKey;
+    if (mod && e.key.toLowerCase() === 'a') {
+      // avoid interfering when typing in inputs
+      const active = document.activeElement;
+      if (
+        active &&
+        (active.tagName === 'INPUT' ||
+          active.tagName === 'TEXTAREA' ||
+          (active as HTMLElement).isContentEditable)
+      ) {
+        return;
+      }
+      e.preventDefault();
+      this.selectAll();
+    }
   }
 
   private onSelect(e: any): void {
@@ -2112,6 +2218,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadAssets(query);
   }
 
+  searchLayers(query: string): void {
+    this.layerSearchQuery.set(query);
+  }
+
   onImageDragStart(e: DragEvent, url: string): void {
     e.dataTransfer?.setData('text/plain', url);
     if (e.dataTransfer) e.dataTransfer.effectAllowed = 'copy';
@@ -2420,6 +2530,43 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  selectAll(): void {
+    if (!this.canvas || !this.fabric) return;
+    const objs = this.canvas.getObjects().filter((obj: any) => {
+      if (!obj) return false;
+      if (obj.visible === false) return false;
+      if (obj._isGrid || obj._isStrokeSide || obj._isArrow || obj._isPageGuide) return false;
+      return true;
+    });
+    if (!objs.length) return;
+
+    // Try to use ActiveSelection when available so objects remain ungrouped
+    try {
+      const ActiveSelection =
+        (this.fabric as any).ActiveSelection ?? (this.canvas as any).ActiveSelection;
+      if (ActiveSelection) {
+        const sel = new ActiveSelection(objs, { canvas: this.canvas });
+        this.canvas.setActiveObject(sel);
+        this.onSelect({ target: sel, selected: objs });
+        this.canvas.requestRenderAll();
+        return;
+      }
+    } catch (e) {
+      // fall through to fallback
+    }
+
+    // Fallback: mark all ids in EditorService and visually apply selection appearance
+    const ids = new Set<string>();
+    objs.forEach((o: any) => {
+      ids.add(o._id ?? `obj-${Date.now()}`);
+      this.applySelectionAppearance(o);
+    });
+    this.ed.selectedLayerIds.set(ids);
+    this.readPropsFromSelected();
+    this.ed.syncLayers(this.canvas.getObjects());
+    this.canvas.requestRenderAll();
+  }
+
   createLayer(): void {
     if (!this.canvas || !this.fabric) return;
     this.ed.pushUndoState();
@@ -2701,6 +2848,81 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       const ext = this._exportFormat.toLowerCase();
       this.ed.downloadUrl(state.downloadUrl, `design-${Date.now()}.${ext}`);
       this.closeExport();
+    }
+  }
+
+  /** Export the currently selected object(s) as an image (client-side). */
+  exportSelection(format: ExportFormat): void {
+    if (!this.canvas) {
+      this.exportDesign(format);
+      return;
+    }
+
+    // Determine selected objects from Fabric active selection or service selection
+    let objects: any[] = [];
+    if (this.canvas.getActiveObjects && this.canvas.getActiveObjects().length) {
+      objects = this.canvas.getActiveObjects();
+    } else {
+      const ids = this.ed.selectedLayerIds();
+      if (ids && ids.size) {
+        objects = this.canvas.getObjects().filter((o: any) => o._id && ids.has(o._id));
+      }
+    }
+
+    if (!objects.length) {
+      // nothing selected -> fallback to full project export
+      this.exportDesign(format);
+      return;
+    }
+
+    // Compute bounding box of selection
+    let left = Number.POSITIVE_INFINITY;
+    let top = Number.POSITIVE_INFINITY;
+    let right = Number.NEGATIVE_INFINITY;
+    let bottom = Number.NEGATIVE_INFINITY;
+
+    objects.forEach((obj: any) => {
+      const r = obj.getBoundingRect(true);
+      left = Math.min(left, r.left);
+      top = Math.min(top, r.top);
+      right = Math.max(right, r.left + r.width);
+      bottom = Math.max(bottom, r.top + r.height);
+    });
+
+    if (!isFinite(left) || !isFinite(top)) {
+      this.exportDesign(format);
+      return;
+    }
+
+    const width = Math.max(1, right - left);
+    const height = Math.max(1, bottom - top);
+
+    const fmt = format === 'JPG' ? 'jpeg' : 'png';
+    const multiplier = 2; // increase resolution for exports
+
+    // fabric.Canvas.toDataURL accepts an options object
+    try {
+      const dataUrl = this.canvas.toDataURL({
+        format: fmt,
+        left,
+        top,
+        width,
+        height,
+        multiplier,
+        quality: fmt === 'jpeg' ? Math.max(0.1, Math.min(1, this.exportQuality / 100)) : undefined,
+      } as any);
+
+      // trigger download
+      const a = document.createElement('a');
+      const ext = fmt === 'jpeg' ? 'jpg' : 'png';
+      a.href = dataUrl;
+      a.download = `selection-${Date.now()}.${ext}`;
+      a.click();
+      this.closeExport();
+    } catch (e) {
+      // fallback to server export when client export fails
+      console.warn('Selection export failed, falling back to project export', e);
+      this.exportDesign(format);
     }
   }
 

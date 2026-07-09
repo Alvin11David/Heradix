@@ -316,4 +316,40 @@ describe('CanvasEditorComponent page actions', () => {
     component.moveLayerBackward('layer-2');
     expect(sendBackwardsSpy).toHaveBeenCalledWith(second);
   });
+
+  it('brings selected layers to front and sends selected layers to back', () => {
+    const first = { _id: 'layer-1', type: 'rect' };
+    const second = { _id: 'layer-2', type: 'circle' };
+    const canvasObjects = [first, second];
+    const bringToFrontSpy = jasmine.createSpy('bringToFront');
+    const sendToBackSpy = jasmine.createSpy('sendToBack');
+
+    (component as any).canvas = {
+      getObjects: () => canvasObjects,
+      getActiveObjects: () => [first],
+      bringToFront: bringToFrontSpy,
+      sendToBack: sendToBackSpy,
+      renderAll: () => {},
+      requestRenderAll: () => {},
+      setActiveObject: () => {},
+      discardActiveObject: () => {},
+      add: (obj: any) => {
+        canvasObjects.push(obj);
+      },
+      remove: (obj: any) => {
+        const index = canvasObjects.indexOf(obj);
+        if (index >= 0) {
+          canvasObjects.splice(index, 1);
+        }
+      },
+    };
+
+    component.ed.selectedLayerIds.set(new Set(['layer-1']));
+
+    component.bringSelectedToFront();
+    expect(bringToFrontSpy).toHaveBeenCalledWith(first);
+
+    component.sendSelectedToBack();
+    expect(sendToBackSpy).toHaveBeenCalledWith(first);
+  });
 });

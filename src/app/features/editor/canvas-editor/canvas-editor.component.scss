@@ -18,6 +18,7 @@ button {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  min-height: 0;
   width: 100vw;
 }
 
@@ -25,6 +26,7 @@ button {
   display: grid;
   grid-template-columns: 260px 1fr 280px;
   flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -212,7 +214,6 @@ button {
 
 .panel--layers {
   grid-column: 1;
-  /* allow expanded layer items to be visible and let inner scroll handle overflow */
   overflow: visible;
 }
 
