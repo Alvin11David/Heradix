@@ -2,7 +2,7 @@
   <!-- ══ Top Toolbar ══════════════════════════════════════════ -->
   <header class="editor-toolbar">
     <div class="tb-left">
-      <button class="tb-btn tb-btn--icon" (click)="saveAndClose()" title="Back to Marketplace">
+      <button class="tb-btn tb-btn--icon" (click)="saveAndClose()" aria-label="Back to Marketplace" data-tip="Back to Marketplace">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="15 18 9 12 15 6"/>
         </svg>
@@ -15,14 +15,14 @@
       <!-- Primary tools group -->
       <div class="tb-tool-group">
         <button class="tb-tool" [class.tb-tool--active]="toolMode() === 'select'"
-          (click)="setTool('select')" title="Select (V)">
+          (click)="setTool('select')" aria-label="Select (V)" data-tip="Select (V)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
           </svg>
           <span class="tb-tool-label">Select</span>
         </button>
         <button class="tb-tool" [class.tb-tool--active]="toolMode() === 'text'"
-          (click)="setTool('text')" title="Text (T)">
+          (click)="setTool('text')" aria-label="Text (T)" data-tip="Text (T)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="4 7 4 4 20 4 20 7"/>
             <line x1="9" y1="20" x2="15" y2="20"/>
@@ -31,14 +31,14 @@
           <span class="tb-tool-label">Text</span>
         </button>
         <button class="tb-tool" [class.tb-tool--active]="toolMode() === 'shape'"
-          (click)="setTool('shape')" title="Shape (R)">
+          (click)="setTool('shape')" aria-label="Shape (R)" data-tip="Shape (R)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="18" height="18" rx="2"/>
           </svg>
           <span class="tb-tool-label">Shape</span>
         </button>
         <button class="tb-tool" [class.tb-tool--active]="toolMode() === 'image'"
-          (click)="setTool('image')" title="Image">
+          (click)="setTool('image')" aria-label="Image" data-tip="Image">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="18" height="18" rx="2"/>
             <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -47,7 +47,7 @@
           <span class="tb-tool-label">Image</span>
         </button>
         <button class="tb-tool" [class.tb-tool--active]="toolMode() === 'upload'"
-          (click)="setTool('upload')" title="Upload file">
+          (click)="setTool('upload')" aria-label="Upload file" data-tip="Upload file">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
             <polyline points="17 8 12 3 7 8"/>
@@ -60,14 +60,14 @@
       <div class="tb-sep"></div>
 
       <!-- Action buttons -->
-      <button class="tb-tool" (click)="selectAll()" title="Select All (Ctrl+A)">
+      <button class="tb-tool" (click)="selectAll()" aria-label="Select All (Ctrl+A)" data-tip="Select All (Ctrl+A)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2"/>
           <path d="M7 8h10M7 12h10M7 16h10"/>
         </svg>
         <span class="tb-tool-label">All</span>
       </button>
-      <button class="tb-tool" (click)="showTemplatePicker.set(true)" title="Templates">
+      <button class="tb-tool" (click)="showTemplatePicker.set(true)" aria-label="Templates" data-tip="Templates">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7" rx="1"/>
           <rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -79,7 +79,7 @@
 
       <div class="tb-sep"></div>
 
-      <button class="tb-tool tb-tool--ai" (click)="setTool('ai')" title="AI Tools">
+      <button class="tb-tool tb-tool--ai" (click)="setTool('ai')" aria-label="AI Tools" data-tip="AI Tools">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
           <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
@@ -89,20 +89,20 @@
     </div>
 
     <div class="tb-right">
-      <button class="tb-btn" (click)="undo()" [class.tb-btn--disabled]="!canUndo()" title="Undo (Ctrl+Z)">
+      <button class="tb-btn" (click)="undo()" [disabled]="!canUndo()" [class.tb-btn--disabled]="!canUndo()" aria-label="Undo (Ctrl+Z)" data-tip="Undo (Ctrl+Z)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="1 4 1 10 7 10"/>
           <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
         </svg>
       </button>
-      <button class="tb-btn" (click)="redo()" [class.tb-btn--disabled]="!canRedo()" title="Redo (Ctrl+Shift+Z)">
+      <button class="tb-btn" (click)="redo()" [disabled]="!canRedo()" [class.tb-btn--disabled]="!canRedo()" aria-label="Redo (Ctrl+Shift+Z)" data-tip="Redo (Ctrl+Shift+Z)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="23 4 23 10 17 10"/>
           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
         </svg>
       </button>
       <div class="tb-sep"></div>
-      <button class="tb-btn tb-btn--export" (click)="openExport()" title="Export design">
+      <button class="tb-btn tb-btn--export" (click)="openExport()" aria-label="Export design" data-tip="Export design">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
@@ -110,7 +110,7 @@
         </svg>
         Export
       </button>
-      <button class="tb-btn tb-btn--save" (click)="save()" title="Save (Ctrl+S)">
+      <button class="tb-btn tb-btn--save" (click)="save()" aria-label="Save (Ctrl+S)" data-tip="Save (Ctrl+S)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
           <polyline points="17 21 17 13 7 13 7 21"/>
@@ -124,70 +124,70 @@
   <!-- ══ Contextual Selection Toolbar (floats below top bar) ═══ -->
   <div class="sel-toolbar" *ngIf="selectedLayerIds().size > 0" style="position: fixed; top: 62px; left: 50%; transform: translateX(-50%); z-index: 50;">
     <!-- Align -->
-    <button class="sel-btn" (click)="alignSelected('left')" title="Align left">
+    <button class="sel-btn" (click)="alignSelected('left')" aria-label="Align left" data-tip="Align left">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="4" y1="4" x2="4" y2="20"/><rect x="6" y="7" width="10" height="4" rx="1"/><rect x="6" y="13" width="14" height="4" rx="1"/>
       </svg>
     </button>
-    <button class="sel-btn" (click)="alignSelected('centerX')" title="Align center (horizontal)">
+    <button class="sel-btn" (click)="alignSelected('centerX')" aria-label="Align center (horizontal)" data-tip="Align center (horizontal)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="12" y1="4" x2="12" y2="20"/><rect x="6" y="7" width="12" height="4" rx="1"/><rect x="4" y="13" width="16" height="4" rx="1"/>
       </svg>
     </button>
-    <button class="sel-btn" (click)="alignSelected('right')" title="Align right">
+    <button class="sel-btn" (click)="alignSelected('right')" aria-label="Align right" data-tip="Align right">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="20" y1="4" x2="20" y2="20"/><rect x="8" y="7" width="10" height="4" rx="1"/><rect x="4" y="13" width="14" height="4" rx="1"/>
       </svg>
     </button>
-    <button class="sel-btn" (click)="alignSelected('top')" title="Align top">
+    <button class="sel-btn" (click)="alignSelected('top')" aria-label="Align top" data-tip="Align top">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="4" y1="4" x2="20" y2="4"/><rect x="7" y="6" width="4" height="10" rx="1"/><rect x="13" y="6" width="4" height="14" rx="1"/>
       </svg>
     </button>
-    <button class="sel-btn" (click)="alignSelected('centerY')" title="Align middle (vertical)">
+    <button class="sel-btn" (click)="alignSelected('centerY')" aria-label="Align middle (vertical)" data-tip="Align middle (vertical)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="4" y1="12" x2="20" y2="12"/><rect x="7" y="5" width="4" height="14" rx="1"/><rect x="13" y="7" width="4" height="10" rx="1"/>
       </svg>
     </button>
-    <button class="sel-btn" (click)="alignSelected('bottom')" title="Align bottom">
+    <button class="sel-btn" (click)="alignSelected('bottom')" aria-label="Align bottom" data-tip="Align bottom">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="4" y1="20" x2="20" y2="20"/><rect x="7" y="4" width="4" height="14" rx="1"/><rect x="13" y="6" width="4" height="12" rx="1"/>
       </svg>
     </button>
     <div class="sel-sep"></div>
     <!-- Arrange -->
-    <button class="sel-btn" (click)="moveSelectedForward()" title="Bring forward">
+    <button class="sel-btn" (click)="moveSelectedForward()" aria-label="Bring forward" data-tip="Bring forward">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="8" y="8" width="12" height="12" rx="2"/><rect x="4" y="4" width="12" height="12" rx="2" stroke-dasharray="2 2"/>
         <path d="M12 2v4M10 4l2-2 2 2"/>
       </svg>
     </button>
-    <button class="sel-btn" (click)="bringSelectedToFront()" title="Bring to front">
+    <button class="sel-btn" (click)="bringSelectedToFront()" aria-label="Bring to front" data-tip="Bring to front">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="8" y="8" width="12" height="12" rx="2"/><rect x="4" y="4" width="12" height="12" rx="2" opacity=".4"/>
       </svg>
     </button>
-    <button class="sel-btn" (click)="moveSelectedBackward()" title="Send backward">
+    <button class="sel-btn" (click)="moveSelectedBackward()" aria-label="Send backward" data-tip="Send backward">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="4" y="4" width="12" height="12" rx="2"/><rect x="8" y="8" width="12" height="12" rx="2" stroke-dasharray="2 2"/>
         <path d="M12 22v-4M10 20l2 2 2-2"/>
       </svg>
     </button>
-    <button class="sel-btn" (click)="sendSelectedToBack()" title="Send to back">
+    <button class="sel-btn" (click)="sendSelectedToBack()" aria-label="Send to back" data-tip="Send to back">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="4" y="4" width="12" height="12" rx="2"/><rect x="8" y="8" width="12" height="12" rx="2" opacity=".4"/>
       </svg>
     </button>
     <div class="sel-sep"></div>
     <!-- Group / Ungroup -->
-    <button class="sel-btn" (click)="groupSelected()" [disabled]="selectedLayerIds().size < 2" title="Group (Ctrl+G — select 2+ objects)">
+    <button class="sel-btn" (click)="groupSelected()" [disabled]="selectedLayerIds().size < 2" aria-label="Group (Ctrl+G — select 2+ objects)" data-tip="Group (Ctrl+G — select 2+ objects)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="2" y="2" width="8" height="8" rx="1.5"/><rect x="14" y="2" width="8" height="8" rx="1.5"/>
         <rect x="2" y="14" width="8" height="8" rx="1.5"/><rect x="14" y="14" width="8" height="8" rx="1.5"/>
         <path d="M10 6h4M6 10v4M18 10v4M10 18h4"/>
       </svg>
     </button>
-    <button class="sel-btn" (click)="ungroupSelected()" title="Ungroup">
+    <button class="sel-btn" (click)="ungroupSelected()" aria-label="Ungroup" data-tip="Ungroup">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="2" y="2" width="8" height="8" rx="1.5" opacity=".5"/><rect x="14" y="2" width="8" height="8" rx="1.5" opacity=".5"/>
         <rect x="2" y="14" width="8" height="8" rx="1.5" opacity=".5"/><rect x="14" y="14" width="8" height="8" rx="1.5" opacity=".5"/>
@@ -195,19 +195,19 @@
     </button>
     <div class="sel-sep"></div>
     <!-- Duplicate / Lock / Delete -->
-    <button class="sel-btn" (click)="duplicateSelected()" title="Duplicate (Ctrl+D)">
+    <button class="sel-btn" (click)="duplicateSelected()" aria-label="Duplicate (Ctrl+D)" data-tip="Duplicate (Ctrl+D)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="9" y="9" width="13" height="13" rx="2"/>
         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
       </svg>
     </button>
-    <button class="sel-btn" (click)="toggleSelectedLock()" title="Lock / Unlock">
+    <button class="sel-btn" (click)="toggleSelectedLock()" aria-label="Lock / Unlock" data-tip="Lock / Unlock">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="11" width="18" height="11" rx="2"/>
         <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
       </svg>
     </button>
-    <button class="sel-btn sel-btn--danger" (click)="deleteSelected()" title="Delete (Del)">
+    <button class="sel-btn sel-btn--danger" (click)="deleteSelected()" aria-label="Delete (Del)" data-tip="Delete (Del)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="3 6 5 6 21 6"/>
         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -225,7 +225,7 @@
       <div class="panel-header">
         <h3 class="panel-title">Layers</h3>
         <span class="panel-count">{{ layerCountLabel() }}</span>
-        <button class="panel-collapse-btn" (click)="toggleLeftPanel()" title="Collapse panel">
+        <button class="panel-collapse-btn" (click)="toggleLeftPanel()" aria-label="Collapse panel" data-tip="Collapse panel">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
@@ -267,7 +267,7 @@
                   <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
                 </svg>
               </span>
-              <span class="layer-name" *ngIf="layerActionTarget() !== layer.id; else renameLayerInput" title="{{ layer.name }}">{{ layer.name }}</span>
+              <span class="layer-name" *ngIf="layerActionTarget() !== layer.id; else renameLayerInput" title="{{ layer.name }}" [attr.aria-label]="layer.name">{{ layer.name }}</span>
               <ng-template #renameLayerInput>
                 <input class="prop-input prop-input--sm" style="width:100%; min-width:0"
                   [value]="layerRenameValue()"
@@ -278,35 +278,35 @@
                   autofocus/>
               </ng-template>
               <span class="layer-actions">
-                <button class="layer-act" (click)="startRenameLayer(layer.id); $event.stopPropagation()" title="Rename">
+                <button class="layer-act" (click)="startRenameLayer(layer.id); $event.stopPropagation()" aria-label="Rename" data-tip="Rename">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
                   </svg>
                 </button>
-                <button class="layer-act" (click)="duplicateLayer(layer.id); $event.stopPropagation()" title="Duplicate">
+                <button class="layer-act" (click)="duplicateLayer(layer.id); $event.stopPropagation()" aria-label="Duplicate" data-tip="Duplicate">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="9" y="9" width="13" height="13" rx="2"/>
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                   </svg>
                 </button>
-                <button class="layer-act" (click)="bringLayerToFront(layer.id); $event.stopPropagation()" title="Bring to front">
+                <button class="layer-act" (click)="bringLayerToFront(layer.id); $event.stopPropagation()" aria-label="Bring to front" data-tip="Bring to front">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M8 15V5h8v10"/><path d="M5 20h14"/>
                   </svg>
                 </button>
-                <button class="layer-act" (click)="sendLayerToBack(layer.id); $event.stopPropagation()" title="Send to back">
+                <button class="layer-act" (click)="sendLayerToBack(layer.id); $event.stopPropagation()" aria-label="Send to back" data-tip="Send to back">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M8 5h8v10"/><path d="M5 4h14"/>
                   </svg>
                 </button>
                 <button class="layer-act" (click)="toggleLayerVisibility(layer.id); $event.stopPropagation()"
-                  [class.layer-act--off]="!layer.visible" title="Toggle visibility">
+                  [class.layer-act--off]="!layer.visible" aria-label="Toggle visibility" data-tip="Toggle visibility">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                   </svg>
                 </button>
                 <button class="layer-act" (click)="toggleLayerLock(layer.id); $event.stopPropagation()"
-                  [class.layer-act--off]="!layer.locked" title="Lock / Unlock">
+                  [class.layer-act--off]="!layer.locked" aria-label="Lock / Unlock" data-tip="Lock / Unlock">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                   </svg>
@@ -346,7 +346,7 @@
           <div class="im-grid" *ngIf="assets().length; else emptyAssets">
             <div class="im-item" *ngFor="let asset of assets(); trackBy: trackAsset"
               draggable="true" (dragstart)="onImageDragStart($event, asset.previewUrl)"
-              (click)="onImageClick(asset.previewUrl)" title="{{ asset.title }}">
+              (click)="onImageClick(asset.previewUrl)" title="{{ asset.title }}" [attr.aria-label]="asset.title">
               <img [src]="asset.thumbnailUrl || asset.previewUrl" [alt]="asset.title" loading="lazy" draggable="false"/>
               <span class="im-item-label">{{ asset.title }}</span>
             </div>
@@ -379,13 +379,13 @@
       (drop)="onFileDrop($event)" (dragover)="onDragOver($event)">
 
       <button class="panel-expand-btn panel-expand-btn--left" *ngIf="leftPanelCollapsed()"
-        (click)="toggleLeftPanel()" title="Show Layers">
+        (click)="toggleLeftPanel()" aria-label="Show Layers" data-tip="Show Layers">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </button>
       <button class="panel-expand-btn panel-expand-btn--right" *ngIf="rightPanelCollapsed()"
-        (click)="toggleRightPanel()" title="Show Properties">
+        (click)="toggleRightPanel()" aria-label="Show Properties" data-tip="Show Properties">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="15 18 9 12 15 6"/>
         </svg>
@@ -460,7 +460,7 @@
     <aside class="panel panel--props" *ngIf="!rightPanelCollapsed()">
       <div class="panel-header">
         <h3 class="panel-title">Properties</h3>
-        <button class="panel-collapse-btn" (click)="toggleRightPanel()" title="Collapse panel">
+        <button class="panel-collapse-btn" (click)="toggleRightPanel()" aria-label="Collapse panel" data-tip="Collapse panel">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
@@ -505,39 +505,39 @@
           </div>
           <div class="prop-section-body">
             <div class="align-row">
-              <button class="align-btn" (click)="moveSelectedForward()" title="Bring forward">
+              <button class="align-btn" (click)="moveSelectedForward()" aria-label="Bring forward" data-tip="Bring forward">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M12 19V5"/><polyline points="5 12 12 5 19 12"/>
                 </svg>
               </button>
-              <button class="align-btn" (click)="bringSelectedToFront()" title="Bring to front">
+              <button class="align-btn" (click)="bringSelectedToFront()" aria-label="Bring to front" data-tip="Bring to front">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M8 15V5h8v10"/><path d="M5 20h14"/>
                 </svg>
               </button>
-              <button class="align-btn" (click)="moveSelectedBackward()" title="Send backward">
+              <button class="align-btn" (click)="moveSelectedBackward()" aria-label="Send backward" data-tip="Send backward">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M12 5v14"/><polyline points="5 12 12 19 19 12"/>
                 </svg>
               </button>
-              <button class="align-btn" (click)="sendSelectedToBack()" title="Send to back">
+              <button class="align-btn" (click)="sendSelectedToBack()" aria-label="Send to back" data-tip="Send to back">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M8 5h8v10"/><path d="M5 4h14"/>
                 </svg>
               </button>
-              <button class="align-btn" (click)="groupSelected()" title="Group selection">
+              <button class="align-btn" (click)="groupSelected()" aria-label="Group selection" data-tip="Group selection">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="2" y="2" width="8" height="8" rx="1.5"/><rect x="14" y="14" width="8" height="8" rx="1.5"/>
                   <path d="M10 6h4M18 10v4"/>
                 </svg>
               </button>
-              <button class="align-btn" (click)="ungroupSelected()" title="Ungroup">
+              <button class="align-btn" (click)="ungroupSelected()" aria-label="Ungroup" data-tip="Ungroup">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="2" y="2" width="8" height="8" rx="1.5" opacity=".5"/>
                   <rect x="14" y="14" width="8" height="8" rx="1.5" opacity=".5"/>
                 </svg>
               </button>
-              <button class="align-btn" (click)="duplicateSelected()" title="Duplicate (Ctrl+D)">
+              <button class="align-btn" (click)="duplicateSelected()" aria-label="Duplicate (Ctrl+D)" data-tip="Duplicate (Ctrl+D)">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2"/>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
@@ -550,7 +550,7 @@
           <div class="prop-divider"></div>
           <div class="prop-section-header">
             <span class="prop-section-title">Shadow</span>
-            <button class="prop-style-btn" [class.prop-style-btn--active]="hasShadow()" (click)="toggleShadow()" title="Toggle shadow" style="margin-left:auto">
+            <button class="prop-style-btn" [class.prop-style-btn--active]="hasShadow()" (click)="toggleShadow()" aria-label="Toggle shadow" data-tip="Toggle shadow" style="margin-left:auto">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
               </svg>
@@ -635,25 +635,25 @@
               <!-- Style buttons + text align -->
               <div class="prop-row">
                 <button class="prop-style-btn" [class.prop-style-btn--active]="selectedFontWeight() >= 700"
-                  (click)="updateProperty('fontWeight', selectedFontWeight() >= 700 ? 400 : 700)" title="Bold">
+                  (click)="updateProperty('fontWeight', selectedFontWeight() >= 700 ? 400 : 700)" aria-label="Bold" data-tip="Bold">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"/>
                   </svg>
                 </button>
                 <button class="prop-style-btn" [class.prop-style-btn--active]="selectedFontStyle() === 'italic'"
-                  (click)="updateProperty('fontStyle', selectedFontStyle() === 'italic' ? 'normal' : 'italic')" title="Italic">
+                  (click)="updateProperty('fontStyle', selectedFontStyle() === 'italic' ? 'normal' : 'italic')" aria-label="Italic" data-tip="Italic">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"/>
                   </svg>
                 </button>
                 <button class="prop-style-btn" [class.prop-style-btn--active]="selectedUnderline()"
-                  (click)="updateProperty('underline', !selectedUnderline())" title="Underline">
+                  (click)="updateProperty('underline', !selectedUnderline())" aria-label="Underline" data-tip="Underline">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/>
                   </svg>
                 </button>
                 <button class="prop-style-btn" [class.prop-style-btn--active]="selectedStrikethrough()"
-                  (click)="updateProperty('strikethrough', !selectedStrikethrough())" title="Strikethrough">
+                  (click)="updateProperty('strikethrough', !selectedStrikethrough())" aria-label="Strikethrough" data-tip="Strikethrough">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17.3 4.9c-2.3-.6-4.4-1-6.2-.9-2.7 0-5.3.7-5.3 3.6 0 1.6 1.2 2.4 4.2 3.2 3 .8 7.3 1.6 7.3 5.2 0 3.5-3.6 4.9-7.7 4.2-1.8-.3-3.2-.9-4.5-1.8"/>
                     <line x1="3" y1="12" x2="21" y2="12"/>
@@ -662,25 +662,25 @@
                 <div class="tb-sep" style="height:20px; margin: 0 3px"></div>
                 <!-- Text align buttons -->
                 <button class="prop-style-btn" [class.prop-style-btn--active]="selectedTextAlign() === 'left'"
-                  (click)="updateProperty('textAlign', 'left')" title="Align left">
+                  (click)="updateProperty('textAlign', 'left')" aria-label="Align left" data-tip="Align left">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/>
                   </svg>
                 </button>
                 <button class="prop-style-btn" [class.prop-style-btn--active]="selectedTextAlign() === 'center'"
-                  (click)="updateProperty('textAlign', 'center')" title="Align center">
+                  (click)="updateProperty('textAlign', 'center')" aria-label="Align center" data-tip="Align center">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
                   </svg>
                 </button>
                 <button class="prop-style-btn" [class.prop-style-btn--active]="selectedTextAlign() === 'right'"
-                  (click)="updateProperty('textAlign', 'right')" title="Align right">
+                  (click)="updateProperty('textAlign', 'right')" aria-label="Align right" data-tip="Align right">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/>
                   </svg>
                 </button>
                 <button class="prop-style-btn" [class.prop-style-btn--active]="selectedTextAlign() === 'justify'"
-                  (click)="updateProperty('textAlign', 'justify')" title="Justify">
+                  (click)="updateProperty('textAlign', 'justify')" aria-label="Justify" data-tip="Justify">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
                   </svg>
@@ -751,7 +751,7 @@
                   <button class="color-swatch" *ngFor="let c of colorPalette()" [style.background]="c"
                     [class.color-swatch--active]="selectedStroke() === c" (click)="applyColor(c, 'stroke')"></button>
                   <button class="color-swatch color-swatch--none" [class.color-swatch--active]="!selectedStroke()"
-                    (click)="updateProperty('stroke', '')" title="No outline">&#8709;</button>
+                    (click)="updateProperty('stroke', '')" aria-label="No outline" data-tip="No outline">&#8709;</button>
                 </div>
               </div>
               <div class="prop-section" *ngIf="selectedStroke()">
@@ -769,7 +769,7 @@
                     (click)="updateProperty('textBackgroundColor', c)"></button>
                   <button class="color-swatch color-swatch--none"
                     [class.color-swatch--active]="!selectedTextBackgroundColor()"
-                    (click)="updateProperty('textBackgroundColor', '')" title="No highlight">&#8709;</button>
+                    (click)="updateProperty('textBackgroundColor', '')" aria-label="No highlight" data-tip="No highlight">&#8709;</button>
                 </div>
               </div>
             </div>
@@ -858,7 +858,7 @@
                   (change)="applyColor($any($event.target).value, 'stroke')" placeholder="No stroke"/>
                 <button class="color-swatch color-swatch--none" style="margin-left:4px"
                   [class.color-swatch--active]="!selectedStroke()"
-                  (click)="updateProperty('stroke', '')" title="Remove stroke">&#8709;</button>
+                  (click)="updateProperty('stroke', '')" aria-label="Remove stroke" data-tip="Remove stroke">&#8709;</button>
               </div>
               <div class="prop-section">
                 <label class="prop-label">Width</label>
@@ -885,16 +885,16 @@
                 <div class="prop-section">
                   <label class="prop-label">Sides</label>
                   <div class="stroke-sides">
-                    <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeTop()" (click)="updateStrokeSide('top')" title="Top">
+                    <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeTop()" (click)="updateStrokeSide('top')" aria-label="Top" data-tip="Top">
                       <svg width="12" height="12" viewBox="0 0 24 8" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="4" x2="22" y2="4"/></svg>
                     </button>
-                    <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeBottom()" (click)="updateStrokeSide('bottom')" title="Bottom">
+                    <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeBottom()" (click)="updateStrokeSide('bottom')" aria-label="Bottom" data-tip="Bottom">
                       <svg width="12" height="12" viewBox="0 0 24 8" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="2" y1="4" x2="22" y2="4"/></svg>
                     </button>
-                    <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeLeft()" (click)="updateStrokeSide('left')" title="Left">
+                    <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeLeft()" (click)="updateStrokeSide('left')" aria-label="Left" data-tip="Left">
                       <svg width="12" height="12" viewBox="0 0 8 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="2" x2="4" y2="22"/></svg>
                     </button>
-                    <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeRight()" (click)="updateStrokeSide('right')" title="Right">
+                    <button class="stroke-side-btn" [class.stroke-side-btn--on]="selectedStrokeRight()" (click)="updateStrokeSide('right')" aria-label="Right" data-tip="Right">
                       <svg width="12" height="12" viewBox="0 0 8 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="2" x2="4" y2="22"/></svg>
                     </button>
                   </div>
@@ -1055,14 +1055,14 @@
       <span class="sb-item">{{ ed.project()?.width ?? 800 }} × {{ ed.project()?.height ?? 600 }}</span>
     </div>
     <div class="sb-center">
-      <button class="sb-btn" (click)="toggleGrid()" [class.sb-btn--active]="gridVisible()" title="Toggle grid (Ctrl+G)">
+      <button class="sb-btn" (click)="toggleGrid()" [class.sb-btn--active]="gridVisible()" aria-label="Toggle grid (Ctrl+G)" data-tip="Toggle grid (Ctrl+G)">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
           <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
         </svg>
         Grid
       </button>
-      <button class="sb-btn" (click)="togglePageMargins()" [class.sb-btn--active]="pageMarginsVisible()" title="Margins">
+      <button class="sb-btn" (click)="togglePageMargins()" [class.sb-btn--active]="pageMarginsVisible()" aria-label="Margins" data-tip="Margins">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="4" y="4" width="16" height="16" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/>
         </svg>
@@ -1093,18 +1093,18 @@
         Snap
       </button>
       <div class="sb-sep"></div>
-      <button class="sb-btn" (click)="previousPage()" [disabled]="currentPageIndex() === 0" title="Previous page">
+      <button class="sb-btn" (click)="previousPage()" [disabled]="currentPageIndex() === 0" aria-label="Previous page" data-tip="Previous page">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M15 18l-6-6 6-6"/>
         </svg>
       </button>
       <span class="sb-item" style="min-width:64px; text-align:center">{{ currentPageLabel() }}</span>
-      <button class="sb-btn" (click)="nextPage()" [disabled]="currentPageIndex() === pages().length - 1" title="Next page">
+      <button class="sb-btn" (click)="nextPage()" [disabled]="currentPageIndex() === pages().length - 1" aria-label="Next page" data-tip="Next page">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 18l6-6-6-6"/>
         </svg>
       </button>
-      <button class="sb-btn" (click)="addPage()" title="Add page">
+      <button class="sb-btn" (click)="addPage()" aria-label="Add page" data-tip="Add page">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 5v14"/><path d="M5 12h14"/>
         </svg>
@@ -1112,19 +1112,19 @@
       </button>
     </div>
     <div class="sb-right">
-      <button class="sb-btn" (click)="zoomOut()" title="Zoom out (Ctrl+-)">
+      <button class="sb-btn" (click)="zoomOut()" aria-label="Zoom out (Ctrl+-)" data-tip="Zoom out (Ctrl+-)">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>
         </svg>
       </button>
       <span class="sb-zoom">{{ zoom() * 100 | number: '1.0-0' }}%</span>
-      <button class="sb-btn" (click)="zoomIn()" title="Zoom in (Ctrl++)">
+      <button class="sb-btn" (click)="zoomIn()" aria-label="Zoom in (Ctrl++)" data-tip="Zoom in (Ctrl++)">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
         </svg>
       </button>
-      <button class="sb-btn" (click)="zoomToFit()" title="Zoom to fit">
+      <button class="sb-btn" (click)="zoomToFit()" aria-label="Zoom to fit" data-tip="Zoom to fit">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
         </svg>
@@ -1170,7 +1170,7 @@
   <div class="export-dialog" (click)="$event.stopPropagation()">
     <div class="export-header">
       <h3>Export Design</h3>
-      <button class="export-close" (click)="closeExport()">
+      <button class="export-close" (click)="closeExport()" aria-label="Close" data-tip="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
@@ -1237,7 +1237,7 @@
   <div class="export-dialog" (click)="$event.stopPropagation()">
     <div class="export-header">
       <h3>AI Result</h3>
-      <button class="export-close" (click)="discardAiResult()">
+      <button class="export-close" (click)="discardAiResult()" aria-label="Close" data-tip="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
