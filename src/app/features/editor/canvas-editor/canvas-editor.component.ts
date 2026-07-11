@@ -4036,14 +4036,23 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     e.stopPropagation();
     if (!this.canvas) return;
 
-    // Find object under cursor and select it if not already selected
+    // Find object under cursor and select it if not already selected.
+    // Guard: only call setActiveObject on proper Fabric objects that have onSelect()
+    // (findTarget can return custom stroke-side handles or arrow controls that lack it).
     const target = (this.canvas as any).findTarget(e, false);
-    if (target && !target._isStrokeSide && !target._isArrow) {
+    if (
+      target &&
+      !target._isStrokeSide &&
+      !target._isArrow &&
+      typeof target.onSelect === 'function'
+    ) {
       const already = (this.canvas.getActiveObjects?.() ?? []).some((o: any) => o === target);
       if (!already) {
-        this.canvas.setActiveObject(target);
-        this.canvas.renderAll();
-        this.onSelect({ target, selected: [target] });
+        try {
+          this.canvas.setActiveObject(target);
+          this.canvas.renderAll();
+          this.onSelect({ target, selected: [target] });
+        } catch { /* non-selectable object — ignore */ }
       }
     }
 
