@@ -497,6 +497,14 @@
 
   &--big svg { width: 100px; height: 100px; }
 
+  // Colored (brand) icons — preserve embedded fill/stroke, never let CSS override them
+  &--colored svg, &--colored ::ng-deep svg {
+    stroke: none !important;
+    fill: none !important;
+    stroke-width: 0 !important;
+    overflow: visible;
+  }
+
   &--animated { animation: amx-icon-bob 1.6s ease-in-out infinite; }
 }
 

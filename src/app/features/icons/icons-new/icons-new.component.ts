@@ -87,11 +87,16 @@ export class IconsNewComponent {
   markup(icon: IconAsset): SafeHtml {
     let cached = this.svgCache.get(icon.id);
     if (!cached) {
-      const svg = `<svg viewBox="0 0 24 24">${icon.path}</svg>`;
+      const inner = icon.colorSvg ?? icon.path;
+      const svg = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
       cached = this.sanitizer.bypassSecurityTrustHtml(svg);
       this.svgCache.set(icon.id, cached);
     }
     return cached;
+  }
+
+  isColored(icon: IconAsset): boolean {
+    return !!icon.colorSvg;
   }
 
   @HostListener('document:keydown.escape')

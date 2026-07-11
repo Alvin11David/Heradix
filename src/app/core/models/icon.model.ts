@@ -24,6 +24,9 @@ export interface IconAsset {
   createdAt: string;
   /** Inner SVG markup (paths/shapes only), 24x24 viewBox, currentColor-driven. */
   path: string;
+  /** Full-color inner SVG content with embedded fill/stroke colors. When present,
+   *  the icon renders with its real colors and bypasses the global style CSS overrides. */
+  colorSvg?: string;
 }
 
 /** Live rendering controls that apply across the whole grid, mirroring how a

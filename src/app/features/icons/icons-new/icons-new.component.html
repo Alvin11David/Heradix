@@ -217,7 +217,10 @@
         </div>
         <div class="amx-icons__hero-showcase" aria-hidden="true">
           <div class="amx-icons__hero-tile" *ngFor="let icon of svc.filteredIcons().slice(0, 3); let i = index" [style.--i]="i">
-            <span class="amx-icon-render" [class.amx-icon-render--animated]="style().animatedOn && icon.hasAnimatedVariant" [innerHTML]="markup(icon)"></span>
+            <span class="amx-icon-render"
+                  [class.amx-icon-render--animated]="style().animatedOn && icon.hasAnimatedVariant"
+                  [class.amx-icon-render--colored]="isColored(icon)"
+                  [innerHTML]="markup(icon)"></span>
           </div>
         </div>
       </section>
@@ -238,9 +241,11 @@
             <button type="button" class="amx-icon-card" *ngFor="let icon of group.icons; trackBy: trackById"
                     (click)="openDetail(icon)">
               <span class="amx-icon-card__preview">
-                <span class="amx-icon-render" [class.amx-icon-render--animated]="style().animatedOn && icon.hasAnimatedVariant"
-                      [attr.filter]="style().technique === 'hand-drawn' ? 'url(#amxHandDrawn)' : null"
-                      [style.filter]="style().technique === 'hand-drawn' ? 'url(#amxHandDrawn)' : null"
+                <span class="amx-icon-render"
+                      [class.amx-icon-render--animated]="style().animatedOn && icon.hasAnimatedVariant"
+                      [class.amx-icon-render--colored]="isColored(icon)"
+                      [attr.filter]="!isColored(icon) && style().technique === 'hand-drawn' ? 'url(#amxHandDrawn)' : null"
+                      [style.filter]="!isColored(icon) && style().technique === 'hand-drawn' ? 'url(#amxHandDrawn)' : null"
                       [innerHTML]="markup(icon)"></span>
                 <span class="amx-icon-card__premium" *ngIf="icon.isPremium">PRO</span>
                 <button type="button" class="amx-icon-card__fav" [class.amx-icon-card__fav--active]="isFavorite(icon)"
@@ -279,7 +284,9 @@
     <button type="button" class="amx-icon-detail__close" (click)="closeDetail()" aria-label="Close">✕</button>
 
     <div class="amx-icon-detail__preview">
-      <span class="amx-icon-render amx-icon-render--big" [innerHTML]="markup(icon)"></span>
+      <span class="amx-icon-render amx-icon-render--big"
+            [class.amx-icon-render--colored]="isColored(icon)"
+            [innerHTML]="markup(icon)"></span>
     </div>
 
     <h2 class="amx-icon-detail__title">{{ icon.name }}</h2>
