@@ -24,6 +24,11 @@ export const routes: Routes = [
   },
 
   {
+    path: 'icons',
+    loadComponent: () => import('./features/icons/icons-new/icons-new.component').then(m => m.IconsNewComponent),
+  },
+
+  {
     path: 'editor',
     canActivate: [authGuard],
     loadComponent: () => import('./features/editor/canvas-editor/canvas-editor.component').then(m => m.CanvasEditorComponent),

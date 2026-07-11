@@ -1,0 +1,324 @@
+<section class="amx-icons"
+  [class.amx-icons--tech-line]="style().technique === 'line'"
+  [class.amx-icons--tech-filled]="style().technique === 'filled'"
+  [class.amx-icons--tech-3d]="style().technique === '3d'"
+  [class.amx-icons--tech-hand]="style().technique === 'hand-drawn'"
+  [class.amx-icons--color-mono]="style().colorMode === 'mono'"
+  [class.amx-icons--color-duo]="style().colorMode === 'duo'"
+  [class.amx-icons--color-multi]="style().colorMode === 'multi'"
+  [class.amx-icons--color-gradient]="style().colorMode === 'gradient'"
+  [class.amx-icons--corners-sharp]="style().corners === 'sharp'"
+  [style.--icon-color]="style().recolorHue"
+  [style.--icon-stroke]="style().strokeWidth">
+
+  <!-- SVG defs shared by all icon renders (gradient fill + hand-drawn wobble filter) -->
+  <svg class="amx-icons__defs" width="0" height="0" aria-hidden="true">
+    <defs>
+      <linearGradient id="amxIconGradient" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" [attr.stop-color]="style().recolorHue"/>
+        <stop offset="100%" stop-color="#2563eb"/>
+      </linearGradient>
+      <filter id="amxHandDrawn">
+        <feTurbulence type="fractalNoise" baseFrequency="0.02 0.04" numOctaves="2" seed="4" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.2"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <button class="amx-icons__mobile-filters-btn" type="button" (click)="mobileFiltersOpen.set(!mobileFiltersOpen())">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/>
+    </svg>
+    Filters
+    <span class="amx-icons__filter-count" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
+  </button>
+
+  <div class="amx-icons__layout">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="amx-icons__sidebar" [class.amx-icons__sidebar--open]="mobileFiltersOpen()">
+      <div class="amx-icons__sidebar-head">
+        <h3>Filters</h3>
+        <button class="amx-icons__clear" type="button" (click)="clearFilters()" *ngIf="activeFilterCount > 0">
+          Clear all
+        </button>
+        <button class="amx-icons__sidebar-close" type="button" (click)="mobileFiltersOpen.set(false)" aria-label="Close filters">✕</button>
+      </div>
+
+      <div class="amx-filter-group">
+        <h4>Categories</h4>
+        <ul class="amx-filter-list">
+          <li>
+            <button type="button" class="amx-filter-chip" [class.amx-filter-chip--active]="filters().categoryId === null"
+                    (click)="setCategory(null)">All icons</button>
+          </li>
+          <li *ngFor="let cat of categories">
+            <button type="button" class="amx-filter-chip" [class.amx-filter-chip--active]="filters().categoryId === cat.id"
+                    (click)="setCategory(cat.id)">{{ cat.name }}</button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="amx-filter-group">
+        <h4>Animation</h4>
+        <div class="amx-pill-row">
+          <button type="button" class="amx-pill" [class.amx-pill--active]="!style().animatedOn" (click)="style().animatedOn && toggleAnimated()">Static</button>
+          <button type="button" class="amx-pill" [class.amx-pill--active]="style().animatedOn" (click)="!style().animatedOn && toggleAnimated()">Animated</button>
+        </div>
+      </div>
+
+      <div class="amx-filter-group">
+        <h4>OS</h4>
+        <div class="amx-pill-row amx-pill-row--wrap">
+          <button type="button" class="amx-pill" *ngFor="let p of ['android','ios','windows','macos']"
+                  [class.amx-pill--active]="isActivePlatform(p)" (click)="togglePlatform(p)">
+            {{ p === 'ios' ? 'iOS' : (p === 'macos' ? 'macOS' : (p.charAt(0).toUpperCase() + p.slice(1))) }}
+          </button>
+        </div>
+      </div>
+
+      <div class="amx-filter-group">
+        <h4>Technique</h4>
+        <div class="amx-pill-row amx-pill-row--wrap">
+          <button type="button" class="amx-pill" *ngFor="let t of ['line','filled','3d','hand-drawn']"
+                  [class.amx-pill--active]="style().technique === t" (click)="setTechnique(t)">
+            {{ t === 'hand-drawn' ? 'Hand-drawn' : (t === '3d' ? '3D' : (t.charAt(0).toUpperCase() + t.slice(1))) }}
+          </button>
+        </div>
+      </div>
+
+      <div class="amx-filter-group">
+        <h4>Colors</h4>
+        <div class="amx-pill-row amx-pill-row--wrap">
+          <button type="button" class="amx-pill" *ngFor="let c of ['mono','duo','multi','gradient']"
+                  [class.amx-pill--active]="style().colorMode === c" (click)="setColorMode(c)">
+            {{ c.charAt(0).toUpperCase() + c.slice(1) }}
+          </button>
+        </div>
+      </div>
+
+      <div class="amx-filter-group">
+        <h4>Corners</h4>
+        <div class="amx-pill-row">
+          <button type="button" class="amx-pill" [class.amx-pill--active]="style().corners === 'round'" (click)="setCorners('round')">Round</button>
+          <button type="button" class="amx-pill" [class.amx-pill--active]="style().corners === 'sharp'" (click)="setCorners('sharp')">Sharp</button>
+        </div>
+      </div>
+
+      <div class="amx-filter-group" *ngIf="style().technique === 'line' || style().technique === 'hand-drawn'">
+        <h4>Stroke width</h4>
+        <div class="amx-pill-row amx-pill-row--wrap">
+          <button type="button" class="amx-pill amx-pill--stroke" *ngFor="let w of [1, 1.5, 2, 2.5, 3, 4]"
+                  [class.amx-pill--active]="style().strokeWidth === w" (click)="setStroke(w)">{{ w }}</button>
+        </div>
+      </div>
+
+      <div class="amx-filter-group">
+        <h4>Filter size</h4>
+        <div class="amx-pill-row">
+          <button type="button" class="amx-pill" *ngFor="let d of ['small','medium','large']"
+                  [class.amx-pill--active]="style().density === d" (click)="setDensity(d)">
+            {{ d.charAt(0).toUpperCase() + d.slice(1) }}
+          </button>
+        </div>
+      </div>
+
+      <div class="amx-filter-group">
+        <h4>Aesthetic</h4>
+        <div class="amx-pill-row amx-pill-row--wrap">
+          <button type="button" class="amx-pill" *ngFor="let a of ['professional','decorative','games','classic','kids']"
+                  [class.amx-pill--active]="isActiveAesthetic(a)" (click)="toggleAesthetic(a)">
+            {{ a.charAt(0).toUpperCase() + a.slice(1) }}
+          </button>
+        </div>
+      </div>
+
+      <div class="amx-filter-group">
+        <h4>Trendiness</h4>
+        <div class="amx-pill-row amx-pill-row--wrap">
+          <button type="button" class="amx-pill" *ngFor="let t of ['retro','2000s','2010s','2020s','new']"
+                  [class.amx-pill--active]="isActiveTrend(t)" (click)="toggleTrend(t)">
+            {{ t === 'new' ? 'New' : t }}
+          </button>
+        </div>
+      </div>
+
+      <div class="amx-filter-group">
+        <h4>Author</h4>
+        <div class="amx-pill-row">
+          <button type="button" class="amx-pill" *ngFor="let a of ['amarapix','community']"
+                  [class.amx-pill--active]="isActiveAuthor(a)" (click)="toggleAuthor(a)">
+            {{ a === 'amarapix' ? 'Amarapix' : 'Guest artists' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="amx-filter-group">
+        <button type="button" class="amx-pill amx-pill--favorites" [class.amx-pill--active]="filters().favoritesOnly"
+                (click)="toggleFavoritesOnly()">
+          <svg width="14" height="14" viewBox="0 0 24 24" [attr.fill]="filters().favoritesOnly ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 20.5l-1.4-1.3C5.1 14.8 2 12 2 8.5 2 5.9 4 4 6.5 4c1.5 0 2.9.7 3.8 1.8L12 7.6l1.7-1.8C14.6 4.7 16 4 17.5 4 20 4 22 5.9 22 8.5c0 3.5-3.1 6.3-8.6 10.7L12 20.5z"/>
+          </svg>
+          My favorites
+        </button>
+      </div>
+    </aside>
+
+    <div class="amx-icons__sidebar-scrim" *ngIf="mobileFiltersOpen()" (click)="mobileFiltersOpen.set(false)"></div>
+
+    <!-- ================= MAIN ================= -->
+    <main class="amx-icons__main">
+
+      <div class="amx-icons__toolbar">
+        <div class="amx-icons__search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="search" placeholder="Search icons by keyword such as &quot;battery&quot;"
+                 aria-label="Search icons"
+                 [value]="filters().query"
+                 (input)="setQuery($any($event.target).value)" />
+        </div>
+
+        <button type="button" class="amx-icons__ai-toggle" [class.amx-icons__ai-toggle--on]="aiSearchOn()"
+                (click)="aiSearchOn.set(!aiSearchOn())" [attr.aria-pressed]="aiSearchOn()">
+          <span class="amx-icons__ai-knob"></span>
+          AI search
+        </button>
+
+        <div class="amx-icons__recolor">
+          <button type="button" class="amx-icons__recolor-btn" (click)="recolorOpen.set(!recolorOpen())">
+            <span class="amx-icons__recolor-swatch" [style.background]="style().recolorHue"></span>
+            Recolor
+          </button>
+          <input *ngIf="recolorOpen()" type="color" class="amx-icons__recolor-input"
+                 [value]="style().recolorHue" (input)="setRecolor($any($event.target).value)" />
+        </div>
+
+        <div class="amx-icons__density-toggle">
+          <button type="button" [class.active]="style().density !== 'small'" (click)="setDensity('medium')" aria-label="Detailed view">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button type="button" [class.active]="style().density === 'small'" (click)="setDensity('small')" aria-label="Compact view">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <section class="amx-icons__hero">
+        <div class="amx-icons__hero-copy">
+          <h1>New icons</h1>
+          <p>Our design team ships fresh icons every day — some planned, some pulled straight from what people like you ask for. Recolor them, restyle them, drop them straight into your canvas.</p>
+          <div class="amx-icons__hero-stats">
+            <div><strong>{{ svc.filteredIcons().length }}</strong><span>icons in this style</span></div>
+            <div><strong>{{ categories.length }}</strong><span>categories</span></div>
+            <div><strong>{{ svc.favorites().size }}</strong><span>saved by you</span></div>
+          </div>
+        </div>
+        <div class="amx-icons__hero-showcase" aria-hidden="true">
+          <div class="amx-icons__hero-tile" *ngFor="let icon of svc.filteredIcons().slice(0, 3); let i = index" [style.--i]="i">
+            <span class="amx-icon-render" [class.amx-icon-render--animated]="style().animatedOn && icon.hasAnimatedVariant" [innerHTML]="markup(icon)"></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="amx-icons__meta-row">
+        <p class="amx-icons__count">{{ filtered().length }} icon{{ filtered().length === 1 ? '' : 's' }} found</p>
+        <button type="button" class="amx-icons__reset-style" (click)="resetStyle()" *ngIf="style().technique !== 'line' || style().colorMode !== 'mono' || style().corners !== 'round'">
+          Reset style
+        </button>
+      </div>
+
+      <ng-container *ngIf="groups().length > 0; else emptyState">
+        <section class="amx-icons__group" *ngFor="let group of groups()">
+          <h2 class="amx-icons__group-title">{{ group.label }}<span>{{ group.icons.length }}</span></h2>
+
+          <div class="amx-icon-grid" [class.amx-icon-grid--small]="style().density === 'small'"
+               [class.amx-icon-grid--large]="style().density === 'large'">
+            <button type="button" class="amx-icon-card" *ngFor="let icon of group.icons; trackBy: trackById"
+                    (click)="openDetail(icon)">
+              <span class="amx-icon-card__preview">
+                <span class="amx-icon-render" [class.amx-icon-render--animated]="style().animatedOn && icon.hasAnimatedVariant"
+                      [attr.filter]="style().technique === 'hand-drawn' ? 'url(#amxHandDrawn)' : null"
+                      [style.filter]="style().technique === 'hand-drawn' ? 'url(#amxHandDrawn)' : null"
+                      [innerHTML]="markup(icon)"></span>
+                <span class="amx-icon-card__premium" *ngIf="icon.isPremium">PRO</span>
+                <button type="button" class="amx-icon-card__fav" [class.amx-icon-card__fav--active]="isFavorite(icon)"
+                        (click)="toggleFavorite(icon, $event)" [attr.aria-label]="isFavorite(icon) ? 'Remove favorite' : 'Add favorite'">
+                  <svg width="14" height="14" viewBox="0 0 24 24" [attr.fill]="isFavorite(icon) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                    <path d="M12 20.5l-1.4-1.3C5.1 14.8 2 12 2 8.5 2 5.9 4 4 6.5 4c1.5 0 2.9.7 3.8 1.8L12 7.6l1.7-1.8C14.6 4.7 16 4 17.5 4 20 4 22 5.9 22 8.5c0 3.5-3.1 6.3-8.6 10.7L12 20.5z"/>
+                  </svg>
+                </button>
+              </span>
+              <span class="amx-icon-card__name">{{ icon.name }}</span>
+            </button>
+          </div>
+        </section>
+
+        <div class="amx-icons__load-more" *ngIf="hasMore()">
+          <button type="button" (click)="loadMore()">Show more icons</button>
+        </div>
+      </ng-container>
+
+      <ng-template #emptyState>
+        <div class="amx-icons__empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <h3>No icons match these filters</h3>
+          <p>Try loosening a filter or clearing your search.</p>
+          <button type="button" (click)="clearFilters()">Clear all filters</button>
+        </div>
+      </ng-template>
+    </main>
+  </div>
+
+  <!-- ================= DETAIL PANEL ================= -->
+  <div class="amx-icon-detail-scrim" *ngIf="selected()" (click)="closeDetail()"></div>
+  <aside class="amx-icon-detail" *ngIf="selected() as icon" role="dialog" [attr.aria-label]="icon.name + ' details'">
+    <button type="button" class="amx-icon-detail__close" (click)="closeDetail()" aria-label="Close">✕</button>
+
+    <div class="amx-icon-detail__preview">
+      <span class="amx-icon-render amx-icon-render--big" [innerHTML]="markup(icon)"></span>
+    </div>
+
+    <h2 class="amx-icon-detail__title">{{ icon.name }}</h2>
+    <p class="amx-icon-detail__category">{{ categoryName(icon.category) }} · {{ icon.downloads | number }} downloads</p>
+
+    <div class="amx-icon-detail__actions">
+      <button type="button" class="amx-icon-detail__fav" [class.amx-icon-detail__fav--active]="isFavorite(icon)" (click)="toggleFavorite(icon)">
+        <svg width="15" height="15" viewBox="0 0 24 24" [attr.fill]="isFavorite(icon) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <path d="M12 20.5l-1.4-1.3C5.1 14.8 2 12 2 8.5 2 5.9 4 4 6.5 4c1.5 0 2.9.7 3.8 1.8L12 7.6l1.7-1.8C14.6 4.7 16 4 17.5 4 20 4 22 5.9 22 8.5c0 3.5-3.1 6.3-8.6 10.7L12 20.5z"/>
+        </svg>
+        {{ isFavorite(icon) ? 'Saved' : 'Save' }}
+      </button>
+      <button type="button" class="amx-icon-detail__copy" (click)="copySvg(icon)">
+        {{ copyState() === 'copied' ? 'Copied!' : 'Copy SVG' }}
+      </button>
+    </div>
+
+    <div class="amx-icon-detail__block">
+      <h4>Download PNG</h4>
+      <div class="amx-icon-detail__sizes">
+        <button type="button" *ngFor="let size of pngSizes" (click)="downloadPng(icon, size)">{{ size }}px</button>
+      </div>
+      <button type="button" class="amx-icon-detail__svg-btn" (click)="downloadSvg(icon)">Download SVG</button>
+    </div>
+
+    <div class="amx-icon-detail__block">
+      <h4>Tags</h4>
+      <div class="amx-icon-detail__tags">
+        <span *ngFor="let tag of icon.tags">{{ tag }}</span>
+      </div>
+    </div>
+
+    <div class="amx-icon-detail__block" *ngIf="relatedIcons(icon).length">
+      <h4>Related icons</h4>
+      <div class="amx-icon-detail__related">
+        <button type="button" *ngFor="let rel of relatedIcons(icon)" (click)="openDetail(rel)">
+          <span class="amx-icon-render" [innerHTML]="markup(rel)"></span>
+        </button>
+      </div>
+    </div>
+  </aside>
+</section>

@@ -328,7 +328,7 @@ export class HeaderComponent {
       dropdownItems: ['All PSDs', 'Church Flyer', 'Business Cards', 'Brochures', 'Profile', 'Party Flyers'],
     },
     { label: 'Mockups', route: '/marketplace' },
-    { label: 'Icons',   route: '/marketplace' },
+    { label: 'Icons',   route: '/icons' },
     { label: 'PNG',     route: '/marketplace', hasDropdown: true },
     { label: 'Vectors', route: '/marketplace' },
     {

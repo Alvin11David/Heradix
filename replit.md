@@ -15,6 +15,12 @@ Angular 20 client application for Amarapix — a design-asset marketplace with a
   - **Remove Background (AI Tools)**: replaced the fake `setTimeout` mock with a real client-side chroma-key algorithm (samples the image's corner color, keys out matching pixels with edge feathering). Works best on photos with a plain/solid background; "Apply" now genuinely swaps the canvas image, "Discard" cancels cleanly.
   - **Templates**: category filter buttons, the search box, and template tiles (sidebar + modal) are now data-driven and functional — picking one resizes the canvas, applies a gradient background, and drops in an editable title/subtitle.
   - **Arrow tool**: fixed — it previously opened the file-upload dialog; it now draws an actual arrow shape (reusing the existing arrowhead rendering used by the Line tool).
+- **New Icons browsing experience** (`/icons` route, header "Icons" nav now points here instead of `/marketplace`): a from-scratch icon library page modeled on icons8.com/icons/new's feature set, built with 60 original hand-authored line-icon SVGs across 10 categories (`src/app/features/icons/icons.service.ts`, model in `src/app/core/models/icon.model.ts`).
+  - Left sidebar: category list, animation toggle, OS/platform, technique (line/filled/3D/hand-drawn), color mode (mono/duo/multi/gradient), corners, stroke width, filter size, aesthetic, trendiness, author, and a favorites filter (persisted in `localStorage`).
+  - Toolbar: search (plus an "AI search" toggle that broadens matching to token/prefix overlap instead of exact substring), a live recolor color picker, and a grid density (detailed/compact) toggle.
+  - Icon grid is grouped into date sections (Today/Yesterday/This week/This month/Earlier) computed from each icon's seeded `createdAt`.
+  - Icon detail slide-over panel: large live preview, favorite toggle, copy-SVG-to-clipboard, PNG export at multiple sizes (client-side canvas rendering) and SVG download, tags, related icons.
+  - Style controls (technique/color mode/corners/stroke width) are implemented as live CSS-driven renders of a single canonical SVG path per icon (not separate artwork per style) — see memory note `icon-style-as-css-render.md` for why.
 
 ## User preferences
 (none recorded yet)
