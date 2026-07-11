@@ -2583,3 +2583,103 @@ canvas {
   from { opacity: 0; transform: translateY(12px) scale(0.95); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* ── Right-click context menu ────────────────────────────── */
+.ctx-menu {
+  position: fixed;
+  z-index: 10000;
+  min-width: 224px;
+  background: #1c1c22;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 10px;
+  box-shadow:
+    0 4px 6px -1px rgba(0,0,0,0.5),
+    0 10px 32px -4px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(255,255,255,0.04) inset;
+  padding: 5px;
+  backdrop-filter: blur(16px);
+  animation: ctx-appear 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top left;
+  user-select: none;
+}
+
+@keyframes ctx-appear {
+  from { opacity: 0; transform: scale(0.93) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+
+.ctx-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.82);
+  font-size: 12.5px;
+  font-family: inherit;
+  font-weight: 450;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.1s, color 0.1s;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+
+  span { flex: 1; }
+
+  .ctx-icon {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    opacity: 0.65;
+    transition: opacity 0.1s;
+  }
+
+  &:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    .ctx-icon { opacity: 1; }
+  }
+
+  &:active {
+    background: rgba(255,255,255,0.12);
+    transform: scale(0.99);
+  }
+
+  &--accent {
+    color: rgba(147,197,253,0.92);
+    .ctx-icon { opacity: 0.8; }
+    &:hover { background: rgba(59,130,246,0.15); color: #93c5fd; }
+  }
+
+  &--danger {
+    color: rgba(252,165,165,0.9);
+    .ctx-icon { opacity: 0.8; }
+    &:hover {
+      background: rgba(220,38,38,0.18);
+      color: #fca5a5;
+      .ctx-icon { opacity: 1; }
+    }
+  }
+}
+
+.ctx-kbd {
+  flex-shrink: 0;
+  margin-left: auto;
+  font-size: 10px;
+  font-family: inherit;
+  color: rgba(255,255,255,0.28);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 4px;
+  padding: 1px 5px;
+  letter-spacing: 0.02em;
+}
+
+.ctx-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+  margin: 4px 6px;
+}

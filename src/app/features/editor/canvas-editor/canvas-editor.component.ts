@@ -143,6 +143,14 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   // ── Clipboard (copy/paste) ────────────────────────────
   private _clipboard: any[] = [];
 
+  // ── Right-click context menu ─────────────────────────
+  readonly ctxMenu = signal<{
+    visible: boolean; x: number; y: number;
+    hasSelection: boolean; selCount: number;
+    objType: string; isLocked: boolean; isGroup: boolean;
+    isText: boolean; isImage: boolean; hasClipboard: boolean;
+  }>({ visible: false, x: 0, y: 0, hasSelection: false, selCount: 0, objType: '', isLocked: false, isGroup: false, isText: false, isImage: false, hasClipboard: false });
+
   // ── Recently used colors (Dribbble / Canva) ───────────
   readonly recentColors = signal<string[]>([]);
 
@@ -394,6 +402,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private panOriginTransform: [number, number, number, number, number, number] | null = null;
   private readonly canvasWheelHandler = this.handleCanvasWheel.bind(this);
   private readonly canvasMouseDownHandler = this.handleCanvasMouseDown.bind(this);
+  private readonly canvasContextMenuHandler = this.handleCanvasContextMenu.bind(this);
   private readonly canvasMouseMoveHandler = this.handleCanvasMouseMove.bind(this);
   private readonly canvasMouseUpHandler = this.handleCanvasMouseUp.bind(this);
   private readonly windowKeyDownHandler = this.handleWindowKeyDown.bind(this);
@@ -565,8 +574,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       height: h,
       backgroundColor: '#ffffff',
       preserveObjectStacking: true,
-      stopContextMenu: true,
-      fireRightClick: false,
+      stopContextMenu: false,
+      fireRightClick: true,
     });
 
     this.fabric.Object.prototype.set({
@@ -659,6 +668,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const viewport = this.canvasAreaRef.nativeElement;
     viewport.addEventListener('wheel', this.canvasWheelHandler, { passive: false });
     viewport.addEventListener('mousedown', this.canvasMouseDownHandler);
+    viewport.addEventListener('contextmenu', this.canvasContextMenuHandler);
     window.addEventListener('mousemove', this.canvasMouseMoveHandler);
     window.addEventListener('mouseup', this.canvasMouseUpHandler);
     window.addEventListener('keydown', this.windowKeyDownHandler);
@@ -1721,6 +1731,12 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.copySelected();
       return;
     }
+    // Cut
+    if (mod && !e.shiftKey && e.key === 'x') {
+      e.preventDefault();
+      this.cutSelected();
+      return;
+    }
     // Paste
     if (mod && !e.shiftKey && e.key === 'v') {
       e.preventDefault();
@@ -1821,6 +1837,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostListener('document:click')
   onDocClick(): void {
     this.showFontPicker.set(false);
+    this.hideCtxMenu();
   }
 
   private onSelect(e: any): void {
@@ -3920,6 +3937,181 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onModify();
   }
 
+  // ═══════════════════════════════════════════════════════
+  // ── Right-click context menu ─────────────────────────
+
+  private handleCanvasContextMenu(e: MouseEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!this.canvas) return;
+
+    // Find object under cursor and select it if not already selected
+    const target = (this.canvas as any).findTarget(e, false);
+    if (target && !target._isStrokeSide && !target._isArrow) {
+      const already = (this.canvas.getActiveObjects?.() ?? []).some((o: any) => o === target);
+      if (!already) {
+        this.canvas.setActiveObject(target);
+        this.canvas.renderAll();
+        this.onSelect({ target, selected: [target] });
+      }
+    }
+
+    const objs: any[] = this.canvas.getActiveObjects?.() ?? [];
+    const first = objs[0] ?? null;
+    const objType = first?.type ?? '';
+    const isText = ['i-text', 'text', 'textbox'].includes(objType);
+    const isImage = objType === 'image';
+    const isGroup = objType === 'group' || objType === 'activeselection';
+
+    // Position — flip to stay inside viewport
+    const menuW = 236, menuH = 460;
+    let x = e.clientX, y = e.clientY;
+    if (x + menuW > window.innerWidth - 8) x = x - menuW;
+    if (y + menuH > window.innerHeight - 8) y = window.innerHeight - menuH - 8;
+    if (y < 8) y = 8;
+    if (x < 8) x = 8;
+
+    this.ctxMenu.set({
+      visible: true, x, y,
+      hasSelection: objs.length > 0,
+      selCount: objs.length,
+      objType,
+      isLocked: first?.lockMovementX ?? false,
+      isGroup,
+      isText,
+      isImage,
+      hasClipboard: this._clipboard.length > 0,
+    });
+  }
+
+  hideCtxMenu(): void {
+    if (this.ctxMenu().visible) this.ctxMenu.update(m => ({ ...m, visible: false }));
+  }
+
+  private ctxRun(action: () => void): void {
+    this.hideCtxMenu();
+    requestAnimationFrame(() => action());
+  }
+
+  ctxCopy(): void         { this.ctxRun(() => this.copySelected()); }
+  ctxCut(): void          { this.ctxRun(() => this.cutSelected()); }
+  ctxPaste(): void        { this.ctxRun(() => this.pasteClipboard()); }
+  ctxDuplicate(): void    { this.ctxRun(() => this.duplicateSelected()); }
+  ctxBringToFront(): void { this.ctxRun(() => this.bringSelectedToFront()); }
+  ctxBringForward(): void { this.ctxRun(() => this.moveSelectedForward()); }
+  ctxSendBackward(): void { this.ctxRun(() => this.moveSelectedBackward()); }
+  ctxSendToBack(): void   { this.ctxRun(() => this.sendSelectedToBack()); }
+  ctxFlipH(): void        { this.ctxRun(() => this.flipSelectedHorizontal()); }
+  ctxFlipV(): void        { this.ctxRun(() => this.flipSelectedVertical()); }
+  ctxRotateCW(): void     { this.ctxRun(() => this.rotateSelected(90)); }
+  ctxRotateCCW(): void    { this.ctxRun(() => this.rotateSelected(-90)); }
+  ctxGroup(): void        { this.ctxRun(() => this.groupSelected()); }
+  ctxUngroup(): void      { this.ctxRun(() => this.ungroupSelected()); }
+  ctxCenterH(): void      { this.ctxRun(() => this.centerOnCanvas('h')); }
+  ctxCenterV(): void      { this.ctxRun(() => this.centerOnCanvas('v')); }
+  ctxLock(): void         { this.ctxRun(() => this.toggleSelectedLock()); }
+  ctxSelectAll(): void    { this.ctxRun(() => this.selectAll()); }
+  ctxDelete(): void       { this.ctxRun(() => this.deleteSelected()); }
+  ctxEditText(): void {
+    this.ctxRun(() => {
+      const obj = this._selectedObject;
+      if (obj?.enterEditing) { obj.enterEditing(); this.canvas?.renderAll(); }
+    });
+  }
+  ctxReplaceImage(): void {
+    this.ctxRun(() => {
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'image/*';
+      input.onchange = async (ev: any) => {
+        const file: File = ev.target?.files?.[0];
+        if (!file || !this.canvas || !this.fabric) return;
+        const url = await new Promise<string>(res => {
+          const r = new FileReader();
+          r.onload = (e2: any) => res(e2.target.result);
+          r.readAsDataURL(file);
+        });
+        const obj = this._selectedObject;
+        if (!obj || obj.type !== 'image') return;
+        this.fabric.Image.fromURL(url, (img: any) => {
+          if (!img) return;
+          obj.setElement(img.getElement());
+          obj.set({ width: img.width, height: img.height, scaleX: 1, scaleY: 1 });
+          obj.setCoords?.();
+          this.canvas?.renderAll();
+          this.onModify();
+          this.showToast('Image replaced', 'success', 2000);
+        });
+      };
+      input.click();
+    });
+  }
+
+  // ── Core new utility methods ──────────────────────────
+
+  flipSelectedHorizontal(): void {
+    const objs = this.canvas?.getActiveObjects?.() ?? [];
+    if (!objs.length) return;
+    this.ed.pushUndoState();
+    objs.forEach((obj: any) => obj.set('flipX', !obj.flipX));
+    this.canvas?.renderAll();
+    this.onModify();
+    this.showToast('Flipped horizontally', 'info', 1500);
+  }
+
+  flipSelectedVertical(): void {
+    const objs = this.canvas?.getActiveObjects?.() ?? [];
+    if (!objs.length) return;
+    this.ed.pushUndoState();
+    objs.forEach((obj: any) => obj.set('flipY', !obj.flipY));
+    this.canvas?.renderAll();
+    this.onModify();
+    this.showToast('Flipped vertically', 'info', 1500);
+  }
+
+  rotateSelected(deg: number): void {
+    const objs = this.canvas?.getActiveObjects?.() ?? [];
+    if (!objs.length) return;
+    this.ed.pushUndoState();
+    objs.forEach((obj: any) => {
+      obj.set('angle', ((obj.angle ?? 0) + deg + 360) % 360);
+      obj.setCoords?.();
+    });
+    this.canvas?.renderAll();
+    this.onModify();
+  }
+
+  cutSelected(): void {
+    if (!this.canvas) return;
+    const count = this.canvas.getActiveObjects?.()?.length ?? 0;
+    if (!count) return;
+    this.copySelected();
+    this.deleteSelected();
+    this.showToast(`Cut ${count} object${count > 1 ? 's' : ''}`, 'info', 1800);
+  }
+
+  centerOnCanvas(axis: 'h' | 'v' | 'both' = 'both'): void {
+    if (!this.canvas) return;
+    const objs = this.canvas.getActiveObjects?.() ?? [];
+    if (!objs.length) return;
+    this.ed.pushUndoState();
+    const cw = this.canvas.getWidth();
+    const ch = this.canvas.getHeight();
+    objs.forEach((obj: any) => {
+      const b = obj.getBoundingRect(true);
+      if (axis === 'h' || axis === 'both') {
+        obj.set('left', (obj.left ?? 0) + (cw / 2 - (b.left + b.width / 2)));
+      }
+      if (axis === 'v' || axis === 'both') {
+        obj.set('top', (obj.top ?? 0) + (ch / 2 - (b.top + b.height / 2)));
+      }
+      obj.setCoords?.();
+    });
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
+  // ═══════════════════════════════════════════════════════
+
   saveAndClose(): void {
     this.save();
     this.router.navigate(['/marketplace']);
@@ -3953,10 +4145,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (this.canvasAreaRef?.nativeElement) {
       this.canvasAreaRef.nativeElement.removeEventListener('wheel', this.canvasWheelHandler);
-      this.canvasAreaRef.nativeElement.removeEventListener(
-        'mousedown',
-        this.canvasMouseDownHandler,
-      );
+      this.canvasAreaRef.nativeElement.removeEventListener('mousedown', this.canvasMouseDownHandler);
+      this.canvasAreaRef.nativeElement.removeEventListener('contextmenu', this.canvasContextMenuHandler);
     }
     window.removeEventListener('mousemove', this.canvasMouseMoveHandler);
     window.removeEventListener('mouseup', this.canvasMouseUpHandler);

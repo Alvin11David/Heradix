@@ -1,3 +1,5 @@
 - [Angular Replit setup](angular-replit-setup.md) — this repo's Angular dev server needs allowedHosts/host/port set in angular.json serve.options, not just CLI flags.
 - [Icon-only button labeling](icon-button-labeling.md) — pattern for adding visible tooltip + accessible name to icon-only buttons without native title duplication.
 - [Editor dirty/save-state initialization](editor-service-dirty-state.md) — reset dirty/saveState explicitly after canvas setup, or the save indicator gets stuck on "Saving…".
+- [Canvas editor handler pattern](canvas-editor-handler-pattern.md) — new DOM event handlers must follow the bind pattern at the top of the class; inline arrow function class fields defined late in the file cause TS2339 even though they are valid class members.
+- [Canvas editor duplicate methods](canvas-editor-duplicate-methods.md) — several methods (selectAll, onDocClick) already existed before context menu work; always grep before adding new implementations to avoid TS2393 duplicate errors.
