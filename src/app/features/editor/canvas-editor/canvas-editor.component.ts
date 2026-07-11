@@ -151,6 +151,14 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     isText: boolean; isImage: boolean; hasClipboard: boolean;
   }>({ visible: false, x: 0, y: 0, hasSelection: false, selCount: 0, objType: '', isLocked: false, isGroup: false, isText: false, isImage: false, hasClipboard: false });
 
+  // ── Floating quick-action toolbar ────────────────────
+  readonly floatBar = signal<{
+    visible: boolean; x: number; y: number;
+    isText: boolean; isImage: boolean; isGroup: boolean;
+    isLocked: boolean; selCount: number;
+    isBold: boolean; isItalic: boolean;
+  }>({ visible: false, x: 0, y: 0, isText: false, isImage: false, isGroup: false, isLocked: false, selCount: 0, isBold: false, isItalic: false });
+
   // ── Recently used colors (Dribbble / Canva) ───────────
   readonly recentColors = signal<string[]>([]);
 
@@ -613,7 +621,11 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.applySelectionAppearance(obj);
       this.showDragPreview(obj);
       this.renderGuidesForObject(e.target);
+      this.updateFloatBar();
     });
+
+    this.canvas.on('object:scaling', () => this.updateFloatBar());
+    this.canvas.on('object:rotating', () => this.updateFloatBar());
 
     this.canvas.on('object:modified', (e: any) => {
       this.applySelectionAppearance(e.target);
@@ -1855,6 +1867,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updateCanvasCursor();
     this.wireTextSelectionHandler();
     this.canvas?.requestRenderAll();
+    this.updateFloatBar();
   }
 
   private wireTextSelectionHandler(): void {
@@ -1882,6 +1895,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this._selectionProps.set({});
     this.ed.syncLayers(this.canvas?.getObjects() ?? []);
     this.updateCanvasCursor();
+    this.floatBar.update(b => ({ ...b, visible: false }));
   }
 
   private onModify(): void {
@@ -4108,6 +4122,62 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     this.canvas.renderAll();
     this.onModify();
+  }
+
+  // ── Floating toolbar ─────────────────────────────────
+
+  updateFloatBar(): void {
+    const canvas = this.canvas;
+    if (!canvas) { this.floatBar.update(b => ({ ...b, visible: false })); return; }
+    const activeObj = canvas.getActiveObject?.();
+    if (!activeObj) { this.floatBar.update(b => ({ ...b, visible: false })); return; }
+    const canvasEl = this.canvasElRef?.nativeElement;
+    if (!canvasEl) { this.floatBar.update(b => ({ ...b, visible: false })); return; }
+
+    const br = activeObj.getBoundingRect(true);
+    const canvasRect = canvasEl.getBoundingClientRect();
+    const TOOLBAR_H = 44;
+    const GAP = 10;
+    let screenX = canvasRect.left + br.left + br.width / 2;
+    let screenY = canvasRect.top + br.top - GAP - TOOLBAR_H;
+    // flip below if not enough room above
+    if (screenY < 8) screenY = canvasRect.top + br.top + br.height + GAP;
+    // clamp horizontal
+    screenX = Math.max(120, Math.min(screenX, window.innerWidth - 120));
+
+    const type = (activeObj as any).type ?? '';
+    const isText = type === 'i-text' || type === 'text';
+    const isImage = type === 'image';
+    const isGroup = type === 'group';
+    const selCount = canvas.getActiveObjects?.()?.length ?? 1;
+    const isLocked = !!(activeObj as any).lockMovementX;
+    const fw = (activeObj as any).fontWeight;
+    const isBold = fw === 'bold' || (typeof fw === 'number' && fw >= 700);
+    const isItalic = (activeObj as any).fontStyle === 'italic';
+
+    this.floatBar.set({ visible: true, x: screenX, y: screenY, isText, isImage, isGroup, isLocked, selCount, isBold, isItalic });
+  }
+
+  ftBold(): void {
+    const obj = this.canvas?.getActiveObject?.() as any;
+    if (!obj) return;
+    this.ed.pushUndoState();
+    const next = obj.fontWeight === 'bold' || obj.fontWeight >= 700 ? 'normal' : 'bold';
+    obj.set('fontWeight', next);
+    this.canvas?.renderAll();
+    this.onModify();
+    this.updateFloatBar();
+  }
+
+  ftItalic(): void {
+    const obj = this.canvas?.getActiveObject?.() as any;
+    if (!obj) return;
+    this.ed.pushUndoState();
+    const next = obj.fontStyle === 'italic' ? 'normal' : 'italic';
+    obj.set('fontStyle', next);
+    this.canvas?.renderAll();
+    this.onModify();
+    this.updateFloatBar();
   }
 
   // ═══════════════════════════════════════════════════════
