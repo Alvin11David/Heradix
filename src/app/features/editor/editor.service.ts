@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { Observable, of, interval } from 'rxjs';
 import { EditorProject } from '../../core/models/editor.model';
 
-export type ToolMode = 'select' | 'text' | 'shape' | 'image' | 'upload' | 'templates' | 'ai';
+export type ToolMode = 'select' | 'text' | 'shape' | 'image' | 'upload' | 'templates' | 'ai' | 'draw';
 export type SaveState = 'saved' | 'saving' | 'failed';
 
 export interface EditorLayer {

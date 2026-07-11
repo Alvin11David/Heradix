@@ -74,6 +74,18 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly snapToGridEnabled = signal(true);
   readonly snapToObjectsEnabled = signal(true);
 
+  // ── Draw / Pencil tool (Canva / Freepik / PosterMyWall) ──────────
+  readonly drawBrushSize = signal(14);
+  readonly drawBrushColor = signal('#1a1a2e');
+  readonly drawErase = signal(false);
+
+  // ── Presentation / Fullscreen mode ───────────────────────────────
+  readonly presentationMode = signal(false);
+
+  // ── Aspect-ratio lock (Vistaprint / Canva) ────────────────────────
+  readonly aspectLocked = signal(false);
+  private _lockedAspectRatio = 1;
+
   readonly projectTitle = computed(() => this.ed.project()?.title ?? 'Untitled');
   readonly assets = signal<Asset[]>([]);
   readonly loadingAssets = signal(false);
@@ -360,14 +372,44 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   fontFamilies = [
-    'Inter',
-    'Lato',
-    'Roboto',
-    'Poppins',
-    'Playfair Display',
-    'Courier New',
-    'Georgia',
-    'Arial',
+    'Inter', 'Lato', 'Roboto', 'Poppins', 'Playfair Display',
+    'Courier New', 'Georgia', 'Arial', 'Montserrat', 'Open Sans',
+    'Raleway', 'Merriweather', 'Oswald', 'Nunito', 'Source Sans Pro',
+    'Ubuntu', 'Libre Baskerville', 'Dancing Script', 'Pacifico', 'Bebas Neue',
+  ];
+
+  // ── SVG Icon library (Canva / Freepik / Envato Elements) ─────────
+  readonly editorIcons: {name: string; svg: string}[] = [
+    { name: 'Heart', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#e94560"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>` },
+    { name: 'Star', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>` },
+    { name: 'Diamond', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#8b5cf6"><polygon points="12 2 22 9 12 22 2 9"/></svg>` },
+    { name: 'Lightning', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#f5820a"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>` },
+    { name: 'Cloud', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>` },
+    { name: 'Sun', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>` },
+    { name: 'Moon', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#6366f1"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>` },
+    { name: 'Home', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
+    { name: 'User', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>` },
+    { name: 'Search', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>` },
+    { name: 'Mail', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>` },
+    { name: 'Phone', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.1 19.79 19.79 0 0 1 1.61 4.56 2 2 0 0 1 3.6 2.36h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.12 6.12l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>` },
+    { name: 'Location', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#e94560"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3" fill="#fff"/></svg>` },
+    { name: 'Calendar', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>` },
+    { name: 'Clock', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>` },
+    { name: 'Camera', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>` },
+    { name: 'Music', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>` },
+    { name: 'Play', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6"><polygon points="5 3 19 12 5 21 5 3"/></svg>` },
+    { name: 'Cart', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f5820a" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>` },
+    { name: 'Like', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>` },
+    { name: 'Share', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>` },
+    { name: 'Bell', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>` },
+    { name: 'Settings', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>` },
+    { name: 'Smile', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>` },
+    { name: 'Trophy', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>` },
+    { name: 'Gift', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2" stroke-linecap="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>` },
+    { name: 'Check', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>` },
+    { name: 'Arrow Right', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>` },
+    { name: 'Fire', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#f5820a"><path d="M12 2C8.5 5 7 8 8 11c-2-1-3-3-3-3S4 14 8 17c0 0-1-1-1-2 0 0 3 4 5 4s5-1 5-5c0-2-1-4-1-4S19 8 12 2z"/></svg>` },
+    { name: 'Leaf', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round"><path d="M17 8C8 10 5.9 16.17 3.82 19.08L5 21c4-3 8-6 17-6-1-4-4-8-5-7z"/><path d="M3.82 19.08L5 21"/></svg>` },
   ];
   shapeTypes = ['rect', 'circle', 'polygon', 'star', 'line'] as const;
 
@@ -490,6 +532,19 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   );
   readonly selectedGradientAngle = computed(() => this._selectionProps()['_gradientAngle'] ?? 0);
   readonly selectedGradientRadius = computed(() => this._selectionProps()['_gradientRadius'] ?? 50);
+
+  // ── Transform panel: position / size / rotation ──────────────────
+  readonly selectedX = computed(() => Math.round(this._selectionProps()['left'] ?? 0));
+  readonly selectedY = computed(() => Math.round(this._selectionProps()['top'] ?? 0));
+  readonly selectedW = computed(() => {
+    const p = this._selectionProps();
+    return Math.round((p['width'] ?? 0) * (p['scaleX'] ?? 1));
+  });
+  readonly selectedH = computed(() => {
+    const p = this._selectionProps();
+    return Math.round((p['height'] ?? 0) * (p['scaleY'] ?? 1));
+  });
+  readonly selectedRotation = computed(() => Math.round(this._selectionProps()['angle'] ?? 0));
 
   blendModes = [
     'source-over',
@@ -627,6 +682,15 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.canvas.on('object:scaling', () => this.updateFloatBar());
     this.canvas.on('object:rotating', () => this.updateFloatBar());
 
+    // Assign ids to freehand draw paths and trigger layer sync
+    this.canvas.on('path:created', (e: any) => {
+      if (e.path) {
+        e.path._id = e.path._id || `draw-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        e.path.name = e.path.name || 'Drawing';
+        this.onModify();
+      }
+    });
+
     this.canvas.on('object:modified', (e: any) => {
       this.applySelectionAppearance(e.target);
       this.clearDragPreview();
@@ -667,6 +731,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     } else if (this._assetImageUrl) {
       this.loadAssetImage(this._assetImageUrl);
     }
+
+    // Load Google Fonts for expanded font picker
+    this.loadGoogleFonts();
 
     // The setup above (grid render, initial onModify sync) isn't a real user
     // edit — restoring or starting a project shouldn't show "Saving…".
@@ -1831,11 +1898,13 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     // Single-key tool shortcuts (no modifier)
     if (!mod && !e.shiftKey && !e.altKey) {
       switch (e.key) {
-        case 'v': this.ed.toolMode.set('select'); return;
-        case 't': this.ed.toolMode.set('text'); return;
-        case 'r': this.ed.toolMode.set('shape'); return;
+        case 'v': this.setTool('select'); return;
+        case 't': this.setTool('text'); return;
+        case 'r': this.setTool('shape'); return;
         case 'c': this.addShape('circle'); return;
         case 'l': this.addShape('line'); return;
+        case 'p': this.setTool('draw'); return;  // p = pencil
+        case 'F': this.togglePresentationMode(); return;  // Shift+f
         case '?': this.toggleShortcutsModal(); return;
       }
     }
@@ -1944,6 +2013,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       shadow: this.readShadow(obj),
       width: obj.width,
       height: obj.height,
+      scaleX: obj.scaleX ?? 1,
+      scaleY: obj.scaleY ?? 1,
       left: obj.left,
       top: obj.top,
       angle: obj.angle,
@@ -2081,6 +2152,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       upload: 'crosshair',
       templates: 'default',
       ai: 'default',
+      draw: 'crosshair',
     };
     this.canvas.defaultCursor = cursors[mode] ?? 'default';
     this.canvas.hoverCursor = cursors[mode] ?? 'default';
@@ -2555,6 +2627,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setTool(mode: ToolMode): void {
+    // Disable draw mode when switching away
+    if (this.ed.toolMode() === 'draw' && mode !== 'draw') {
+      this.disableDrawingMode();
+    }
     this.ed.toolMode.set(mode);
     this.showFontPicker.set(false);
     this.updateCanvasCursor();
@@ -2563,6 +2639,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     if (mode === 'image') this.triggerImageUpload();
     if (mode === 'upload') this.showUploadDialog.set(true);
     if (mode === 'templates') this.showTemplatePicker.set(true);
+    if (mode === 'draw') this.enableDrawingMode();
   }
 
   addShape(type: string): void {
@@ -4181,6 +4258,254 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // ═══════════════════════════════════════════════════════
+
+  // ═══ NEW FEATURE METHODS (Position/Size/Distribute/Draw/Etc.) ════
+
+  // ── Transform panel: X / Y / W / H / Rotation ────────────────────
+
+  setPosX(v: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    this.ed.pushUndoState();
+    obj.set('left', Math.round(v));
+    obj.setCoords?.();
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  setPosY(v: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    this.ed.pushUndoState();
+    obj.set('top', Math.round(v));
+    obj.setCoords?.();
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  setSizeW(v: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    const naturalW = obj.width ?? 1;
+    if (naturalW === 0) return;
+    this.ed.pushUndoState();
+    const newScaleX = Math.max(0.01, v / naturalW);
+    if (this.aspectLocked()) {
+      const naturalH = obj.height ?? 1;
+      const newScaleY = Math.max(0.01, (v / this._lockedAspectRatio) / naturalH);
+      obj.set({ scaleX: newScaleX, scaleY: newScaleY });
+    } else {
+      obj.set('scaleX', newScaleX);
+    }
+    obj.setCoords?.();
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  setSizeH(v: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    const naturalH = obj.height ?? 1;
+    if (naturalH === 0) return;
+    this.ed.pushUndoState();
+    const newScaleY = Math.max(0.01, v / naturalH);
+    if (this.aspectLocked()) {
+      const naturalW = obj.width ?? 1;
+      const newScaleX = Math.max(0.01, (v * this._lockedAspectRatio) / naturalW);
+      obj.set({ scaleX: newScaleX, scaleY: newScaleY });
+    } else {
+      obj.set('scaleY', newScaleY);
+    }
+    obj.setCoords?.();
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  setRotation(v: number): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    this.ed.pushUndoState();
+    obj.set('angle', ((v % 360) + 360) % 360);
+    obj.setCoords?.();
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  toggleAspectLock(): void {
+    const w = this.selectedW();
+    const h = this.selectedH();
+    this._lockedAspectRatio = h !== 0 ? w / h : 1;
+    this.aspectLocked.update(v => !v);
+  }
+
+  // ── Distribute evenly (Canva / Vistaprint) ────────────────────────
+
+  distributeHorizontally(): void {
+    if (!this.canvas) return;
+    const objects = this.canvas.getActiveObjects?.() ?? [];
+    if (objects.length < 3) {
+      this.showToast('Select 3+ objects to distribute', 'info', 2000);
+      return;
+    }
+    this.ed.pushUndoState();
+    const sorted = [...objects].sort((a, b) =>
+      a.getBoundingRect(true).left - b.getBoundingRect(true).left
+    );
+    const firstB = sorted[0].getBoundingRect(true);
+    const lastB = sorted[sorted.length - 1].getBoundingRect(true);
+    const totalObjW = sorted.reduce((s, o) => s + o.getBoundingRect(true).width, 0);
+    const totalSpace = (lastB.left + lastB.width) - firstB.left;
+    const gap = (totalSpace - totalObjW) / (sorted.length - 1);
+    let cur = firstB.left + firstB.width + gap;
+    for (let i = 1; i < sorted.length - 1; i++) {
+      const b = sorted[i].getBoundingRect(true);
+      sorted[i].set('left', (sorted[i].left ?? 0) + (cur - b.left));
+      sorted[i].setCoords?.();
+      cur += b.width + gap;
+    }
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
+  distributeVertically(): void {
+    if (!this.canvas) return;
+    const objects = this.canvas.getActiveObjects?.() ?? [];
+    if (objects.length < 3) {
+      this.showToast('Select 3+ objects to distribute', 'info', 2000);
+      return;
+    }
+    this.ed.pushUndoState();
+    const sorted = [...objects].sort((a, b) =>
+      a.getBoundingRect(true).top - b.getBoundingRect(true).top
+    );
+    const firstB = sorted[0].getBoundingRect(true);
+    const lastB = sorted[sorted.length - 1].getBoundingRect(true);
+    const totalObjH = sorted.reduce((s, o) => s + o.getBoundingRect(true).height, 0);
+    const totalSpace = (lastB.top + lastB.height) - firstB.top;
+    const gap = (totalSpace - totalObjH) / (sorted.length - 1);
+    let cur = firstB.top + firstB.height + gap;
+    for (let i = 1; i < sorted.length - 1; i++) {
+      const b = sorted[i].getBoundingRect(true);
+      sorted[i].set('top', (sorted[i].top ?? 0) + (cur - b.top));
+      sorted[i].setCoords?.();
+      cur += b.height + gap;
+    }
+    this.canvas.renderAll();
+    this.onModify();
+  }
+
+  // ── Text transform (Uppercase / lowercase / Capitalize) ───────────
+
+  applyTextTransform(transform: 'upper' | 'lower' | 'capitalize'): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    const text: string = obj.text ?? '';
+    if (!text) return;
+    this.ed.pushUndoState();
+    let newText: string;
+    switch (transform) {
+      case 'upper': newText = text.toUpperCase(); break;
+      case 'lower': newText = text.toLowerCase(); break;
+      default: newText = text.replace(/\b\w/g, c => c.toUpperCase());
+    }
+    obj.set('text', newText);
+    this.canvas?.renderAll();
+    this.readPropsFromSelected();
+    this.ed.setDirty();
+  }
+
+  // ── SVG Icon library ──────────────────────────────────────────────
+
+  addIcon(icon: {name: string; svg: string}): void {
+    if (!this.canvas || !this.fabric) return;
+    this.ed.pushUndoState();
+    const id = `icon-${Date.now()}`;
+    const c = this.getCanvasCenter();
+    const dataUri = `data:image/svg+xml,${encodeURIComponent(icon.svg)}`;
+    void this.loadFabricImage(dataUri, false).then((img: any) => {
+      if (!img) return;
+      const size = 100;
+      img.set({
+        _id: id,
+        name: icon.name,
+        left: c.x - size / 2,
+        top: c.y - size / 2,
+        scaleX: size / (img.width || size),
+        scaleY: size / (img.height || size),
+      });
+      this.canvas!.add(img);
+      this.canvas!.setActiveObject(img);
+      this.canvas!.renderAll();
+      this.onSelect({ target: img });
+      this.ed.setDirty();
+    });
+  }
+
+  // ── Draw / Pencil / Freehand (Canva / Freepik) ────────────────────
+
+  enableDrawingMode(): void {
+    if (!this.canvas || !this.fabric) return;
+    this.canvas.isDrawingMode = true;
+    if (this.canvas.freeDrawingBrush) {
+      this.canvas.freeDrawingBrush.width = this.drawBrushSize();
+      this.canvas.freeDrawingBrush.color = this.drawErase()
+        ? 'rgba(255,255,255,1)'
+        : this.drawBrushColor();
+    }
+  }
+
+  disableDrawingMode(): void {
+    if (!this.canvas) return;
+    this.canvas.isDrawingMode = false;
+    this.drawErase.set(false);
+  }
+
+  updateDrawBrush(): void {
+    if (!this.canvas?.freeDrawingBrush) return;
+    this.canvas.freeDrawingBrush.width = this.drawBrushSize();
+    this.canvas.freeDrawingBrush.color = this.drawErase()
+      ? 'rgba(255,255,255,1)'
+      : this.drawBrushColor();
+  }
+
+  toggleDrawErase(): void {
+    this.drawErase.update(v => !v);
+    this.updateDrawBrush();
+  }
+
+  // ── Presentation / Fullscreen mode (Canva) ────────────────────────
+
+  togglePresentationMode(): void {
+    this.presentationMode.update(v => !v);
+    if (this.presentationMode()) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  }
+
+  // ── Google Fonts dynamic loader ───────────────────────────────────
+
+  private loadGoogleFonts(): void {
+    if (document.querySelector('link[data-amx-gfonts]')) return;
+    const fonts = [
+      'Montserrat', 'Open+Sans', 'Raleway', 'Merriweather', 'Oswald',
+      'Nunito', 'Source+Sans+3', 'Ubuntu', 'Libre+Baskerville',
+      'Dancing+Script', 'Pacifico', 'Bebas+Neue',
+    ];
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?${fonts.map(f => `family=${f}:wght@400;600;700`).join('&')}&display=swap`;
+    link.setAttribute('data-amx-gfonts', '1');
+    document.head.appendChild(link);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
 
   saveAndClose(): void {
     this.save();

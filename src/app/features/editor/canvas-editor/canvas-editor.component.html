@@ -1,4 +1,4 @@
-<div class="editor" *ngIf="!loading()">
+<div class="editor" [class.editor--presentation]="presentationMode()" *ngIf="!loading()">
   <!-- ══ Top Toolbar ══════════════════════════════════════════ -->
   <header class="editor-toolbar">
     <div class="tb-left">
@@ -54,6 +54,13 @@
             <line x1="12" y1="3" x2="12" y2="15"/>
           </svg>
           <span class="tb-tool-label">Upload</span>
+        </button>
+        <button class="tb-tool" [class.tb-tool--active]="toolMode() === 'draw'"
+          (click)="setTool('draw')" aria-label="Draw / Pencil (P)" data-tip="Draw / Pencil (P)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+          <span class="tb-tool-label">Draw</span>
         </button>
       </div>
 
@@ -113,6 +120,13 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M18 12h.01M10 12h4M8 16h8"/>
         </svg>
+      </button>
+      <button class="tb-btn" [class.tb-btn--active]="presentationMode()" (click)="togglePresentationMode()"
+        aria-label="Presentation mode (Shift+F)" data-tip="Present fullscreen (Shift+F)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+        </svg>
+        Present
       </button>
       <div class="tb-sep"></div>
       <button class="tb-btn tb-btn--export" (click)="openExport()" aria-label="Export design" data-tip="Export design">
@@ -204,6 +218,36 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="2" y="2" width="8" height="8" rx="1.5" opacity=".5"/><rect x="14" y="2" width="8" height="8" rx="1.5" opacity=".5"/>
         <rect x="2" y="14" width="8" height="8" rx="1.5" opacity=".5"/><rect x="14" y="14" width="8" height="8" rx="1.5" opacity=".5"/>
+      </svg>
+    </button>
+    <div class="sel-sep"></div>
+    <!-- Flip H / Flip V -->
+    <button class="sel-btn" (click)="flipSelectedHorizontal()" aria-label="Flip horizontal" data-tip="Flip horizontal">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/>
+        <line x1="12" y1="3" x2="12" y2="21" stroke-dasharray="3 2"/>
+      </svg>
+    </button>
+    <button class="sel-btn" (click)="flipSelectedVertical()" aria-label="Flip vertical" data-tip="Flip vertical">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/><path d="M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/>
+        <line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="3 2"/>
+      </svg>
+    </button>
+    <div class="sel-sep"></div>
+    <!-- Distribute H / V (3+ objects) -->
+    <button class="sel-btn" (click)="distributeHorizontally()" [disabled]="selectedLayerIds().size < 3"
+      aria-label="Distribute horizontally (3+ objects)" data-tip="Distribute horizontally (3+ objects)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="4" x2="3" y2="20"/><line x1="21" y1="4" x2="21" y2="20"/>
+        <rect x="8" y="7" width="8" height="10" rx="1"/>
+      </svg>
+    </button>
+    <button class="sel-btn" (click)="distributeVertically()" [disabled]="selectedLayerIds().size < 3"
+      aria-label="Distribute vertically (3+ objects)" data-tip="Distribute vertically (3+ objects)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="4" y1="3" x2="20" y2="3"/><line x1="4" y1="21" x2="20" y2="21"/>
+        <rect x="7" y="8" width="10" height="8" rx="1"/>
       </svg>
     </button>
     <div class="sel-sep"></div>
@@ -434,6 +478,17 @@
             <span>{{ el.name }}</span>
           </button>
         </div>
+        <!-- ── Icon Library (Canva / Freepik) ──────────────────────── -->
+        <div class="lp-section-divider"></div>
+        <div class="lp-section-label">Icons</div>
+        <div class="icon-grid">
+          <button class="icon-item" *ngFor="let icon of editorIcons"
+            (click)="addIcon(icon)" [attr.aria-label]="'Add ' + icon.name" [attr.data-tip]="icon.name">
+            <span class="icon-preview" [innerHTML]="icon.svg"></span>
+            <span class="icon-name">{{ icon.name }}</span>
+          </button>
+        </div>
+
         <div class="lp-section-divider"></div>
         <div class="lp-section-label">Lines & Connectors</div>
         <div class="el-grid">
@@ -561,6 +616,58 @@
         <div class="safe-zone-bleed-label">Bleed Area</div>
       </div>
 
+      <!-- Draw / Pencil controls (Canva / Freepik drawing mode) -->
+      <div class="draw-controls" *ngIf="toolMode() === 'draw'" (click)="$event.stopPropagation()">
+        <div class="draw-controls-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+          Draw
+        </div>
+        <div class="draw-controls-row">
+          <label class="draw-label">Size</label>
+          <input type="range" class="prop-range draw-range" min="1" max="60" step="1"
+            [value]="drawBrushSize()"
+            (input)="drawBrushSize.set(+$any($event.target).value); updateDrawBrush()"/>
+          <span class="draw-value">{{ drawBrushSize() }}px</span>
+        </div>
+        <div class="draw-controls-row">
+          <label class="draw-label">Color</label>
+          <div class="draw-color-swatch" [style.background]="drawBrushColor()">
+            <input type="color" [value]="drawBrushColor()"
+              (input)="drawBrushColor.set($any($event.target).value); updateDrawBrush()"/>
+          </div>
+          <input type="text" class="draw-hex" [value]="drawBrushColor()"
+            (change)="drawBrushColor.set($any($event.target).value); updateDrawBrush()"/>
+        </div>
+        <div class="draw-controls-row">
+          <button class="draw-tool-btn" [class.draw-tool-btn--active]="!drawErase()"
+            (click)="drawErase.set(false); updateDrawBrush()" aria-label="Pen" data-tip="Pen">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+            Pen
+          </button>
+          <button class="draw-tool-btn" [class.draw-tool-btn--active]="drawErase()"
+            (click)="drawErase.set(true); updateDrawBrush()" aria-label="Eraser" data-tip="Eraser">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M20 20H7L3 16l10-10 7 7-2.5 2.5"/><path d="M6.0 11.0 l3 3"/>
+            </svg>
+            Eraser
+          </button>
+        </div>
+        <button class="draw-done-btn" (click)="setTool('select')">Done Drawing</button>
+      </div>
+
+      <!-- Presentation mode exit button -->
+      <button class="presentation-exit-btn" *ngIf="presentationMode()" (click)="togglePresentationMode()"
+        aria-label="Exit presentation" data-tip="Exit presentation (Esc)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 0 2 2v3"/>
+        </svg>
+        Exit
+      </button>
+
       <!-- AI Tools overlay -->
       <div class="canvas-overlay top-left" *ngIf="toolMode() === 'ai'">
         <div class="ai-menu">
@@ -627,6 +734,82 @@
 
       <div class="panel-scroll">
         <ng-container *ngIf="selectedLayerType(); else noSelection">
+
+          <!-- ── Transform (Position / Size / Rotation — Canva / Vistaprint) ── -->
+          <div class="prop-section-header">
+            <span class="prop-section-title">Transform</span>
+          </div>
+          <div class="prop-section-body">
+            <!-- X / Y row -->
+            <div class="transform-grid">
+              <div class="transform-field">
+                <label class="transform-label">X</label>
+                <input type="number" class="prop-input transform-input"
+                  [value]="selectedX()"
+                  (change)="setPosX(+$any($event.target).value)"/>
+              </div>
+              <div class="transform-field">
+                <label class="transform-label">Y</label>
+                <input type="number" class="prop-input transform-input"
+                  [value]="selectedY()"
+                  (change)="setPosY(+$any($event.target).value)"/>
+              </div>
+              <!-- W / H with aspect-lock -->
+              <div class="transform-field">
+                <label class="transform-label">W</label>
+                <input type="number" class="prop-input transform-input" min="1"
+                  [value]="selectedW()"
+                  (change)="setSizeW(+$any($event.target).value)"/>
+              </div>
+              <div class="transform-field">
+                <label class="transform-label">H</label>
+                <input type="number" class="prop-input transform-input" min="1"
+                  [value]="selectedH()"
+                  (change)="setSizeH(+$any($event.target).value)"/>
+              </div>
+              <!-- Rotation -->
+              <div class="transform-field">
+                <label class="transform-label">°</label>
+                <input type="number" class="prop-input transform-input" min="0" max="360"
+                  [value]="selectedRotation()"
+                  (change)="setRotation(+$any($event.target).value)"/>
+              </div>
+              <!-- Aspect lock -->
+              <button class="transform-lock-btn" [class.transform-lock-btn--active]="aspectLocked()"
+                (click)="toggleAspectLock()"
+                [attr.aria-label]="aspectLocked() ? 'Unlock aspect ratio' : 'Lock aspect ratio'"
+                [attr.data-tip]="aspectLocked() ? 'Unlock aspect ratio' : 'Lock aspect ratio'">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <ng-container *ngIf="!aspectLocked()">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                  </ng-container>
+                  <ng-container *ngIf="aspectLocked()">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </ng-container>
+                </svg>
+              </button>
+            </div>
+            <!-- Flip buttons -->
+            <div class="flip-row">
+              <button class="align-btn" (click)="flipSelectedHorizontal()" aria-label="Flip horizontal" data-tip="Flip horizontal">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/>
+                  <line x1="12" y1="4" x2="12" y2="20" stroke-dasharray="3 2"/>
+                </svg>
+                Flip H
+              </button>
+              <button class="align-btn" (click)="flipSelectedVertical()" aria-label="Flip vertical" data-tip="Flip vertical">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/><path d="M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/>
+                  <line x1="4" y1="12" x2="20" y2="12" stroke-dasharray="3 2"/>
+                </svg>
+                Flip V
+              </button>
+            </div>
+          </div>
+          <div class="prop-divider"></div>
 
           <!-- ── Appearance (always visible) ── -->
           <div class="prop-section-header">
@@ -843,6 +1026,15 @@
                     <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
                   </svg>
                 </button>
+              </div>
+              <!-- Text transform: AA / aa / Aa -->
+              <div class="prop-row" style="margin-top:6px">
+                <button class="prop-style-btn tt-btn" (click)="applyTextTransform('upper')"
+                  aria-label="ALL CAPS" data-tip="ALL CAPS">AA</button>
+                <button class="prop-style-btn tt-btn" (click)="applyTextTransform('lower')"
+                  aria-label="lowercase" data-tip="lowercase">aa</button>
+                <button class="prop-style-btn tt-btn" (click)="applyTextTransform('capitalize')"
+                  aria-label="Title Case" data-tip="Title Case">Aa</button>
               </div>
               <!-- Line height & letter spacing -->
               <div class="prop-section">
