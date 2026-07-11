@@ -11,7 +11,7 @@
   [style.--icon-color]="style().recolorHue"
   [style.--icon-stroke]="style().strokeWidth">
 
-  <!-- SVG defs shared by all icon renders (gradient fill + hand-drawn wobble filter) -->
+  <!-- SVG defs shared by all icon renders -->
   <svg class="amx-icons__defs" width="0" height="0" aria-hidden="true">
     <defs>
       <linearGradient id="amxIconGradient" x1="0" y1="0" x2="1" y2="1">
@@ -45,12 +45,42 @@
         <button class="amx-icons__sidebar-close" type="button" (click)="mobileFiltersOpen.set(false)" aria-label="Close filters">✕</button>
       </div>
 
+      <!-- LIBRARY PICKER -->
+      <div class="amx-filter-group">
+        <h4>Icon Library</h4>
+        <ul class="amx-filter-list">
+          <li>
+            <button type="button" class="amx-filter-chip amx-filter-chip--lib"
+                    [class.amx-filter-chip--active]="filters().libraryId === null"
+                    (click)="setLibrary(null)">
+              <span class="amx-lib-dot amx-lib-dot--all"></span>
+              All loaded
+              <span class="amx-lib-count">{{ svc.totalLoaded() | number }}</span>
+            </button>
+          </li>
+          <li *ngFor="let lib of libraryMeta">
+            <button type="button" class="amx-filter-chip amx-filter-chip--lib"
+                    [class.amx-filter-chip--active]="isActiveLibrary(lib.id)"
+                    [class.amx-filter-chip--loading]="isLibraryLoading(lib.id)"
+                    (click)="setLibrary(lib.id)">
+              <span class="amx-lib-dot" [attr.data-lib]="lib.id"></span>
+              {{ lib.name }}
+              <span class="amx-lib-spinner" *ngIf="isLibraryLoading(lib.id)" aria-label="Loading"></span>
+              <span class="amx-lib-count" *ngIf="!isLibraryLoading(lib.id)">
+                {{ isLibraryLoaded(lib.id) ? (svc.filteredIcons().length | number) : (lib.count | number) }}
+              </span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- CATEGORIES -->
       <div class="amx-filter-group">
         <h4>Categories</h4>
         <ul class="amx-filter-list">
           <li>
             <button type="button" class="amx-filter-chip" [class.amx-filter-chip--active]="filters().categoryId === null"
-                    (click)="setCategory(null)">All icons</button>
+                    (click)="setCategory(null)">All categories</button>
           </li>
           <li *ngFor="let cat of categories">
             <button type="button" class="amx-filter-chip" [class.amx-filter-chip--active]="filters().categoryId === cat.id"
@@ -59,6 +89,7 @@
         </ul>
       </div>
 
+      <!-- ANIMATION -->
       <div class="amx-filter-group">
         <h4>Animation</h4>
         <div class="amx-pill-row">
@@ -67,16 +98,7 @@
         </div>
       </div>
 
-      <div class="amx-filter-group">
-        <h4>OS</h4>
-        <div class="amx-pill-row amx-pill-row--wrap">
-          <button type="button" class="amx-pill" *ngFor="let p of ['android','ios','windows','macos']"
-                  [class.amx-pill--active]="isActivePlatform(p)" (click)="togglePlatform(p)">
-            {{ p === 'ios' ? 'iOS' : (p === 'macos' ? 'macOS' : (p.charAt(0).toUpperCase() + p.slice(1))) }}
-          </button>
-        </div>
-      </div>
-
+      <!-- TECHNIQUE -->
       <div class="amx-filter-group">
         <h4>Technique</h4>
         <div class="amx-pill-row amx-pill-row--wrap">
@@ -87,6 +109,7 @@
         </div>
       </div>
 
+      <!-- COLORS -->
       <div class="amx-filter-group">
         <h4>Colors</h4>
         <div class="amx-pill-row amx-pill-row--wrap">
@@ -97,6 +120,7 @@
         </div>
       </div>
 
+      <!-- CORNERS -->
       <div class="amx-filter-group">
         <h4>Corners</h4>
         <div class="amx-pill-row">
@@ -105,6 +129,7 @@
         </div>
       </div>
 
+      <!-- STROKE WIDTH (line modes only) -->
       <div class="amx-filter-group" *ngIf="style().technique === 'line' || style().technique === 'hand-drawn'">
         <h4>Stroke width</h4>
         <div class="amx-pill-row amx-pill-row--wrap">
@@ -113,8 +138,9 @@
         </div>
       </div>
 
+      <!-- GRID DENSITY -->
       <div class="amx-filter-group">
-        <h4>Filter size</h4>
+        <h4>Grid size</h4>
         <div class="amx-pill-row">
           <button type="button" class="amx-pill" *ngFor="let d of ['small','medium','large']"
                   [class.amx-pill--active]="style().density === d" (click)="setDensity(d)">
@@ -123,6 +149,7 @@
         </div>
       </div>
 
+      <!-- AESTHETIC -->
       <div class="amx-filter-group">
         <h4>Aesthetic</h4>
         <div class="amx-pill-row amx-pill-row--wrap">
@@ -133,6 +160,7 @@
         </div>
       </div>
 
+      <!-- TRENDINESS -->
       <div class="amx-filter-group">
         <h4>Trendiness</h4>
         <div class="amx-pill-row amx-pill-row--wrap">
@@ -143,16 +171,7 @@
         </div>
       </div>
 
-      <div class="amx-filter-group">
-        <h4>Author</h4>
-        <div class="amx-pill-row">
-          <button type="button" class="amx-pill" *ngFor="let a of ['amarapix','community']"
-                  [class.amx-pill--active]="isActiveAuthor(a)" (click)="toggleAuthor(a)">
-            {{ a === 'amarapix' ? 'Amarapix' : 'Guest artists' }}
-          </button>
-        </div>
-      </div>
-
+      <!-- FAVORITES -->
       <div class="amx-filter-group">
         <button type="button" class="amx-pill amx-pill--favorites" [class.amx-pill--active]="filters().favoritesOnly"
                 (click)="toggleFavoritesOnly()">
@@ -169,12 +188,13 @@
     <!-- ================= MAIN ================= -->
     <main class="amx-icons__main">
 
+      <!-- TOOLBAR -->
       <div class="amx-icons__toolbar">
         <div class="amx-icons__search">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          <input type="search" placeholder="Search icons by keyword such as &quot;battery&quot;"
+          <input type="search" placeholder="Search 20,000+ icons by keyword…"
                  aria-label="Search icons"
                  [value]="filters().query"
                  (input)="setQuery($any($event.target).value)" />
@@ -196,7 +216,7 @@
         </div>
 
         <div class="amx-icons__density-toggle">
-          <button type="button" [class.active]="style().density !== 'small'" (click)="setDensity('medium')" aria-label="Detailed view">
+          <button type="button" [class.active]="style().density !== 'small'" (click)="setDensity('medium')" aria-label="Grid view">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
           </button>
           <button type="button" [class.active]="style().density === 'small'" (click)="setDensity('small')" aria-label="Compact view">
@@ -205,14 +225,31 @@
         </div>
       </div>
 
+      <!-- HERO BANNER -->
       <section class="amx-icons__hero">
         <div class="amx-icons__hero-copy">
-          <h1>New icons</h1>
-          <p>Our design team ships fresh icons every day — some planned, some pulled straight from what people like you ask for. Recolor them, restyle them, drop them straight into your canvas.</p>
+          <h1>
+            <span *ngIf="filters().libraryId">{{ libraryName(filters().libraryId) }}</span>
+            <span *ngIf="!filters().libraryId">Icon Libraries</span>
+          </h1>
+          <p *ngIf="!filters().libraryId">Browse 20,000+ icons from 9 open-source libraries — Tabler, Lucide, MDI, Remix, Bootstrap, Phosphor, Heroicons, Ionicons &amp; Amarapix. Select a library in the sidebar to load it, recolor, then download SVG or PNG.</p>
+          <p *ngIf="filters().libraryId">
+            <ng-container [ngSwitch]="filters().libraryId">
+              <ng-container *ngSwitchCase="'tabler'">5,090+ clean outline &amp; filled icons — MIT license.</ng-container>
+              <ng-container *ngSwitchCase="'lucide'">1,995 precisely crafted icons with a consistent 24×24 grid — ISC license.</ng-container>
+              <ng-container *ngSwitchCase="'mdi'">7,400+ community icons covering every scenario — Apache 2.0.</ng-container>
+              <ng-container *ngSwitchCase="'remixicon'">1,500+ dual-style line icons for general UI — Apache 2.0.</ng-container>
+              <ng-container *ngSwitchCase="'bootstrap'">2,000+ SVG icons from the Bootstrap team — MIT license.</ng-container>
+              <ng-container *ngSwitchCase="'phosphor'">1,500+ flexible icons in 6 weights — MIT license.</ng-container>
+              <ng-container *ngSwitchCase="'heroicons'">300 hand-crafted icons from the Tailwind team — MIT license.</ng-container>
+              <ng-container *ngSwitchCase="'ionicons'">420+ outline icons for web &amp; mobile — MIT license.</ng-container>
+              <ng-container *ngSwitchCase="'amarapix'">Amarapix originals — exclusive design-asset marketplace icons.</ng-container>
+            </ng-container>
+          </p>
           <div class="amx-icons__hero-stats">
-            <div><strong>{{ svc.filteredIcons().length }}</strong><span>icons in this style</span></div>
-            <div><strong>{{ categories.length }}</strong><span>categories</span></div>
-            <div><strong>{{ svc.favorites().size }}</strong><span>saved by you</span></div>
+            <div><strong>{{ filtered().length | number }}</strong><span>icons shown</span></div>
+            <div><strong>{{ svc.totalLoaded() | number }}</strong><span>loaded</span></div>
+            <div><strong>{{ svc.favorites().size }}</strong><span>saved</span></div>
           </div>
         </div>
         <div class="amx-icons__hero-showcase" aria-hidden="true">
@@ -225,18 +262,36 @@
         </div>
       </section>
 
+      <!-- META ROW -->
       <div class="amx-icons__meta-row">
-        <p class="amx-icons__count">{{ filtered().length }} icon{{ filtered().length === 1 ? '' : 's' }} found</p>
-        <button type="button" class="amx-icons__reset-style" (click)="resetStyle()" *ngIf="style().technique !== 'line' || style().colorMode !== 'mono' || style().corners !== 'round'">
-          Reset style
-        </button>
+        <p class="amx-icons__count">{{ filtered().length | number }} icon{{ filtered().length === 1 ? '' : 's' }} found</p>
+        <div class="amx-icons__meta-actions">
+          <span class="amx-icons__library-badge" *ngIf="filters().libraryId">
+            {{ libraryName(filters().libraryId) }}
+            <button type="button" (click)="setLibrary(null)" aria-label="Clear library filter">✕</button>
+          </span>
+          <button type="button" class="amx-icons__reset-style" (click)="resetStyle()"
+                  *ngIf="style().technique !== 'line' || style().colorMode !== 'mono' || style().corners !== 'round'">
+            Reset style
+          </button>
+        </div>
       </div>
 
+      <!-- LOADING SKELETON -->
+      <div class="amx-icon-skeleton-grid" *ngIf="filters().libraryId && isLibraryLoading(filters().libraryId!)">
+        <div class="amx-icon-skeleton-card" *ngFor="let n of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]">
+          <div class="amx-icon-skeleton-card__icon"></div>
+          <div class="amx-icon-skeleton-card__name"></div>
+        </div>
+      </div>
+
+      <!-- ICON GROUPS -->
       <ng-container *ngIf="groups().length > 0; else emptyState">
         <section class="amx-icons__group" *ngFor="let group of groups()">
           <h2 class="amx-icons__group-title">{{ group.label }}<span>{{ group.icons.length }}</span></h2>
 
-          <div class="amx-icon-grid" [class.amx-icon-grid--small]="style().density === 'small'"
+          <div class="amx-icon-grid"
+               [class.amx-icon-grid--small]="style().density === 'small'"
                [class.amx-icon-grid--large]="style().density === 'large'">
             <button type="button" class="amx-icon-card" *ngFor="let icon of group.icons; trackBy: trackById"
                     (click)="openDetail(icon)">
@@ -244,10 +299,11 @@
                 <span class="amx-icon-render"
                       [class.amx-icon-render--animated]="style().animatedOn && icon.hasAnimatedVariant"
                       [class.amx-icon-render--colored]="isColored(icon)"
-                      [attr.filter]="!isColored(icon) && style().technique === 'hand-drawn' ? 'url(#amxHandDrawn)' : null"
                       [style.filter]="!isColored(icon) && style().technique === 'hand-drawn' ? 'url(#amxHandDrawn)' : null"
                       [innerHTML]="markup(icon)"></span>
                 <span class="amx-icon-card__premium" *ngIf="icon.isPremium">PRO</span>
+                <span class="amx-icon-card__lib-badge" *ngIf="!filters().libraryId && icon.library && icon.library !== 'amarapix'"
+                      [attr.data-lib]="icon.library" [attr.title]="libraryName(icon.library)"></span>
                 <button type="button" class="amx-icon-card__fav" [class.amx-icon-card__fav--active]="isFavorite(icon)"
                         (click)="toggleFavorite(icon, $event)" [attr.aria-label]="isFavorite(icon) ? 'Remove favorite' : 'Add favorite'">
                   <svg width="14" height="14" viewBox="0 0 24 24" [attr.fill]="isFavorite(icon) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
@@ -261,17 +317,19 @@
         </section>
 
         <div class="amx-icons__load-more" *ngIf="hasMore()">
-          <button type="button" (click)="loadMore()">Show more icons</button>
+          <button type="button" (click)="loadMore()">
+            Show more ({{ filtered().length - visibleCount() | number }} remaining)
+          </button>
         </div>
       </ng-container>
 
       <ng-template #emptyState>
-        <div class="amx-icons__empty">
+        <div class="amx-icons__empty" *ngIf="!isLibraryLoading(filters().libraryId ?? 'amarapix')">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          <h3>No icons match these filters</h3>
-          <p>Try loosening a filter or clearing your search.</p>
+          <h3>No icons match</h3>
+          <p>Try a different search or clear your filters.</p>
           <button type="button" (click)="clearFilters()">Clear all filters</button>
         </div>
       </ng-template>
@@ -290,7 +348,11 @@
     </div>
 
     <h2 class="amx-icon-detail__title">{{ icon.name }}</h2>
-    <p class="amx-icon-detail__category">{{ categoryName(icon.category) }} · {{ icon.downloads | number }} downloads</p>
+    <p class="amx-icon-detail__meta">
+      {{ categoryName(icon.category) }}
+      <span class="amx-icon-detail__lib-tag" *ngIf="icon.library">{{ libraryName(icon.library) }}</span>
+      · {{ icon.downloads | number }} downloads
+    </p>
 
     <div class="amx-icon-detail__actions">
       <button type="button" class="amx-icon-detail__fav" [class.amx-icon-detail__fav--active]="isFavorite(icon)" (click)="toggleFavorite(icon)">
@@ -300,7 +362,7 @@
         {{ isFavorite(icon) ? 'Saved' : 'Save' }}
       </button>
       <button type="button" class="amx-icon-detail__copy" (click)="copySvg(icon)">
-        {{ copyState() === 'copied' ? 'Copied!' : 'Copy SVG' }}
+        {{ copyState() === 'copied' ? '✓ Copied!' : 'Copy SVG' }}
       </button>
     </div>
 
@@ -309,10 +371,12 @@
       <div class="amx-icon-detail__sizes">
         <button type="button" *ngFor="let size of pngSizes" (click)="downloadPng(icon, size)">{{ size }}px</button>
       </div>
-      <button type="button" class="amx-icon-detail__svg-btn" (click)="downloadSvg(icon)">Download SVG</button>
+      <button type="button" class="amx-icon-detail__svg-btn" (click)="downloadSvg(icon)">
+        ↓ Download SVG
+      </button>
     </div>
 
-    <div class="amx-icon-detail__block">
+    <div class="amx-icon-detail__block" *ngIf="icon.tags.length">
       <h4>Tags</h4>
       <div class="amx-icon-detail__tags">
         <span *ngFor="let tag of icon.tags">{{ tag }}</span>

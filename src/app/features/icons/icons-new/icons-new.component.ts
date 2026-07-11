@@ -1,8 +1,14 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed, ElementRef, HostListener } from '@angular/core';
+import {
+  Component, ChangeDetectionStrategy, inject, signal, computed, HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { IconsService, ICON_CATEGORIES } from '../icons.service';
-import { IconAsset, IconAesthetic, IconAuthor, IconPlatform, IconTrend, IconTechnique, IconColorMode, IconCorners, IconSizeDensity } from '../../../core/models/icon.model';
+import { ICON_LIBRARIES } from '../data/index';
+import {
+  IconAsset, IconAesthetic, IconTrend, IconTechnique,
+  IconColorMode, IconCorners, IconSizeDensity, IconLibraryId,
+} from '../../../core/models/icon.model';
 
 interface IconGroup {
   label: string;
@@ -22,10 +28,10 @@ const DAY = 24 * 60 * 60 * 1000;
 })
 export class IconsNewComponent {
   private readonly sanitizer = inject(DomSanitizer);
-  private readonly el = inject(ElementRef);
   readonly svc = inject(IconsService);
 
   readonly categories = ICON_CATEGORIES;
+  readonly libraryMeta = ICON_LIBRARIES;
   readonly pngSizes = PNG_SIZES;
 
   readonly style = this.svc.style;
@@ -35,7 +41,7 @@ export class IconsNewComponent {
   readonly mobileFiltersOpen = signal(false);
   readonly selected = signal<IconAsset | null>(null);
   readonly copyState = signal<'idle' | 'copied'>('idle');
-  readonly visibleCount = signal(30);
+  readonly visibleCount = signal(48);
   readonly recolorOpen = signal(false);
 
   private readonly rawFiltered = this.svc.filteredIcons;
@@ -88,7 +94,9 @@ export class IconsNewComponent {
     let cached = this.svgCache.get(icon.id);
     if (!cached) {
       const inner = icon.colorSvg ?? icon.path;
-      const svg = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+      // Use the icon's native viewBox if set (e.g. Phosphor=256x256, Bootstrap=16x16)
+      const viewBox = icon.viewBox ?? '0 0 24 24';
+      const svg = `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
       cached = this.sanitizer.bypassSecurityTrustHtml(svg);
       this.svgCache.set(icon.id, cached);
     }
@@ -99,43 +107,47 @@ export class IconsNewComponent {
     return !!icon.colorSvg;
   }
 
+  libraryName(id: IconLibraryId | null | undefined): string {
+    if (!id || id === 'amarapix') return 'Amarapix';
+    return this.libraryMeta.find(l => l.id === id)?.name ?? id;
+  }
+
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.selected()) this.closeDetail();
   }
 
-  // -- Style controls -----------------------------------------------------
+  // -- Style controls ---------------------------------------------------------
   setTechnique(t: string): void { this.svc.updateStyle({ technique: t as IconTechnique }); }
   setColorMode(c: string): void { this.svc.updateStyle({ colorMode: c as IconColorMode }); }
   setCorners(c: string): void { this.svc.updateStyle({ corners: c as IconCorners }); }
   setStroke(w: number): void { this.svc.updateStyle({ strokeWidth: w }); }
   setDensity(d: string): void { this.svc.updateStyle({ density: d as IconSizeDensity }); }
   toggleAnimated(): void { this.svc.updateStyle({ animatedOn: !this.style().animatedOn }); }
-  setRecolor(hex: string): void { this.svc.updateStyle({ recolorHue: hex }); }
+  setRecolor(hex: string): void {
+    this.svc.updateStyle({ recolorHue: hex });
+    this.svgCache.clear(); // color-changed icons need fresh markup
+  }
   resetStyle(): void { this.svc.resetStyle(); }
 
-  // -- Filters --------------------------------------------------------------
-  setQuery(value: string): void { this.svc.updateFilters({ query: value }); this.visibleCount.set(30); }
-  setCategory(id: string | null): void { this.svc.updateFilters({ categoryId: id }); this.visibleCount.set(30); }
-  toggleAesthetic(v: string): void { this.svc.toggleArrayFilter('aesthetic', v as IconAesthetic); this.visibleCount.set(30); }
-  togglePlatform(v: string): void { this.svc.toggleArrayFilter('platforms', v as IconPlatform); this.visibleCount.set(30); }
-  toggleTrend(v: string): void { this.svc.toggleArrayFilter('trend', v as IconTrend); this.visibleCount.set(30); }
-  toggleAuthor(v: string): void { this.svc.toggleArrayFilter('author', v as IconAuthor); this.visibleCount.set(30); }
+  // -- Filters ----------------------------------------------------------------
+  setQuery(value: string): void { this.svc.updateFilters({ query: value }); this.visibleCount.set(48); }
+  setCategory(id: string | null): void { this.svc.updateFilters({ categoryId: id }); this.visibleCount.set(48); }
+  toggleAesthetic(v: string): void { this.svc.toggleArrayFilter('aesthetic', v as IconAesthetic); this.visibleCount.set(48); }
+  toggleTrend(v: string): void { this.svc.toggleArrayFilter('trend', v as IconTrend); this.visibleCount.set(48); }
   toggleFavoritesOnly(): void {
     this.svc.updateFilters({ favoritesOnly: !this.filters().favoritesOnly });
-    this.visibleCount.set(30);
+    this.visibleCount.set(48);
   }
   clearFilters(): void {
     this.svc.clearFilters();
     this.aiSearchOn.set(false);
-    this.visibleCount.set(30);
+    this.visibleCount.set(48);
   }
-  loadMore(): void { this.visibleCount.update(v => v + 24); }
+  loadMore(): void { this.visibleCount.update(v => v + 48); }
 
   isActiveAesthetic(v: string): boolean { return this.filters().aesthetic.includes(v as IconAesthetic); }
-  isActivePlatform(v: string): boolean { return this.filters().platforms.includes(v as IconPlatform); }
   isActiveTrend(v: string): boolean { return this.filters().trend.includes(v as IconTrend); }
-  isActiveAuthor(v: string): boolean { return this.filters().author.includes(v as IconAuthor); }
 
   categoryName(id: string): string {
     return this.categories.find(c => c.id === id)?.name ?? '';
@@ -143,11 +155,31 @@ export class IconsNewComponent {
 
   get activeFilterCount(): number {
     const f = this.filters();
-    return f.platforms.length + f.aesthetic.length + f.trend.length + f.author.length
-      + (f.categoryId ? 1 : 0) + (f.favoritesOnly ? 1 : 0) + (this.style().animatedOn ? 1 : 0);
+    return f.aesthetic.length + f.trend.length
+      + (f.categoryId ? 1 : 0) + (f.favoritesOnly ? 1 : 0)
+      + (this.style().animatedOn ? 1 : 0)
+      + (f.libraryId ? 1 : 0);
   }
 
-  // -- Favorites ------------------------------------------------------------
+  // -- Libraries --------------------------------------------------------------
+  setLibrary(id: IconLibraryId | null): void {
+    this.svc.setLibrary(id);
+    this.visibleCount.set(48);
+  }
+
+  isActiveLibrary(id: IconLibraryId): boolean {
+    return this.filters().libraryId === id;
+  }
+
+  isLibraryLoading(id: IconLibraryId): boolean {
+    return this.svc.isLoading(id);
+  }
+
+  isLibraryLoaded(id: IconLibraryId): boolean {
+    return this.svc.isLoaded(id);
+  }
+
+  // -- Favorites --------------------------------------------------------------
   toggleFavorite(icon: IconAsset, event?: Event): void {
     event?.stopPropagation();
     this.svc.toggleFavorite(icon.id);
@@ -174,7 +206,8 @@ export class IconsNewComponent {
     const cap = s.corners === 'round' ? 'round' : 'square';
     const join = s.corners === 'round' ? 'round' : 'miter';
     const color = s.recolorHue;
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${fillMode ? color : 'none'}" stroke="${fillMode ? 'none' : color}" stroke-width="${s.strokeWidth}" stroke-linecap="${cap}" stroke-linejoin="${join}">${icon.path}</svg>`;
+    const viewBox = icon.viewBox ?? '0 0 24 24';
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${viewBox}" fill="${fillMode ? color : 'none'}" stroke="${fillMode ? 'none' : color}" stroke-width="${s.strokeWidth}" stroke-linecap="${cap}" stroke-linejoin="${join}">${icon.path}</svg>`;
   }
 
   async copySvg(icon: IconAsset): Promise<void> {
@@ -201,8 +234,7 @@ export class IconsNewComponent {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
+      canvas.width = size; canvas.height = size;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
       ctx.drawImage(img, 0, 0, size, size);
@@ -216,11 +248,8 @@ export class IconsNewComponent {
 
   private triggerDownload(url: string, filename: string): void {
     const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
   }
 
   trackById(_: number, icon: IconAsset): string { return icon.id; }
