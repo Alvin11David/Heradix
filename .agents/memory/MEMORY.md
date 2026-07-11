@@ -1,2 +1,3 @@
 - [Angular Replit setup](angular-replit-setup.md) — this repo's Angular dev server needs allowedHosts/host/port set in angular.json serve.options, not just CLI flags.
 - [Icon-only button labeling](icon-button-labeling.md) — pattern for adding visible tooltip + accessible name to icon-only buttons without native title duplication.
+- [Editor dirty/save-state initialization](editor-service-dirty-state.md) — reset dirty/saveState explicitly after canvas setup, or the save indicator gets stuck on "Saving…".

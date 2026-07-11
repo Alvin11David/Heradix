@@ -375,52 +375,23 @@
           <span class="lp-section-title">Templates</span>
         </div>
         <div class="lp-pad">
-          <input type="text" class="prop-input" style="width:100%;margin-bottom:10px" placeholder="Search templates…"/>
+          <input type="text" class="prop-input" style="width:100%;margin-bottom:10px" placeholder="Search templates…"
+            [value]="templateSearchQuery()" (input)="templateSearchQuery.set($any($event.target).value)"/>
         </div>
         <div class="tmpl-cats">
-          <button class="tmpl-cat tmpl-cat--active">All</button>
-          <button class="tmpl-cat">Social Media</button>
-          <button class="tmpl-cat">Poster</button>
-          <button class="tmpl-cat">Business</button>
-          <button class="tmpl-cat">Event</button>
-          <button class="tmpl-cat">Print</button>
+          <button class="tmpl-cat" *ngFor="let cat of templateCategories"
+            [class.tmpl-cat--active]="templateCategory() === cat"
+            (click)="setTemplateCategory(cat)">{{ cat }}</button>
         </div>
         <div class="tmpl-grid">
-          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#667eea,#764ba2)">
-            <span class="tmpl-label">Modern Business Card</span>
-            <span class="tmpl-size">1050 × 600</span>
+          <div class="tmpl-item" *ngFor="let t of filteredTemplates()" (click)="applyTemplate(t)"
+            [style.background]="'linear-gradient(135deg,' + t.c1 + ',' + t.c2 + ')'"
+            [attr.aria-label]="'Use ' + t.label + ' template'" [attr.data-tip]="'Use ' + t.label + ' template'">
+            <span class="tmpl-label">{{ t.label }}</span>
+            <span class="tmpl-size">{{ t.w }} × {{ t.h }}</span>
           </div>
-          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#f093fb,#f5576c)">
-            <span class="tmpl-label">Instagram Post</span>
-            <span class="tmpl-size">1080 × 1080</span>
-          </div>
-          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">
-            <span class="tmpl-label">Presentation Slide</span>
-            <span class="tmpl-size">1920 × 1080</span>
-          </div>
-          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">
-            <span class="tmpl-label">Event Flyer</span>
-            <span class="tmpl-size">794 × 1123</span>
-          </div>
-          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#fa709a,#fee140)">
-            <span class="tmpl-label">YouTube Thumbnail</span>
-            <span class="tmpl-size">1280 × 720</span>
-          </div>
-          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#30cfd0,#330867)">
-            <span class="tmpl-label">Twitter Banner</span>
-            <span class="tmpl-size">1500 × 500</span>
-          </div>
-          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#f7971e,#ffd200)">
-            <span class="tmpl-label">LinkedIn Post</span>
-            <span class="tmpl-size">1200 × 627</span>
-          </div>
-          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)">
-            <span class="tmpl-label">Pinterest Pin</span>
-            <span class="tmpl-size">1000 × 1500</span>
-          </div>
-          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#2c3e50,#3498db)">
-            <span class="tmpl-label">Blog Header</span>
-            <span class="tmpl-size">1600 × 840</span>
+          <div class="panel-empty" *ngIf="filteredTemplates().length === 0">
+            <p>No templates match your search.</p>
           </div>
         </div>
       </div>
@@ -470,7 +441,7 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="12" x2="20" y2="12"/></svg>
             <span>Line</span>
           </button>
-          <button class="el-item" (click)="setTool('image')" aria-label="Arrow" data-tip="Arrow">
+          <button class="el-item" (click)="addShape('arrow')" aria-label="Arrow" data-tip="Arrow">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
             <span>Arrow</span>
           </button>
@@ -594,7 +565,7 @@
       <div class="canvas-overlay top-left" *ngIf="toolMode() === 'ai'">
         <div class="ai-menu">
           <div class="ai-menu-title">AI Tools</div>
-          <button class="ai-menu-btn" (click)="removeBg()" [disabled]="aiJobState().status === 'processing'">
+          <button class="ai-menu-btn" (click)="removeBg()" [disabled]="aiJobState().status === 'processing' || selectedLayerType() !== 'image'">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2"/>
               <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
@@ -603,7 +574,8 @@
             Remove Background
             <span class="ai-badge" *ngIf="aiJobState().status === 'processing'">Processing…</span>
           </button>
-          <p class="ai-menu-hint">Select an image first, then remove its background.</p>
+          <p class="ai-menu-hint" *ngIf="selectedLayerType() !== 'image'">Select an image first, then remove its background.</p>
+          <p class="ai-menu-hint" *ngIf="selectedLayerType() === 'image'">Works best on photos with a plain or solid-color background.</p>
         </div>
       </div>
 
@@ -632,21 +604,10 @@
             <button class="upload-close" (click)="showTemplatePicker.set(false)">Close</button>
           </div>
           <div class="templates-grid">
-            <div class="template-item" (click)="showTemplatePicker.set(false)">
-              <div class="template-preview" style="background: linear-gradient(135deg, #667eea, #764ba2)"></div>
-              <span>Modern Business Card</span>
-            </div>
-            <div class="template-item" (click)="showTemplatePicker.set(false)">
-              <div class="template-preview" style="background: linear-gradient(135deg, #f093fb, #f5576c)"></div>
-              <span>Social Media Post</span>
-            </div>
-            <div class="template-item" (click)="showTemplatePicker.set(false)">
-              <div class="template-preview" style="background: linear-gradient(135deg, #4facfe, #00f2fe)"></div>
-              <span>Presentation Slide</span>
-            </div>
-            <div class="template-item" (click)="showTemplatePicker.set(false)">
-              <div class="template-preview" style="background: linear-gradient(135deg, #43e97b, #38f9d7)"></div>
-              <span>Flyer / Poster</span>
+            <div class="template-item" *ngFor="let t of templates" (click)="applyTemplate(t)"
+              [attr.aria-label]="'Use ' + t.label + ' template'" [attr.data-tip]="'Use ' + t.label + ' template'">
+              <div class="template-preview" [style.background]="'linear-gradient(135deg,' + t.c1 + ',' + t.c2 + ')'"></div>
+              <span>{{ t.label }}</span>
             </div>
           </div>
         </div>

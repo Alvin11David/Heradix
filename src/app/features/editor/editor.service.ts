@@ -1,13 +1,6 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { Observable, of, interval } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { ApiService } from '../../core/api/api.service';
-import {
-  EditorProject,
-  CreateProjectPayload,
-  ExportProjectPayload,
-  ExportJob,
-} from '../../core/models/editor.model';
+import { EditorProject } from '../../core/models/editor.model';
 
 export type ToolMode = 'select' | 'text' | 'shape' | 'image' | 'upload' | 'templates' | 'ai';
 export type SaveState = 'saved' | 'saving' | 'failed';
@@ -39,8 +32,6 @@ export interface AiJobState {
 
 @Injectable({ providedIn: 'root' })
 export class EditorService {
-  private readonly api = inject(ApiService);
-
   readonly project = signal<EditorProject | null>(null);
   readonly projectId = computed(() => this.project()?.id ?? null);
   readonly toolMode = signal<ToolMode>('select');
@@ -85,6 +76,7 @@ export class EditorService {
   private _canvasLoadJson: ((json: string) => void) | null = null;
 
   private _autoSaveSub: any = null;
+  private readonly STORAGE_PREFIX = 'amx-editor-project-';
 
   registerCanvasApi(getJson: () => string, loadJson: (json: string) => void): void {
     this._canvasGetJson = getJson;
@@ -134,46 +126,57 @@ export class EditorService {
   canUndo = computed(() => this._undoStack.length > 0);
   canRedo = computed(() => this._redoStack.length > 0);
 
-  initProject(assetId?: string): Observable<EditorProject> {
-    if (assetId) {
-      const mock: EditorProject = {
-        id: `proj-${Date.now()}`,
-        userId: 'mock-user-001',
-        title: 'New Project',
-        assetId,
-        canvasJson: '{}',
-        width: 800,
-        height: 600,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      this.project.set(mock);
-      this.dirty.set(false);
-      this.saveState.set('saved');
-      return of(mock);
-    }
-    return this.api.post<EditorProject>('/editor/projects', {}).pipe(
-      catchError(() => {
-        const mock = this.createMockProject();
-        this.project.set(mock);
-        this.dirty.set(false);
-        this.saveState.set('saved');
-        return of(mock);
-      }),
-    );
+  /**
+   * This build is frontend-only: there is no project/export backend to call.
+   * Projects are persisted to localStorage keyed by a stable id (per asset,
+   * or a single "draft" slot), so reloading the editor restores your work.
+   */
+  private storageKey(id: string): string {
+    return `${this.STORAGE_PREFIX}${id}`;
   }
 
-  private createMockProject(): EditorProject {
-    return {
-      id: `proj-${Date.now()}`,
-      userId: 'mock-user-001',
-      title: 'Untitled Design',
+  private loadFromStorage(id: string): EditorProject | null {
+    try {
+      const raw = localStorage.getItem(this.storageKey(id));
+      return raw ? (JSON.parse(raw) as EditorProject) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private saveToStorage(project: EditorProject): void {
+    try {
+      localStorage.setItem(this.storageKey(project.id), JSON.stringify(project));
+    } catch {
+      // Storage unavailable (private browsing, quota, etc.) — in-memory state still works.
+    }
+  }
+
+  initProject(assetId?: string): Observable<EditorProject> {
+    const id = assetId ? `asset-${assetId}` : 'draft';
+    const existing = this.loadFromStorage(id);
+    if (existing) {
+      this.project.set(existing);
+      this.dirty.set(false);
+      this.saveState.set('saved');
+      return of(existing);
+    }
+
+    const project: EditorProject = {
+      id,
+      userId: 'local-user',
+      title: assetId ? 'New Project' : 'Untitled Design',
+      assetId,
       canvasJson: '{}',
       width: 800,
       height: 600,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
+    this.project.set(project);
+    this.dirty.set(false);
+    this.saveState.set('saved');
+    return of(project);
   }
 
   startAutosave(): void {
@@ -195,94 +198,20 @@ export class EditorService {
     const p = this.project();
     if (!p) return of(p as any);
     this.saveState.set('saving');
+    const updated: EditorProject = {
+      ...p,
+      canvasJson: this.canvasJson,
+      updatedAt: new Date().toISOString(),
+    };
+    this.saveToStorage(updated);
+    this.project.set(updated);
     this.dirty.set(false);
-    const json = this.canvasJson;
-    return this.api.patch<EditorProject>(`/editor/projects/${p.id}`, { canvasJson: json }).pipe(
-      catchError(() => {
-        this.saveState.set('failed');
-        return of({ ...p, canvasJson: json });
-      }),
-    );
-  }
-
-  exportProject(format: string, options?: { quality?: number; transparent?: boolean }): void {
-    const p = this.project();
-    if (!p) return;
-    this.exportState.set({ status: 'queued' });
-    this.api
-      .post<ExportJob>(`/editor/projects/${p.id}/export`, { format, ...options })
-      .pipe(
-        catchError(() => {
-          const mockJob: ExportJob = {
-            jobId: `job-${Date.now()}`,
-            status: 'DONE',
-            downloadUrl: '#',
-            expiresAt: new Date(Date.now() + 3600000).toISOString(),
-          };
-          return of(mockJob);
-        }),
-      )
-      .subscribe({
-        next: (job) => {
-          this.exportState.set({ status: 'rendering', jobId: job.jobId });
-          this.pollExportJob(job.jobId);
-        },
-        error: () => this.exportState.set({ status: 'failed', error: 'Failed to start export' }),
-      });
-  }
-
-  private pollExportJob(jobId: string): void {
-    const p = this.project();
-    if (!p) return;
-    this.api
-      .get<ExportJob>(`/editor/projects/${p.id}/export/${jobId}`)
-      .pipe(
-        catchError(() => {
-          const ready: ExportJob = { jobId, status: 'DONE', downloadUrl: '#', expiresAt: '' };
-          return of(ready);
-        }),
-      )
-      .subscribe({
-        next: (job) => {
-          if (job.status === 'DONE' || job.status === 'PROCESSING' || job.status === 'QUEUED') {
-            if (job.status === 'DONE') {
-              this.exportState.set({
-                status: 'ready',
-                jobId: job.jobId,
-                downloadUrl: job.downloadUrl,
-              });
-            } else {
-              this.exportState.set({ status: 'rendering', jobId: job.jobId });
-              setTimeout(() => this.pollExportJob(jobId), 2000);
-            }
-          } else {
-            this.exportState.set({ status: 'failed', error: 'Export failed' });
-          }
-        },
-        error: () => this.exportState.set({ status: 'failed', error: 'Export failed' }),
-      });
+    this.saveState.set('saved');
+    return of(updated);
   }
 
   resetExportState(): void {
     this.exportState.set({ status: 'idle' });
-  }
-
-  removeBg(): void {
-    const layer = this.selectedLayerIds();
-    if (layer.size !== 1) return;
-    this.aiJobState.set({ status: 'processing' });
-    const jobId = `ai-${Date.now()}`;
-    setTimeout(() => {
-      this.aiJobState.set({ status: 'ready', jobId, previewUrl: undefined });
-    }, 2500);
-  }
-
-  applyAiResult(): void {
-    this.aiJobState.set({ status: 'idle' });
-  }
-
-  discardAiResult(): void {
-    this.aiJobState.set({ status: 'idle' });
   }
 
   syncLayers(canvasObjects: any[]): void {

@@ -19,6 +19,9 @@ import { EditorService, ToolMode, EditorLayer, SaveState } from '../editor.servi
 import { EditorProject, ExportFormat } from '../../../core/models/editor.model';
 import { MarketplaceService } from '../../marketplace/marketplace.service';
 import { Asset } from '../../../core/models/asset.model';
+import { jsPDF } from 'jspdf';
+
+type TemplateCategory = 'All' | 'Social Media' | 'Poster' | 'Business' | 'Event' | 'Print';
 
 @Component({
   selector: 'amx-canvas-editor',
@@ -267,6 +270,47 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     { id:'p24', thumb:'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=1280&q=80', alt:'Dark tech', author:'Ales Nesetril' },
   ];
 
+  // ── Templates (Canva / PosterMyWall style starting points) ──
+  // Each template resizes the canvas and lays down real Fabric objects
+  // (background + heading + subheading) sized for its format, so picking
+  // one gives you an actual editable starting point instead of a picture.
+  readonly templateCategories: TemplateCategory[] = ['All', 'Social Media', 'Poster', 'Business', 'Event', 'Print'];
+  readonly templates: {
+    id: string;
+    label: string;
+    category: TemplateCategory;
+    w: number;
+    h: number;
+    c1: string;
+    c2: string;
+    title: string;
+    subtitle?: string;
+  }[] = [
+    { id: 'tpl-biz-card', label: 'Modern Business Card', category: 'Business', w: 1050, h: 600, c1: '#667eea', c2: '#764ba2', title: 'Your Name', subtitle: 'Job Title · Company' },
+    { id: 'tpl-ig-post', label: 'Instagram Post', category: 'Social Media', w: 1080, h: 1080, c1: '#f093fb', c2: '#f5576c', title: 'Your Headline', subtitle: '@yourhandle' },
+    { id: 'tpl-slide', label: 'Presentation Slide', category: 'Business', w: 1920, h: 1080, c1: '#4facfe', c2: '#00f2fe', title: 'Presentation Title', subtitle: 'Subtitle goes here' },
+    { id: 'tpl-flyer', label: 'Event Flyer', category: 'Event', w: 794, h: 1123, c1: '#43e97b', c2: '#38f9d7', title: 'Event Name', subtitle: 'Date · Location' },
+    { id: 'tpl-yt', label: 'YouTube Thumbnail', category: 'Social Media', w: 1280, h: 720, c1: '#fa709a', c2: '#fee140', title: 'Video Title', subtitle: 'Episode 01' },
+    { id: 'tpl-twitter', label: 'Twitter Banner', category: 'Social Media', w: 1500, h: 500, c1: '#30cfd0', c2: '#330867', title: 'Your Name', subtitle: '@yourhandle' },
+    { id: 'tpl-linkedin', label: 'LinkedIn Post', category: 'Business', w: 1200, h: 627, c1: '#f7971e', c2: '#ffd200', title: 'Announcement', subtitle: 'What changed and why it matters' },
+    { id: 'tpl-pin', label: 'Pinterest Pin', category: 'Social Media', w: 1000, h: 1500, c1: '#a18cd1', c2: '#fbc2eb', title: 'Pin Title', subtitle: 'A short, catchy hook' },
+    { id: 'tpl-blog', label: 'Blog Header', category: 'Print', w: 1600, h: 840, c1: '#2c3e50', c2: '#3498db', title: 'Article Title', subtitle: 'A one-line summary' },
+    { id: 'tpl-poster', label: 'Concert Poster', category: 'Poster', w: 794, h: 1123, c1: '#ff9a9e', c2: '#fecfef', title: 'Live Show', subtitle: 'Doors 7PM · Tickets at the door' },
+    { id: 'tpl-sale', label: 'Sale Announcement', category: 'Poster', w: 1080, h: 1350, c1: '#f77062', c2: '#fe5196', title: 'Big Sale', subtitle: 'Up to 50% off' },
+    { id: 'tpl-invite', label: 'Party Invitation', category: 'Event', w: 1080, h: 1350, c1: '#c471f5', c2: '#fa71cd', title: "You're Invited", subtitle: 'Saturday · 7PM' },
+  ];
+  readonly templateCategory = signal<TemplateCategory>('All');
+  readonly templateSearchQuery = signal('');
+  readonly filteredTemplates = computed(() => {
+    const cat = this.templateCategory();
+    const q = this.templateSearchQuery().trim().toLowerCase();
+    return this.templates.filter((t) => {
+      const matchesCategory = cat === 'All' || t.category === cat;
+      const matchesQuery = !q || t.label.toLowerCase().includes(q) || t.category.toLowerCase().includes(q);
+      return matchesCategory && matchesQuery;
+    });
+  });
+
   fontFamilies = [
     'Inter',
     'Lato',
@@ -298,6 +342,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly FILE_SIZE_LIMIT = 10 * 1024 * 1024;
   private readonly ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
   private _selectedObject: any = null;
+  private _aiTargetId: string | null = null;
   private _exportFormat: ExportFormat = 'PNG';
   exportQuality = 92;
   exportTransparent = true;
@@ -564,6 +609,11 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     } else if (this._assetImageUrl) {
       this.loadAssetImage(this._assetImageUrl);
     }
+
+    // The setup above (grid render, initial onModify sync) isn't a real user
+    // edit — restoring or starting a project shouldn't show "Saving…".
+    this.ed.dirty.set(false);
+    this.ed.saveState.set('saved');
   }
 
   private setupCanvasPanning(): void {
@@ -2461,6 +2511,18 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           _arrowEnd: false,
         });
         break;
+      case 'arrow':
+        obj = new this.fabric.Line([c.x - 100, c.y, c.x + 100, c.y], {
+          _id: id,
+          name: 'Arrow',
+          stroke: '#1a1a2e',
+          strokeWidth: 3,
+          strokeLineCap: 'round',
+          strokeLineJoin: 'round',
+          _arrowStart: false,
+          _arrowEnd: true,
+        });
+        break;
       default:
         obj = new this.fabric.Rect({
           _id: id,
@@ -2478,6 +2540,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         });
     }
     this.canvas.add(obj);
+    if (type === 'arrow') {
+      this.syncArrows(obj);
+    }
     this.canvas.setActiveObject(obj);
     this.canvas.renderAll();
     this.onSelect({ target: obj });
@@ -2963,17 +3028,123 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     e.preventDefault();
   }
 
+  /**
+   * Real, client-side background removal (no AI backend): estimates the
+   * background color from the image corners and keys out matching pixels,
+   * with a soft feather at the edge of the tolerance band. Works best on
+   * photos with a solid or near-solid background.
+   */
   removeBg(): void {
-    this.ed.removeBg();
+    const obj = this._selectedObject;
+    const isImg = !!obj && (obj.type === 'image' || obj.isType?.('image'));
+    if (!obj || !isImg) return;
+    this.ed.aiJobState.set({ status: 'processing' });
+    // Defer so the "Processing…" state renders before the pixel work runs.
+    setTimeout(() => {
+      try {
+        const previewUrl = this.chromaKeyRemoveBackground(obj);
+        this._aiTargetId = obj._id;
+        this.ed.aiJobState.set({ status: 'ready', previewUrl });
+      } catch (e) {
+        console.error('Remove background failed', e);
+        this.ed.aiJobState.set({
+          status: 'failed',
+          error: 'Could not process this image.',
+        });
+      }
+    }, 300);
+  }
+
+  private chromaKeyRemoveBackground(obj: any): string {
+    const el: HTMLImageElement | HTMLCanvasElement = obj.getElement
+      ? obj.getElement()
+      : obj._element;
+    const w = (el as any).naturalWidth || el.width;
+    const h = (el as any).naturalHeight || el.height;
+    if (!w || !h) throw new Error('Image has no pixel data');
+
+    const off = document.createElement('canvas');
+    off.width = w;
+    off.height = h;
+    const ctx = off.getContext('2d');
+    if (!ctx) throw new Error('2D context unavailable');
+    ctx.drawImage(el, 0, 0, w, h);
+
+    const imageData = ctx.getImageData(0, 0, w, h);
+    const data = imageData.data;
+
+    // Estimate the background color from the four corners.
+    const corners = [
+      [0, 0],
+      [w - 1, 0],
+      [0, h - 1],
+      [w - 1, h - 1],
+    ];
+    let r = 0,
+      g = 0,
+      b = 0;
+    corners.forEach(([x, y]) => {
+      const i = (y * w + x) * 4;
+      r += data[i];
+      g += data[i + 1];
+      b += data[i + 2];
+    });
+    r /= corners.length;
+    g /= corners.length;
+    b /= corners.length;
+
+    const tolerance = 46;
+    for (let i = 0; i < data.length; i += 4) {
+      const dr = data[i] - r;
+      const dg = data[i + 1] - g;
+      const db = data[i + 2] - b;
+      const dist = Math.sqrt(dr * dr + dg * dg + db * db);
+      if (dist < tolerance) {
+        data[i + 3] = Math.round(data[i + 3] * (dist / tolerance));
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    return off.toDataURL('image/png');
   }
 
   applyAiResult(): void {
-    this.ed.applyAiResult();
+    const state = this.ed.aiJobState();
+    const obj = this._selectedObject;
+    const previewUrl = state.previewUrl;
+    if (previewUrl && obj && this.canvas && this.fabric && obj._id === this._aiTargetId) {
+      this.ed.pushUndoState();
+      void this.fabric.Image.fromURL(previewUrl).then((img: any) => {
+        if (!this.canvas) return;
+        img.set({
+          _id: obj._id,
+          name: obj.name,
+          left: obj.left,
+          top: obj.top,
+          scaleX: obj.scaleX,
+          scaleY: obj.scaleY,
+          angle: obj.angle,
+          opacity: obj.opacity,
+          originX: obj.originX,
+          originY: obj.originY,
+        });
+        this.canvas.remove(obj);
+        this.canvas.add(img);
+        this.canvas.setActiveObject(img);
+        this._selectedObject = img;
+        this.canvas.renderAll();
+        this.onSelect({ target: img });
+        this.ed.setDirty();
+      });
+    }
+    this.ed.aiJobState.set({ status: 'idle' });
+    this._aiTargetId = null;
     this.showAiResult.set(false);
   }
 
   discardAiResult(): void {
-    this.ed.discardAiResult();
+    this.ed.aiJobState.set({ status: 'idle' });
+    this._aiTargetId = null;
     this.showAiResult.set(false);
   }
 
@@ -2986,12 +3157,76 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showExport.set(false);
   }
 
+  /**
+   * All exports are generated entirely in the browser (no export backend):
+   * PNG/JPG via Fabric's canvas rasterizer, SVG via Fabric's native vector
+   * serializer, and PDF by embedding the rasterized design with jsPDF.
+   */
   exportDesign(format: ExportFormat): void {
+    if (!this.canvas) return;
     this._exportFormat = format;
-    this.ed.exportProject(format, {
-      quality: this.exportQuality,
-      transparent: this.exportTransparent,
-    });
+    this.ed.exportState.set({ status: 'queued' });
+    // Defer a tick so the "Preparing export…" state is visible before the
+    // (synchronous) rendering work runs, then produce the real file.
+    setTimeout(() => {
+      this.ed.exportState.set({ status: 'rendering' });
+      setTimeout(() => {
+        try {
+          const downloadUrl = this.renderExport(format);
+          this.ed.exportState.set({ status: 'ready', downloadUrl });
+        } catch (e) {
+          console.error('Export failed', e);
+          this.ed.exportState.set({
+            status: 'failed',
+            error: 'Could not generate this export. Try a different format.',
+          });
+        }
+      }, 250);
+    }, 100);
+  }
+
+  /** Renders the whole design client-side and returns a downloadable data URL. */
+  private renderExport(format: ExportFormat): string {
+    if (!this.canvas) throw new Error('Canvas not ready');
+    const w = this.canvas.getWidth();
+    const h = this.canvas.getHeight();
+
+    if (format === 'SVG') {
+      const svg = this.canvas.toSVG();
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    }
+
+    const fmt = format === 'JPG' ? 'jpeg' : 'png';
+    const multiplier = 2;
+    const bg = this.canvas.backgroundColor;
+    // JPG has no alpha channel — fall back to white so it never renders black.
+    if (fmt === 'jpeg' && (!bg || this.exportTransparent === false)) {
+      this.canvas.set('backgroundColor', bg || '#ffffff');
+      this.canvas.renderAll();
+    }
+    const dataUrl = this.canvas.toDataURL({
+      format: fmt,
+      multiplier,
+      quality: fmt === 'jpeg' ? Math.max(0.1, Math.min(1, this.exportQuality / 100)) : undefined,
+    } as any);
+    if (fmt === 'jpeg' && !bg) {
+      this.canvas.set('backgroundColor', bg as any);
+      this.canvas.renderAll();
+    }
+
+    if (format === 'PDF') {
+      const pxW = w * multiplier;
+      const pxH = h * multiplier;
+      const pdf = new jsPDF({
+        orientation: pxW >= pxH ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: [pxW, pxH],
+      });
+      pdf.addImage(dataUrl, 'PNG', 0, 0, pxW, pxH);
+      return pdf.output('datauristring');
+    }
+
+    return dataUrl;
   }
 
   setExportQuality(value: number): void {
@@ -3210,6 +3445,66 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // ═══ NEW FEATURE METHODS ══════════════════════════════
+
+  setTemplateCategory(category: TemplateCategory): void {
+    this.templateCategory.set(category);
+  }
+
+  /**
+   * Applies a template as a real, editable starting point: resizes the
+   * canvas to the template's format, sets its gradient background, and
+   * drops in an editable heading/subheading you can restyle immediately.
+   */
+  applyTemplate(t: (typeof this.templates)[number]): void {
+    if (!this.canvas || !this.fabric) return;
+    this.ed.pushUndoState();
+
+    this.canvas.getObjects().slice().forEach((o: any) => this.canvas!.remove(o));
+    this.customWidth.set(t.w);
+    this.customHeight.set(t.h);
+    this.canvas.setDimensions({ width: t.w, height: t.h });
+    this.setCanvasBgGradient({ label: t.label, c1: t.c1, c2: t.c2 });
+
+    const titleSize = Math.max(28, Math.round(t.w / 14));
+    const title = new this.fabric.IText(t.title, {
+      _id: `tmpl-title-${Date.now()}`,
+      name: 'Title',
+      left: t.w / 2,
+      top: t.h * 0.42,
+      fontSize: titleSize,
+      fontWeight: 700,
+      fill: '#ffffff',
+      fontFamily: 'Poppins',
+      originX: 'center',
+      originY: 'center',
+      textAlign: 'center',
+    });
+    this.canvas.add(title);
+
+    if (t.subtitle) {
+      const subSize = Math.max(14, Math.round(t.w / 34));
+      const sub = new this.fabric.IText(t.subtitle, {
+        _id: `tmpl-subtitle-${Date.now()}`,
+        name: 'Subtitle',
+        left: t.w / 2,
+        top: t.h * 0.42 + titleSize / 2 + subSize + 14,
+        fontSize: subSize,
+        fontWeight: 400,
+        fill: 'rgba(255,255,255,0.85)',
+        fontFamily: 'Inter',
+        originX: 'center',
+        originY: 'center',
+        textAlign: 'center',
+      });
+      this.canvas.add(sub);
+    }
+
+    this.canvas.renderAll();
+    requestAnimationFrame(() => this.zoomToFit());
+    this.ed.setDirty();
+    this.showTemplatePicker.set(false);
+    this.leftPanelTab.set('layers');
+  }
 
   // ── Left panel tab navigation (Canva-style) ───────────
   setLeftTab(tab: 'layers'|'templates'|'elements'|'photos'|'text'|'background'): void {
