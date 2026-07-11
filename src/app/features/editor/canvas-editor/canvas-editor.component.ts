@@ -133,8 +133,15 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ── Stock photos (Unsplash) ───────────────────────────
   readonly photoQuery = signal('');
-  readonly photoResults = signal<{id:string;thumb:string;url:string;alt:string;author:string}[]>([]);
+  readonly photoResults = signal<{id:string;thumb:string;url:string;alt:string;author:string;tags?:string}[]>([]);
   readonly photoSearching = signal(false);
+
+  // ── Toast notifications ───────────────────────────────
+  readonly toasts = signal<{id: number; message: string; type: 'info' | 'error' | 'success'}[]>([]);
+  private _toastCounter = 0;
+
+  // ── Clipboard (copy/paste) ────────────────────────────
+  private _clipboard: any[] = [];
 
   // ── Recently used colors (Dribbble / Canva) ───────────
   readonly recentColors = signal<string[]>([]);
@@ -243,31 +250,56 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   // ── Curated stock photos (Unsplash CDN — no API key needed) ──
+  // Rich tag strings enable keyword matching across multiple topics.
   private readonly _curatedPhotos = [
-    { id:'p1',  thumb:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&q=80', alt:'Mountains', author:'Samuel Ferrara' },
-    { id:'p2',  thumb:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&q=80', alt:'Forest path', author:'Sergei Akulich' },
-    { id:'p3',  thumb:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=80', alt:'Beach', author:'Sean Oulashin' },
-    { id:'p4',  thumb:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1280&q=80', alt:'City skyline', author:'Pedro Lastra' },
-    { id:'p5',  thumb:'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1280&q=80', alt:'Abstract art', author:'Ameen Fahmy' },
-    { id:'p6',  thumb:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1280&q=80', alt:'Aerial nature', author:'Karsten Würth' },
-    { id:'p7',  thumb:'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?w=1280&q=80', alt:'Night city', author:'Andreas Brucker' },
-    { id:'p8',  thumb:'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1280&q=80', alt:'Sunrise hills', author:'Davide Cantelli' },
-    { id:'p9',  thumb:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&q=80', alt:'Modern office', author:'Alex Kotliarskyi' },
-    { id:'p10', thumb:'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1280&q=80', alt:'Business meeting', author:'Campaign Creators' },
-    { id:'p11', thumb:'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1280&q=80', alt:'Finance money', author:'Micheile Henderson' },
-    { id:'p12', thumb:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1280&q=80', alt:'Laptop coding', author:'Christopher Gower' },
-    { id:'p13', thumb:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1280&q=80', alt:'Healthy food', author:'Anna Pelzer' },
-    { id:'p14', thumb:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1280&q=80', alt:'Team work', author:'Brooke Cagle' },
-    { id:'p15', thumb:'https://images.unsplash.com/photo-1469285994282-454ceb49e63c?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1469285994282-454ceb49e63c?w=1280&q=80', alt:'Desert dunes', author:'Yoann Boyer' },
-    { id:'p16', thumb:'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1280&q=80', alt:'Gradient abstract', author:'Gradienta' },
-    { id:'p17', thumb:'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1280&q=80', alt:'Fireworks festival', author:'Erwan Hesry' },
-    { id:'p18', thumb:'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=1280&q=80', alt:'Sports cycling', author:'Markus Spiske' },
-    { id:'p19', thumb:'https://images.unsplash.com/photo-1490750967868-88df5691cc51?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1490750967868-88df5691cc51?w=1280&q=80', alt:'Flowers bloom', author:'Annie Spratt' },
-    { id:'p20', thumb:'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=1280&q=80', alt:'Startup team', author:'Austin Distel' },
-    { id:'p21', thumb:'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=1280&q=80', alt:'Architecture', author:'Lance Anderson' },
-    { id:'p22', thumb:'https://images.unsplash.com/photo-1546961342-ea5f60b193a4?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1546961342-ea5f60b193a4?w=1280&q=80', alt:'Night road', author:'Matteo Catanese' },
-    { id:'p23', thumb:'https://images.unsplash.com/photo-1455849318743-b2233052fcff?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1455849318743-b2233052fcff?w=1280&q=80', alt:'Motivational stairs', author:'Ian Schneider' },
-    { id:'p24', thumb:'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=1280&q=80', alt:'Dark tech', author:'Ales Nesetril' },
+    { id:'p1',  thumb:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&q=80', alt:'Mountains', author:'Samuel Ferrara', tags:'mountain nature landscape outdoor travel snow peak' },
+    { id:'p2',  thumb:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&q=80', alt:'Forest path', author:'Sergei Akulich', tags:'forest nature trees path green outdoor woods' },
+    { id:'p3',  thumb:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=80', alt:'Beach', author:'Sean Oulashin', tags:'beach ocean sea sand summer water waves coast tropical' },
+    { id:'p4',  thumb:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1280&q=80', alt:'City skyline', author:'Pedro Lastra', tags:'city skyline urban architecture buildings downtown night lights' },
+    { id:'p5',  thumb:'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1280&q=80', alt:'Abstract art', author:'Ameen Fahmy', tags:'abstract art colorful texture pattern artistic creative' },
+    { id:'p6',  thumb:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1280&q=80', alt:'Aerial nature', author:'Karsten Würth', tags:'aerial nature landscape drone view green fields outdoor' },
+    { id:'p7',  thumb:'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?w=1280&q=80', alt:'Night city', author:'Andreas Brucker', tags:'night city lights urban dark neon street bokeh' },
+    { id:'p8',  thumb:'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1280&q=80', alt:'Sunrise hills', author:'Davide Cantelli', tags:'sunrise sunset hills nature sky dawn landscape golden' },
+    { id:'p9',  thumb:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&q=80', alt:'Modern office', author:'Alex Kotliarskyi', tags:'office workplace modern interior desk work business professional' },
+    { id:'p10', thumb:'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1280&q=80', alt:'Business meeting', author:'Campaign Creators', tags:'business meeting team collaboration office work professional corporate' },
+    { id:'p11', thumb:'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1280&q=80', alt:'Finance money', author:'Micheile Henderson', tags:'finance money cash business investment banking economy' },
+    { id:'p12', thumb:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1280&q=80', alt:'Laptop coding', author:'Christopher Gower', tags:'laptop code programming technology developer computer tech software' },
+    { id:'p13', thumb:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1280&q=80', alt:'Healthy food', author:'Anna Pelzer', tags:'food healthy vegetables salad nutrition eating diet organic' },
+    { id:'p14', thumb:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1280&q=80', alt:'Team work', author:'Brooke Cagle', tags:'team teamwork people collaboration smile happy business group' },
+    { id:'p15', thumb:'https://images.unsplash.com/photo-1469285994282-454ceb49e63c?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1469285994282-454ceb49e63c?w=1280&q=80', alt:'Desert dunes', author:'Yoann Boyer', tags:'desert sand dunes landscape nature dry hot arid minimal' },
+    { id:'p16', thumb:'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1280&q=80', alt:'Gradient abstract', author:'Gradienta', tags:'gradient abstract colorful background wallpaper artistic minimal' },
+    { id:'p17', thumb:'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1280&q=80', alt:'Fireworks festival', author:'Erwan Hesry', tags:'fireworks festival celebration party night event colorful' },
+    { id:'p18', thumb:'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=1280&q=80', alt:'Sports cycling', author:'Markus Spiske', tags:'sports cycling bike fitness outdoor exercise health athlete' },
+    { id:'p19', thumb:'https://images.unsplash.com/photo-1490750967868-88df5691cc51?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1490750967868-88df5691cc51?w=1280&q=80', alt:'Flowers bloom', author:'Annie Spratt', tags:'flowers bloom nature garden spring floral pink beautiful' },
+    { id:'p20', thumb:'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=1280&q=80', alt:'Startup team', author:'Austin Distel', tags:'startup team business office people work success laptop' },
+    { id:'p21', thumb:'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=1280&q=80', alt:'Architecture', author:'Lance Anderson', tags:'architecture building structure modern design urban construction' },
+    { id:'p22', thumb:'https://images.unsplash.com/photo-1546961342-ea5f60b193a4?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1546961342-ea5f60b193a4?w=1280&q=80', alt:'Night road', author:'Matteo Catanese', tags:'road night highway long exposure light trails dark travel' },
+    { id:'p23', thumb:'https://images.unsplash.com/photo-1455849318743-b2233052fcff?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1455849318743-b2233052fcff?w=1280&q=80', alt:'Motivational stairs', author:'Ian Schneider', tags:'motivation success stairs climb goal achievement inspiration' },
+    { id:'p24', thumb:'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=1280&q=80', alt:'Dark tech', author:'Ales Nesetril', tags:'technology dark laptop code programming developer software tech' },
+    { id:'p25', thumb:'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1280&q=80', alt:'Students studying', author:'Brooke Cagle', tags:'student education study learning school university books' },
+    { id:'p26', thumb:'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=1280&q=80', alt:'Technology laptop', author:'Luca Bravo', tags:'technology laptop computer screen code dark blue neon' },
+    { id:'p27', thumb:'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1280&q=80', alt:'Sunset ocean', author:'Johannes Plenio', tags:'sunset ocean sea dramatic sky clouds water horizon golden' },
+    { id:'p28', thumb:'https://images.unsplash.com/photo-1559181567-c3190c307e67?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1559181567-c3190c307e67?w=1280&q=80', alt:'Cherries fruit', author:'Quaritsch Photography', tags:'food fruit cherry red berries fresh organic healthy' },
+    { id:'p29', thumb:'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=1280&q=80', alt:'Man portrait', author:'Foto Sushi', tags:'person man portrait face professional smile business headshot' },
+    { id:'p30', thumb:'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=1280&q=80', alt:'Woman portrait', author:'Christopher Campbell', tags:'person woman portrait face smile happy professional headshot' },
+    { id:'p31', thumb:'https://images.unsplash.com/photo-1493514789931-586cb221d7a7?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1493514789931-586cb221d7a7?w=1280&q=80', alt:'Winter snow', author:'Anders Jildén', tags:'winter snow cold ice landscape white nature season frozen' },
+    { id:'p32', thumb:'https://images.unsplash.com/photo-1518791841217-8f162f1912da?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1518791841217-8f162f1912da?w=1280&q=80', alt:'Cute cat', author:'Mikhail Vasilyev', tags:'cat animal pet cute kitten furry domestic adorable' },
+    { id:'p33', thumb:'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=1280&q=80', alt:'Golden retriever', author:'Peter Schulz', tags:'dog animal pet cute golden retriever puppy furry' },
+    { id:'p34', thumb:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1280&q=80', alt:'Meal bowl', author:'Louis Hansel', tags:'food meal bowl restaurant dinner healthy delicious cuisine' },
+    { id:'p35', thumb:'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1280&q=80', alt:'Workshop meeting', author:'Headway', tags:'meeting workshop people team business office presentation board' },
+    { id:'p36', thumb:'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1280&q=80', alt:'Co-working space', author:'Proxyclick Visitor Management System', tags:'office coworking space people work business desk computer' },
+    { id:'p37', thumb:'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1280&q=80', alt:'Tropical palm', author:'Preethi Viswanathan', tags:'tropical palm tree beach summer holiday vacation island' },
+    { id:'p38', thumb:'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1280&q=80', alt:'Snow mountain stars', author:'Benjamin Voros', tags:'mountain snow stars night milkyway galaxy outdoor nature' },
+    { id:'p39', thumb:'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1280&q=80', alt:'Orange flowers', author:'Sergey Shmidt', tags:'flowers orange nature spring garden bloom color floral' },
+    { id:'p40', thumb:'https://images.unsplash.com/photo-1505935428862-770b6f24f629?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1505935428862-770b6f24f629?w=1280&q=80', alt:'Waterfall', author:'Liger Pham', tags:'waterfall water nature cascade river green landscape outdoor' },
+    { id:'p41', thumb:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1280&q=80', alt:'Pink sky sunrise', author:'Jeremy Bishop', tags:'sky pink sunrise dawn clouds beautiful pastel minimal' },
+    { id:'p42', thumb:'https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?w=1280&q=80', alt:'Home office desk', author:'Domenico Loia', tags:'home office desk work remote laptop minimal clean setup' },
+    { id:'p43', thumb:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1280&q=80', alt:'Online shopping', author:'CardMapr.nl', tags:'shopping ecommerce online store card payment retail' },
+    { id:'p44', thumb:'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1280&q=80', alt:'Handshake deal', author:'Cytonn Photography', tags:'business handshake deal agreement partnership professional success' },
+    { id:'p45', thumb:'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1280&q=80', alt:'Analytics chart', author:'Lukas Blazek', tags:'analytics data chart graph business statistics report growth' },
+    { id:'p46', thumb:'https://images.unsplash.com/photo-1444927714506-8492d94b4e3d?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1444927714506-8492d94b4e3d?w=1280&q=80', alt:'Lake reflection', author:'James Donaldson', tags:'lake reflection water nature landscape peaceful calm mirror' },
+    { id:'p47', thumb:'https://images.unsplash.com/photo-1456262703519-0d0b9e611faf?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1456262703519-0d0b9e611faf?w=1280&q=80', alt:'City bridge', author:'Joshua Sortino', tags:'city bridge architecture urban travel landmark infrastructure' },
+    { id:'p48', thumb:'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=1280&q=80', alt:'Waffles breakfast', author:'Brenda Godinez', tags:'food breakfast waffles brunch cafe sweet delicious morning' },
   ];
 
   // ── Templates (Canva / PosterMyWall style starting points) ──
@@ -516,8 +548,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       const mod = await import('fabric');
       this.fabric = mod;
-    } catch {
-      console.warn('Fabric.js not available, using mock canvas');
+    } catch (err) {
+      console.error('Fabric.js failed to load:', err);
+      this.showToast('Canvas engine failed to load. Please refresh the page.', 'error');
       this.fabric = null;
       return;
     }
@@ -584,7 +617,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       (json: string) => {
         try {
           this.canvas?.loadFromJSON(JSON.parse(json), () => this.canvas?.renderAll());
-        } catch {}
+        } catch (err) {
+          console.error('Canvas restore failed:', err);
+        }
       },
     );
 
@@ -605,7 +640,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         this.canvas.loadFromJSON(JSON.parse(this.ed.project()!.canvasJson), () =>
           this.canvas.renderAll(),
         );
-      } catch {}
+      } catch (err) {
+        console.error('Failed to load saved project canvas:', err);
+      }
     } else if (this._assetImageUrl) {
       this.loadAssetImage(this._assetImageUrl);
     }
@@ -1644,46 +1681,114 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(e: KeyboardEvent): void {
+    const target = e.target as HTMLElement;
     const isInput =
-      (e.target as HTMLElement)?.tagName === 'INPUT' ||
-      (e.target as HTMLElement)?.tagName === 'TEXTAREA';
+      target?.tagName === 'INPUT' ||
+      target?.tagName === 'TEXTAREA' ||
+      target?.isContentEditable;
     if (isInput) return;
 
-    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const mod = isMac ? e.metaKey : e.ctrlKey;
+
+    // Undo / Redo
+    if (mod && e.key === 'z') {
       e.preventDefault();
       if (e.shiftKey) this.ed.redo();
       else this.ed.undo();
       return;
     }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+    if (mod && e.key === 'y') {
       e.preventDefault();
       this.ed.redo();
       return;
     }
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    // Save
+    if (mod && !e.shiftKey && e.key === 's') {
       e.preventDefault();
       this.save();
       return;
     }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'g') {
+    // Select All
+    if (mod && e.key.toLowerCase() === 'a') {
+      e.preventDefault();
+      this.selectAll();
+      return;
+    }
+    // Copy
+    if (mod && !e.shiftKey && e.key === 'c') {
+      e.preventDefault();
+      this.copySelected();
+      return;
+    }
+    // Paste
+    if (mod && !e.shiftKey && e.key === 'v') {
+      e.preventDefault();
+      this.pasteClipboard();
+      return;
+    }
+    // Duplicate
+    if (mod && e.key === 'd') {
+      e.preventDefault();
+      this.duplicateSelected();
+      return;
+    }
+    // Toggle grid
+    if (mod && !e.shiftKey && e.key === 'g') {
       e.preventDefault();
       this.toggleGrid();
       return;
     }
-    if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '=')) {
+    // Zoom in
+    if (mod && (e.key === '+' || e.key === '=')) {
       e.preventDefault();
       this.zoomIn();
       return;
     }
-    if ((e.ctrlKey || e.metaKey) && (e.key === '-' || e.key === '_')) {
+    // Zoom out
+    if (mod && (e.key === '-' || e.key === '_')) {
       e.preventDefault();
       this.zoomOut();
       return;
     }
+    // Reset zoom to 100%
+    if (mod && e.key === '0') {
+      e.preventDefault();
+      this.setZoom(1);
+      return;
+    }
+    // Fit to screen
+    if (mod && e.shiftKey && e.key.toLowerCase() === 'f') {
+      e.preventDefault();
+      this.zoomToFit();
+      return;
+    }
+    // Bring forward
+    if (mod && e.key === ']') {
+      e.preventDefault();
+      this.moveSelectedForward();
+      return;
+    }
+    // Send backward
+    if (mod && e.key === '[') {
+      e.preventDefault();
+      this.moveSelectedBackward();
+      return;
+    }
+    // Arrow nudge (1px, Shift+Arrow = 10px)
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      if (this.canvas?.getActiveObjects?.()?.length) {
+        e.preventDefault();
+        this.nudgeSelected(e.key, e.shiftKey ? 10 : 1);
+        return;
+      }
+    }
+    // Delete / Backspace
     if (e.key === 'Delete' || e.key === 'Backspace') {
       this.deleteSelected();
       return;
     }
+    // Escape
     if (e.key === 'Escape') {
       this.canvas?.discardActiveObject();
       this.canvas?.renderAll();
@@ -1695,17 +1800,16 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.ed.toolMode.set('select');
       return;
     }
-    if (e.key === 'v' && !e.ctrlKey && !e.metaKey) {
-      this.ed.toolMode.set('select');
-      return;
-    }
-    if (e.key === 't' && !e.ctrlKey && !e.metaKey) {
-      this.ed.toolMode.set('text');
-      return;
-    }
-    if (e.key === 'r' && !e.ctrlKey && !e.metaKey) {
-      this.ed.toolMode.set('shape');
-      return;
+    // Single-key tool shortcuts (no modifier)
+    if (!mod && !e.shiftKey && !e.altKey) {
+      switch (e.key) {
+        case 'v': this.ed.toolMode.set('select'); return;
+        case 't': this.ed.toolMode.set('text'); return;
+        case 'r': this.ed.toolMode.set('shape'); return;
+        case 'c': this.addShape('circle'); return;
+        case 'l': this.addShape('line'); return;
+        case '?': this.toggleShortcutsModal(); return;
+      }
     }
   }
 
@@ -1717,27 +1821,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostListener('document:click')
   onDocClick(): void {
     this.showFontPicker.set(false);
-  }
-
-  @HostListener('window:keydown', ['$event'])
-  onKeydown(e: KeyboardEvent): void {
-    // Select All: Ctrl/Cmd + A
-    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    const mod = isMac ? e.metaKey : e.ctrlKey;
-    if (mod && e.key.toLowerCase() === 'a') {
-      // avoid interfering when typing in inputs
-      const active = document.activeElement;
-      if (
-        active &&
-        (active.tagName === 'INPUT' ||
-          active.tagName === 'TEXTAREA' ||
-          (active as HTMLElement).isContentEditable)
-      ) {
-        return;
-      }
-      e.preventDefault();
-      this.selectAll();
-    }
   }
 
   private onSelect(e: any): void {
@@ -2577,11 +2660,11 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       const file = e.target?.files?.[0];
       if (!file) return;
       if (!this.ALLOWED_TYPES.includes(file.type)) {
-        alert('Unsupported format. Use PNG, JPEG, WebP, or SVG.');
+        this.showToast('Unsupported format. Use PNG, JPEG, WebP, or SVG.', 'error');
         return;
       }
       if (file.size > this.FILE_SIZE_LIMIT) {
-        alert('File too large (max 10 MB).');
+        this.showToast('File too large. Maximum size is 10 MB.', 'error');
         return;
       }
       const reader = new FileReader();
@@ -3000,7 +3083,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           this.addImage(this.normalizeImageUrl(url), pt.x, pt.y);
           return;
         }
-      } catch {}
+      } catch (err) {
+        console.warn('Canvas pointer resolution failed during drag drop:', err);
+      }
       this.addImage(this.normalizeImageUrl(url));
       return;
     }
@@ -3518,11 +3603,20 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const q = this.photoQuery().trim().toLowerCase();
     if (!q) { this.photoResults.set(this._curatedPhotos); return; }
     this.photoSearching.set(true);
-    const filtered = this._curatedPhotos.filter(p => p.alt.toLowerCase().includes(q));
+    const terms = q.split(/\s+/).filter(Boolean);
+    const scored = this._curatedPhotos.map(p => {
+      const haystack = `${p.alt} ${p.tags ?? ''} ${p.author}`.toLowerCase();
+      const score = terms.reduce((s, term) => {
+        if (p.alt.toLowerCase().includes(term)) return s + 3;
+        if (haystack.includes(term)) return s + 1;
+        return s;
+      }, 0);
+      return { photo: p, score };
+    }).filter(x => x.score > 0).sort((a, b) => b.score - a.score).map(x => x.photo);
     setTimeout(() => {
-      this.photoResults.set(filtered.length ? filtered : this._curatedPhotos);
+      this.photoResults.set(scored.length ? scored : []);
       this.photoSearching.set(false);
-    }, 250);
+    }, 150);
   }
 
   insertStockPhoto(photo: {id:string;thumb:string;url:string;alt:string;author:string}): void {
@@ -3731,6 +3825,100 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // ═══════════════════════════════════════════════════════
+
+  // ── Toast notifications ───────────────────────────────
+  showToast(message: string, type: 'info' | 'error' | 'success' = 'info', durationMs = 3500): void {
+    const id = ++this._toastCounter;
+    this.toasts.update(t => [...t, { id, message, type }]);
+    setTimeout(() => this.dismissToast(id), durationMs);
+  }
+
+  dismissToast(id: number): void {
+    this.toasts.update(t => t.filter(toast => toast.id !== id));
+  }
+
+  // ── Copy / Paste ──────────────────────────────────────
+  copySelected(): void {
+    if (!this.canvas) return;
+    const active = this.canvas.getActiveObjects?.() ?? [];
+    if (!active.length) return;
+    this._clipboard = active.map((obj: any) => {
+      try {
+        return obj.toObject([
+          '_id', 'name', '_shapeType', '_sides', '_cornerRadius', '_starPoints', '_starRatio',
+          '_arrowStart', '_arrowEnd', '_arc', '_sweep', '_ratio', '_layerBlur',
+          '_fillType', '_gradientColors', '_gradientAngle', '_gradientRadius',
+        ]);
+      } catch (err) {
+        console.warn('Copy serialization failed for object:', err);
+        return null;
+      }
+    }).filter(Boolean);
+    if (this._clipboard.length) {
+      this.showToast(`Copied ${this._clipboard.length} object${this._clipboard.length > 1 ? 's' : ''}`, 'success', 1800);
+    }
+  }
+
+  pasteClipboard(): void {
+    if (!this.canvas || !this.fabric || !this._clipboard.length) return;
+    this.ed.pushUndoState();
+    const pasted: any[] = [];
+    let pending = this._clipboard.length;
+    this._clipboard.forEach((objData: any) => {
+      try {
+        this.fabric.util.enlivenObjects([objData], (objects: any[]) => {
+          objects.forEach((obj: any) => {
+            obj.set({
+              _id: `paste-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+              name: `${objData.name ?? 'Layer'} Copy`,
+              left: (objData.left ?? 0) + 20,
+              top: (objData.top ?? 0) + 20,
+            });
+            obj.setCoords?.();
+            this.canvas!.add(obj);
+            pasted.push(obj);
+          });
+          pending--;
+          if (pending === 0) {
+            if (pasted.length === 1) {
+              this.canvas!.setActiveObject(pasted[0]);
+            } else if (pasted.length > 1) {
+              try {
+                const sel = new this.fabric.ActiveSelection(pasted, { canvas: this.canvas! });
+                this.canvas!.setActiveObject(sel as any);
+              } catch {
+                this.canvas!.setActiveObject(pasted[0]);
+              }
+            }
+            this.canvas!.renderAll();
+            this.onModify();
+          }
+        });
+      } catch (err) {
+        console.warn('Paste failed for object:', err);
+        pending--;
+      }
+    });
+  }
+
+  // ── Arrow-key nudge ───────────────────────────────────
+  nudgeSelected(key: string, delta: number): void {
+    if (!this.canvas) return;
+    const objs = this.canvas.getActiveObjects?.() ?? [];
+    if (!objs.length) return;
+    this.ed.pushUndoState();
+    objs.forEach((obj: any) => {
+      switch (key) {
+        case 'ArrowLeft':  obj.set({ left: (obj.left ?? 0) - delta }); break;
+        case 'ArrowRight': obj.set({ left: (obj.left ?? 0) + delta }); break;
+        case 'ArrowUp':    obj.set({ top:  (obj.top  ?? 0) - delta }); break;
+        case 'ArrowDown':  obj.set({ top:  (obj.top  ?? 0) + delta }); break;
+      }
+      obj.setCoords?.();
+    });
+    this.canvas.renderAll();
+    this.onModify();
+  }
 
   saveAndClose(): void {
     this.save();

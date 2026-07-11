@@ -1566,6 +1566,23 @@
   </div>
 </div>
 
+<!-- ══ Toast notifications ════════════════════════════════════ -->
+<div class="toast-container" aria-live="polite">
+  <div
+    *ngFor="let toast of toasts()"
+    class="toast"
+    [class.toast--error]="toast.type === 'error'"
+    [class.toast--success]="toast.type === 'success'"
+    [class.toast--info]="toast.type === 'info'"
+    (click)="dismissToast(toast.id)"
+  >
+    <svg *ngIf="toast.type === 'error'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <svg *ngIf="toast.type === 'success'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    <svg *ngIf="toast.type === 'info'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <span>{{ toast.message }}</span>
+  </div>
+</div>
+
 <!-- ══ AI Result Modal ════════════════════════════════════════ -->
 <div class="editor-modal" *ngIf="showAiResult()" (click)="discardAiResult()">
   <div class="export-dialog" (click)="$event.stopPropagation()">
