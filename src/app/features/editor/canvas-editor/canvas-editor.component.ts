@@ -111,6 +111,162 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly currentPageLabel = computed(() => this.currentPage()?.name ?? 'Page 1');
   assetsSearchQuery = '';
 
+  // ── Expose Math for template expressions ─────────────
+  readonly Math = Math;
+
+  // ── Left panel tab navigation (Canva-style) ───────────
+  readonly leftPanelTab = signal<'layers'|'templates'|'elements'|'photos'|'text'|'background'>('layers');
+
+  // ── Canvas size dialog (Vistaprint / Canva) ───────────
+  readonly showSizeDialog = signal(false);
+  readonly customWidth = signal(800);
+  readonly customHeight = signal(600);
+
+  // ── Shortcuts modal ───────────────────────────────────
+  readonly showShortcutsModal = signal(false);
+
+  // ── Safe zone / bleed (Vistaprint) ────────────────────
+  readonly showSafeZone = signal(false);
+
+  // ── Stock photos (Unsplash) ───────────────────────────
+  readonly photoQuery = signal('');
+  readonly photoResults = signal<{id:string;thumb:string;url:string;alt:string;author:string}[]>([]);
+  readonly photoSearching = signal(false);
+
+  // ── Recently used colors (Dribbble / Canva) ───────────
+  readonly recentColors = signal<string[]>([]);
+
+  // ── Image adjustments (Magnific / Canva) ──────────────
+  readonly imgBrightness = signal(0);
+  readonly imgContrast = signal(0);
+  readonly imgSaturation = signal(0);
+  readonly imgHue = signal(0);
+  readonly activeImageFilter = signal('Normal');
+
+  // ── Canvas size presets (Vistaprint / Canva / PosterMyWall) ──
+  readonly canvasPresets = [
+    { label: 'Instagram Post',     w: 1080, h: 1080, tag: 'Social' },
+    { label: 'Instagram Story',    w: 1080, h: 1920, tag: 'Social' },
+    { label: 'Facebook Post',      w: 1200, h: 630,  tag: 'Social' },
+    { label: 'Twitter / X Post',   w: 1600, h: 900,  tag: 'Social' },
+    { label: 'YouTube Thumbnail',  w: 1280, h: 720,  tag: 'Video'  },
+    { label: 'LinkedIn Post',      w: 1200, h: 627,  tag: 'Social' },
+    { label: 'Pinterest Pin',      w: 1000, h: 1500, tag: 'Social' },
+    { label: 'TikTok / Reel',      w: 1080, h: 1920, tag: 'Video'  },
+    { label: 'Presentation 16:9',  w: 1920, h: 1080, tag: 'Slides' },
+    { label: 'Presentation 4:3',   w: 1024, h: 768,  tag: 'Slides' },
+    { label: 'A4 Portrait',        w: 794,  h: 1123, tag: 'Print'  },
+    { label: 'A4 Landscape',       w: 1123, h: 794,  tag: 'Print'  },
+    { label: 'Business Card',      w: 1050, h: 600,  tag: 'Print'  },
+    { label: 'US Letter',          w: 816,  h: 1056, tag: 'Print'  },
+    { label: 'Flyer / Poster',     w: 794,  h: 1123, tag: 'Print'  },
+    { label: 'Banner 728×90',      w: 728,  h: 90,   tag: 'Web'    },
+  ];
+
+  // ── Text style presets (Canva) ────────────────────────
+  readonly textStylePresets = [
+    { label: 'Display',    fs: 80, fw: 900, ff: 'Poppins',          lh: 1.0, color: '#1a1a2e', preview: 'Aa' },
+    { label: 'Big Title',  fs: 60, fw: 700, ff: 'Poppins',          lh: 1.1, color: '#1a1a2e', preview: 'Aa' },
+    { label: 'Title',      fs: 44, fw: 700, ff: 'Inter',            lh: 1.2, color: '#1a1a2e', preview: 'Aa' },
+    { label: 'Heading',    fs: 32, fw: 600, ff: 'Inter',            lh: 1.3, color: '#16213e', preview: 'Aa' },
+    { label: 'Subheading', fs: 22, fw: 500, ff: 'Inter',            lh: 1.4, color: '#374151', preview: 'Aa' },
+    { label: 'Body',       fs: 16, fw: 400, ff: 'Inter',            lh: 1.6, color: '#374151', preview: 'Aa' },
+    { label: 'Caption',    fs: 12, fw: 400, ff: 'Lato',             lh: 1.5, color: '#6b7280', preview: 'Aa' },
+    { label: 'Quote',      fs: 24, fw: 300, ff: 'Playfair Display', lh: 1.5, color: '#1a1a2e', preview: '"Aa"' },
+    { label: 'Monospace',  fs: 14, fw: 400, ff: 'Courier New',      lh: 1.5, color: '#1a1a2e', preview: 'Aa' },
+    { label: 'Label',      fs: 10, fw: 600, ff: 'Inter',            lh: 1.4, color: '#6366f1', preview: 'AA' },
+  ];
+
+  // ── Element shapes library (Canva / Freepik) ──────────
+  readonly elementShapes: {name:string;type:string;params?:Record<string,any>;svgPreview:string}[] = [
+    { name:'Rectangle',    type:'rect',    svgPreview:'<rect x="4" y="7" width="16" height="10" rx="1"/>' },
+    { name:'Rounded Rect', type:'rect',    params:{rx:16,ry:16}, svgPreview:'<rect x="4" y="7" width="16" height="10" rx="5"/>' },
+    { name:'Circle',       type:'circle',  svgPreview:'<circle cx="12" cy="12" r="8"/>' },
+    { name:'Triangle',     type:'polygon', params:{_sides:3},    svgPreview:'<polygon points="12,4 22,20 2,20"/>' },
+    { name:'Pentagon',     type:'polygon', params:{_sides:5},    svgPreview:'<polygon points="12,2 22,9 18,21 6,21 2,9"/>' },
+    { name:'Hexagon',      type:'polygon', params:{_sides:6},    svgPreview:'<polygon points="12,2 22,7 22,17 12,22 2,17 2,7"/>' },
+    { name:'Octagon',      type:'polygon', params:{_sides:8},    svgPreview:'<polygon points="8,2 16,2 22,8 22,16 16,22 8,22 2,16 2,8"/>' },
+    { name:'5-Star',       type:'star',    params:{_starPoints:5},svgPreview:'<polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/>' },
+    { name:'6-Star',       type:'star',    params:{_starPoints:6,_starRatio:0.55},svgPreview:'<polygon points="12,2 14,8 20,6 16,12 20,18 14,16 12,22 10,16 4,18 8,12 4,6 10,8"/>' },
+    { name:'4-Star',       type:'star',    params:{_starPoints:4,_starRatio:0.4}, svgPreview:'<polygon points="12,2 14,10 22,12 14,14 12,22 10,14 2,12 10,10"/>' },
+    { name:'Line',         type:'line',    svgPreview:'<line x1="2" y1="12" x2="22" y2="12" stroke-width="2"/>' },
+    { name:'Dashed Line',  type:'line',    params:{strokeDashArray:[8,4]}, svgPreview:'<line x1="2" y1="12" x2="22" y2="12" stroke-width="2" stroke-dasharray="5,3"/>' },
+  ];
+
+  // ── Background solid colors (Canva palette) ───────────
+  readonly bgSolidColors = [
+    '#ffffff','#f8f9fa','#e9ecef','#adb5bd','#000000',
+    '#212529','#495057','#6c757d','#868e96','#343a40',
+    '#e94560','#f5820a','#f59e0b','#22c55e','#06b6d4',
+    '#3b82f6','#6366f1','#8b5cf6','#ec4899','#14b8a6',
+    '#1a1a2e','#16213e','#0f3460','#7c3aed','#065f46',
+    '#fef9c3','#fce7f3','#e0f2fe','#dcfce7','#faf5ff',
+  ];
+
+  // ── Gradient presets (PosterMyWall / Canva) ───────────
+  readonly bgGradients = [
+    { label:'Ocean',   c1:'#667eea', c2:'#764ba2' },
+    { label:'Sunset',  c1:'#f093fb', c2:'#f5576c' },
+    { label:'Sky',     c1:'#4facfe', c2:'#00f2fe' },
+    { label:'Forest',  c1:'#43e97b', c2:'#38f9d7' },
+    { label:'Fire',    c1:'#fa709a', c2:'#fee140' },
+    { label:'Night',   c1:'#30cfd0', c2:'#330867' },
+    { label:'Mango',   c1:'#f6d365', c2:'#fda085' },
+    { label:'Rose',    c1:'#ffecd2', c2:'#fcb69f' },
+    { label:'Cosmic',  c1:'#a18cd1', c2:'#fbc2eb' },
+    { label:'Steel',   c1:'#e0eafc', c2:'#cfdef3' },
+    { label:'Candy',   c1:'#89f7fe', c2:'#66a6ff' },
+    { label:'Noir',    c1:'#434343', c2:'#000000' },
+    { label:'Gold',    c1:'#f7971e', c2:'#ffd200' },
+    { label:'Mint',    c1:'#a8edea', c2:'#fed6e3' },
+    { label:'Dusk',    c1:'#2c3e50', c2:'#3498db' },
+    { label:'Aurora',  c1:'#00c9ff', c2:'#92fe9d' },
+  ];
+
+  // ── Image filter presets (Canva / Instagram / Magnific) ─
+  readonly imageFilterPresets = [
+    { label:'Normal',   filters:[] as string[] },
+    { label:'Grayscale',filters:['Grayscale'] },
+    { label:'Sepia',    filters:['Sepia'] },
+    { label:'Invert',   filters:['Invert'] },
+    { label:'Vintage',  filters:['Sepia:0.5','Brightness:-0.05','Contrast:0.1'] },
+    { label:'Cool',     filters:['Saturation:-0.3','HueRotation:30'] },
+    { label:'Warm',     filters:['Saturation:0.2','HueRotation:-15'] },
+    { label:'Fade',     filters:['Brightness:0.12','Saturation:-0.3','Contrast:-0.1'] },
+    { label:'Vivid',    filters:['Saturation:0.6','Contrast:0.15'] },
+    { label:'Dramatic', filters:['Contrast:0.35','Saturation:-0.15'] },
+    { label:'Chrome',   filters:['Contrast:0.25','Saturation:-0.5','Brightness:0.05'] },
+    { label:'Moody',    filters:['Brightness:-0.1','Contrast:0.2','Saturation:-0.2'] },
+  ];
+
+  // ── Curated stock photos (Unsplash CDN — no API key needed) ──
+  private readonly _curatedPhotos = [
+    { id:'p1',  thumb:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&q=80', alt:'Mountains', author:'Samuel Ferrara' },
+    { id:'p2',  thumb:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&q=80', alt:'Forest path', author:'Sergei Akulich' },
+    { id:'p3',  thumb:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=80', alt:'Beach', author:'Sean Oulashin' },
+    { id:'p4',  thumb:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1280&q=80', alt:'City skyline', author:'Pedro Lastra' },
+    { id:'p5',  thumb:'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1280&q=80', alt:'Abstract art', author:'Ameen Fahmy' },
+    { id:'p6',  thumb:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1280&q=80', alt:'Aerial nature', author:'Karsten Würth' },
+    { id:'p7',  thumb:'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?w=1280&q=80', alt:'Night city', author:'Andreas Brucker' },
+    { id:'p8',  thumb:'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1280&q=80', alt:'Sunrise hills', author:'Davide Cantelli' },
+    { id:'p9',  thumb:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&q=80', alt:'Modern office', author:'Alex Kotliarskyi' },
+    { id:'p10', thumb:'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1280&q=80', alt:'Business meeting', author:'Campaign Creators' },
+    { id:'p11', thumb:'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1280&q=80', alt:'Finance money', author:'Micheile Henderson' },
+    { id:'p12', thumb:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1280&q=80', alt:'Laptop coding', author:'Christopher Gower' },
+    { id:'p13', thumb:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1280&q=80', alt:'Healthy food', author:'Anna Pelzer' },
+    { id:'p14', thumb:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1280&q=80', alt:'Team work', author:'Brooke Cagle' },
+    { id:'p15', thumb:'https://images.unsplash.com/photo-1469285994282-454ceb49e63c?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1469285994282-454ceb49e63c?w=1280&q=80', alt:'Desert dunes', author:'Yoann Boyer' },
+    { id:'p16', thumb:'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1280&q=80', alt:'Gradient abstract', author:'Gradienta' },
+    { id:'p17', thumb:'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1280&q=80', alt:'Fireworks festival', author:'Erwan Hesry' },
+    { id:'p18', thumb:'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=1280&q=80', alt:'Sports cycling', author:'Markus Spiske' },
+    { id:'p19', thumb:'https://images.unsplash.com/photo-1490750967868-88df5691cc51?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1490750967868-88df5691cc51?w=1280&q=80', alt:'Flowers bloom', author:'Annie Spratt' },
+    { id:'p20', thumb:'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=1280&q=80', alt:'Startup team', author:'Austin Distel' },
+    { id:'p21', thumb:'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=1280&q=80', alt:'Architecture', author:'Lance Anderson' },
+    { id:'p22', thumb:'https://images.unsplash.com/photo-1546961342-ea5f60b193a4?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1546961342-ea5f60b193a4?w=1280&q=80', alt:'Night road', author:'Matteo Catanese' },
+    { id:'p23', thumb:'https://images.unsplash.com/photo-1455849318743-b2233052fcff?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1455849318743-b2233052fcff?w=1280&q=80', alt:'Motivational stairs', author:'Ian Schneider' },
+    { id:'p24', thumb:'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=1280&q=80', alt:'Dark tech', author:'Ales Nesetril' },
+  ];
+
   fontFamilies = [
     'Inter',
     'Lato',
@@ -426,6 +582,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     if (event.code === 'Space' && !this.panKeyPressed) {
       this.panKeyPressed = true;
       this.updateCanvasCursor();
+    }
+    if (event.key === '?' && !(event.target as HTMLElement)?.matches('input,textarea,[contenteditable]')) {
+      this.showShortcutsModal.update(v => !v);
     }
   }
 
@@ -2724,6 +2883,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   applyColor(color: string, target: 'fill' | 'stroke'): void {
     this.updateProperty(target, color);
+    this.trackRecentColor(color);
   }
 
   toggleShadow(): void {
@@ -3048,6 +3208,234 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.canvas.renderAll();
     this.onModify();
   }
+
+  // ═══ NEW FEATURE METHODS ══════════════════════════════
+
+  // ── Left panel tab navigation (Canva-style) ───────────
+  setLeftTab(tab: 'layers'|'templates'|'elements'|'photos'|'text'|'background'): void {
+    this.leftPanelTab.set(tab);
+    if (tab === 'photos' && this.photoResults().length === 0) {
+      this.photoResults.set(this._curatedPhotos);
+    }
+  }
+
+  searchPhotos(): void {
+    const q = this.photoQuery().trim().toLowerCase();
+    if (!q) { this.photoResults.set(this._curatedPhotos); return; }
+    this.photoSearching.set(true);
+    const filtered = this._curatedPhotos.filter(p => p.alt.toLowerCase().includes(q));
+    setTimeout(() => {
+      this.photoResults.set(filtered.length ? filtered : this._curatedPhotos);
+      this.photoSearching.set(false);
+    }, 250);
+  }
+
+  insertStockPhoto(photo: {id:string;thumb:string;url:string;alt:string;author:string}): void {
+    this.addImage(photo.url);
+  }
+
+  // ── Text style presets (Canva) ────────────────────────
+  addStyledText(preset: {label:string;fs:number;fw:number;ff:string;lh:number;color:string;preview:string}): void {
+    if (!this.canvas || !this.fabric) return;
+    this.ed.pushUndoState();
+    const id = `text-${Date.now()}`;
+    const cw = this.canvas.getWidth();
+    const ch = this.canvas.getHeight();
+    const sample = preset.label === 'Quote' ? `"${preset.label}"` : preset.label;
+    const txt = new this.fabric.IText(sample, {
+      _id: id,
+      name: preset.label,
+      left: Math.max(20, cw / 2 - 200),
+      top: Math.max(20, ch / 2 - preset.fs),
+      fontSize: preset.fs,
+      fontWeight: preset.fw,
+      fontFamily: preset.ff,
+      lineHeight: preset.lh,
+      fill: preset.color,
+      textAlign: 'left',
+    });
+    this.canvas.add(txt);
+    this.canvas.setActiveObject(txt);
+    this.canvas.renderAll();
+    this.onSelect({ target: txt });
+    this.ed.toolMode.set('select');
+    this.ed.setDirty();
+  }
+
+  // ── Element shapes library (Canva / Freepik) ──────────
+  addElement(el: {name:string;type:string;params?:Record<string,any>;svgPreview:string}): void {
+    if (!this.canvas || !this.fabric) return;
+    const cx = this.canvas.getWidth() / 2;
+    const cy = this.canvas.getHeight() / 2;
+    const id = `el-${Date.now()}`;
+    if (el.type === 'rect') {
+      this.ed.pushUndoState();
+      const rx = el.params?.['rx'] ?? 0;
+      const obj = new this.fabric.Rect({ _id: id, name: el.name, left: cx - 60, top: cy - 40, width: 120, height: 80, fill: '#3b82f6', rx, ry: rx });
+      this.canvas.add(obj);
+      this.canvas.setActiveObject(obj);
+      this.canvas.renderAll();
+      this.onSelect({ target: obj });
+    } else if (el.type === 'circle') {
+      this.addShape('circle');
+    } else if (el.type === 'polygon') {
+      this.addShape('polygon');
+      const added = this.canvas.getObjects().slice(-1)[0];
+      if (added && el.params?.['_sides']) { added._sides = el.params['_sides']; }
+    } else if (el.type === 'star') {
+      this.addShape('star');
+      const added = this.canvas.getObjects().slice(-1)[0];
+      if (added) {
+        if (el.params?.['_starPoints']) added._starPoints = el.params['_starPoints'];
+        if (el.params?.['_starRatio']) added._starRatio = el.params['_starRatio'];
+      }
+    } else if (el.type === 'line') {
+      this.ed.pushUndoState();
+      const dashArray = el.params?.['strokeDashArray'] ?? [];
+      const obj = new this.fabric.Line([0, 0, 180, 0], { _id: id, name: el.name, left: cx - 90, top: cy, stroke: '#1a1a2e', strokeWidth: 3, fill: '', strokeDashArray: dashArray });
+      this.canvas.add(obj);
+      this.canvas.setActiveObject(obj);
+      this.canvas.renderAll();
+      this.onSelect({ target: obj });
+    }
+    this.ed.toolMode.set('select');
+    this.ed.setDirty();
+  }
+
+  // ── Canvas background (Canva / Freepik / PosterMyWall) ─
+  setCanvasBgColor(color: string): void {
+    if (!this.canvas) return;
+    this.ed.pushUndoState();
+    this.canvas.set('backgroundColor', color);
+    this.canvas.renderAll();
+    this.ed.setDirty();
+    this.trackRecentColor(color);
+  }
+
+  setCanvasBgGradient(g: {label:string;c1:string;c2:string}): void {
+    if (!this.canvas || !this.fabric) return;
+    this.ed.pushUndoState();
+    const w = this.canvas.getWidth();
+    const h = this.canvas.getHeight();
+    try {
+      const gradient = new this.fabric.Gradient({
+        type: 'linear',
+        gradientUnits: 'pixels',
+        coords: { x1: 0, y1: 0, x2: w, y2: h },
+        colorStops: [{ offset: 0, color: g.c1 }, { offset: 1, color: g.c2 }],
+      });
+      this.canvas.set('backgroundColor', gradient as any);
+    } catch {
+      // fallback to solid if gradient API differs
+      this.canvas.set('backgroundColor', g.c1);
+    }
+    this.canvas.renderAll();
+    this.ed.setDirty();
+  }
+
+  // ── Image adjustments (Magnific / Canva style) ────────
+  applyImageAdjustment(): void {
+    const obj = this._selectedObject;
+    if (!obj || !this.fabric) return;
+    const isImg = obj.type === 'image' || obj.isType?.('image');
+    if (!isImg) return;
+    this.ed.pushUndoState();
+    const filters: any[] = [];
+    const b = this.imgBrightness();
+    const c = this.imgContrast();
+    const s = this.imgSaturation();
+    const h = this.imgHue();
+    if (b !== 0) filters.push(new this.fabric.filters.Brightness({ brightness: b / 100 }));
+    if (c !== 0) filters.push(new this.fabric.filters.Contrast({ contrast: c / 100 }));
+    if (s !== 0) filters.push(new this.fabric.filters.Saturation({ saturation: s / 100 }));
+    if (h !== 0) filters.push(new this.fabric.filters.HueRotation({ rotation: h / 360 }));
+    obj.filters = filters;
+    obj.applyFilters?.();
+    this.canvas?.renderAll();
+    this.activeImageFilter.set('Custom');
+    this.ed.setDirty();
+  }
+
+  applyImageFilter(preset: {label:string;filters:string[]}): void {
+    const obj = this._selectedObject;
+    if (!obj || !this.fabric) return;
+    const isImg = obj.type === 'image' || obj.isType?.('image');
+    if (!isImg) return;
+    this.ed.pushUndoState();
+    this.activeImageFilter.set(preset.label);
+    const filters: any[] = [];
+    for (const f of preset.filters) {
+      const [name, valStr] = f.split(':');
+      const val = valStr != null ? parseFloat(valStr) : undefined;
+      try {
+        if (name === 'Grayscale') filters.push(new this.fabric.filters.Grayscale());
+        else if (name === 'Sepia') filters.push(new this.fabric.filters.Sepia());
+        else if (name === 'Invert') filters.push(new this.fabric.filters.Invert());
+        else if (name === 'Brightness' && val != null) filters.push(new this.fabric.filters.Brightness({ brightness: val }));
+        else if (name === 'Contrast' && val != null) filters.push(new this.fabric.filters.Contrast({ contrast: val }));
+        else if (name === 'Saturation' && val != null) filters.push(new this.fabric.filters.Saturation({ saturation: val }));
+        else if (name === 'HueRotation' && val != null) filters.push(new this.fabric.filters.HueRotation({ rotation: val / 360 }));
+      } catch { /* filter not available */ }
+    }
+    obj.filters = filters;
+    obj.applyFilters?.();
+    this.canvas?.renderAll();
+    // Reset adjustment sliders to neutral
+    this.imgBrightness.set(0); this.imgContrast.set(0);
+    this.imgSaturation.set(0); this.imgHue.set(0);
+    this.ed.setDirty();
+  }
+
+  resetImageAdjustments(): void {
+    const obj = this._selectedObject;
+    if (!obj) return;
+    obj.filters = [];
+    obj.applyFilters?.();
+    this.canvas?.renderAll();
+    this.imgBrightness.set(0); this.imgContrast.set(0);
+    this.imgSaturation.set(0); this.imgHue.set(0);
+    this.activeImageFilter.set('Normal');
+    this.ed.setDirty();
+  }
+
+  // ── Canvas size / format (Vistaprint / Canva) ─────────
+  applyCanvasPreset(preset: {label:string;w:number;h:number;tag:string}): void {
+    if (!this.canvas) return;
+    this.customWidth.set(preset.w);
+    this.customHeight.set(preset.h);
+    this.canvas.setDimensions({ width: preset.w, height: preset.h });
+    this.canvas.renderAll();
+    this.ed.setDirty();
+    this.showSizeDialog.set(false);
+  }
+
+  applyCustomSize(): void {
+    if (!this.canvas) return;
+    const w = Math.min(Math.max(this.customWidth(), 100), 6000);
+    const h = Math.min(Math.max(this.customHeight(), 100), 6000);
+    this.canvas.setDimensions({ width: w, height: h });
+    this.canvas.renderAll();
+    this.ed.setDirty();
+    this.showSizeDialog.set(false);
+  }
+
+  // ── Color tracking (Dribbble / Canva) ─────────────────
+  trackRecentColor(color: string): void {
+    if (!color || color === 'transparent' || color === '') return;
+    this.recentColors.update(cols => [color, ...cols.filter(c => c !== color)].slice(0, 12));
+  }
+
+  // ── Safe zone overlay (Vistaprint) ────────────────────
+  toggleSafeZone(): void {
+    this.showSafeZone.update(v => !v);
+  }
+
+  // ── Shortcuts modal ───────────────────────────────────
+  toggleShortcutsModal(): void {
+    this.showShortcutsModal.update(v => !v);
+  }
+
+  // ═══════════════════════════════════════════════════════
 
   saveAndClose(): void {
     this.save();

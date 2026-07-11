@@ -102,6 +102,19 @@
         </svg>
       </button>
       <div class="tb-sep"></div>
+      <button class="tb-btn" (click)="showSizeDialog.set(true)" aria-label="Resize canvas" data-tip="Resize canvas">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="1.5"/>
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+        Resize
+      </button>
+      <button class="tb-btn" (click)="toggleShortcutsModal()" aria-label="Keyboard shortcuts" data-tip="Keyboard shortcuts (?)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M18 12h.01M10 12h4M8 16h8"/>
+        </svg>
+      </button>
+      <div class="tb-sep"></div>
       <button class="tb-btn tb-btn--export" (click)="openExport()" aria-label="Export design" data-tip="Export design">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -220,27 +233,75 @@
     [class.editor-body--left-collapsed]="leftPanelCollapsed()"
     [class.editor-body--right-collapsed]="rightPanelCollapsed()">
 
-    <!-- ── Layers Panel ───────────────────────────────────── -->
-    <aside class="panel panel--layers" *ngIf="!leftPanelCollapsed()">
-      <div class="panel-header">
-        <h3 class="panel-title">Layers</h3>
-        <span class="panel-count">{{ layerCountLabel() }}</span>
-        <button class="panel-collapse-btn" (click)="toggleLeftPanel()" aria-label="Collapse panel" data-tip="Collapse panel">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"/>
+    <!-- ── Left Sidebar (Canva-style tabbed) ─────────────── -->
+    <aside class="panel panel--left" *ngIf="!leftPanelCollapsed()">
+
+      <!-- Tab bar -->
+      <nav class="lp-tabs">
+        <button class="lp-tab" [class.lp-tab--active]="leftPanelTab()==='layers'"
+          (click)="setLeftTab('layers')" aria-label="Layers" data-tip="Layers">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="3" rx="1"/><rect x="2" y="13" width="20" height="3" rx="1"/><path d="M4 4h16M4 20h16"/>
           </svg>
+          <span>Layers</span>
         </button>
-      </div>
-      <div class="panel-scroll">
-        <div style="padding: 8px 12px 4px">
-          <input type="text" class="prop-input" style="width:100%; margin-bottom:7px"
-            placeholder="Search layers…"
-            [value]="layerSearchQuery()"
+        <button class="lp-tab" [class.lp-tab--active]="leftPanelTab()==='templates'"
+          (click)="setLeftTab('templates')" aria-label="Templates" data-tip="Templates">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/>
+            <rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+          </svg>
+          <span>Templates</span>
+        </button>
+        <button class="lp-tab" [class.lp-tab--active]="leftPanelTab()==='elements'"
+          (click)="setLeftTab('elements')" aria-label="Elements" data-tip="Elements & Shapes">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="9" r="5"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+            <polygon points="3 20 8 11 13 20"/>
+          </svg>
+          <span>Elements</span>
+        </button>
+        <button class="lp-tab" [class.lp-tab--active]="leftPanelTab()==='photos'"
+          (click)="setLeftTab('photos')" aria-label="Photos" data-tip="Stock Photos (Unsplash)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span>Photos</span>
+        </button>
+        <button class="lp-tab" [class.lp-tab--active]="leftPanelTab()==='text'"
+          (click)="setLeftTab('text')" aria-label="Text Styles" data-tip="Text Styles">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/>
+            <line x1="12" y1="4" x2="12" y2="20"/>
+          </svg>
+          <span>Text</span>
+        </button>
+        <button class="lp-tab" [class.lp-tab--active]="leftPanelTab()==='background'"
+          (click)="setLeftTab('background')" aria-label="Background" data-tip="Background">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 2a10 10 0 0 1 0 20"/>
+          </svg>
+          <span>Background</span>
+        </button>
+      </nav>
+
+      <!-- ── TAB: LAYERS ───────────────────────────────────── -->
+      <div class="lp-body" *ngIf="leftPanelTab()==='layers'">
+        <div class="lp-section-header">
+          <span class="lp-section-title">Layers</span>
+          <span class="panel-count">{{ layerCountLabel() }}</span>
+          <button class="panel-collapse-btn" (click)="toggleLeftPanel()" aria-label="Collapse panel" data-tip="Collapse">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+        </div>
+        <div class="lp-pad">
+          <input type="text" class="prop-input" style="width:100%;margin-bottom:6px"
+            placeholder="Search layers…" [value]="layerSearchQuery()"
             (input)="searchLayers($any($event.target).value)"/>
           <button class="panel-footer-btn" (click)="createLayer()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 5v14"/><path d="M5 12h14"/>
-            </svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
             New Layer
           </button>
         </div>
@@ -251,127 +312,255 @@
               *ngFor="let layer of filteredLayers(); trackBy: trackLayer"
               [class.layer-item--selected]="selectedLayerIds().has(layer.id)"
               (click)="onLayerSelect(layer.id)">
-              <span class="layer-icon" [class]="'layer-icon--' + layer.type">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="layer.type === 'text'">
-                  <polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/>
-                </svg>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  *ngIf="layer.type === 'rect' || layer.type === 'circle' || layer.type === 'polygon' || layer.type === 'star'">
-                  <polygon points="12 2 15 9 22 9 16 14 18 22 12 17 6 22 8 14 2 9 9 9"/>
-                </svg>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="layer.type === 'image'">
-                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                </svg>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  *ngIf="layer.type === 'line' || layer.type === 'path'">
-                  <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
-                </svg>
+              <span class="layer-icon" [class]="'layer-icon--'+layer.type">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="layer.type==='text'"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="layer.type==='rect'||layer.type==='circle'||layer.type==='polygon'||layer.type==='star'"><polygon points="12 2 15 9 22 9 16 14 18 22 12 17 6 22 8 14 2 9 9 9"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="layer.type==='image'"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="layer.type==='line'||layer.type==='path'"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
               </span>
-              <span class="layer-name" *ngIf="layerActionTarget() !== layer.id; else renameLayerInput" title="{{ layer.name }}" [attr.aria-label]="layer.name">{{ layer.name }}</span>
+              <span class="layer-name" *ngIf="layerActionTarget()!==layer.id; else renameLayerInput" title="{{ layer.name }}" [attr.aria-label]="layer.name">{{ layer.name }}</span>
               <ng-template #renameLayerInput>
-                <input class="prop-input prop-input--sm" style="width:100%; min-width:0"
-                  [value]="layerRenameValue()"
-                  (input)="layerRenameValue.set($any($event.target).value)"
-                  (click)="$event.stopPropagation()"
-                  (keydown.enter)="commitRenameLayer()"
-                  (keydown.escape)="cancelRenameLayer()"
-                  autofocus/>
+                <input class="prop-input prop-input--sm" style="width:100%;min-width:0"
+                  [value]="layerRenameValue()" (input)="layerRenameValue.set($any($event.target).value)"
+                  (click)="$event.stopPropagation()" (keydown.enter)="commitRenameLayer()"
+                  (keydown.escape)="cancelRenameLayer()" autofocus/>
               </ng-template>
               <span class="layer-actions">
-                <button class="layer-act" (click)="startRenameLayer(layer.id); $event.stopPropagation()" aria-label="Rename" data-tip="Rename">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
-                  </svg>
-                </button>
-                <button class="layer-act" (click)="duplicateLayer(layer.id); $event.stopPropagation()" aria-label="Duplicate" data-tip="Duplicate">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="9" y="9" width="13" height="13" rx="2"/>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                  </svg>
-                </button>
-                <button class="layer-act" (click)="bringLayerToFront(layer.id); $event.stopPropagation()" aria-label="Bring to front" data-tip="Bring to front">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M8 15V5h8v10"/><path d="M5 20h14"/>
-                  </svg>
-                </button>
-                <button class="layer-act" (click)="sendLayerToBack(layer.id); $event.stopPropagation()" aria-label="Send to back" data-tip="Send to back">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M8 5h8v10"/><path d="M5 4h14"/>
-                  </svg>
-                </button>
-                <button class="layer-act" (click)="toggleLayerVisibility(layer.id); $event.stopPropagation()"
-                  [class.layer-act--off]="!layer.visible" aria-label="Toggle visibility" data-tip="Toggle visibility">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                  </svg>
-                </button>
-                <button class="layer-act" (click)="toggleLayerLock(layer.id); $event.stopPropagation()"
-                  [class.layer-act--off]="!layer.locked" aria-label="Lock / Unlock" data-tip="Lock / Unlock">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                  </svg>
-                </button>
+                <button class="layer-act" (click)="startRenameLayer(layer.id);$event.stopPropagation()" aria-label="Rename" data-tip="Rename"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>
+                <button class="layer-act" (click)="duplicateLayer(layer.id);$event.stopPropagation()" aria-label="Duplicate" data-tip="Duplicate"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                <button class="layer-act" (click)="bringLayerToFront(layer.id);$event.stopPropagation()" aria-label="Bring to front" data-tip="Bring to front"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 15V5h8v10"/><path d="M5 20h14"/></svg></button>
+                <button class="layer-act" (click)="sendLayerToBack(layer.id);$event.stopPropagation()" aria-label="Send to back" data-tip="Send to back"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 5h8v10"/><path d="M5 4h14"/></svg></button>
+                <button class="layer-act" (click)="toggleLayerVisibility(layer.id);$event.stopPropagation()" [class.layer-act--off]="!layer.visible" aria-label="Toggle visibility" data-tip="Toggle visibility"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="layer-act" (click)="toggleLayerLock(layer.id);$event.stopPropagation()" [class.layer-act--off]="layer.locked" aria-label="Lock / Unlock" data-tip="Lock / Unlock"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
               </span>
             </button>
           </div>
         </ng-container>
-
         <ng-template #emptyLayers>
-          <div class="panel-empty">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25">
-              <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/>
-            </svg>
-            <p>No layers yet.<br/>Add text, shapes, or images.</p>
-          </div>
+          <div class="panel-empty"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg><p>No layers yet.<br/>Add text, shapes, or images.</p></div>
         </ng-template>
         <ng-template #noMatchingLayers>
-          <div class="panel-empty">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25">
-              <circle cx="12" cy="12" r="10"/><path d="M9 12h6"/>
-            </svg>
-            <p>No matching layers.</p>
-          </div>
+          <div class="panel-empty"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25"><circle cx="12" cy="12" r="10"/><path d="M9 12h6"/></svg><p>No matching layers.</p></div>
         </ng-template>
 
-        <!-- Images sub-panel -->
-        <div class="im-section">
-          <div class="im-header">
-            <h3 class="panel-title">Images</h3>
-            <span class="panel-count">{{ assets().length }}</span>
+        <div class="lp-section-divider"></div>
+        <div class="lp-section-header"><span class="lp-section-title">Project Images</span><span class="panel-count">{{ assets().length }}</span></div>
+        <div class="lp-pad" *ngIf="assets().length">
+          <input type="text" class="prop-input" style="width:100%" placeholder="Search images…" [value]="assetsSearchQuery" (input)="searchAssets($any($event.target).value)"/>
+        </div>
+        <div class="im-grid" *ngIf="assets().length; else emptyAssets">
+          <div class="im-item" *ngFor="let asset of assets(); trackBy: trackAsset"
+            draggable="true" (dragstart)="onImageDragStart($event, asset.previewUrl)"
+            (click)="onImageClick(asset.previewUrl)" [attr.aria-label]="asset.title">
+            <img [src]="asset.thumbnailUrl || asset.previewUrl" [alt]="asset.title" loading="lazy" draggable="false"/>
+            <span class="im-item-label">{{ asset.title }}</span>
           </div>
-          <div class="im-search" *ngIf="assets().length">
-            <input type="text" class="prop-input im-search-input" placeholder="Search images…"
-              [value]="assetsSearchQuery" (input)="searchAssets($any($event.target).value)"/>
-          </div>
-          <div class="im-grid" *ngIf="assets().length; else emptyAssets">
-            <div class="im-item" *ngFor="let asset of assets(); trackBy: trackAsset"
-              draggable="true" (dragstart)="onImageDragStart($event, asset.previewUrl)"
-              (click)="onImageClick(asset.previewUrl)" title="{{ asset.title }}" [attr.aria-label]="asset.title">
-              <img [src]="asset.thumbnailUrl || asset.previewUrl" [alt]="asset.title" loading="lazy" draggable="false"/>
-              <span class="im-item-label">{{ asset.title }}</span>
-            </div>
-          </div>
-          <ng-template #emptyAssets>
-            <div class="panel-empty" *ngIf="!loadingAssets()">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25">
-                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-              </svg>
-              <p>No images found.</p>
-            </div>
-          </ng-template>
-          <div class="im-loading" *ngIf="loadingAssets()"><span>Loading…</span></div>
+        </div>
+        <ng-template #emptyAssets>
+          <div class="panel-empty" *ngIf="!loadingAssets()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><p>No images found.<br/><small>Check the <b>Photos</b> tab for stock photos.</small></p></div>
+        </ng-template>
+        <div class="im-loading" *ngIf="loadingAssets()"><span>Loading…</span></div>
+
+        <div class="panel-footer" *ngIf="selectedLayerType()" style="border-top:none">
+          <button class="panel-footer-btn panel-footer-btn--danger" (click)="deleteSelected()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Delete Selected
+          </button>
         </div>
       </div>
 
-      <div class="panel-footer" *ngIf="selectedLayerType()" style="border-top: none">
-        <button class="panel-footer-btn panel-footer-btn--danger" (click)="deleteSelected()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-          </svg>
-          Delete Selected
-        </button>
+      <!-- ── TAB: TEMPLATES (PosterMyWall / Canva) ─────────── -->
+      <div class="lp-body" *ngIf="leftPanelTab()==='templates'">
+        <div class="lp-section-header">
+          <span class="lp-section-title">Templates</span>
+        </div>
+        <div class="lp-pad">
+          <input type="text" class="prop-input" style="width:100%;margin-bottom:10px" placeholder="Search templates…"/>
+        </div>
+        <div class="tmpl-cats">
+          <button class="tmpl-cat tmpl-cat--active">All</button>
+          <button class="tmpl-cat">Social Media</button>
+          <button class="tmpl-cat">Poster</button>
+          <button class="tmpl-cat">Business</button>
+          <button class="tmpl-cat">Event</button>
+          <button class="tmpl-cat">Print</button>
+        </div>
+        <div class="tmpl-grid">
+          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+            <span class="tmpl-label">Modern Business Card</span>
+            <span class="tmpl-size">1050 × 600</span>
+          </div>
+          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#f093fb,#f5576c)">
+            <span class="tmpl-label">Instagram Post</span>
+            <span class="tmpl-size">1080 × 1080</span>
+          </div>
+          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">
+            <span class="tmpl-label">Presentation Slide</span>
+            <span class="tmpl-size">1920 × 1080</span>
+          </div>
+          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">
+            <span class="tmpl-label">Event Flyer</span>
+            <span class="tmpl-size">794 × 1123</span>
+          </div>
+          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#fa709a,#fee140)">
+            <span class="tmpl-label">YouTube Thumbnail</span>
+            <span class="tmpl-size">1280 × 720</span>
+          </div>
+          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#30cfd0,#330867)">
+            <span class="tmpl-label">Twitter Banner</span>
+            <span class="tmpl-size">1500 × 500</span>
+          </div>
+          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#f7971e,#ffd200)">
+            <span class="tmpl-label">LinkedIn Post</span>
+            <span class="tmpl-size">1200 × 627</span>
+          </div>
+          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)">
+            <span class="tmpl-label">Pinterest Pin</span>
+            <span class="tmpl-size">1000 × 1500</span>
+          </div>
+          <div class="tmpl-item" (click)="showTemplatePicker.set(false)" style="background:linear-gradient(135deg,#2c3e50,#3498db)">
+            <span class="tmpl-label">Blog Header</span>
+            <span class="tmpl-size">1600 × 840</span>
+          </div>
+        </div>
       </div>
+
+      <!-- ── TAB: ELEMENTS (Canva / Freepik / Envato) ───────── -->
+      <div class="lp-body" *ngIf="leftPanelTab()==='elements'">
+        <div class="lp-section-header"><span class="lp-section-title">Elements & Shapes</span></div>
+        <div class="lp-pad">
+          <p class="lp-hint">Click any element to add it to your canvas</p>
+        </div>
+        <div class="lp-section-label">Basic Shapes</div>
+        <div class="el-grid">
+          <button class="el-item" *ngFor="let el of elementShapes; trackBy: $any(trackLayer)"
+            (click)="addElement(el)" [attr.aria-label]="el.name" [attr.data-tip]="el.name">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <!-- rect -->
+              <ng-container *ngIf="el.type==='rect'&&!el.params?.['rx']"><rect x="4" y="7" width="16" height="10" rx="1"/></ng-container>
+              <ng-container *ngIf="el.type==='rect'&&el.params?.['rx']"><rect x="4" y="7" width="16" height="10" rx="5"/></ng-container>
+              <!-- circle -->
+              <ng-container *ngIf="el.type==='circle'"><circle cx="12" cy="12" r="8"/></ng-container>
+              <!-- triangle -->
+              <ng-container *ngIf="el.type==='polygon'&&el.params?.['_sides']===3"><polygon points="12,4 22,20 2,20"/></ng-container>
+              <!-- pentagon -->
+              <ng-container *ngIf="el.type==='polygon'&&el.params?.['_sides']===5"><polygon points="12,2 22,9 18,21 6,21 2,9"/></ng-container>
+              <!-- hexagon -->
+              <ng-container *ngIf="el.type==='polygon'&&el.params?.['_sides']===6"><polygon points="12,2 22,7 22,17 12,22 2,17 2,7"/></ng-container>
+              <!-- octagon -->
+              <ng-container *ngIf="el.type==='polygon'&&el.params?.['_sides']===8"><polygon points="8,2 16,2 22,8 22,16 16,22 8,22 2,16 2,8"/></ng-container>
+              <!-- 5-star -->
+              <ng-container *ngIf="el.type==='star'&&el.params?.['_starPoints']===5"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></ng-container>
+              <!-- 6-star -->
+              <ng-container *ngIf="el.type==='star'&&el.params?.['_starPoints']===6"><polygon points="12,2 14,8 20,6 16,12 20,18 14,16 12,22 10,16 4,18 8,12 4,6 10,8"/></ng-container>
+              <!-- 4-star -->
+              <ng-container *ngIf="el.type==='star'&&el.params?.['_starPoints']===4"><polygon points="12,2 14,10 22,12 14,14 12,22 10,14 2,12 10,10"/></ng-container>
+              <!-- line (solid) -->
+              <ng-container *ngIf="el.type==='line'&&!el.params?.['strokeDashArray']"><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" fill="none"/></ng-container>
+              <!-- line (dashed) -->
+              <ng-container *ngIf="el.type==='line'&&el.params?.['strokeDashArray']"><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="5,3"/></ng-container>
+            </svg>
+            <span>{{ el.name }}</span>
+          </button>
+        </div>
+        <div class="lp-section-divider"></div>
+        <div class="lp-section-label">Lines & Connectors</div>
+        <div class="el-grid">
+          <button class="el-item" (click)="addShape('line')" aria-label="Line" data-tip="Line">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="12" x2="20" y2="12"/></svg>
+            <span>Line</span>
+          </button>
+          <button class="el-item" (click)="setTool('image')" aria-label="Arrow" data-tip="Arrow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+            <span>Arrow</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── TAB: PHOTOS (Unsplash / Freepik / Envato) ──────── -->
+      <div class="lp-body" *ngIf="leftPanelTab()==='photos'">
+        <div class="lp-section-header"><span class="lp-section-title">Stock Photos</span></div>
+        <div class="lp-pad">
+          <div class="photo-search-wrap">
+            <input type="text" class="prop-input" style="width:100%;padding-right:32px"
+              placeholder="Search photos…"
+              [value]="photoQuery()"
+              (input)="photoQuery.set($any($event.target).value)"
+              (keydown.enter)="searchPhotos()"/>
+            <button class="photo-search-btn" (click)="searchPhotos()" aria-label="Search" data-tip="Search">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+          </div>
+          <p class="lp-hint">Free photos from <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a>. Click to add.</p>
+        </div>
+        <div class="im-loading" *ngIf="photoSearching()"><span>Searching…</span></div>
+        <div class="photo-grid" *ngIf="!photoSearching()">
+          <div class="photo-item" *ngFor="let p of photoResults()"
+            (click)="insertStockPhoto(p)" [attr.aria-label]="'Add ' + p.alt" [attr.data-tip]="p.alt + ' — by ' + p.author">
+            <img [src]="p.thumb" [alt]="p.alt" loading="lazy"/>
+            <div class="photo-overlay">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              <span>{{ p.alt }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-empty" *ngIf="!photoSearching() && photoResults().length === 0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <p>No photos yet.<br/>Start typing to search.</p>
+        </div>
+      </div>
+
+      <!-- ── TAB: TEXT STYLES (Canva) ─────────────────────────── -->
+      <div class="lp-body" *ngIf="leftPanelTab()==='text'">
+        <div class="lp-section-header"><span class="lp-section-title">Text Styles</span></div>
+        <div class="lp-pad">
+          <p class="lp-hint">Click a style to add it to the canvas. Edit text, font, and color in the Properties panel.</p>
+        </div>
+        <div class="text-styles-list">
+          <button class="text-style-item" *ngFor="let ts of textStylePresets"
+            (click)="addStyledText(ts)"
+            [style.font-family]="ts.ff"
+            [style.font-size.px]="Math.min(ts.fs, 30)"
+            [style.font-weight]="ts.fw"
+            [style.color]="ts.color">
+            <span class="ts-label" [style.font-size.px]="Math.min(ts.fs, 30)" [style.font-family]="ts.ff" [style.font-weight]="ts.fw" [style.color]="ts.color">{{ ts.preview }}</span>
+            <span class="ts-meta">{{ ts.label }} &bull; {{ ts.fs }}px {{ ts.ff }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── TAB: BACKGROUND (Canva / PosterMyWall / Freepik) ── -->
+      <div class="lp-body" *ngIf="leftPanelTab()==='background'">
+        <div class="lp-section-header"><span class="lp-section-title">Background</span></div>
+        <div class="lp-section-label">Solid Colors</div>
+        <div class="bg-color-grid">
+          <button class="bg-color-swatch" *ngFor="let c of bgSolidColors"
+            [style.background]="c" [attr.aria-label]="'Set background to ' + c" [attr.data-tip]="c"
+            (click)="setCanvasBgColor(c)">
+          </button>
+        </div>
+        <div class="lp-section-divider"></div>
+        <div class="lp-section-label">Gradients</div>
+        <div class="bg-gradient-grid">
+          <button class="bg-gradient-swatch" *ngFor="let g of bgGradients"
+            [style.background]="'linear-gradient(135deg,' + g.c1 + ',' + g.c2 + ')'"
+            [attr.data-tip]="g.label" [attr.aria-label]="g.label + ' gradient'"
+            (click)="setCanvasBgGradient(g)">
+            <span class="bg-grad-label">{{ g.label }}</span>
+          </button>
+        </div>
+        <div class="lp-section-divider"></div>
+        <div class="lp-section-label">Custom Color</div>
+        <div class="lp-pad" style="padding-top:0">
+          <div class="color-picker-row">
+            <div class="color-picker-swatch" style="width:36px;height:36px">
+              <input type="color" value="#ffffff" (change)="setCanvasBgColor($any($event.target).value)"/>
+            </div>
+            <span class="prop-label" style="margin-left:8px;color:#aaa;font-size:12px">Pick any color</span>
+          </div>
+        </div>
+      </div>
+
     </aside>
 
     <!-- ── Canvas ─────────────────────────────────────────── -->
@@ -392,6 +581,14 @@
       </button>
 
       <canvas #canvasEl id="amx-fabric-canvas"></canvas>
+
+      <!-- Safe Zone overlay (Vistaprint bleed / print guides) -->
+      <div class="safe-zone-overlay" *ngIf="showSafeZone()">
+        <div class="safe-zone-inner">
+          <div class="safe-zone-label">Safe Zone</div>
+        </div>
+        <div class="safe-zone-bleed-label">Bleed Area</div>
+      </div>
 
       <!-- AI Tools overlay -->
       <div class="canvas-overlay top-left" *ngIf="toolMode() === 'ai'">
@@ -1021,13 +1218,78 @@
                 <span class="prop-value">{{ selectedOpacity() | percent }}</span>
               </div>
               <div class="prop-section">
-                <button class="ai-menu-btn" (click)="removeBg()" [disabled]="aiJobState().status === 'processing'">
+                <button class="ai-menu-btn ai-menu-btn--sm" (click)="removeBg()" [disabled]="aiJobState().status === 'processing'">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="18" height="18" rx="2"/>
                     <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
                     <line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>
                   </svg>
                   Remove Background
+                  <span class="ai-badge" *ngIf="aiJobState().status==='processing'">…</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Image Filters (Canva / Instagram / Magnific) -->
+            <div class="prop-divider"></div>
+            <div class="prop-section-header">
+              <span class="prop-section-title">Filters</span>
+              <span class="prop-section-pill" *ngIf="activeImageFilter()!=='Normal'">{{ activeImageFilter() }}</span>
+            </div>
+            <div class="prop-section-body" style="padding:6px 10px 10px">
+              <div class="filter-strip">
+                <button class="filter-pill" *ngFor="let fp of imageFilterPresets"
+                  [class.filter-pill--active]="activeImageFilter()===fp.label"
+                  (click)="applyImageFilter(fp)" [attr.data-tip]="fp.label">
+                  {{ fp.label }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Image Adjustments (Magnific / Canva) -->
+            <div class="prop-divider"></div>
+            <div class="prop-section-header">
+              <span class="prop-section-title">Adjustments</span>
+              <button class="prop-reset-btn" (click)="resetImageAdjustments()" *ngIf="activeImageFilter()!=='Normal'" data-tip="Reset all adjustments">↩</button>
+            </div>
+            <div class="prop-section-body">
+              <div class="prop-section">
+                <label class="prop-label">Brightness</label>
+                <input type="range" class="prop-range" min="-100" max="100" step="1"
+                  [value]="imgBrightness()" (input)="imgBrightness.set(+$any($event.target).value); applyImageAdjustment()"/>
+                <span class="prop-value">{{ imgBrightness() }}</span>
+              </div>
+              <div class="prop-section">
+                <label class="prop-label">Contrast</label>
+                <input type="range" class="prop-range" min="-100" max="100" step="1"
+                  [value]="imgContrast()" (input)="imgContrast.set(+$any($event.target).value); applyImageAdjustment()"/>
+                <span class="prop-value">{{ imgContrast() }}</span>
+              </div>
+              <div class="prop-section">
+                <label class="prop-label">Saturation</label>
+                <input type="range" class="prop-range" min="-100" max="100" step="1"
+                  [value]="imgSaturation()" (input)="imgSaturation.set(+$any($event.target).value); applyImageAdjustment()"/>
+                <span class="prop-value">{{ imgSaturation() }}</span>
+              </div>
+              <div class="prop-section">
+                <label class="prop-label">Hue</label>
+                <input type="range" class="prop-range" min="-180" max="180" step="1"
+                  [value]="imgHue()" (input)="imgHue.set(+$any($event.target).value); applyImageAdjustment()"/>
+                <span class="prop-value">{{ imgHue() }}°</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- ══ RECENTLY USED COLORS (Dribbble / Canva) ══════ -->
+          <ng-container *ngIf="recentColors().length">
+            <div class="prop-divider"></div>
+            <div class="prop-section-header"><span class="prop-section-title">Recent Colors</span></div>
+            <div class="prop-section-body" style="padding:6px 10px 10px">
+              <div class="recent-colors-row">
+                <button class="rc-swatch" *ngFor="let rc of recentColors()"
+                  [style.background]="rc"
+                  [attr.data-tip]="rc"
+                  (click)="applyColor(rc, 'fill')">
                 </button>
               </div>
             </div>
@@ -1061,6 +1323,13 @@
           <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
         </svg>
         Grid
+      </button>
+      <button class="sb-btn" (click)="toggleSafeZone()" [class.sb-btn--active]="showSafeZone()" aria-label="Safe zone / bleed" data-tip="Safe Zone (Vistaprint print bleed)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="4,2"/>
+          <rect x="7" y="7" width="10" height="10" rx="1"/>
+        </svg>
+        Safe Zone
       </button>
       <button class="sb-btn" (click)="togglePageMargins()" [class.sb-btn--active]="pageMarginsVisible()" aria-label="Margins" data-tip="Margins">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1161,6 +1430,110 @@
     </div>
     <div style="width:260px; display:flex; flex-direction:column; gap:12px">
       <div class="skeleton skeleton--row" style="background:#2a2a30" *ngFor="let _ of [1,2,3,4,5,6]"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Canvas Size / Format Dialog (Vistaprint / Canva) ══════ -->
+<div class="editor-modal" *ngIf="showSizeDialog()" (click)="showSizeDialog.set(false)">
+  <div class="size-dialog" (click)="$event.stopPropagation()">
+    <div class="export-header">
+      <h3>Resize Canvas</h3>
+      <button class="export-close" (click)="showSizeDialog.set(false)" aria-label="Close" data-tip="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="size-dialog-body">
+      <div class="size-presets-col">
+        <div class="size-preset-group" *ngFor="let tag of ['Social','Video','Slides','Print','Web']">
+          <div class="size-preset-tag">{{ tag }}</div>
+          <ng-container *ngFor="let p of canvasPresets">
+            <button class="size-preset-btn" *ngIf="p.tag===tag" (click)="applyCanvasPreset(p)">
+              <span class="size-preset-name">{{ p.label }}</span>
+              <span class="size-preset-dim">{{ p.w }} × {{ p.h }}</span>
+            </button>
+          </ng-container>
+        </div>
+      </div>
+      <div class="size-custom-col">
+        <div class="size-custom-header">Custom Size</div>
+        <div class="size-custom-fields">
+          <div class="size-field">
+            <label class="prop-label">Width (px)</label>
+            <input type="number" class="prop-input" min="100" max="6000"
+              [value]="customWidth()" (input)="customWidth.set(+$any($event.target).value)"/>
+          </div>
+          <div class="size-field-x">×</div>
+          <div class="size-field">
+            <label class="prop-label">Height (px)</label>
+            <input type="number" class="prop-input" min="100" max="6000"
+              [value]="customHeight()" (input)="customHeight.set(+$any($event.target).value)"/>
+          </div>
+        </div>
+        <div class="size-preview-box" [style.aspect-ratio]="customWidth() + '/' + customHeight()">
+          <span>{{ customWidth() }} × {{ customHeight() }}</span>
+        </div>
+        <button class="ai-menu-btn" style="margin-top:12px;width:100%" (click)="applyCustomSize()">
+          Apply Custom Size
+        </button>
+        <p class="ai-menu-hint" style="margin-top:6px">Objects are not scaled when resizing.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Keyboard Shortcuts Modal ══════════════════════════════ -->
+<div class="editor-modal" *ngIf="showShortcutsModal()" (click)="showShortcutsModal.set(false)">
+  <div class="shortcuts-dialog" (click)="$event.stopPropagation()">
+    <div class="export-header">
+      <h3>⌨ Keyboard Shortcuts</h3>
+      <button class="export-close" (click)="showShortcutsModal.set(false)" aria-label="Close" data-tip="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="shortcuts-body">
+      <div class="shortcuts-col">
+        <div class="sc-group">
+          <div class="sc-group-title">Canvas</div>
+          <div class="sc-row"><kbd>Ctrl Z</kbd><span>Undo</span></div>
+          <div class="sc-row"><kbd>Ctrl Y</kbd><span>Redo</span></div>
+          <div class="sc-row"><kbd>Ctrl S</kbd><span>Save</span></div>
+          <div class="sc-row"><kbd>Ctrl G</kbd><span>Toggle Grid</span></div>
+          <div class="sc-row"><kbd>Space + Drag</kbd><span>Pan canvas</span></div>
+          <div class="sc-row"><kbd>Ctrl Scroll</kbd><span>Zoom</span></div>
+          <div class="sc-row"><kbd>Ctrl Shift F</kbd><span>Fit to screen</span></div>
+          <div class="sc-row"><kbd>?</kbd><span>Show shortcuts</span></div>
+        </div>
+        <div class="sc-group">
+          <div class="sc-group-title">Zoom</div>
+          <div class="sc-row"><kbd>Ctrl +</kbd><span>Zoom in</span></div>
+          <div class="sc-row"><kbd>Ctrl -</kbd><span>Zoom out</span></div>
+          <div class="sc-row"><kbd>Ctrl 0</kbd><span>Reset zoom 100%</span></div>
+        </div>
+      </div>
+      <div class="shortcuts-col">
+        <div class="sc-group">
+          <div class="sc-group-title">Selection</div>
+          <div class="sc-row"><kbd>V</kbd><span>Select tool</span></div>
+          <div class="sc-row"><kbd>T</kbd><span>Text tool</span></div>
+          <div class="sc-row"><kbd>R</kbd><span>Rectangle tool</span></div>
+          <div class="sc-row"><kbd>C</kbd><span>Circle tool</span></div>
+          <div class="sc-row"><kbd>L</kbd><span>Line tool</span></div>
+          <div class="sc-row"><kbd>Ctrl A</kbd><span>Select all</span></div>
+          <div class="sc-row"><kbd>Esc</kbd><span>Deselect</span></div>
+          <div class="sc-row"><kbd>Del / Backspace</kbd><span>Delete selection</span></div>
+        </div>
+        <div class="sc-group">
+          <div class="sc-group-title">Objects</div>
+          <div class="sc-row"><kbd>Ctrl C</kbd><span>Copy</span></div>
+          <div class="sc-row"><kbd>Ctrl V</kbd><span>Paste</span></div>
+          <div class="sc-row"><kbd>Ctrl D</kbd><span>Duplicate</span></div>
+          <div class="sc-row"><kbd>Ctrl ]</kbd><span>Bring forward</span></div>
+          <div class="sc-row"><kbd>Ctrl [</kbd><span>Send backward</span></div>
+          <div class="sc-row"><kbd>Arrow Keys</kbd><span>Nudge (1px)</span></div>
+          <div class="sc-row"><kbd>Shift Arrows</kbd><span>Nudge (10px)</span></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
