@@ -1470,13 +1470,136 @@
       <span class="sb-item">{{ ed.project()?.width ?? 800 }} × {{ ed.project()?.height ?? 600 }}</span>
     </div>
     <div class="sb-center">
-      <button class="sb-btn" (click)="toggleGrid()" [class.sb-btn--active]="gridVisible()" aria-label="Toggle grid (Ctrl+G)" data-tip="Toggle grid (Ctrl+G)">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-        </svg>
-        Grid
-      </button>
+      <!-- ── Figma-style Layout Grid button + panel ── -->
+      <div class="lgrid-wrap" (click)="$event.stopPropagation()">
+        <button class="sb-btn" [class.sb-btn--active]="hasVisibleGrids()"
+          (click)="showGridPanel.set(!showGridPanel())"
+          aria-label="Layout Grid (Ctrl+G)" data-tip="Layout Grid (Ctrl+G)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          Grid
+          <span class="lgrid-count" *ngIf="layoutGrids().length > 0">{{ layoutGrids().length }}</span>
+        </button>
+
+        <!-- Panel popover -->
+        <div class="lgrid-panel" *ngIf="showGridPanel()">
+          <div class="lgrid-panel-header">
+            <span class="lgrid-panel-title">Layout Grid</span>
+            <button class="lgrid-add-btn" (click)="addLayoutGrid('columns')" aria-label="Add grid">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Add
+            </button>
+          </div>
+
+          <!-- Empty state -->
+          <div class="lgrid-empty" *ngIf="layoutGrids().length === 0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+              <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            </svg>
+            <p>No grids yet.<br>Click <strong>Add</strong> to create one.</p>
+          </div>
+
+          <!-- Grid rows -->
+          <div class="lgrid-list" *ngIf="layoutGrids().length > 0">
+            <div class="lgrid-item" *ngFor="let g of layoutGrids()">
+
+              <!-- Row: visibility + type icon + type label + quick config + delete -->
+              <div class="lgrid-item-row">
+                <!-- Visibility toggle -->
+                <button class="lgrid-vis" (click)="toggleLayoutGridVisibility(g.id)"
+                  [attr.aria-label]="g.visible ? 'Hide grid' : 'Show grid'"
+                  [attr.data-tip]="g.visible ? 'Hide' : 'Show'">
+                  <svg *ngIf="g.visible" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg *ngIf="!g.visible" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+
+                <!-- Color swatch -->
+                <div class="lgrid-color" [style.background]="g.color" [style.opacity]="g.opacity * 4 + 0.25">
+                  <input type="color" [value]="g.color"
+                    (input)="updateLayoutGrid(g.id, { color: $any($event.target).value })"/>
+                </div>
+
+                <!-- Type selector -->
+                <select class="lgrid-type-sel" [value]="g.type"
+                  (change)="updateLayoutGrid(g.id, { type: $any($any($event.target).value) })">
+                  <option value="grid">Grid</option>
+                  <option value="columns">Columns</option>
+                  <option value="rows">Rows</option>
+                </select>
+
+                <!-- Quick value (size for grid, count for columns/rows) -->
+                <input *ngIf="g.type === 'grid'" type="number" class="lgrid-num" min="1" max="200"
+                  [value]="g.size" (change)="updateLayoutGrid(g.id, { size: +$any($event.target).value })"
+                  title="Cell size (px)"/>
+                <input *ngIf="g.type !== 'grid'" type="number" class="lgrid-num" min="1" max="100"
+                  [value]="g.count" (change)="updateLayoutGrid(g.id, { count: +$any($event.target).value })"
+                  title="Count"/>
+
+                <!-- Delete -->
+                <button class="lgrid-del" (click)="removeLayoutGrid(g.id)" aria-label="Remove grid" data-tip="Remove">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Expanded config row -->
+              <div class="lgrid-config" *ngIf="g.type !== 'grid'">
+                <label class="lgrid-cfg-label">Gutter
+                  <input type="number" class="lgrid-num lgrid-num--sm" min="0" max="200"
+                    [value]="g.gutter" (change)="updateLayoutGrid(g.id, { gutter: +$any($event.target).value })"/>
+                </label>
+                <label class="lgrid-cfg-label">Margin
+                  <input type="number" class="lgrid-num lgrid-num--sm" min="0" max="400"
+                    [value]="g.margin" (change)="updateLayoutGrid(g.id, { margin: +$any($event.target).value })"/>
+                </label>
+                <label class="lgrid-cfg-label">Opacity
+                  <input type="number" class="lgrid-num lgrid-num--sm" min="1" max="100"
+                    [value]="(g.opacity * 100) | number:'1.0-0'"
+                    (change)="updateLayoutGrid(g.id, { opacity: +$any($event.target).value / 100 })"/>
+                </label>
+              </div>
+              <div class="lgrid-config" *ngIf="g.type === 'grid'">
+                <label class="lgrid-cfg-label">Opacity
+                  <input type="number" class="lgrid-num lgrid-num--sm" min="1" max="100"
+                    [value]="(g.opacity * 100) | number:'1.0-0'"
+                    (change)="updateLayoutGrid(g.id, { opacity: +$any($event.target).value / 100 })"/>
+                </label>
+              </div>
+
+            </div><!-- /lgrid-item -->
+          </div><!-- /lgrid-list -->
+
+          <!-- Add type shortcuts -->
+          <div class="lgrid-add-row">
+            <button class="lgrid-type-btn" (click)="addLayoutGrid('grid')" data-tip="Add square grid">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>
+              </svg>Grid
+            </button>
+            <button class="lgrid-type-btn" (click)="addLayoutGrid('columns')" data-tip="Add column grid">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="18" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/>
+              </svg>Columns
+            </button>
+            <button class="lgrid-type-btn" (click)="addLayoutGrid('rows')" data-tip="Add row grid">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="5" rx="1"/><rect x="3" y="10" width="18" height="5" rx="1"/><rect x="3" y="17" width="18" height="4" rx="1"/>
+              </svg>Rows
+            </button>
+          </div>
+        </div><!-- /lgrid-panel -->
+      </div><!-- /lgrid-wrap -->
       <button class="sb-btn" (click)="toggleSafeZone()" [class.sb-btn--active]="showSafeZone()" aria-label="Safe zone / bleed" data-tip="Safe Zone (Vistaprint print bleed)">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="4,2"/>

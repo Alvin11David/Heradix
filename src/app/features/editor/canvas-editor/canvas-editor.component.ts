@@ -23,6 +23,21 @@ import { jsPDF } from 'jspdf';
 
 type TemplateCategory = 'All' | 'Social Media' | 'Poster' | 'Business' | 'Event' | 'Print';
 
+// ── Figma-style layout grid ────────────────────────────────────────
+export interface LayoutGrid {
+  id: string;
+  type: 'grid' | 'columns' | 'rows';
+  visible: boolean;
+  color: string;
+  opacity: number;   // 0–1
+  // type==='grid'
+  size: number;
+  // type==='columns'|'rows'
+  count: number;
+  gutter: number;
+  margin: number;
+}
+
 @Component({
   selector: 'amx-canvas-editor',
   standalone: true,
@@ -73,6 +88,11 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly pageMarginsVisible = signal(false);
   readonly snapToGridEnabled = signal(true);
   readonly snapToObjectsEnabled = signal(true);
+
+  // ── Figma-style layout grids ──────────────────────────────────────
+  readonly layoutGrids = signal<LayoutGrid[]>([]);
+  readonly showGridPanel = signal(false);
+  readonly hasVisibleGrids = computed(() => this.layoutGrids().some(g => g.visible));
 
   // ── Draw / Pencil tool (Canva / Freepik / PosterMyWall) ──────────
   readonly drawBrushSize = signal(14);
@@ -708,7 +728,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       },
     );
 
-    this.updateGrid();
+    this.renderLayoutGrids();
     this.onModify();
     this.setupCanvasPanning();
     this.renderPageGuides();
@@ -2183,8 +2203,11 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     let top = target.top;
 
     if (this.snapToGridEnabled()) {
-      left = Math.round(left / gridSize) * gridSize;
-      top = Math.round(top / gridSize) * gridSize;
+      // Use the first visible grid's size for snapping, fall back to 20
+      const firstGrid = this.layoutGrids().find(g => g.visible && g.type === 'grid');
+      const snapSize = firstGrid ? firstGrid.size : gridSize;
+      left = Math.round(left / snapSize) * snapSize;
+      top = Math.round(top / snapSize) * snapSize;
     }
 
     if (this.snapToObjectsEnabled()) {
@@ -2234,54 +2257,124 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     return nearestDistance <= threshold ? snapped : value;
   }
 
-  private updateGrid(): void {
+  // ── Figma-style layout grid rendering ────────────────────────────
+
+  private renderLayoutGrids(): void {
     if (!this.canvas || !this.fabric) return;
+
+    // Clear all existing grid objects
     const existing = this.canvas.getObjects().filter((o: any) => o._isGrid);
     existing.forEach((o: any) => this.canvas?.remove(o));
 
-    if (this.ed.gridVisible()) {
-      const gs = 20;
-      const cw = 6000;
-      const ch = 4000;
+    const cw = this.ed.project()?.width ?? 800;
+    const ch = this.ed.project()?.height ?? 600;
 
-      for (let i = 0; i <= cw; i += gs) {
-        this.canvas.add(
-          new this.fabric.Line([i, 0, i, ch], {
-            _isGrid: true,
-            selectable: false,
-            evented: false,
-            stroke: '#c0c0c0',
-            strokeWidth: i % 100 === 0 ? 0.8 : 0.3,
-            opacity: 0.2,
-          }),
-        );
-      }
-      for (let i = 0; i <= ch; i += gs) {
-        this.canvas.add(
-          new this.fabric.Line([0, i, cw, i], {
-            _isGrid: true,
-            selectable: false,
-            evented: false,
-            stroke: '#c0c0c0',
-            strokeWidth: i % 100 === 0 ? 0.8 : 0.3,
-            opacity: 0.2,
-          }),
-        );
-      }
+    for (const grid of this.layoutGrids()) {
+      if (!grid.visible) continue;
 
-      const gridLines = this.canvas.getObjects().filter((o: any) => o._isGrid);
-      gridLines.forEach((o: any) => {
-        if (this.canvas && typeof this.canvas.sendToBack === 'function') {
-          this.canvas.sendToBack(o);
+      if (grid.type === 'grid') {
+        // Square grid — horizontal + vertical lines
+        for (let x = 0; x <= cw; x += grid.size) {
+          this.canvas.add(new this.fabric.Line([x, 0, x, ch], {
+            _isGrid: true, _gridId: grid.id,
+            selectable: false, evented: false,
+            stroke: grid.color, strokeWidth: 1,
+            opacity: grid.opacity,
+          }));
         }
-      });
+        for (let y = 0; y <= ch; y += grid.size) {
+          this.canvas.add(new this.fabric.Line([0, y, cw, y], {
+            _isGrid: true, _gridId: grid.id,
+            selectable: false, evented: false,
+            stroke: grid.color, strokeWidth: 1,
+            opacity: grid.opacity,
+          }));
+        }
+      } else if (grid.type === 'columns') {
+        const totalW = cw - 2 * grid.margin;
+        const colW = Math.max(1, (totalW - (grid.count - 1) * grid.gutter) / grid.count);
+        for (let i = 0; i < grid.count; i++) {
+          const x = grid.margin + i * (colW + grid.gutter);
+          this.canvas.add(new this.fabric.Rect({
+            _isGrid: true, _gridId: grid.id,
+            selectable: false, evented: false,
+            left: x, top: 0,
+            width: colW, height: ch,
+            fill: grid.color, opacity: grid.opacity,
+            strokeWidth: 0,
+          }));
+        }
+      } else if (grid.type === 'rows') {
+        const totalH = ch - 2 * grid.margin;
+        const rowH = Math.max(1, (totalH - (grid.count - 1) * grid.gutter) / grid.count);
+        for (let i = 0; i < grid.count; i++) {
+          const y = grid.margin + i * (rowH + grid.gutter);
+          this.canvas.add(new this.fabric.Rect({
+            _isGrid: true, _gridId: grid.id,
+            selectable: false, evented: false,
+            left: 0, top: y,
+            width: cw, height: rowH,
+            fill: grid.color, opacity: grid.opacity,
+            strokeWidth: 0,
+          }));
+        }
+      }
     }
+
+    // Push all grid objects behind everything else
+    const gridObjs = this.canvas.getObjects().filter((o: any) => o._isGrid);
+    gridObjs.forEach((o: any) => this.canvas?.sendToBack(o));
     this.canvas.renderAll();
   }
 
+  // ── Layout grid management (Figma-style) ──────────────────────────
+
+  addLayoutGrid(type: LayoutGrid['type'] = 'columns'): void {
+    const defaults: Record<LayoutGrid['type'], Partial<LayoutGrid>> = {
+      grid:    { size: 8,  color: '#6366f1', opacity: 0.10 },
+      columns: { count: 4, gutter: 20, margin: 40, color: '#6366f1', opacity: 0.10 },
+      rows:    { count: 4, gutter: 20, margin: 40, color: '#6366f1', opacity: 0.10 },
+    };
+    const d = defaults[type];
+    const grid: LayoutGrid = {
+      id: `grid-${Date.now()}`,
+      type, visible: true,
+      color: d.color ?? '#6366f1',
+      opacity: d.opacity ?? 0.10,
+      size: d.size ?? 8,
+      count: d.count ?? 4,
+      gutter: d.gutter ?? 20,
+      margin: d.margin ?? 40,
+    };
+    this.layoutGrids.update(gs => [...gs, grid]);
+    this.renderLayoutGrids();
+  }
+
+  removeLayoutGrid(id: string): void {
+    this.layoutGrids.update(gs => gs.filter(g => g.id !== id));
+    this.renderLayoutGrids();
+  }
+
+  updateLayoutGrid(id: string, patch: Partial<LayoutGrid>): void {
+    this.layoutGrids.update(gs =>
+      gs.map(g => g.id === id ? { ...g, ...patch } : g)
+    );
+    this.renderLayoutGrids();
+  }
+
+  toggleLayoutGridVisibility(id: string): void {
+    this.layoutGrids.update(gs =>
+      gs.map(g => g.id === id ? { ...g, visible: !g.visible } : g)
+    );
+    this.renderLayoutGrids();
+  }
+
   toggleGrid(): void {
-    this.ed.gridVisible.update((v) => !v);
-    this.updateGrid();
+    // Ctrl+G: hide/show ALL layout grids at once (Figma: Ctrl+Shift+4)
+    const grids = this.layoutGrids();
+    const anyVisible = grids.some(g => g.visible);
+    this.layoutGrids.update(gs => gs.map(g => ({ ...g, visible: !anyVisible })));
+    this.renderLayoutGrids();
   }
 
   togglePageMargins(): void {
