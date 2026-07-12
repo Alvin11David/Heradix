@@ -8,6 +8,7 @@ import { ICON_LIBRARIES } from '../data/index';
 import {
   IconAsset, IconAesthetic, IconTrend, IconTechnique,
   IconColorMode, IconCorners, IconSizeDensity, IconLibraryId,
+  IconCollection,
 } from '../../../core/models/icon.model';
 
 interface IconGroup {
@@ -43,6 +44,31 @@ export class IconsNewComponent {
   readonly copyState = signal<'idle' | 'copied'>('idle');
   readonly visibleCount = signal(48);
   readonly recolorOpen = signal(false);
+
+  // -- Collections ------------------------------------------------------------
+  readonly activeTab = signal<'browse' | 'collections'>('browse');
+  readonly activeCollectionId = signal<string | null>(null);
+  readonly collectionPickerIcon = signal<IconAsset | null>(null);
+  readonly newCollectionName = signal('');
+  readonly renamingCollectionId = signal<string | null>(null);
+  readonly addFeedbackId = signal<string | null>(null);
+
+  readonly openCollection = computed(() => {
+    const id = this.activeCollectionId();
+    return id ? (this.svc.collections().find(c => c.id === id) ?? null) : null;
+  });
+
+  readonly activeCollectionIcons = computed<IconAsset[]>(() => {
+    const col = this.openCollection();
+    if (!col) return [];
+    const allMap = new Map(this.svc.allIcons().map(i => [i.id, i]));
+    return col.iconIds.map(i => allMap.get(i)).filter(Boolean) as IconAsset[];
+  });
+
+  collectionPreviewIcons(col: IconCollection): IconAsset[] {
+    const allMap = new Map(this.svc.allIcons().map(i => [i.id, i]));
+    return col.iconIds.slice(0, 4).map(id => allMap.get(id)).filter(Boolean) as IconAsset[];
+  }
 
   readonly PRESET_COLORS = [
     '#f5820a', '#ef4444', '#ec4899', '#a855f7',
@@ -181,9 +207,74 @@ export class IconsNewComponent {
     if (this.recolorOpen() && !target.closest('.amx-icons__recolor')) {
       this.recolorOpen.set(false);
     }
+    // Collection picker overlay manages its own close — skip detail logic when it's open
+    if (target.closest('.amx-collection-picker-overlay')) return;
     if (this.selected() && !target.closest('.amx-icon-detail') && !target.closest('.amx-icon-card')) {
       this.closeDetail();
     }
+  }
+
+  // -- Collection actions ------------------------------------------------------
+  openCollectionPicker(icon: IconAsset, event: Event): void {
+    event.stopPropagation();
+    this.collectionPickerIcon.set(icon);
+    this.newCollectionName.set('');
+  }
+
+  closeCollectionPicker(): void {
+    this.collectionPickerIcon.set(null);
+  }
+
+  addIconToCollection(collId: string): void {
+    const icon = this.collectionPickerIcon();
+    if (!icon) return;
+    this.svc.addToCollection(collId, icon.id);
+    this.addFeedbackId.set(collId);
+    setTimeout(() => {
+      this.addFeedbackId.set(null);
+      this.closeCollectionPicker();
+    }, 700);
+  }
+
+  createCollectionAndAdd(): void {
+    const icon = this.collectionPickerIcon();
+    const name = this.newCollectionName().trim();
+    if (!icon || !name) return;
+    const id = this.svc.createCollection(name);
+    this.svc.addToCollection(id, icon.id);
+    this.newCollectionName.set('');
+    this.closeCollectionPicker();
+  }
+
+  viewCollection(id: string): void {
+    this.activeCollectionId.set(id);
+  }
+
+  backToCollections(): void {
+    this.activeCollectionId.set(null);
+  }
+
+  deleteCollection(id: string, event: Event): void {
+    event.stopPropagation();
+    if (this.activeCollectionId() === id) this.activeCollectionId.set(null);
+    this.svc.deleteCollection(id);
+  }
+
+  startRenaming(id: string, event: Event): void {
+    event.stopPropagation();
+    this.renamingCollectionId.set(id);
+  }
+
+  finishRenaming(id: string, event: Event): void {
+    const val = (event.target as HTMLInputElement).value;
+    if (val.trim()) this.svc.renameCollection(id, val);
+    this.renamingCollectionId.set(null);
+  }
+
+  removeFromCollection(iconId: string, event: Event): void {
+    event.stopPropagation();
+    const colId = this.activeCollectionId();
+    if (colId) this.svc.removeFromCollection(colId, iconId);
   }
   resetStyle(): void { this.svc.resetStyle(); }
 

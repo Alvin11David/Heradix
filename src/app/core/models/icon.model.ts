@@ -49,6 +49,13 @@ export interface IconStyleState {
   density: IconSizeDensity;
 }
 
+export interface IconCollection {
+  id: string;
+  name: string;
+  iconIds: string[];
+  createdAt: string;
+}
+
 export interface IconFilterState {
   query: string;
   platforms: IconPlatform[];

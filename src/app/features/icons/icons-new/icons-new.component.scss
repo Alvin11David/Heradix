@@ -1003,3 +1003,549 @@
   .amx-icon-detail { width: 100%; }
   .amx-icon-detail__related { grid-template-columns: repeat(4, 1fr); }
 }
+
+// ============================= COLLECTIONS =============================
+
+// ── Tab nav ────────────────────────────────────────────────────────────────────
+.amx-icons__tabs {
+  display: flex;
+  gap: 2px;
+  padding-top: 4px;
+  border-bottom: 1.5px solid var(--amx-border-2);
+  margin-bottom: 24px;
+}
+
+.amx-icons__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--amx-muted);
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+  cursor: pointer;
+  border-radius: 0;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+
+  &:hover { color: var(--amx-text-2); }
+
+  &--active {
+    color: var(--amx-orange-dark, var(--amx-orange));
+    border-bottom-color: var(--amx-orange);
+  }
+}
+
+.amx-icons__tab-badge {
+  background: var(--amx-orange);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 1px 6px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 16px;
+}
+
+// ── Collections header ─────────────────────────────────────────────────────────
+.amx-collections__header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 20px;
+
+  h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--amx-text);
+    margin: 0;
+  }
+
+  &-sub {
+    font-size: 13px;
+    color: var(--amx-muted);
+  }
+}
+
+// ── Empty state (shared by list + drill-in) ────────────────────────────────────
+.amx-collections__empty {
+  text-align: center;
+  padding: 64px 20px;
+  color: var(--amx-muted);
+
+  svg { margin: 0 auto 16px; display: block; opacity: 0.35; }
+  h3 { font-size: 16px; font-weight: 700; color: var(--amx-text-2); margin: 0 0 8px; }
+  p { font-size: 13px; margin: 0 0 20px; line-height: 1.6; }
+  strong { color: var(--amx-orange); }
+
+  button {
+    background: var(--amx-orange);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.12s;
+    &:hover { opacity: 0.88; }
+  }
+}
+
+// ── Collection card grid ───────────────────────────────────────────────────────
+.amx-collections__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+  gap: 16px;
+}
+
+.amx-collection-card {
+  background: var(--amx-card);
+  border: 1px solid var(--amx-border-2);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+
+  &:hover {
+    border-color: var(--amx-border);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+    transform: translateY(-2px);
+  }
+
+  &__previews {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background: var(--amx-bg-soft);
+    padding: 16px 12px;
+    min-height: 80px;
+    align-items: center;
+    justify-items: center;
+
+    .amx-icon-render--preview {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.85;
+
+      svg { width: 100%; height: 100%; }
+    }
+  }
+
+  &__placeholder {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--amx-border);
+  }
+
+  &__info {
+    padding: 12px 14px 4px;
+  }
+
+  &__name {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--amx-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__count {
+    display: block;
+    font-size: 11px;
+    color: var(--amx-muted);
+    margin-top: 3px;
+  }
+
+  &__rename {
+    width: 100%;
+    border: 1.5px solid var(--amx-orange);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--amx-text);
+    background: var(--amx-card);
+    outline: none;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 6px;
+    padding: 8px 14px 12px;
+  }
+
+  &__action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--amx-border-2);
+    border-radius: 7px;
+    background: var(--amx-card);
+    cursor: pointer;
+    color: var(--amx-muted);
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+
+    &:hover {
+      background: var(--amx-bg-soft);
+      color: var(--amx-text-2);
+      border-color: var(--amx-border);
+    }
+
+    &--delete:hover {
+      background: rgba(239,68,68,0.08);
+      color: #ef4444;
+      border-color: rgba(239,68,68,0.28);
+    }
+  }
+}
+
+// ── Collection drill-in view ───────────────────────────────────────────────────
+.amx-collection-view {
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--amx-muted);
+    background: none;
+    border: 1px solid var(--amx-border-2);
+    border-radius: 8px;
+    padding: 7px 12px;
+    cursor: pointer;
+    transition: color 0.12s, border-color 0.12s;
+    white-space: nowrap;
+    &:hover { color: var(--amx-text-2); border-color: var(--amx-border); }
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--amx-text);
+      margin: 0;
+    }
+  }
+
+  &__rename-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--amx-muted);
+    font-size: 15px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    line-height: 1;
+    &:hover { color: var(--amx-text-2); background: var(--amx-bg-soft); }
+  }
+
+  &__rename-input {
+    font-size: 20px;
+    font-weight: 700;
+    border: 1.5px solid var(--amx-orange);
+    border-radius: 8px;
+    padding: 4px 12px;
+    color: var(--amx-text);
+    background: var(--amx-card);
+    outline: none;
+    flex: 1;
+    max-width: 340px;
+  }
+
+  &__count {
+    font-size: 13px;
+    color: var(--amx-muted);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+}
+
+// ── Collect + button on icon cards ────────────────────────────────────────────
+.amx-icon-card__collect {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--amx-border);
+  background: var(--amx-card);
+  color: var(--amx-muted);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  z-index: 3;
+
+  &:hover,
+  &--saved {
+    background: var(--amx-orange);
+    color: #fff;
+    border-color: var(--amx-orange);
+  }
+
+  &--saved { display: flex; } // always visible when saved to any collection
+}
+
+.amx-icon-card:hover .amx-icon-card__collect {
+  display: flex;
+}
+
+// ── Remove (×) button on collection drill-in cards ─────────────────────────────
+.amx-icon-card__remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.88);
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  z-index: 3;
+  transition: background 0.12s;
+
+  &:hover { background: #ef4444; }
+}
+
+.amx-icon-card--collection:hover .amx-icon-card__remove {
+  display: flex;
+}
+
+// ── Detail panel Collect button ────────────────────────────────────────────────
+.amx-icon-detail__collect {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  border: 1px solid var(--amx-border-2);
+  background: var(--amx-card);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--amx-text-2);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+
+  &:hover {
+    border-color: var(--amx-orange);
+    background: var(--amx-tag-bg, rgba(245,130,10,0.07));
+    color: var(--amx-orange-dark, var(--amx-orange));
+  }
+}
+
+// ── Collection picker overlay ─────────────────────────────────────────────────
+.amx-collection-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+  animation: amx-overlay-fade 0.14s ease;
+}
+
+.amx-collection-picker {
+  background: var(--amx-elevated, var(--amx-card));
+  border: 1px solid var(--amx-border-2);
+  border-radius: 20px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+  width: 320px;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: amx-recolor-pop 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 14px 12px;
+    border-bottom: 1px solid var(--amx-border-2);
+    flex-shrink: 0;
+
+    .amx-icon-render--sm {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--amx-bg-soft);
+      border-radius: 8px;
+      padding: 4px;
+      box-sizing: border-box;
+    }
+  }
+
+  &__title {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--amx-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__close {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: none;
+    background: var(--amx-bg-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--amx-muted);
+    flex-shrink: 0;
+    transition: background 0.12s, color 0.12s;
+    &:hover { background: var(--amx-border-2); color: var(--amx-text-2); }
+  }
+
+  &__list {
+    overflow-y: auto;
+    flex: 1;
+    padding: 8px;
+    min-height: 0;
+  }
+
+  &__hint {
+    font-size: 12px;
+    color: var(--amx-muted);
+    text-align: center;
+    padding: 20px 12px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    border: 1.5px solid transparent;
+    background: none;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+    color: var(--amx-text-2);
+    text-align: left;
+
+    &:hover:not(&--added) { background: var(--amx-bg-soft); }
+
+    &--added { color: var(--amx-muted); cursor: default; }
+
+    &--feedback {
+      border-color: var(--amx-orange) !important;
+      background: var(--amx-tag-bg, rgba(245,130,10,0.08)) !important;
+    }
+  }
+
+  &__item-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__item-count {
+    font-size: 11px;
+    color: var(--amx-muted);
+    background: var(--amx-bg-soft);
+    border-radius: 10px;
+    padding: 1px 7px;
+    flex-shrink: 0;
+  }
+
+  &__check { color: var(--amx-orange); flex-shrink: 0; }
+  &__already { color: var(--amx-muted); opacity: 0.5; flex-shrink: 0; }
+
+  &__new {
+    display: flex;
+    gap: 6px;
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--amx-border-2);
+    flex-shrink: 0;
+  }
+
+  &__new-input {
+    flex: 1;
+    border: 1px solid var(--amx-border-2);
+    border-radius: 9px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--amx-text);
+    background: var(--amx-bg-soft);
+    outline: none;
+    min-width: 0;
+    transition: border-color 0.12s;
+    &:focus { border-color: var(--amx-orange); }
+  }
+
+  &__new-btn {
+    background: var(--amx-orange);
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: opacity 0.12s;
+    &:disabled { opacity: 0.38; cursor: not-allowed; }
+    &:not(:disabled):hover { opacity: 0.88; }
+  }
+}
+
+@keyframes amx-overlay-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

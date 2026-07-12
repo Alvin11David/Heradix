@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import {
   IconAsset, IconAesthetic, IconTrend, IconPlatform,
-  IconFilterState, IconStyleState, IconLibraryId,
+  IconFilterState, IconStyleState, IconLibraryId, IconCollection,
 } from '../../core/models/icon.model';
 import { ICON_LIBRARY, ICON_CATEGORIES } from './icons-legacy.data';
 import { ICON_LIBRARIES, LibraryMeta } from './data/index';
@@ -10,6 +10,7 @@ export { ICON_CATEGORIES } from './icons-legacy.data';
 export type { IconCategory } from './icons-legacy.data';
 
 const FAVORITES_KEY = 'amx_icon_favorites';
+const COLLECTIONS_KEY = 'amx_icon_collections';
 
 export const DEFAULT_ICON_STYLE: IconStyleState = {
   technique: 'line',
@@ -40,6 +41,7 @@ export class IconsService {
   readonly style = signal<IconStyleState>({ ...DEFAULT_ICON_STYLE });
   readonly filters = signal<IconFilterState>({ ...DEFAULT_ICON_FILTERS });
   readonly favorites = signal<Set<string>>(this.loadFavorites());
+  readonly collections = signal<IconCollection[]>(this.loadCollections());
 
   /** Map from library ID → loaded icon array. amarapix starts pre-loaded. */
   private readonly _libraries = signal<Map<IconLibraryId, IconAsset[]>>(
@@ -92,6 +94,9 @@ export class IconsService {
 
   /** Total icons loaded so far */
   readonly totalLoaded = computed(() => this._allIcons().length);
+
+  /** Expose all icons for collection icon lookups */
+  readonly allIcons = this._allIcons;
 
   /** Lazy-load a library by ID via static JSON asset. No-op if already loaded/loading. */
   async loadLibrary(id: IconLibraryId): Promise<void> {
@@ -160,6 +165,66 @@ export class IconsService {
   isFavorite(id: string): boolean {
     return this.favorites().has(id);
   }
+
+  // ── Collections ──────────────────────────────────────────────────────────
+
+  createCollection(name: string): string {
+    const id = `col_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const col: IconCollection = {
+      id, name: name.trim() || 'My Collection', iconIds: [], createdAt: new Date().toISOString(),
+    };
+    this.collections.update(cols => [...cols, col]);
+    this.saveCollections(this.collections());
+    return id;
+  }
+
+  deleteCollection(id: string): void {
+    this.collections.update(cols => cols.filter(c => c.id !== id));
+    this.saveCollections(this.collections());
+  }
+
+  renameCollection(id: string, name: string): void {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    this.collections.update(cols => cols.map(c => c.id === id ? { ...c, name: trimmed } : c));
+    this.saveCollections(this.collections());
+  }
+
+  addToCollection(collectionId: string, iconId: string): void {
+    this.collections.update(cols => cols.map(c =>
+      c.id === collectionId && !c.iconIds.includes(iconId)
+        ? { ...c, iconIds: [...c.iconIds, iconId] } : c
+    ));
+    this.saveCollections(this.collections());
+  }
+
+  removeFromCollection(collectionId: string, iconId: string): void {
+    this.collections.update(cols => cols.map(c =>
+      c.id === collectionId ? { ...c, iconIds: c.iconIds.filter(i => i !== iconId) } : c
+    ));
+    this.saveCollections(this.collections());
+  }
+
+  isInCollection(collectionId: string, iconId: string): boolean {
+    return this.collections().find(c => c.id === collectionId)?.iconIds.includes(iconId) ?? false;
+  }
+
+  iconInAnyCollection(iconId: string): boolean {
+    return this.collections().some(c => c.iconIds.includes(iconId));
+  }
+
+  private loadCollections(): IconCollection[] {
+    try {
+      const raw = localStorage.getItem(COLLECTIONS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  }
+
+  private saveCollections(cols: IconCollection[]): void {
+    try { localStorage.setItem(COLLECTIONS_KEY, JSON.stringify(cols)); } catch { /* quota */ }
+  }
+
+  // ── Favorites ─────────────────────────────────────────────────────────────
 
   private loadFavorites(): Set<string> {
     try {
