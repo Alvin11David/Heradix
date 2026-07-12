@@ -8,6 +8,7 @@
   [class.amx-icons--color-multi]="style().colorMode === 'multi'"
   [class.amx-icons--color-gradient]="style().colorMode === 'gradient'"
   [class.amx-icons--corners-sharp]="style().corners === 'sharp'"
+  [class.amx-icons--multiselect]="multiSelectMode()"
   [style.--icon-color]="style().recolorHue"
   [style.--icon-stroke]="style().strokeWidth">
 
@@ -96,6 +97,17 @@
           <button type="button" class="amx-pill" [class.amx-pill--active]="!style().animatedOn" (click)="style().animatedOn && toggleAnimated()">Static</button>
           <button type="button" class="amx-pill" [class.amx-pill--active]="style().animatedOn" (click)="!style().animatedOn && toggleAnimated()">Animated</button>
         </div>
+
+        <!-- Animation type selector (when animated is on) -->
+        <div class="amx-anim-types" *ngIf="style().animatedOn">
+          <button type="button" class="amx-anim-type-btn"
+                  *ngFor="let a of animationTypes"
+                  [class.amx-anim-type-btn--active]="animType() === a.id"
+                  (click)="setAnimType(a.id)">
+            <span class="amx-anim-type-btn__icon">{{ a.emoji }}</span>
+            {{ a.label }}
+          </button>
+        </div>
       </div>
 
       <!-- TECHNIQUE -->
@@ -129,7 +141,7 @@
         </div>
       </div>
 
-      <!-- STROKE WIDTH (line modes only) -->
+      <!-- STROKE WIDTH -->
       <div class="amx-filter-group" *ngIf="style().technique === 'line' || style().technique === 'hand-drawn'">
         <h4>Stroke width</h4>
         <div class="amx-pill-row amx-pill-row--wrap">
@@ -192,10 +204,19 @@
       <div class="amx-icons__tabs">
         <button type="button" class="amx-icons__tab"
                 [class.amx-icons__tab--active]="activeTab() === 'browse'"
-                (click)="activeTab.set('browse')">Browse</button>
+                (click)="activeTab.set('browse')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+          </svg>
+          Browse
+        </button>
         <button type="button" class="amx-icons__tab"
                 [class.amx-icons__tab--active]="activeTab() === 'collections'"
                 (click)="activeTab.set('collections')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
           My Collections
           <span class="amx-icons__tab-badge" *ngIf="svc.collections().length > 0">{{ svc.collections().length }}</span>
         </button>
@@ -203,22 +224,34 @@
 
       <ng-container *ngIf="activeTab() === 'browse'">
 
+      <!-- PLATFORM TABS -->
+      <div class="amx-platform-tabs">
+        <button type="button" class="amx-platform-tab"
+                *ngFor="let pt of platformTabs"
+                [class.amx-platform-tab--active]="activePlatform() === pt.id"
+                (click)="setPlatform(pt.id)">
+          <span class="amx-platform-tab__icon" [attr.data-platform]="pt.id || 'all'"></span>
+          {{ pt.label }}
+        </button>
+      </div>
+
       <!-- TOOLBAR -->
       <div class="amx-icons__toolbar">
-        <div class="amx-icons__search">
+        <div class="amx-icons__search" [class.amx-icons__search--ai]="aiSearchOn()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          <input type="search" placeholder="Search 20,000+ icons by keyword…"
+          <input type="search" [placeholder]="aiSearchOn() ? 'AI search — describe what you need…' : 'Search 20,000+ icons by keyword…'"
                  aria-label="Search icons"
                  [value]="filters().query"
                  (input)="setQuery($any($event.target).value)" />
+          <span class="amx-icons__search-ai-badge" *ngIf="aiSearchOn()">AI</span>
         </div>
 
         <button type="button" class="amx-icons__ai-toggle" [class.amx-icons__ai-toggle--on]="aiSearchOn()"
                 (click)="aiSearchOn.set(!aiSearchOn())" [attr.aria-pressed]="aiSearchOn()">
           <span class="amx-icons__ai-knob"></span>
-          AI search
+          AI
         </button>
 
         <div class="amx-icons__recolor">
@@ -234,7 +267,6 @@
           </button>
 
           <div class="amx-recolor-panel" *ngIf="recolorOpen()" (click)="$event.stopPropagation()">
-            <!-- Live preview -->
             <div class="amx-recolor-panel__header">
               <span class="amx-recolor-panel__preview-swatch" [style.background]="style().recolorHue"></span>
               <div class="amx-recolor-panel__hex-wrap">
@@ -254,7 +286,6 @@
               </button>
             </div>
 
-            <!-- Hue spectrum slider -->
             <div class="amx-recolor-panel__slider-wrap">
               <input type="range" min="0" max="359" step="1"
                      class="amx-recolor-panel__slider"
@@ -262,7 +293,6 @@
                      (input)="setRecolorFromHue(+$any($event.target).value)" />
             </div>
 
-            <!-- Preset swatches -->
             <div class="amx-recolor-panel__presets">
               <button type="button" *ngFor="let c of PRESET_COLORS"
                       class="amx-recolor-panel__preset"
@@ -275,6 +305,18 @@
           </div>
         </div>
 
+        <!-- Multi-select toggle -->
+        <button type="button" class="amx-icons__select-toggle"
+                [class.amx-icons__select-toggle--on]="multiSelectMode()"
+                (click)="toggleMultiSelectMode()"
+                [attr.aria-pressed]="multiSelectMode()"
+                aria-label="Toggle multi-select mode">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          Select
+        </button>
+
         <div class="amx-icons__density-toggle">
           <button type="button" [class.active]="style().density !== 'small'" (click)="setDensity('medium')" aria-label="Grid view">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -284,6 +326,56 @@
           </button>
         </div>
       </div>
+
+      <!-- STYLE GALLERY -->
+      <div class="amx-style-gallery" *ngIf="showStyleGallery()">
+        <div class="amx-style-gallery__head">
+          <div class="amx-style-gallery__title-row">
+            <h2 class="amx-style-gallery__title">Browse by Style</h2>
+            <span class="amx-style-gallery__count">{{ stylePacks.length }} styles</span>
+          </div>
+          <button type="button" class="amx-style-gallery__collapse" (click)="showStyleGallery.set(false)" aria-label="Collapse style gallery">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <polyline points="18 15 12 9 6 15"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="amx-style-gallery__scroll">
+          <button type="button" class="amx-sp-card"
+                  *ngFor="let pack of stylePacks; trackBy: trackByPackId"
+                  [class.amx-sp-card--active]="isActiveStylePack(pack.id)"
+                  [class.amx-sp-card--dark]="pack.darkBg"
+                  [attr.data-tech]="spTech(pack)"
+                  [style.background]="pack.gradient"
+                  [style.--sp-color]="pack.accent"
+                  [style.--sp-stroke]="spStroke(pack)"
+                  (click)="applyStylePack(pack)">
+            <div class="amx-sp-card__badge" *ngIf="pack.badge">{{ pack.badge }}</div>
+            <div class="amx-sp-card__icons">
+              <span class="amx-sp-card__icon" *ngFor="let pi of previewIcons()"
+                    [innerHTML]="markup(pi)"></span>
+            </div>
+            <div class="amx-sp-card__meta">
+              <span class="amx-sp-card__name">{{ pack.name }}</span>
+              <span class="amx-sp-card__sub">{{ pack.subtitle }}</span>
+            </div>
+            <div class="amx-sp-card__check" *ngIf="isActiveStylePack(pack.id)" aria-label="Active style">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Style gallery collapsed indicator -->
+      <button type="button" class="amx-style-gallery__restore" *ngIf="!showStyleGallery()" (click)="showStyleGallery.set(true)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+        </svg>
+        Show Style Gallery
+      </button>
 
       <!-- HERO BANNER -->
       <section class="amx-icons__hero">
@@ -315,12 +407,47 @@
         <div class="amx-icons__hero-showcase" aria-hidden="true">
           <div class="amx-icons__hero-tile" *ngFor="let icon of svc.filteredIcons().slice(0, 3); let i = index" [style.--i]="i">
             <span class="amx-icon-render"
-                  [class.amx-icon-render--animated]="style().animatedOn && icon.hasAnimatedVariant"
                   [class.amx-icon-render--colored]="isColored(icon)"
                   [innerHTML]="markup(icon)"></span>
           </div>
         </div>
       </section>
+
+      <!-- TRENDING STYLES CAROUSEL -->
+      <div class="amx-trending" *ngIf="showTrending()">
+        <div class="amx-trending__head">
+          <h3 class="amx-trending__title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+            </svg>
+            Experimental &amp; Trending
+          </h3>
+          <button type="button" class="amx-trending__dismiss" (click)="showTrending.set(false)" aria-label="Dismiss">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="amx-trending__scroll">
+          <button type="button" class="amx-trend-card"
+                  *ngFor="let card of trendCards; trackBy: trackByTrendId"
+                  [class.amx-trend-card--dark]="card.darkBg"
+                  [attr.data-tech]="trendTech(card)"
+                  [style.background]="card.bg"
+                  [style.--sp-color]="card.accent"
+                  [style.--sp-stroke]="trendStroke(card)"
+                  (click)="applyTrendCard(card)">
+            <div class="amx-trend-card__icons">
+              <span class="amx-sp-card__icon" *ngFor="let pi of previewIcons().slice(0, 3)"
+                    [innerHTML]="markup(pi)"></span>
+            </div>
+            <div class="amx-trend-card__meta">
+              <span class="amx-trend-card__tag">{{ card.tag }}</span>
+              <span class="amx-trend-card__name">{{ card.name }}</span>
+            </div>
+          </button>
+        </div>
+      </div>
 
       <!-- META ROW -->
       <div class="amx-icons__meta-row">
@@ -329,6 +456,10 @@
           <span class="amx-icons__library-badge" *ngIf="filters().libraryId">
             {{ libraryName(filters().libraryId) }}
             <button type="button" (click)="setLibrary(null)" aria-label="Clear library filter">✕</button>
+          </span>
+          <span class="amx-icons__platform-badge" *ngIf="activePlatform()">
+            {{ activePlatform() }}
+            <button type="button" (click)="setPlatform(null)" aria-label="Clear platform filter">✕</button>
           </span>
           <button type="button" class="amx-icons__reset-style" (click)="resetStyle()"
                   *ngIf="style().technique !== 'line' || style().colorMode !== 'mono' || style().corners !== 'round'">
@@ -353,36 +484,76 @@
           <div class="amx-icon-grid"
                [class.amx-icon-grid--small]="style().density === 'small'"
                [class.amx-icon-grid--large]="style().density === 'large'">
-            <button type="button" class="amx-icon-card" *ngFor="let icon of group.icons; trackBy: trackById"
-                    (click)="openDetail(icon)">
+            <div class="amx-icon-card"
+                 *ngFor="let icon of group.icons; trackBy: trackById"
+                 [class.amx-icon-card--selected]="isIconSelected(icon.id)"
+                 [class.amx-icon-card--selectmode]="multiSelectMode()"
+                 (click)="handleCardClick(icon, $event)">
+
+              <!-- Selection checkbox (multi-select mode) -->
+              <span class="amx-icon-card__checkbox" *ngIf="multiSelectMode()" aria-hidden="true">
+                <svg *ngIf="isIconSelected(icon.id)" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </span>
+
               <span class="amx-icon-card__preview">
                 <span class="amx-icon-render"
-                      [class.amx-icon-render--animated]="style().animatedOn && icon.hasAnimatedVariant"
+                      [ngClass]="animClass()"
                       [class.amx-icon-render--colored]="isColored(icon)"
                       [style.filter]="!isColored(icon) && style().technique === 'hand-drawn' ? 'url(#amxHandDrawn)' : null"
                       [innerHTML]="markup(icon)"></span>
                 <span class="amx-icon-card__premium" *ngIf="icon.isPremium">PRO</span>
                 <span class="amx-icon-card__lib-badge" *ngIf="!filters().libraryId && icon.library && icon.library !== 'amarapix'"
                       [attr.data-lib]="icon.library" [attr.title]="libraryName(icon.library)"></span>
+
+                <!-- Favorite button -->
                 <button type="button" class="amx-icon-card__fav" [class.amx-icon-card__fav--active]="isFavorite(icon)"
                         (click)="toggleFavorite(icon, $event)" [attr.aria-label]="isFavorite(icon) ? 'Remove favorite' : 'Add favorite'">
-                  <svg width="14" height="14" viewBox="0 0 24 24" [attr.fill]="isFavorite(icon) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                  <svg width="12" height="12" viewBox="0 0 24 24" [attr.fill]="isFavorite(icon) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                     <path d="M12 20.5l-1.4-1.3C5.1 14.8 2 12 2 8.5 2 5.9 4 4 6.5 4c1.5 0 2.9.7 3.8 1.8L12 7.6l1.7-1.8C14.6 4.7 16 4 17.5 4 20 4 22 5.9 22 8.5c0 3.5-3.1 6.3-8.6 10.7L12 20.5z"/>
                   </svg>
                 </button>
+
+                <!-- Collect button -->
                 <button type="button" class="amx-icon-card__collect"
                         [class.amx-icon-card__collect--saved]="svc.iconInAnyCollection(icon.id)"
                         (click)="openCollectionPicker(icon, $event)"
                         aria-label="Add to collection">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" aria-hidden="true">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" aria-hidden="true">
                     <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
                   </svg>
                 </button>
               </span>
+
               <span class="amx-icon-card__name">{{ icon.name }}</span>
-            </button>
+
+              <!-- Hover quick-action bar -->
+              <div class="amx-icon-card__quick" (click)="$event.stopPropagation()">
+                <button type="button" class="amx-icon-card__quick-btn" (click)="copySvg(icon)" aria-label="Copy SVG">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  SVG
+                </button>
+                <button type="button" class="amx-icon-card__quick-btn" (click)="copyPng(icon, 512)" aria-label="Copy PNG">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  PNG
+                </button>
+                <button type="button" class="amx-icon-card__quick-btn" (click)="downloadSvg(icon)" aria-label="Download SVG">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         </section>
+
+        <!-- Infinite scroll sentinel -->
+        <div #scrollSentinel class="amx-scroll-sentinel" aria-hidden="true"></div>
 
         <div class="amx-icons__load-more" *ngIf="hasMore()">
           <button type="button" (click)="loadMore()">
@@ -406,7 +577,6 @@
       <!-- ================= COLLECTIONS TAB ================= -->
       <ng-container *ngIf="activeTab() === 'collections'">
 
-        <!-- Collection list -->
         <ng-container *ngIf="!activeCollectionId()">
           <div class="amx-collections__header">
             <h2>My Collections</h2>
@@ -474,7 +644,6 @@
           </div>
         </ng-container>
 
-        <!-- Drill-in: single collection view -->
         <ng-container *ngIf="openCollection() as col">
           <div class="amx-collection-view__header">
             <button type="button" class="amx-collection-view__back" (click)="backToCollections()">
@@ -514,9 +683,9 @@
           </div>
 
           <div class="amx-icon-grid" *ngIf="activeCollectionIcons().length > 0">
-            <button type="button" class="amx-icon-card amx-icon-card--collection"
-                    *ngFor="let icon of activeCollectionIcons(); trackBy: trackById"
-                    (click)="openDetail(icon)">
+            <div class="amx-icon-card amx-icon-card--collection"
+                 *ngFor="let icon of activeCollectionIcons(); trackBy: trackById"
+                 (click)="openDetail(icon)">
               <span class="amx-icon-card__preview">
                 <span class="amx-icon-render"
                       [class.amx-icon-render--colored]="isColored(icon)"
@@ -530,12 +699,56 @@
                 </button>
               </span>
               <span class="amx-icon-card__name">{{ icon.name }}</span>
-            </button>
+            </div>
           </div>
         </ng-container>
 
       </ng-container><!-- /collections tab -->
     </main>
+  </div>
+
+  <!-- ================= BULK ACTION BAR ================= -->
+  <div class="amx-bulk-bar" *ngIf="multiSelectMode() && selectedCount() > 0" role="toolbar" aria-label="Bulk actions">
+    <div class="amx-bulk-bar__inner">
+      <span class="amx-bulk-bar__count">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        {{ selectedCount() }} selected
+      </span>
+      <div class="amx-bulk-bar__actions">
+        <button type="button" class="amx-bulk-btn" (click)="selectAll()">
+          Select all visible
+        </button>
+        <button type="button" class="amx-bulk-btn" (click)="bulkDownloadSvg()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          SVG
+        </button>
+        <button type="button" class="amx-bulk-btn" (click)="bulkDownloadPng()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+          </svg>
+          PNG
+        </button>
+        <button type="button" class="amx-bulk-btn" (click)="openBulkCollect($event)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            <line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
+          </svg>
+          Collect
+        </button>
+        <button type="button" class="amx-bulk-btn amx-bulk-btn--clear" (click)="clearSelection()">
+          Clear
+        </button>
+      </div>
+      <button type="button" class="amx-bulk-bar__exit" (click)="exitMultiSelect()" aria-label="Exit multi-select">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
   </div>
 
   <!-- ================= COLLECTION PICKER ================= -->
@@ -544,7 +757,14 @@
       <div class="amx-collection-picker__head">
         <span class="amx-icon-render amx-icon-render--sm" [class.amx-icon-render--colored]="isColored(collectionPickerIcon()!)"
               [innerHTML]="markup(collectionPickerIcon()!)"></span>
-        <span class="amx-collection-picker__title">{{ collectionPickerIcon()!.name }}</span>
+        <span class="amx-collection-picker__title">
+          <ng-container *ngIf="multiSelectMode() && selectedCount() > 1">
+            Add {{ selectedCount() }} icons to…
+          </ng-container>
+          <ng-container *ngIf="!multiSelectMode() || selectedCount() <= 1">
+            {{ collectionPickerIcon()!.name }}
+          </ng-container>
+        </span>
         <button type="button" class="amx-collection-picker__close" (click)="closeCollectionPicker()" aria-label="Close">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -592,62 +812,105 @@
   <!-- ================= DETAIL PANEL ================= -->
   <div class="amx-icon-detail-scrim" *ngIf="selected()" (click)="closeDetail()"></div>
   <aside class="amx-icon-detail" *ngIf="selected() as icon" role="dialog" [attr.aria-label]="icon.name + ' details'">
-    <button type="button" class="amx-icon-detail__close" (click)="closeDetail()" aria-label="Close">✕</button>
+    <button type="button" class="amx-icon-detail__close" (click)="closeDetail()" aria-label="Close">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
 
+    <!-- Preview with animated ring -->
     <div class="amx-icon-detail__preview">
+      <div class="amx-icon-detail__preview-ring" [class.amx-icon-detail__preview-ring--animated]="style().animatedOn"></div>
       <span class="amx-icon-render amx-icon-render--big"
+            [ngClass]="animClass()"
             [class.amx-icon-render--colored]="isColored(icon)"
             [innerHTML]="markup(icon)"></span>
     </div>
 
     <h2 class="amx-icon-detail__title">{{ icon.name }}</h2>
-    <p class="amx-icon-detail__meta">
-      {{ categoryName(icon.category) }}
+    <div class="amx-icon-detail__meta">
+      <span class="amx-icon-detail__cat-tag">{{ categoryName(icon.category) }}</span>
       <span class="amx-icon-detail__lib-tag" *ngIf="icon.library">{{ libraryName(icon.library) }}</span>
-      · {{ icon.downloads | number }} downloads
-    </p>
+      <span class="amx-icon-detail__downloads">{{ icon.downloads | number }} downloads</span>
+    </div>
 
+    <!-- Primary action row -->
     <div class="amx-icon-detail__actions">
       <button type="button" class="amx-icon-detail__fav" [class.amx-icon-detail__fav--active]="isFavorite(icon)" (click)="toggleFavorite(icon)">
-        <svg width="15" height="15" viewBox="0 0 24 24" [attr.fill]="isFavorite(icon) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" [attr.fill]="isFavorite(icon) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
           <path d="M12 20.5l-1.4-1.3C5.1 14.8 2 12 2 8.5 2 5.9 4 4 6.5 4c1.5 0 2.9.7 3.8 1.8L12 7.6l1.7-1.8C14.6 4.7 16 4 17.5 4 20 4 22 5.9 22 8.5c0 3.5-3.1 6.3-8.6 10.7L12 20.5z"/>
         </svg>
         {{ isFavorite(icon) ? 'Saved' : 'Save' }}
       </button>
       <button type="button" class="amx-icon-detail__collect" (click)="openCollectionPicker(icon, $event)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
           <line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
         </svg>
         Collect
       </button>
-      <button type="button" class="amx-icon-detail__copy" (click)="copySvg(icon)">
-        {{ copyState() === 'copied' ? '✓ Copied!' : 'Copy SVG' }}
-      </button>
     </div>
 
+    <!-- Copy actions -->
     <div class="amx-icon-detail__block">
-      <h4>Download PNG</h4>
-      <div class="amx-icon-detail__sizes">
-        <button type="button" *ngFor="let size of pngSizes" (click)="downloadPng(icon, size)">{{ size }}px</button>
+      <h4>Copy to clipboard</h4>
+      <div class="amx-icon-detail__copy-row">
+        <button type="button" class="amx-icon-detail__copy-btn" (click)="copySvg(icon)"
+                [class.amx-icon-detail__copy-btn--done]="copyState() === 'copied'">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          {{ copyState() === 'copied' ? '✓ Copied!' : 'Copy SVG' }}
+        </button>
+        <button type="button" class="amx-icon-detail__copy-btn" (click)="copyPng(icon, 512)"
+                [class.amx-icon-detail__copy-btn--done]="copyPngState() === 'copied'">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+          </svg>
+          {{ copyPngState() === 'copied' ? '✓ Copied!' : 'Copy PNG' }}
+        </button>
       </div>
-      <button type="button" class="amx-icon-detail__svg-btn" (click)="downloadSvg(icon)">
-        ↓ Download SVG
-      </button>
     </div>
 
+    <!-- Download section -->
+    <div class="amx-icon-detail__block">
+      <h4>Download</h4>
+      <button type="button" class="amx-icon-detail__svg-btn" (click)="downloadSvg(icon)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download SVG
+      </button>
+
+      <div class="amx-icon-detail__png-label">
+        <span>PNG</span>
+        <span class="amx-icon-detail__png-hint">Pick a size:</span>
+      </div>
+      <div class="amx-icon-detail__sizes">
+        <button type="button" *ngFor="let size of pngSizes" (click)="downloadPng(icon, size)">
+          {{ size }}
+          <span>px</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tags -->
     <div class="amx-icon-detail__block" *ngIf="icon.tags.length">
       <h4>Tags</h4>
       <div class="amx-icon-detail__tags">
-        <span *ngFor="let tag of icon.tags">{{ tag }}</span>
+        <button type="button" class="amx-icon-detail__tag-btn" *ngFor="let tag of icon.tags"
+                (click)="setQuery(tag)">{{ tag }}</button>
       </div>
     </div>
 
+    <!-- Related icons -->
     <div class="amx-icon-detail__block" *ngIf="relatedIcons(icon).length">
       <h4>Related icons</h4>
       <div class="amx-icon-detail__related">
-        <button type="button" *ngFor="let rel of relatedIcons(icon)" (click)="openDetail(rel)">
+        <button type="button" *ngFor="let rel of relatedIcons(icon)" (click)="openDetail(rel)"
+                [attr.aria-label]="rel.name">
           <span class="amx-icon-render" [innerHTML]="markup(rel)"></span>
+          <span class="amx-icon-detail__related-name">{{ rel.name }}</span>
         </button>
       </div>
     </div>
