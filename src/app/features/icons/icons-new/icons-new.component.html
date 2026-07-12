@@ -305,6 +305,15 @@
           </div>
         </div>
 
+        <!-- Request icon button -->
+        <button type="button" class="amx-icons__request-btn" (click)="openRequestModal()" aria-label="Request an icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Request
+          <span class="amx-icons__request-badge" *ngIf="iconRequests().length > 0">{{ iconRequests().length }}</span>
+        </button>
+
         <!-- Multi-select toggle -->
         <button type="button" class="amx-icons__select-toggle"
                 [class.amx-icons__select-toggle--on]="multiSelectMode()"
@@ -352,9 +361,10 @@
                   [style.--sp-stroke]="spStroke(pack)"
                   (click)="applyStylePack(pack)">
             <div class="amx-sp-card__badge" *ngIf="pack.badge">{{ pack.badge }}</div>
-            <div class="amx-sp-card__icons">
-              <span class="amx-sp-card__icon" *ngFor="let pi of previewIcons()"
-                    [innerHTML]="markup(pi)"></span>
+            <div class="amx-sp-card__icons amx-sp-card__icons--real">
+              <span class="amx-sp-card__icon amx-sp-card__icon--styled"
+                    *ngFor="let pi of previewIcons().slice(0, 4)"
+                    [innerHTML]="styledPackSvgSafe(pi, pack)"></span>
             </div>
             <div class="amx-sp-card__meta">
               <span class="amx-sp-card__name">{{ pack.name }}</span>
@@ -438,8 +448,8 @@
                   [style.--sp-stroke]="trendStroke(card)"
                   (click)="applyTrendCard(card)">
             <div class="amx-trend-card__icons">
-              <span class="amx-sp-card__icon" *ngFor="let pi of previewIcons().slice(0, 3)"
-                    [innerHTML]="markup(pi)"></span>
+              <span class="amx-trend-card__icon--styled" *ngFor="let pi of previewIcons().slice(0, 3)"
+                    [innerHTML]="styledTrendSvgSafe(pi, card)"></span>
             </div>
             <div class="amx-trend-card__meta">
               <span class="amx-trend-card__tag">{{ card.tag }}</span>
@@ -882,6 +892,15 @@
         Download SVG
       </button>
 
+      <!-- Lottie JSON export -->
+      <button type="button" class="amx-icon-detail__lottie-btn" (click)="downloadLottie(icon)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/><path d="M9 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0"/>
+        </svg>
+        Download Lottie JSON
+        <span class="amx-icon-detail__lottie-anim">{{ animType() === 'none' ? 'static' : animType() }}</span>
+      </button>
+
       <div class="amx-icon-detail__png-label">
         <span>PNG</span>
         <span class="amx-icon-detail__png-hint">Pick a size:</span>
@@ -915,4 +934,130 @@
       </div>
     </div>
   </aside>
+
+
+<!-- ================= ICON REQUEST MODAL ================= -->
+<div class="amx-request-overlay" *ngIf="requestModalOpen()" (click)="closeRequestModal()" role="dialog" aria-modal="true" aria-label="Request an icon">
+  <div class="amx-request-modal" (click)="$event.stopPropagation()">
+    <div class="amx-request-modal__head">
+      <div class="amx-request-modal__title-row">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <h2>Community Icon Requests</h2>
+      </div>
+      <button type="button" class="amx-request-modal__close" (click)="closeRequestModal()" aria-label="Close">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="amx-request-modal__tabs">
+      <button type="button" class="amx-request-modal__tab"
+              [class.amx-request-modal__tab--active]="requestsTab() === 'submit'"
+              (click)="requestsTab.set('submit')">Submit Request</button>
+      <button type="button" class="amx-request-modal__tab"
+              [class.amx-request-modal__tab--active]="requestsTab() === 'browse'"
+              (click)="requestsTab.set('browse')">
+        Browse Requests
+        <span class="amx-request-modal__tab-badge" *ngIf="iconRequests().length">{{ iconRequests().length }}</span>
+      </button>
+    </div>
+
+    <!-- Submit tab -->
+    <div class="amx-request-modal__body" *ngIf="requestsTab() === 'submit'">
+      <div class="amx-request-success" *ngIf="requestSubmitted()">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <p>Request submitted! Others can now vote for it.</p>
+        <button type="button" (click)="requestsTab.set('browse')">View all requests →</button>
+      </div>
+
+      <form class="amx-request-form" *ngIf="!requestSubmitted()" (submit)="$event.preventDefault(); submitIconRequest()">
+        <label class="amx-request-form__label">
+          Icon name <span class="amx-request-form__req">*</span>
+          <input type="text" class="amx-request-form__input" placeholder="e.g. Fingerprint Scanner"
+                 [value]="requestForm().name"
+                 (input)="updateRequestForm('name', $any($event.target).value)"
+                 maxlength="80" required />
+        </label>
+
+        <label class="amx-request-form__label">
+          Description
+          <textarea class="amx-request-form__textarea" rows="3"
+                    placeholder="Where you'd use this icon, what it should look like…"
+                    [value]="requestForm().description"
+                    (input)="updateRequestForm('description', $any($event.target).value)"
+                    maxlength="400"></textarea>
+        </label>
+
+        <label class="amx-request-form__label">
+          Preferred style
+          <select class="amx-request-form__select"
+                  [value]="requestForm().style"
+                  (change)="updateRequestForm('style', $any($event.target).value)">
+            <option value="line">Line / Outline</option>
+            <option value="filled">Filled / Solid</option>
+            <option value="3d">3D / Depth</option>
+            <option value="hand-drawn">Hand-drawn / Sketch</option>
+            <option value="any">Any style</option>
+          </select>
+        </label>
+
+        <label class="amx-request-form__label">
+          Email <span class="amx-request-form__hint">(optional — for updates)</span>
+          <input type="email" class="amx-request-form__input" placeholder="you@example.com"
+                 [value]="requestForm().email"
+                 (input)="updateRequestForm('email', $any($event.target).value)"
+                 maxlength="120" />
+        </label>
+
+        <button type="submit" class="amx-request-form__submit"
+                [disabled]="!requestForm().name.trim()">
+          Submit Request
+        </button>
+      </form>
+    </div>
+
+    <!-- Browse tab -->
+    <div class="amx-request-modal__body" *ngIf="requestsTab() === 'browse'">
+      <div class="amx-request-empty" *ngIf="iconRequests().length === 0">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <p>No requests yet — be the first!</p>
+        <button type="button" (click)="requestsTab.set('submit')">Submit a request</button>
+      </div>
+
+      <ul class="amx-request-list" *ngIf="iconRequests().length > 0">
+        <li class="amx-request-item" *ngFor="let req of iconRequests()">
+          <button type="button" class="amx-request-item__vote"
+                  [class.amx-request-item__vote--voted]="hasVoted(req.id)"
+                  (click)="voteForRequest(req.id)"
+                  [attr.aria-label]="hasVoted(req.id) ? 'Voted' : 'Vote for ' + req.name">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <polyline points="18 15 12 9 6 15"/>
+            </svg>
+            <span>{{ req.votes }}</span>
+          </button>
+          <div class="amx-request-item__body">
+            <div class="amx-request-item__top">
+              <span class="amx-request-item__name">{{ req.name }}</span>
+              <span class="amx-request-item__status amx-request-item__status--{{ req.status }}">{{ requestStatusLabel(req.status) }}</span>
+            </div>
+            <p class="amx-request-item__desc" *ngIf="req.description">{{ req.description }}</p>
+            <div class="amx-request-item__meta">
+              <span class="amx-request-item__style">{{ req.style }}</span>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
 </section>

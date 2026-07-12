@@ -157,6 +157,51 @@ const ANIMATION_TYPES: { id: AnimationType; label: string; emoji: string }[] = [
   { id: 'ping', label: 'Ping', emoji: '◯' },
 ];
 
+// ─── Levenshtein fuzzy match helper ────────────────────────────────────────────
+
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length;
+  const dp: number[][] = Array.from({ length: m + 1 }, (_, i) =>
+    Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1]
+        : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function fuzzyScore(token: string, target: string): number {
+  if (target.includes(token)) return 0;
+  const dist = levenshtein(token, target);
+  const maxLen = Math.max(token.length, target.length);
+  if (dist <= 1 && maxLen >= 4) return 22;
+  if (dist <= 2 && maxLen >= 6) return 12;
+  return 0;
+}
+
+// ─── Icon request model ────────────────────────────────────────────────────────
+
+interface IconRequest {
+  id: string;
+  name: string;
+  description: string;
+  style: string;
+  email: string;
+  votes: number;
+  submittedAt: string;
+  status: 'pending' | 'planned' | 'done';
+}
+
+const ICON_REQUESTS_KEY = 'amx_icon_requests';
+
+function loadRequests(): IconRequest[] {
+  try { return JSON.parse(localStorage.getItem(ICON_REQUESTS_KEY) ?? '[]'); } catch { return []; }
+}
+
+function saveRequests(reqs: IconRequest[]): void {
+  try { localStorage.setItem(ICON_REQUESTS_KEY, JSON.stringify(reqs)); } catch { /* noop */ }
+}
+
 // AI synonym map for semantic search
 const AI_SYNONYMS: Record<string, string[]> = {
   settings: ['gear', 'cog', 'config', 'preferences', 'options', 'tune', 'wrench'],
@@ -242,6 +287,14 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
   readonly animType = signal<AnimationType>('none');
   readonly showStyleGallery = signal(true);
   readonly showTrending = signal(true);
+
+  // ── Icon request community feature ───────────────────
+  readonly requestModalOpen = signal(false);
+  readonly iconRequests = signal<IconRequest[]>(loadRequests());
+  readonly requestForm = signal({ name: '', description: '', style: 'line', email: '' });
+  readonly requestSubmitted = signal(false);
+  readonly requestVoted = signal<Set<string>>(new Set());
+  readonly requestsTab = signal<'submit' | 'browse'>('submit');
 
   // Multi-select
   readonly multiSelectMode = signal(false);
@@ -335,15 +388,23 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       const nameLow = icon.name.toLowerCase();
       const tagLow = icon.tags.join(' ').toLowerCase();
       const catLow = icon.category.toLowerCase();
+      const nameWords = nameLow.split(/[\s\-_]+/);
+      const tagWords = tagLow.split(/[\s,]+/);
       let score = 0;
 
       for (const token of tokens) {
+        // Exact / prefix / contains — name
         if (nameLow === token) score += 120;
         else if (nameLow.startsWith(token + ' ') || nameLow.endsWith(' ' + token)) score += 90;
         else if (nameLow.includes(token)) score += 60;
+        // Exact / contains — tags
         if (icon.tags.some(t => t.toLowerCase() === token)) score += 70;
         else if (tagLow.includes(token)) score += 35;
+        // Category
         if (catLow.includes(token)) score += 20;
+        // Fuzzy: compare token against each word in name + tags
+        for (const w of nameWords) { score += fuzzyScore(token, w) * 0.8; }
+        for (const w of tagWords)  { score += fuzzyScore(token, w) * 0.5; }
       }
 
       for (const syn of expanded) {
@@ -385,6 +446,31 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
 
   // Icons to show in a style pack card preview (first 4 from filtered set)
   readonly previewIcons = computed(() => this.svc.filteredIcons().slice(0, 4));
+
+  /** Build a styled SVG string for a specific icon + style pack — used in preview cards */
+  styledPackSvg(icon: IconAsset, pack: StylePack): string {
+    const filled = pack.style.technique === 'filled' || pack.style.technique === '3d';
+    const cap = pack.style.corners === 'sharp' ? 'square' : 'round';
+    const join = cap;
+    const sw = pack.style.strokeWidth ?? 2;
+    const color = pack.accent;
+    const vb = icon.viewBox ?? '0 0 24 24';
+    return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" fill="${filled ? color : 'none'}" stroke="${filled ? 'none' : color}" stroke-width="${sw}" stroke-linecap="${cap}" stroke-linejoin="${join}">${icon.path}</svg>`;
+  }
+
+  styledPackSvgSafe(icon: IconAsset, pack: StylePack): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(this.styledPackSvg(icon, pack));
+  }
+
+  styledTrendSvgSafe(icon: IconAsset, card: TrendCard): SafeHtml {
+    const filled = card.style.technique === 'filled' || card.style.technique === '3d';
+    const cap = card.style.corners === 'sharp' ? 'square' : 'round';
+    const sw = card.style.strokeWidth ?? 2;
+    const color = card.accent;
+    const vb = icon.viewBox ?? '0 0 24 24';
+    const svg = `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" fill="${filled ? color : 'none'}" stroke="${filled ? 'none' : color}" stroke-width="${sw}" stroke-linecap="${cap}" stroke-linejoin="${cap}">${icon.path}</svg>`;
+    return this.sanitizer.bypassSecurityTrustHtml(svg);
+  }
 
   readonly svgCache = new Map<string, SafeHtml>();
 
@@ -781,6 +867,126 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     const svg = this.buildStandaloneSvg(icon, 512);
     const blob = new Blob([svg], { type: 'image/svg+xml' });
     this.triggerDownload(URL.createObjectURL(blob), `${icon.slug}.svg`);
+  }
+
+  /** Generate a real Lottie JSON file for the current animation type */
+  downloadLottie(icon: IconAsset): void {
+    const anim = this.animType();
+    const color = this.style().recolorHue;
+    // Parse hex to [r,g,b] 0-1 range
+    const hexToLottieColor = (hex: string): [number, number, number] => {
+      const n = parseInt(hex.replace('#', ''), 16);
+      return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+    };
+    const [r, g, b] = hexToLottieColor(color);
+
+    // Build transform keyframes based on animation type
+    const fps = 30;
+    const dur = 60; // 2 seconds loop
+    let ks: Record<string, unknown>;
+
+    switch (anim) {
+      case 'spin':
+        ks = { r: { a: 1, k: [{ t: 0, s: [0], e: [360], i: { x: [0.5], y: [0.5] }, o: { x: [0.5], y: [0.5] } }, { t: dur, s: [360] }] } };
+        break;
+      case 'pulse':
+        ks = { s: { a: 1, k: [{ t: 0, s: [100, 100], e: [120, 120], i: { x: [0.5], y: [0.5] }, o: { x: [0.5], y: [0.5] } }, { t: 30, s: [120, 120], e: [100, 100], i: { x: [0.5], y: [0.5] }, o: { x: [0.5], y: [0.5] } }, { t: dur, s: [100, 100] }] } };
+        break;
+      case 'bounce':
+        ks = { p: { a: 1, k: [{ t: 0, s: [256, 256], e: [256, 220], i: { x: [0.5], y: [0.5] }, o: { x: [0.5], y: [0.5] } }, { t: 20, s: [256, 220], e: [256, 256], i: { x: [0.5], y: [0.5] }, o: { x: [0.5], y: [0.5] } }, { t: dur, s: [256, 256] }] } };
+        break;
+      case 'shake':
+        ks = { p: { a: 1, k: [{ t: 0, s: [256, 256], e: [278, 256], i: { x: [0.5], y: [0.5] }, o: { x: [0.5], y: [0.5] } }, { t: 8, s: [278, 256], e: [234, 256], i: { x: [0.5], y: [0.5] }, o: { x: [0.5], y: [0.5] } }, { t: 16, s: [234, 256], e: [256, 256], i: { x: [0.5], y: [0.5] }, o: { x: [0.5], y: [0.5] } }, { t: dur, s: [256, 256] }] } };
+        break;
+      case 'ping':
+        ks = { s: { a: 1, k: [{ t: 0, s: [100, 100], e: [140, 140], i: { x: [0.5], y: [0.5] }, o: { x: [0.5], y: [0.5] } }, { t: dur, s: [140, 140] }] }, op: { a: 1, k: [{ t: 0, s: [100], e: [0], i: { x: [0.5], y: [0.5] }, o: { x: [0.5], y: [0.5] } }, { t: dur, s: [0] }] } };
+        break;
+      default:
+        ks = {};
+    }
+
+    const lottie = {
+      v: '5.9.0', fr: fps, ip: 0, op: dur, w: 512, h: 512,
+      nm: icon.name, ddd: 0,
+      assets: [],
+      layers: [{
+        ddd: 0, ind: 1, ty: 4, nm: icon.name,
+        sr: 1, ks: {
+          o: { a: 0, k: 100 },
+          r: ks['r'] ?? { a: 0, k: 0 },
+          p: ks['p'] ?? { a: 0, k: [256, 256, 0] },
+          a: { a: 0, k: [0, 0, 0] },
+          s: ks['s'] ?? { a: 0, k: [100, 100, 100] },
+        },
+        ao: 0, ip: 0, op: dur, st: 0, bm: 0,
+        shapes: [{
+          ty: 'gr', nm: 'icon',
+          it: [
+            { ty: 'rc', nm: 'rect', d: 1, p: { a: 0, k: [0, 0] }, s: { a: 0, k: [480, 480] }, r: { a: 0, k: 0 } },
+            { ty: 'st', c: { a: 0, k: [r, g, b, 1] }, o: { a: 0, k: 100 }, w: { a: 0, k: this.style().strokeWidth * 10 }, lc: 2, lj: 2, ml: 4 },
+            { ty: 'tr', p: { a: 0, k: [0, 0] }, a: { a: 0, k: [0, 0] }, s: { a: 0, k: [100, 100] }, r: { a: 0, k: 0 }, o: { a: 0, k: 100 } },
+          ],
+        }],
+      }],
+      markers: [],
+      meta: { g: 'Amarapix Icon Browser', a: '', k: icon.tags.join(', '), d: icon.name, tc: color },
+    };
+
+    const blob = new Blob([JSON.stringify(lottie, null, 2)], { type: 'application/json' });
+    this.triggerDownload(URL.createObjectURL(blob), `${icon.slug}-${anim === 'none' ? 'static' : anim}.lottie.json`);
+  }
+
+  // ── Icon request / community ──────────────────────────
+
+  openRequestModal(): void {
+    this.requestModalOpen.set(true);
+    this.requestSubmitted.set(false);
+    this.requestsTab.set('submit');
+    this.requestForm.set({ name: '', description: '', style: 'line', email: '' });
+  }
+
+  closeRequestModal(): void { this.requestModalOpen.set(false); }
+
+  updateRequestForm(field: keyof ReturnType<typeof this.requestForm>, value: string): void {
+    this.requestForm.update(f => ({ ...f, [field]: value }));
+  }
+
+  submitIconRequest(): void {
+    const f = this.requestForm();
+    if (!f.name.trim()) return;
+    const req: IconRequest = {
+      id: `req-${Date.now()}`,
+      name: f.name.trim(),
+      description: f.description.trim(),
+      style: f.style,
+      email: f.email.trim(),
+      votes: 1,
+      submittedAt: new Date().toISOString(),
+      status: 'pending',
+    };
+    const updated = [req, ...this.iconRequests()];
+    this.iconRequests.set(updated);
+    saveRequests(updated);
+    this.requestSubmitted.set(true);
+    this.requestsTab.set('browse');
+  }
+
+  voteForRequest(id: string): void {
+    const voted = new Set(this.requestVoted());
+    if (voted.has(id)) return;
+    voted.add(id);
+    this.requestVoted.set(voted);
+    const updated = this.iconRequests().map(r =>
+      r.id === id ? { ...r, votes: r.votes + 1 } : r
+    ).sort((a, b) => b.votes - a.votes);
+    this.iconRequests.set(updated);
+    saveRequests(updated);
+  }
+
+  hasVoted(id: string): boolean { return this.requestVoted().has(id); }
+
+  requestStatusLabel(status: IconRequest['status']): string {
+    return { pending: '⏳ Pending', planned: '🗓 Planned', done: '✅ Done' }[status];
   }
 
   downloadPng(icon: IconAsset, size: number): void {
