@@ -44,6 +44,29 @@ export class IconsNewComponent {
   readonly visibleCount = signal(48);
   readonly recolorOpen = signal(false);
 
+  readonly PRESET_COLORS = [
+    '#f5820a', '#ef4444', '#ec4899', '#a855f7',
+    '#6366f1', '#2563eb', '#0891b2', '#059669',
+    '#16a34a', '#ca8a04', '#374151', '#9ca3af',
+  ];
+
+  /** Current hue (0-360) derived from the active recolorHue hex */
+  readonly currentHue = computed(() => {
+    const hex = this.style().recolorHue;
+    if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return 25;
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    if (max === min) return 0;
+    const d = max - min;
+    let h = 0;
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (max === g) h = ((b - r) / d + 2) / 6;
+    else h = ((r - g) / d + 4) / 6;
+    return Math.round(h * 360);
+  });
+
   private readonly rawFiltered = this.svc.filteredIcons;
 
   readonly filtered = computed<IconAsset[]>(() => {
@@ -125,8 +148,42 @@ export class IconsNewComponent {
   setDensity(d: string): void { this.svc.updateStyle({ density: d as IconSizeDensity }); }
   toggleAnimated(): void { this.svc.updateStyle({ animatedOn: !this.style().animatedOn }); }
   setRecolor(hex: string): void {
+    // Color is applied via CSS custom property --icon-color — no cache clear needed.
     this.svc.updateStyle({ recolorHue: hex });
-    this.svgCache.clear(); // color-changed icons need fresh markup
+  }
+
+  setRecolorHex(event: Event): void {
+    const raw = (event.target as HTMLInputElement).value.trim();
+    const hex = raw.startsWith('#') ? raw : `#${raw}`;
+    if (/^#[0-9a-fA-F]{6}$/.test(hex)) this.setRecolor(hex);
+  }
+
+  setRecolorFromHue(hue: number): void {
+    // HSL→hex: saturation 80%, lightness 50%
+    const s = 0.80, l = 0.50;
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs((hue / 60) % 2 - 1));
+    const m = l - c / 2;
+    let r = 0, g = 0, b = 0;
+    if (hue < 60)       { r = c; g = x; b = 0; }
+    else if (hue < 120) { r = x; g = c; b = 0; }
+    else if (hue < 180) { r = 0; g = c; b = x; }
+    else if (hue < 240) { r = 0; g = x; b = c; }
+    else if (hue < 300) { r = x; g = 0; b = c; }
+    else                { r = c; g = 0; b = x; }
+    const h = (n: number) => Math.round((n + m) * 255).toString(16).padStart(2, '0');
+    this.setRecolor(`#${h(r)}${h(g)}${h(b)}`);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocClick(e: MouseEvent): void {
+    const target = e.target as HTMLElement;
+    if (this.recolorOpen() && !target.closest('.amx-icons__recolor')) {
+      this.recolorOpen.set(false);
+    }
+    if (this.selected() && !target.closest('.amx-icon-detail') && !target.closest('.amx-icon-card')) {
+      this.closeDetail();
+    }
   }
   resetStyle(): void { this.svc.resetStyle(); }
 

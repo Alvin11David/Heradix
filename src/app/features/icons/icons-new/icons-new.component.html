@@ -207,12 +207,57 @@
         </button>
 
         <div class="amx-icons__recolor">
-          <button type="button" class="amx-icons__recolor-btn" (click)="recolorOpen.set(!recolorOpen())">
+          <button type="button" class="amx-icons__recolor-btn"
+                  (click)="recolorOpen.set(!recolorOpen())"
+                  [class.amx-icons__recolor-btn--open]="recolorOpen()">
             <span class="amx-icons__recolor-swatch" [style.background]="style().recolorHue"></span>
             Recolor
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 [style.transform]="recolorOpen() ? 'rotate(180deg)' : ''" style="transition:transform .2s" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
           </button>
-          <input *ngIf="recolorOpen()" type="color" class="amx-icons__recolor-input"
-                 [value]="style().recolorHue" (input)="setRecolor($any($event.target).value)" />
+
+          <div class="amx-recolor-panel" *ngIf="recolorOpen()" (click)="$event.stopPropagation()">
+            <!-- Live preview -->
+            <div class="amx-recolor-panel__header">
+              <span class="amx-recolor-panel__preview-swatch" [style.background]="style().recolorHue"></span>
+              <div class="amx-recolor-panel__hex-wrap">
+                <span class="amx-recolor-panel__hex-hash">#</span>
+                <input type="text" class="amx-recolor-panel__hex-input"
+                       [value]="style().recolorHue.replace('#', '')"
+                       maxlength="6" spellcheck="false"
+                       (change)="setRecolorHex($event)"
+                       (keydown.enter)="setRecolorHex($event)" />
+              </div>
+              <button type="button" class="amx-recolor-panel__reset"
+                      (click)="setRecolor('#f5820a')" title="Reset to default">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Hue spectrum slider -->
+            <div class="amx-recolor-panel__slider-wrap">
+              <input type="range" min="0" max="359" step="1"
+                     class="amx-recolor-panel__slider"
+                     [value]="currentHue()"
+                     (input)="setRecolorFromHue(+$any($event.target).value)" />
+            </div>
+
+            <!-- Preset swatches -->
+            <div class="amx-recolor-panel__presets">
+              <button type="button" *ngFor="let c of PRESET_COLORS"
+                      class="amx-recolor-panel__preset"
+                      [style.background]="c"
+                      [class.amx-recolor-panel__preset--active]="style().recolorHue.toLowerCase() === c"
+                      (click)="setRecolor(c)"
+                      [attr.aria-label]="c">
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="amx-icons__density-toggle">
