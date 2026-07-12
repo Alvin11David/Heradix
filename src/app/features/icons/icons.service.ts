@@ -93,7 +93,7 @@ export class IconsService {
   /** Total icons loaded so far */
   readonly totalLoaded = computed(() => this._allIcons().length);
 
-  /** Lazy-load a library by ID. No-op if already loaded/loading. */
+  /** Lazy-load a library by ID via static JSON asset. No-op if already loaded/loading. */
   async loadLibrary(id: IconLibraryId): Promise<void> {
     if (id === 'amarapix') return;
     if (this._libraries().has(id)) return;
@@ -102,21 +102,12 @@ export class IconsService {
     this._loading.update(s => { const n = new Set(s); n.add(id); return n; });
 
     try {
-      let module: { ICONS: IconAsset[] };
-      switch (id) {
-        case 'tabler':    module = await import('./data/tabler'); break;
-        case 'lucide':    module = await import('./data/lucide'); break;
-        case 'bootstrap': module = await import('./data/bootstrap'); break;
-        case 'heroicons': module = await import('./data/heroicons'); break;
-        case 'phosphor':  module = await import('./data/phosphor'); break;
-        case 'remixicon': module = await import('./data/remixicon'); break;
-        case 'ionicons':  module = await import('./data/ionicons'); break;
-        case 'mdi':       module = await import('./data/mdi'); break;
-        default: return;
-      }
+      const res = await fetch(`/assets/icons/${id}.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status} loading ${id}`);
+      const icons: IconAsset[] = await res.json();
       this._libraries.update(m => {
         const n = new Map(m);
-        n.set(id, module.ICONS);
+        n.set(id, icons);
         return n;
       });
     } catch (err) {
