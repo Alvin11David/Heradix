@@ -500,4 +500,17 @@
     --market-link-hover: var(--amx-orange);
     --market-thumb-button: var(--amx-orange);
   }
+
+  /* Calendar cards have light pastel gradients in both modes — force dark text */
+  .amx-cal-card {
+    &__title    { color: #111827; }
+    &__when     { color: rgba(17, 24, 39, 0.60); }
+    &__icon-wrap { color: #111827; background: rgba(17, 24, 39, 0.10); }
+  }
+
+  .amx-cal-tag {
+    &--next   { background: rgba(251, 191, 36, 0.28); color: #78350f; }
+    &--high   { background: rgba(249, 115, 22, 0.24); color: #9a3412; }
+    &--sought { background: rgba(37, 99, 235, 0.20);  color: #1e40af; }
+  }
 }
