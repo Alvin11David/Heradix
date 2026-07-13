@@ -141,7 +141,7 @@
     </div>
     <div class="amx-png__editors-track">
       <button *ngFor="let png of editorsPicks()" class="amx-png__editors-card" (click)="openDetail(png)">
-        <img [src]="png.thumb" [alt]="png.name" loading="lazy" />
+        <img [src]="png.url" [alt]="png.name" loading="lazy" />
         <span class="amx-png__editors-name">{{ png.name }}</span>
       </button>
     </div>
@@ -154,7 +154,7 @@
     </div>
     <div class="amx-png__recent-track">
       <button *ngFor="let r of recentAssets()" class="amx-png__recent-item" (click)="openDetail(r)" [attr.aria-label]="'View ' + r.name">
-        <img [src]="r.thumb" [alt]="r.name" loading="lazy" />
+        <img [src]="r.url" [alt]="r.name" loading="lazy" />
         <span>{{ r.name }}</span>
       </button>
     </div>
@@ -483,7 +483,7 @@
             (click)="openDetail(png)" tabindex="0" role="button"
             [attr.aria-label]="'View ' + png.name">
             <div class="amx-png-card__frame">
-              <img [src]="png.thumb" [alt]="png.name" loading="lazy" decoding="async" />
+              <img [src]="png.url" [alt]="png.name" loading="lazy" decoding="async" />
 
               
               <div *ngIf="isLocked(png)" class="amx-png__watermark" aria-hidden="true">
@@ -550,7 +550,7 @@
             class="amx-png-list-row" (click)="openDetail(png)" tabindex="0" role="button"
             [attr.aria-label]="'View ' + png.name">
             <div class="amx-png-list-row__thumb">
-              <img [src]="png.thumb" [alt]="png.name" loading="lazy" />
+              <img [src]="png.url" [alt]="png.name" loading="lazy" />
               <div *ngIf="isLocked(png)" class="amx-png__watermark amx-png__watermark--sm" aria-hidden="true">
                 <span *ngFor="let i of watermarkRepeat">PREVIEW</span>
               </div>
@@ -834,7 +834,7 @@
         <div class="amx-png-panel__related-grid">
           <button *ngFor="let r of related()" class="amx-png-panel__related-item" (click)="selectRelated(r)">
             <div class="amx-png-panel__related-thumb">
-              <img [src]="r.thumb" [alt]="r.name" loading="lazy" />
+              <img [src]="r.url" [alt]="r.name" loading="lazy" />
             </div>
             <span>{{ r.name }}</span>
           </button>
