@@ -313,6 +313,15 @@
           </svg>
           <span>Photos</span>
         </button>
+        <button class="lp-tab" [class.lp-tab--active]="leftPanelTab()==='png'"
+          (click)="setLeftTab('png')" aria-label="Transparent PNGs" data-tip="Transparent PNGs">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="3"/>
+            <path d="M2 8h20M8 2v8" stroke-dasharray="3 2"/>
+            <circle cx="15" cy="15" r="4" fill="currentColor" fill-opacity=".25" stroke-width="1.5"/>
+          </svg>
+          <span>PNG</span>
+        </button>
         <button class="lp-tab" [class.lp-tab--active]="leftPanelTab()==='text'"
           (click)="setLeftTab('text')" aria-label="Text Styles" data-tip="Text Styles">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -535,6 +544,256 @@
           <p>No photos yet.<br/>Start typing to search.</p>
         </div>
       </div>
+
+      <!-- ══════════════════════════════════════════════════════════
+           TAB: TRANSPARENT PNGs (Pixabay / PNGTree / CleanPNG style)
+           ══════════════════════════════════════════════════════════ -->
+      <div class="lp-body lp-body--png" *ngIf="leftPanelTab()==='png'">
+
+        <!-- ── Search bar ─────────────────────────────────────────── -->
+        <div class="png-search-wrap">
+          <div class="png-search-inner">
+            <svg class="png-search-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="png-search-input" type="text" placeholder="Search transparent PNGs…"
+              [value]="pngQuery()"
+              (input)="pngQuery.set($any($event.target).value)"
+              (keydown.enter)="searchPngs()"/>
+            <button class="png-search-clear" *ngIf="pngQuery()" (click)="clearPngSearch()" aria-label="Clear search">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <button class="png-search-go" (click)="searchPngs()" aria-label="Search PNGs">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+        </div>
+
+        <!-- ── Category chips (horizontally scrollable) ──────────── -->
+        <div class="png-cats-scroll">
+          <div class="png-cats">
+            <button class="png-cat" [class.png-cat--active]="pngCategory()==='all'"
+              (click)="setPngCategory('all')">✨ All</button>
+            <button class="png-cat" *ngFor="let cat of pngCategories"
+              [class.png-cat--active]="pngCategory()===cat.id"
+              (click)="setPngCategory(cat.id)">{{ cat.emoji }} {{ cat.label }}</button>
+          </div>
+        </div>
+
+        <!-- ── Toolbar: Sort tabs + View toggle ───────────────────── -->
+        <div class="png-toolbar">
+          <div class="png-sort-tabs">
+            <button class="png-sort-tab" [class.png-sort-tab--active]="pngSortBy()==='popular'"
+              (click)="setPngSort('popular')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              Popular
+            </button>
+            <button class="png-sort-tab" [class.png-sort-tab--active]="pngSortBy()==='new'"
+              (click)="setPngSort('new')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              New
+            </button>
+            <button class="png-sort-tab" [class.png-sort-tab--active]="pngSortBy()==='trending'"
+              (click)="setPngSort('trending')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              Trending
+            </button>
+          </div>
+          <div class="png-view-toggle">
+            <button class="png-view-btn" [class.png-view-btn--active]="pngViewMode()==='grid'"
+              (click)="pngViewMode.set('grid')" aria-label="Grid view" data-tip="Grid">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+            </button>
+            <button class="png-view-btn" [class.png-view-btn--active]="pngViewMode()==='list'"
+              (click)="pngViewMode.set('list')" aria-label="List view" data-tip="List">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                <circle cx="3" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><circle cx="3" cy="18" r="1" fill="currentColor"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Color palette filter ───────────────────────────────── -->
+        <div class="png-color-row">
+          <span class="png-color-label">Color</span>
+          <div class="png-color-dots">
+            <button class="png-color-dot" *ngFor="let c of pngColors"
+              [style.background]="c.hex"
+              [class.png-color-dot--active]="pngColorFilter()===c.id"
+              (click)="setPngColor(c.id)"
+              [attr.aria-label]="'Filter by ' + c.label"
+              [attr.data-tip]="c.label">
+              <svg *ngIf="pngColorFilter()===c.id" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+          <button class="png-color-clear" *ngIf="pngColorFilter()" (click)="setPngColor(null)" aria-label="Clear color filter" data-tip="Clear">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <!-- ── Results meta ───────────────────────────────────────── -->
+        <div class="png-results-meta" *ngIf="!pngSearching()">
+          <span class="png-results-count">{{ pngAllResults().length | number }} PNGs</span>
+          <span class="png-results-hint" *ngIf="pngCategory()!=='all'">
+            in {{ getPngCategoryLabel(pngCategory()) }}
+          </span>
+          <span class="png-source-label">Free &amp; Premium</span>
+        </div>
+
+        <!-- ── Loading state ─────────────────────────────────────── -->
+        <div class="png-loading" *ngIf="pngSearching()">
+          <div class="png-loading-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <p>Searching PNGs…</p>
+        </div>
+
+        <!-- ── Empty state ───────────────────────────────────────── -->
+        <div class="png-empty" *ngIf="!pngSearching() && pngAllResults().length === 0">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.2">
+            <rect x="2" y="2" width="20" height="20" rx="3"/>
+            <path d="M2 8h20M8 2v8" stroke-dasharray="3 2"/>
+            <circle cx="15" cy="15" r="4"/>
+          </svg>
+          <p>No PNGs found.<br/>Try a different keyword or category.</p>
+          <button class="png-reset-btn" (click)="clearPngSearch(); setPngCategory('all')">
+            Reset filters
+          </button>
+        </div>
+
+        <!-- ── PNG Grid ───────────────────────────────────────────── -->
+        <div class="png-grid" [class.png-grid--list]="pngViewMode()==='list'"
+          *ngIf="!pngSearching() && pngAllResults().length > 0">
+
+          <div class="png-item" *ngFor="let p of pngDisplayResults(); trackBy: $any(trackLayer)"
+            [class.png-item--list]="pngViewMode()==='list'"
+            [class.png-item--selected]="selectedPng()?.id === p.id"
+            (click)="selectPng(p)">
+
+            <!-- Thumbnail with checkerboard (simulates transparency) -->
+            <div class="png-item-thumb" [class.png-item-thumb--tall]="p.height > p.width">
+              <img [src]="p.thumb" [alt]="p.title" loading="lazy"/>
+
+              <!-- Hover overlay -->
+              <div class="png-item-overlay">
+                <button class="png-item-add-btn"
+                  (click)="$event.stopPropagation(); insertPng(p)"
+                  aria-label="Add to canvas" data-tip="Add to canvas">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                  Add
+                </button>
+                <div class="png-item-stats">
+                  <span>
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    {{ formatPngCount(p.downloads) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Badges -->
+              <span class="png-badge png-badge--pro" *ngIf="p.isPremium">PRO</span>
+              <span class="png-badge png-badge--free" *ngIf="!p.isPremium">FREE</span>
+              <span class="png-badge png-badge--src">{{ p.source }}</span>
+            </div>
+
+            <!-- List-mode info row -->
+            <div class="png-item-info" *ngIf="pngViewMode()==='list'">
+              <span class="png-item-title">{{ p.title }}</span>
+              <div class="png-item-meta-row">
+                <span class="png-item-dims">{{ p.width }}×{{ p.height }}</span>
+                <span class="png-item-dl">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  {{ formatPngCount(p.downloads) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div><!-- /png-grid -->
+
+        <!-- ── Load more button ──────────────────────────────────── -->
+        <div class="png-load-more-wrap" *ngIf="pngHasMore() && !pngSearching()">
+          <button class="png-load-more-btn" (click)="loadMorePngs()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 10 12 15 17 10"/></svg>
+            Load More
+            <span class="png-load-count">({{ pngAllResults().length - pngDisplayResults().length }} more)</span>
+          </button>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════
+             DETAIL DRAWER — slides up when an item is selected
+             ══════════════════════════════════════════════════════════ -->
+        <div class="png-detail-drawer" *ngIf="selectedPng()" (click)="$event.stopPropagation()">
+
+          <!-- Drawer handle + close -->
+          <div class="png-detail-header">
+            <div class="png-detail-handle"></div>
+            <button class="png-detail-close" (click)="closePngDetail()" aria-label="Close" data-tip="Close">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+
+          <div class="png-detail-body">
+            <!-- Large preview -->
+            <div class="png-detail-preview">
+              <img [src]="selectedPng()!.thumb" [alt]="selectedPng()!.title" loading="lazy"/>
+              <span class="png-detail-badge-pro" *ngIf="selectedPng()!.isPremium">PRO</span>
+            </div>
+
+            <!-- Info -->
+            <div class="png-detail-info">
+              <h3 class="png-detail-title">{{ selectedPng()!.title }}</h3>
+              <div class="png-detail-row">
+                <div class="png-detail-stat">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  {{ formatPngCount(selectedPng()!.downloads) }}
+                  <span>Downloads</span>
+                </div>
+                <div class="png-detail-stat">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  {{ formatPngCount(selectedPng()!.views) }}
+                  <span>Views</span>
+                </div>
+                <div class="png-detail-stat">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                  {{ selectedPng()!.width }}×{{ selectedPng()!.height }}
+                  <span>Resolution</span>
+                </div>
+              </div>
+
+              <!-- Source badge row -->
+              <div class="png-detail-source-row">
+                <span class="png-detail-source">{{ selectedPng()!.source }}</span>
+                <span class="png-detail-license" [class.png-detail-license--pro]="selectedPng()!.isPremium">
+                  {{ selectedPng()!.isPremium ? 'Premium License' : 'Free License' }}
+                </span>
+              </div>
+
+              <!-- Tags -->
+              <div class="png-detail-tags">
+                <span class="png-detail-tag" *ngFor="let tag of selectedPng()!.tags"
+                  (click)="pngQuery.set(tag); searchPngs()">
+                  #{{ tag }}
+                </span>
+              </div>
+
+              <!-- Actions -->
+              <div class="png-detail-actions">
+                <button class="png-detail-add-btn" (click)="insertPng(selectedPng()!); closePngDetail()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                  Add to Canvas
+                </button>
+                <button class="png-detail-bg-btn" (click)="setPngAsBackground(selectedPng()!); closePngDetail()" aria-label="Set as background" data-tip="Use as background">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  Background
+                </button>
+              </div>
+            </div>
+          </div>
+        </div><!-- /png-detail-drawer -->
+
+      </div><!-- /lp-body--png -->
 
       <!-- ── TAB: TEXT STYLES (Canva) ─────────────────────────── -->
       <div class="lp-body" *ngIf="leftPanelTab()==='text'">

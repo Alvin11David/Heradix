@@ -23,6 +23,22 @@ import { jsPDF } from 'jspdf';
 
 type TemplateCategory = 'All' | 'Social Media' | 'Poster' | 'Business' | 'Event' | 'Print';
 
+// ── Transparent PNG asset ─────────────────────────────────────────
+export interface PngAsset {
+  id: string;
+  title: string;
+  thumb: string;
+  url: string;
+  category: string;
+  tags: string[];
+  width: number;
+  height: number;
+  downloads: number;
+  views: number;
+  source: string;
+  isPremium: boolean;
+}
+
 // ── Figma-style layout grid ────────────────────────────────────────
 export interface LayoutGrid {
   id: string;
@@ -150,7 +166,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly Math = Math;
 
   // ── Left panel tab navigation (Canva-style) ───────────
-  readonly leftPanelTab = signal<'layers'|'templates'|'elements'|'photos'|'text'|'background'>('layers');
+  readonly leftPanelTab = signal<'layers'|'templates'|'elements'|'photos'|'png'|'text'|'background'>('layers');
 
   // ── Canvas size dialog (Vistaprint / Canva) ───────────
   readonly showSizeDialog = signal(false);
@@ -167,6 +183,134 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly photoQuery = signal('');
   readonly photoResults = signal<{id:string;thumb:string;url:string;alt:string;author:string;tags?:string}[]>([]);
   readonly photoSearching = signal(false);
+
+  // ── Transparent PNG library ───────────────────────────
+  readonly pngQuery = signal('');
+  readonly pngCategory = signal<string>('all');
+  readonly pngSortBy = signal<'popular'|'new'|'trending'>('popular');
+  readonly pngColorFilter = signal<string|null>(null);
+  readonly pngViewMode = signal<'grid'|'list'>('grid');
+  readonly pngSearching = signal(false);
+  readonly pngPage = signal(1);
+  readonly pngPageSize = 24;
+  readonly selectedPng = signal<PngAsset|null>(null);
+  readonly pngAllResults = signal<PngAsset[]>([]);
+  readonly pngDisplayResults = computed(() =>
+    this.pngAllResults().slice(0, this.pngPage() * this.pngPageSize)
+  );
+  readonly pngHasMore = computed(() =>
+    this.pngDisplayResults().length < this.pngAllResults().length
+  );
+
+  readonly pngCategories: {id:string;label:string;emoji:string}[] = [
+    {id:'animals',    label:'Animals',      emoji:'🐾'},
+    {id:'nature',     label:'Nature',       emoji:'🌿'},
+    {id:'food',       label:'Food & Drink', emoji:'🍔'},
+    {id:'technology', label:'Technology',   emoji:'💻'},
+    {id:'business',   label:'Business',     emoji:'💼'},
+    {id:'people',     label:'People',       emoji:'👤'},
+    {id:'travel',     label:'Travel',       emoji:'✈️'},
+    {id:'sports',     label:'Sports',       emoji:'⚽'},
+    {id:'fashion',    label:'Fashion',      emoji:'👗'},
+    {id:'holidays',   label:'Holidays',     emoji:'🎉'},
+    {id:'flowers',    label:'Flowers',      emoji:'🌸'},
+    {id:'vehicles',   label:'Vehicles',     emoji:'🚗'},
+    {id:'music',      label:'Music',        emoji:'🎵'},
+    {id:'education',  label:'Education',    emoji:'📚'},
+    {id:'health',     label:'Health',       emoji:'🏥'},
+  ];
+
+  readonly pngColors: {id:string;hex:string;label:string}[] = [
+    {id:'red',    hex:'#ef4444', label:'Red'},
+    {id:'orange', hex:'#f97316', label:'Orange'},
+    {id:'yellow', hex:'#eab308', label:'Yellow'},
+    {id:'green',  hex:'#22c55e', label:'Green'},
+    {id:'teal',   hex:'#14b8a6', label:'Teal'},
+    {id:'blue',   hex:'#3b82f6', label:'Blue'},
+    {id:'purple', hex:'#a855f7', label:'Purple'},
+    {id:'pink',   hex:'#ec4899', label:'Pink'},
+    {id:'brown',  hex:'#92400e', label:'Brown'},
+    {id:'black',  hex:'#111827', label:'Black'},
+    {id:'white',  hex:'#f3f4f6', label:'White'},
+    {id:'gray',   hex:'#6b7280', label:'Gray'},
+  ];
+
+  private readonly _curatedPngs: PngAsset[] = [
+    // Animals
+    {id:'png-1',  title:'Golden Retriever Dog',      thumb:'https://picsum.photos/seed/dog1/280/320',  url:'https://picsum.photos/seed/dog1/1200/1400',  category:'animals',    tags:['dog','pet','golden','retriever'], width:1200,height:1400,downloads:48200,views:192000,source:'Pixabay',  isPremium:false},
+    {id:'png-2',  title:'White Cat Sitting',         thumb:'https://picsum.photos/seed/cat2/280/300',  url:'https://picsum.photos/seed/cat2/1200/1300',  category:'animals',    tags:['cat','white','kitten','pet'],     width:1200,height:1300,downloads:39100,views:156000,source:'PNGTree',  isPremium:false},
+    {id:'png-3',  title:'Butterfly Wings Open',      thumb:'https://picsum.photos/seed/butt3/280/260', url:'https://picsum.photos/seed/butt3/1200/1100', category:'animals',    tags:['butterfly','insect','wings'],     width:1200,height:1100,downloads:27400,views:109600,source:'CleanPNG', isPremium:false},
+    {id:'png-4',  title:'Eagle In Flight',           thumb:'https://picsum.photos/seed/eagle4/280/250',url:'https://picsum.photos/seed/eagle4/1400/1200',category:'animals',    tags:['eagle','bird','flight','wild'],   width:1400,height:1200,downloads:21800,views:87200, source:'PNGWing',  isPremium:false},
+    {id:'png-5',  title:'Lion Portrait',             thumb:'https://picsum.photos/seed/lion5/280/300', url:'https://picsum.photos/seed/lion5/1200/1300', category:'animals',    tags:['lion','wildlife','africa','big'], width:1200,height:1300,downloads:55300,views:221200,source:'Pixabay',  isPremium:false},
+    {id:'png-6',  title:'Tropical Parrot',           thumb:'https://picsum.photos/seed/parr6/280/340', url:'https://picsum.photos/seed/parr6/1200/1450', category:'animals',    tags:['parrot','bird','tropical','color'],width:1200,height:1450,downloads:18600,views:74400, source:'KissPNG',  isPremium:false},
+    // Nature
+    {id:'png-7',  title:'Maple Leaf Red',            thumb:'https://picsum.photos/seed/leaf7/280/280', url:'https://picsum.photos/seed/leaf7/1200/1200', category:'nature',     tags:['leaf','maple','red','autumn'],    width:1200,height:1200,downloads:62100,views:248400,source:'Pixabay',  isPremium:false},
+    {id:'png-8',  title:'Pine Tree Silhouette',      thumb:'https://picsum.photos/seed/pine8/280/360', url:'https://picsum.photos/seed/pine8/1000/1440', category:'nature',     tags:['tree','pine','forest','green'],   width:1000,height:1440,downloads:34700,views:138800,source:'StickPNG', isPremium:false},
+    {id:'png-9',  title:'Ocean Wave Splash',         thumb:'https://picsum.photos/seed/wave9/280/200', url:'https://picsum.photos/seed/wave9/1600/1200', category:'nature',     tags:['wave','ocean','water','splash'],  width:1600,height:1200,downloads:29400,views:117600,source:'PurePNG',  isPremium:false},
+    {id:'png-10', title:'Mountain Range Snow',       thumb:'https://picsum.photos/seed/mtn10/280/210',url:'https://picsum.photos/seed/mtn10/1600/1200', category:'nature',     tags:['mountain','snow','landscape'],   width:1600,height:1200,downloads:41200,views:164800,source:'PNGIMG',   isPremium:false},
+    {id:'png-11', title:'Sunflower Bloom',           thumb:'https://picsum.photos/seed/sun11/280/300',url:'https://picsum.photos/seed/sun11/1200/1300', category:'flowers',    tags:['sunflower','flower','yellow'],   width:1200,height:1300,downloads:57800,views:231200,source:'Pixabay',  isPremium:false},
+    {id:'png-12', title:'Rose Red Petals',           thumb:'https://picsum.photos/seed/rose12/280/300',url:'https://picsum.photos/seed/rose12/1200/1300',category:'flowers',   tags:['rose','red','petals','romantic'],width:1200,height:1300,downloads:71200,views:284800,source:'Freepik',   isPremium:true},
+    // Food
+    {id:'png-13', title:'Fresh Strawberries',        thumb:'https://picsum.photos/seed/straw13/280/280',url:'https://picsum.photos/seed/straw13/1200/1200',category:'food',    tags:['strawberry','fruit','red','food'],width:1200,height:1200,downloads:44600,views:178400,source:'Pixabay',  isPremium:false},
+    {id:'png-14', title:'Hamburger Meal',            thumb:'https://picsum.photos/seed/burg14/280/260',url:'https://picsum.photos/seed/burg14/1400/1200',category:'food',     tags:['burger','food','fast food'],     width:1400,height:1200,downloads:38900,views:155600,source:'PNGTree',  isPremium:false},
+    {id:'png-15', title:'Coffee Cup Latte Art',      thumb:'https://picsum.photos/seed/coff15/280/300',url:'https://picsum.photos/seed/coff15/1200/1300',category:'food',     tags:['coffee','cup','latte','drink'],  width:1200,height:1300,downloads:63400,views:253600,source:'Freepik',   isPremium:true},
+    {id:'png-16', title:'Birthday Cake Slice',       thumb:'https://picsum.photos/seed/cake16/280/320',url:'https://picsum.photos/seed/cake16/1200/1450',category:'food',     tags:['cake','birthday','sweet','food'],width:1200,height:1450,downloads:51700,views:206800,source:'CleanPNG', isPremium:false},
+    {id:'png-17', title:'Avocado Half Cut',          thumb:'https://picsum.photos/seed/avoc17/280/280',url:'https://picsum.photos/seed/avoc17/1200/1200',category:'food',     tags:['avocado','fruit','healthy','green'],width:1200,height:1200,downloads:29200,views:116800,source:'PNGIMG',  isPremium:false},
+    {id:'png-18', title:'Sushi Platter',             thumb:'https://picsum.photos/seed/sush18/280/240',url:'https://picsum.photos/seed/sush18/1400/1200',category:'food',     tags:['sushi','japanese','food'],       width:1400,height:1200,downloads:22100,views:88400, source:'PNGWing',  isPremium:false},
+    // Technology
+    {id:'png-19', title:'Smartphone Modern',         thumb:'https://picsum.photos/seed/phon19/280/360',url:'https://picsum.photos/seed/phon19/1000/1440',category:'technology',tags:['phone','smartphone','mobile'],   width:1000,height:1440,downloads:72400,views:289600,source:'Freepik',   isPremium:true},
+    {id:'png-20', title:'Laptop Mockup Open',        thumb:'https://picsum.photos/seed/lapt20/280/220',url:'https://picsum.photos/seed/lapt20/1600/1200',category:'technology',tags:['laptop','computer','mockup'],    width:1600,height:1200,downloads:84200,views:336800,source:'Envato',    isPremium:true},
+    {id:'png-21', title:'Wireless Headphones',       thumb:'https://picsum.photos/seed/head21/280/280',url:'https://picsum.photos/seed/head21/1200/1200',category:'technology',tags:['headphones','audio','wireless'],  width:1200,height:1200,downloads:43100,views:172400,source:'Pixabay',  isPremium:false},
+    {id:'png-22', title:'Smart Watch Display',       thumb:'https://picsum.photos/seed/wtch22/280/300',url:'https://picsum.photos/seed/wtch22/1200/1350',category:'technology',tags:['watch','smartwatch','wearable'], width:1200,height:1350,downloads:37800,views:151200,source:'PNGTree',  isPremium:false},
+    {id:'png-23', title:'Gaming Controller',         thumb:'https://picsum.photos/seed/ctrl23/280/240',url:'https://picsum.photos/seed/ctrl23/1400/1200',category:'technology',tags:['gaming','controller','game'],    width:1400,height:1200,downloads:58600,views:234400,source:'KissPNG',  isPremium:false},
+    {id:'png-24', title:'Drone Flying View',         thumb:'https://picsum.photos/seed/dron24/280/260',url:'https://picsum.photos/seed/dron24/1400/1200',category:'technology',tags:['drone','aerial','tech','fly'],   width:1400,height:1200,downloads:31200,views:124800,source:'CleanPNG', isPremium:false},
+    // Business
+    {id:'png-25', title:'Briefcase Leather',         thumb:'https://picsum.photos/seed/brie25/280/260',url:'https://picsum.photos/seed/brie25/1400/1200',category:'business',  tags:['briefcase','business','work'],   width:1400,height:1200,downloads:28900,views:115600,source:'Pixabay',  isPremium:false},
+    {id:'png-26', title:'Gold Coins Stack',          thumb:'https://picsum.photos/seed/coin26/280/280',url:'https://picsum.photos/seed/coin26/1200/1200',category:'business',  tags:['coins','money','gold','wealth'],  width:1200,height:1200,downloads:61400,views:245600,source:'Freepik',   isPremium:true},
+    {id:'png-27', title:'Bar Chart Growth',          thumb:'https://picsum.photos/seed/char27/280/240',url:'https://picsum.photos/seed/char27/1400/1200',category:'business',  tags:['chart','graph','growth','data'], width:1400,height:1200,downloads:39600,views:158400,source:'StickPNG', isPremium:false},
+    {id:'png-28', title:'Handshake Deal',            thumb:'https://picsum.photos/seed/hand28/280/240',url:'https://picsum.photos/seed/hand28/1400/1200',category:'business',  tags:['handshake','deal','business'],   width:1400,height:1200,downloads:25300,views:101200,source:'PurePNG',  isPremium:false},
+    // People
+    {id:'png-29', title:'Business Woman Standing',   thumb:'https://picsum.photos/seed/wom29/280/360', url:'https://picsum.photos/seed/wom29/1000/1440', category:'people',     tags:['woman','business','person'],     width:1000,height:1440,downloads:77400,views:309600,source:'Freepik',   isPremium:true},
+    {id:'png-30', title:'Man In Suit Pose',          thumb:'https://picsum.photos/seed/man30/280/360', url:'https://picsum.photos/seed/man30/1000/1440', category:'people',     tags:['man','suit','business','pose'],  width:1000,height:1440,downloads:66100,views:264400,source:'Envato',    isPremium:true},
+    {id:'png-31', title:'Child Playing Happy',       thumb:'https://picsum.photos/seed/chil31/280/320',url:'https://picsum.photos/seed/chil31/1000/1300',category:'people',     tags:['child','kid','playing','happy'], width:1000,height:1300,downloads:34800,views:139200,source:'Pixabay',  isPremium:false},
+    {id:'png-32', title:'Doctor White Coat',         thumb:'https://picsum.photos/seed/doc32/280/360', url:'https://picsum.photos/seed/doc32/1000/1440', category:'health',     tags:['doctor','medical','health','coat'],width:1000,height:1440,downloads:42700,views:170800,source:'PNGTree',  isPremium:false},
+    // Travel
+    {id:'png-33', title:'Eiffel Tower Paris',        thumb:'https://picsum.photos/seed/eiff33/280/360',url:'https://picsum.photos/seed/eiff33/1000/1400',category:'travel',     tags:['paris','eiffel','france','tower'],width:1000,height:1400,downloads:88200,views:352800,source:'Pixabay',  isPremium:false},
+    {id:'png-34', title:'Airplane Boeing Flight',    thumb:'https://picsum.photos/seed/plan34/280/200',url:'https://picsum.photos/seed/plan34/1600/1200',category:'vehicles',   tags:['airplane','plane','flight','sky'],width:1600,height:1200,downloads:53400,views:213600,source:'CleanPNG', isPremium:false},
+    {id:'png-35', title:'Suitcase Travel Blue',      thumb:'https://picsum.photos/seed/suit35/280/320',url:'https://picsum.photos/seed/suit35/1000/1300',category:'travel',     tags:['suitcase','travel','vacation'],  width:1000,height:1300,downloads:31900,views:127600,source:'KissPNG',  isPremium:false},
+    {id:'png-36', title:'World Globe Map',           thumb:'https://picsum.photos/seed/glob36/280/280',url:'https://picsum.photos/seed/glob36/1200/1200',category:'travel',     tags:['globe','world','map','travel'],  width:1200,height:1200,downloads:48700,views:194800,source:'PNGIMG',   isPremium:false},
+    // Sports
+    {id:'png-37', title:'Soccer Ball Classic',       thumb:'https://picsum.photos/seed/socc37/280/280',url:'https://picsum.photos/seed/socc37/1200/1200',category:'sports',     tags:['soccer','ball','football','sport'],width:1200,height:1200,downloads:69200,views:276800,source:'Pixabay',  isPremium:false},
+    {id:'png-38', title:'Basketball Leather',        thumb:'https://picsum.photos/seed/bask38/280/280',url:'https://picsum.photos/seed/bask38/1200/1200',category:'sports',     tags:['basketball','sport','ball'],     width:1200,height:1200,downloads:45600,views:182400,source:'StickPNG', isPremium:false},
+    {id:'png-39', title:'Gold Trophy Cup',           thumb:'https://picsum.photos/seed/trop39/280/340',url:'https://picsum.photos/seed/trop39/1000/1350',category:'sports',     tags:['trophy','gold','winner','cup'],  width:1000,height:1350,downloads:74300,views:297200,source:'Freepik',   isPremium:false},
+    {id:'png-40', title:'Tennis Racket Ball',        thumb:'https://picsum.photos/seed/tenn40/280/260',url:'https://picsum.photos/seed/tenn40/1400/1200',category:'sports',     tags:['tennis','racket','ball','sport'],width:1400,height:1200,downloads:26800,views:107200,source:'PNGWing',  isPremium:false},
+    // Fashion
+    {id:'png-41', title:'Red High Heels',            thumb:'https://picsum.photos/seed/heel41/280/300',url:'https://picsum.photos/seed/heel41/1200/1300',category:'fashion',    tags:['heels','shoes','red','fashion'],  width:1200,height:1300,downloads:52400,views:209600,source:'Freepik',   isPremium:true},
+    {id:'png-42', title:'Sunglasses Modern',         thumb:'https://picsum.photos/seed/sung42/280/240',url:'https://picsum.photos/seed/sung42/1400/1200',category:'fashion',    tags:['sunglasses','glasses','fashion'], width:1400,height:1200,downloads:38200,views:152800,source:'PNGTree',  isPremium:false},
+    {id:'png-43', title:'Leather Handbag',           thumb:'https://picsum.photos/seed/bag43/280/280', url:'https://picsum.photos/seed/bag43/1200/1200', category:'fashion',    tags:['handbag','leather','fashion'],   width:1200,height:1200,downloads:44900,views:179600,source:'CleanPNG', isPremium:false},
+    {id:'png-44', title:'Wristwatch Luxury',         thumb:'https://picsum.photos/seed/wris44/280/300',url:'https://picsum.photos/seed/wris44/1200/1300',category:'fashion',    tags:['watch','luxury','fashion','wrist'],width:1200,height:1300,downloads:61700,views:246800,source:'Envato',    isPremium:true},
+    // Holidays
+    {id:'png-45', title:'Christmas Tree Decorated',  thumb:'https://picsum.photos/seed/xmas45/280/380',url:'https://picsum.photos/seed/xmas45/1000/1450',category:'holidays',   tags:['christmas','tree','holiday','xmas'],width:1000,height:1450,downloads:93200,views:372800,source:'Pixabay',  isPremium:false},
+    {id:'png-46', title:'Gift Box Ribbon Red',       thumb:'https://picsum.photos/seed/gift46/280/280',url:'https://picsum.photos/seed/gift46/1200/1200',category:'holidays',   tags:['gift','box','ribbon','present'],  width:1200,height:1200,downloads:71600,views:286400,source:'KissPNG',  isPremium:false},
+    {id:'png-47', title:'Halloween Pumpkin',         thumb:'https://picsum.photos/seed/pump47/280/300',url:'https://picsum.photos/seed/pump47/1200/1300',category:'holidays',   tags:['halloween','pumpkin','orange'],   width:1200,height:1300,downloads:58900,views:235600,source:'StickPNG', isPremium:false},
+    {id:'png-48', title:'Fireworks Celebration',     thumb:'https://picsum.photos/seed/firw48/280/300',url:'https://picsum.photos/seed/firw48/1200/1300',category:'holidays',   tags:['fireworks','celebration','party'],width:1200,height:1300,downloads:44300,views:177200,source:'PurePNG',  isPremium:false},
+    // Music
+    {id:'png-49', title:'Electric Guitar Rock',      thumb:'https://picsum.photos/seed/guit49/280/360',url:'https://picsum.photos/seed/guit49/1000/1440',category:'music',      tags:['guitar','electric','music','rock'],width:1000,height:1440,downloads:47200,views:188800,source:'Pixabay',  isPremium:false},
+    {id:'png-50', title:'Musical Notes Gold',        thumb:'https://picsum.photos/seed/note50/280/260',url:'https://picsum.photos/seed/note50/1400/1200',category:'music',      tags:['notes','music','gold','melody'],  width:1400,height:1200,downloads:35600,views:142400,source:'PNGIMG',   isPremium:false},
+    {id:'png-51', title:'Piano Keys Close-Up',       thumb:'https://picsum.photos/seed/pian51/280/220',url:'https://picsum.photos/seed/pian51/1600/1200',category:'music',      tags:['piano','keys','music','keyboard'],width:1600,height:1200,downloads:28400,views:113600,source:'CleanPNG', isPremium:false},
+    // Education
+    {id:'png-52', title:'Open Book Pages',           thumb:'https://picsum.photos/seed/book52/280/240',url:'https://picsum.photos/seed/book52/1400/1200',category:'education',  tags:['book','read','education','study'],width:1400,height:1200,downloads:52800,views:211200,source:'Pixabay',  isPremium:false},
+    {id:'png-53', title:'Graduation Cap Hat',        thumb:'https://picsum.photos/seed/grad53/280/260',url:'https://picsum.photos/seed/grad53/1400/1200',category:'education',  tags:['graduation','cap','hat','degree'],width:1400,height:1200,downloads:64300,views:257200,source:'Freepik',   isPremium:false},
+    {id:'png-54', title:'Pencils Colored Set',       thumb:'https://picsum.photos/seed/penc54/280/280',url:'https://picsum.photos/seed/penc54/1200/1200',category:'education',  tags:['pencils','colored','school','art'],width:1200,height:1200,downloads:38100,views:152400,source:'KissPNG',  isPremium:false},
+    // Health
+    {id:'png-55', title:'Stethoscope Medical',       thumb:'https://picsum.photos/seed/stet55/280/280',url:'https://picsum.photos/seed/stet55/1200/1200',category:'health',     tags:['stethoscope','medical','health'], width:1200,height:1200,downloads:41600,views:166400,source:'PNGTree',  isPremium:false},
+    {id:'png-56', title:'Heart Beat EKG',            thumb:'https://picsum.photos/seed/heart56/280/220',url:'https://picsum.photos/seed/heart56/1600/1200',category:'health',   tags:['heart','ekg','medical','pulse'],  width:1600,height:1200,downloads:33200,views:132800,source:'PNGIMG',   isPremium:false},
+    // Vehicles
+    {id:'png-57', title:'Red Sports Car',            thumb:'https://picsum.photos/seed/car57/280/210', url:'https://picsum.photos/seed/car57/1600/1200', category:'vehicles',   tags:['car','sports','red','vehicle'],   width:1600,height:1200,downloads:82400,views:329600,source:'Freepik',   isPremium:true},
+    {id:'png-58', title:'Motorcycle Chrome',         thumb:'https://picsum.photos/seed/moto58/280/230',url:'https://picsum.photos/seed/moto58/1600/1200',category:'vehicles',   tags:['motorcycle','chrome','bike'],    width:1600,height:1200,downloads:54700,views:218800,source:'PurePNG',  isPremium:false},
+    {id:'png-59', title:'Vintage Bicycle',           thumb:'https://picsum.photos/seed/bike59/280/260',url:'https://picsum.photos/seed/bike59/1400/1200',category:'vehicles',   tags:['bicycle','vintage','bike','cycle'],width:1400,height:1200,downloads:36900,views:147600,source:'StickPNG', isPremium:false},
+    {id:'png-60', title:'Hot Air Balloon',           thumb:'https://picsum.photos/seed/ball60/280/320',url:'https://picsum.photos/seed/ball60/1200/1350',category:'travel',     tags:['balloon','air','colorful','sky'], width:1200,height:1350,downloads:48100,views:192400,source:'CleanPNG', isPremium:false},
+  ];
 
   // ── Toast notifications ───────────────────────────────
   readonly toasts = signal<{id: number; message: string; type: 'info' | 'error' | 'success'}[]>([]);
@@ -3793,10 +3937,13 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // ── Left panel tab navigation (Canva-style) ───────────
-  setLeftTab(tab: 'layers'|'templates'|'elements'|'photos'|'text'|'background'): void {
+  setLeftTab(tab: 'layers'|'templates'|'elements'|'photos'|'png'|'text'|'background'): void {
     this.leftPanelTab.set(tab);
     if (tab === 'photos' && this.photoResults().length === 0) {
       this.photoResults.set(this._curatedPhotos);
+    }
+    if (tab === 'png' && this.pngAllResults().length === 0) {
+      this.pngAllResults.set([...this._curatedPngs].sort((a, b) => b.downloads - a.downloads));
     }
   }
 
@@ -3822,6 +3969,77 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   insertStockPhoto(photo: {id:string;thumb:string;url:string;alt:string;author:string}): void {
     this.addImage(photo.url);
+  }
+
+  // ── PNG library methods ────────────────────────────────
+  searchPngs(): void {
+    const q = this.pngQuery().trim().toLowerCase();
+    const cat = this.pngCategory();
+    this.pngSearching.set(true);
+    this.pngPage.set(1);
+    this.selectedPng.set(null);
+    let results = [...this._curatedPngs];
+    if (cat !== 'all') results = results.filter(p => p.category === cat);
+    if (q) {
+      const terms = q.split(/\s+/).filter(Boolean);
+      results = results.map(p => {
+        const hay = `${p.title} ${p.tags.join(' ')} ${p.category}`.toLowerCase();
+        const score = terms.reduce((s, t) => hay.includes(t) ? s + 1 : s, 0);
+        return { p, score };
+      }).filter(x => x.score > 0).sort((a, b) => b.score - a.score).map(x => x.p);
+    }
+    if (this.pngSortBy() === 'popular')  results.sort((a, b) => b.downloads - a.downloads);
+    else if (this.pngSortBy() === 'new') results.reverse();
+    else results.sort((a, b) => b.views - a.views);
+    setTimeout(() => {
+      this.pngAllResults.set(results);
+      this.pngSearching.set(false);
+    }, 120);
+  }
+
+  clearPngSearch(): void { this.pngQuery.set(''); this.searchPngs(); }
+
+  setPngCategory(id: string): void {
+    this.pngCategory.set(id);
+    this.selectedPng.set(null);
+    this.searchPngs();
+  }
+
+  setPngSort(s: 'popular'|'new'|'trending'): void {
+    this.pngSortBy.set(s);
+    this.searchPngs();
+  }
+
+  setPngColor(id: string|null): void {
+    this.pngColorFilter.set(this.pngColorFilter() === id ? null : id);
+  }
+
+  insertPng(asset: PngAsset): void {
+    this.addImage(asset.url);
+    this.showToast(`"${asset.title}" added to canvas`, 'success');
+  }
+
+  selectPng(asset: PngAsset): void {
+    this.selectedPng.set(this.selectedPng()?.id === asset.id ? null : asset);
+  }
+
+  closePngDetail(): void { this.selectedPng.set(null); }
+
+  loadMorePngs(): void { this.pngPage.update(p => p + 1); }
+
+  formatPngCount(n: number): string {
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(0) + 'K';
+    return String(n);
+  }
+
+  getPngCategoryLabel(id: string): string {
+    return this.pngCategories.find(c => c.id === id)?.label ?? id;
+  }
+
+  setPngAsBackground(asset: PngAsset): void {
+    this.addImage(asset.url);
+    this.showToast('PNG added — resize to fill canvas as background', 'info');
   }
 
   // ── Text style presets (Canva) ────────────────────────
