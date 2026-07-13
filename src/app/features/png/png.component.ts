@@ -476,6 +476,9 @@ export class PngComponent {
   /** True if this asset's license requires a premium subscription the current user doesn't have — gates downloads like Shutterstock/Adobe Stock/Envato Elements. */
   isLocked(png: PngAsset): boolean { return png.isPremium && !this.isPremiumUser(); }
 
+  /** Repeat count for the tiled preview watermark (Shutterstock/iStock/Adobe Stock/Depositphotos/123RF-style), independent of image size. */
+  readonly watermarkRepeat = Array.from({ length: 12 });
+
   downloadPng(png: PngAsset, event?: Event): void {
     event?.stopPropagation();
     if (this.isLocked(png)) { this.goPremium(png); return; }

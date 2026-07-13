@@ -484,6 +484,11 @@
             <div class="amx-png-card__frame">
               <img [src]="png.thumb" [alt]="png.name" loading="lazy" decoding="async" />
 
+              <!-- Locked-preview watermark — Shutterstock/iStock/Adobe Stock/Depositphotos/123RF-style, so premium content can't be lifted from the preview -->
+              <div *ngIf="isLocked(png)" class="amx-png__watermark" aria-hidden="true">
+                <span *ngFor="let i of watermarkRepeat">AMARAPIX PREVIEW</span>
+              </div>
+
               <!-- Bulk select checkbox -->
               <button *ngIf="bulkMode()" class="amx-png-card__check" [class.checked]="isBulkSelected(png)"
                 (click)="toggleBulkSelect(png, $event)" aria-label="Select for bulk download">
@@ -545,6 +550,9 @@
             [attr.aria-label]="'View ' + png.name">
             <div class="amx-png-list-row__thumb">
               <img [src]="png.thumb" [alt]="png.name" loading="lazy" />
+              <div *ngIf="isLocked(png)" class="amx-png__watermark amx-png__watermark--sm" aria-hidden="true">
+                <span *ngFor="let i of watermarkRepeat">PREVIEW</span>
+              </div>
             </div>
             <div class="amx-png-list-row__info">
               <div class="amx-png-list-row__top">
@@ -642,6 +650,9 @@
       <!-- Preview area -->
       <div class="amx-png-panel__preview" (click)="openLightbox($event)" role="button" tabindex="0" aria-label="Zoom image">
         <img [src]="png.url" [alt]="png.name" />
+        <div *ngIf="isLocked(png)" class="amx-png__watermark" aria-hidden="true">
+          <span *ngFor="let i of watermarkRepeat">AMARAPIX PREVIEW</span>
+        </div>
         <div class="amx-png-panel__preview-actions">
           <button class="amx-png-panel__zoom-hint" aria-label="Click to zoom">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
@@ -910,6 +921,9 @@
     </button>
     <div class="amx-png-lightbox__stage" (click)="$event.stopPropagation()">
       <img [src]="lpng.url" [alt]="lpng.name" [class.zoomed]="lightboxZoom()" (click)="toggleLightboxZoom()" />
+      <div *ngIf="isLocked(lpng)" class="amx-png__watermark" aria-hidden="true">
+        <span *ngFor="let i of watermarkRepeat">AMARAPIX PREVIEW</span>
+      </div>
     </div>
     <div class="amx-png-lightbox__caption">{{ lpng.name }} · click image to {{ lightboxZoom() ? 'shrink' : 'zoom' }}</div>
   </div>

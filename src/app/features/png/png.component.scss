@@ -623,7 +623,7 @@ $transition:    0.18s ease;
   &:hover { border-color: $orange; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
 
   &__thumb {
-    width: 72px; height: 56px; flex-shrink: 0;
+    width: 72px; height: 56px; flex-shrink: 0; position: relative;
     @include checker(10px, rgba(0,0,0,.06));
     border-radius: 8px; overflow: hidden;
     display: flex; align-items: center; justify-content: center;
@@ -1169,6 +1169,24 @@ $transition:    0.18s ease;
 .amx-png-card--bulk .amx-png-card__frame { cursor: pointer; }
 .amx-png-card--selected .amx-png-card__frame { outline: 3px solid $orange; outline-offset: -3px; }
 
+// ── Locked-preview watermark — Shutterstock/iStock/Adobe Stock/Depositphotos/123RF-style tiled
+// text over premium previews the current user hasn't unlocked, so it can't be lifted as-is. ──
+.amx-png__watermark {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  display: flex; flex-wrap: wrap; align-content: center; justify-content: center;
+  gap: 18px 26px; overflow: hidden; padding: 10px;
+  background: rgba(10, 10, 14, .06);
+
+  span {
+    color: rgba(255,255,255,.6); font-size: 12px; font-weight: 800;
+    letter-spacing: .08em; text-transform: uppercase; white-space: nowrap;
+    transform: rotate(-28deg);
+    text-shadow: 0 1px 2px rgba(0,0,0,.55);
+  }
+
+  &--sm span { font-size: 8px; }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // PANEL — header nav / prev-next
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1199,7 +1217,7 @@ $transition:    0.18s ease;
   @include checker(22px, rgba(255,255,255,.06), transparent);
   max-width: min(88vw, 900px); max-height: 72vh;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 14px; padding: 24px; cursor: default;
+  border-radius: 14px; padding: 24px; cursor: default; position: relative;
 
   img {
     max-width: 100%; max-height: 64vh; object-fit: contain;
