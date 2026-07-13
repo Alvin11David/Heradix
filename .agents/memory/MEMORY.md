@@ -5,3 +5,4 @@
 - [Canvas editor duplicate methods](canvas-editor-duplicate-methods.md) — several methods (selectAll, onDocClick) already existed before context menu work; always grep before adding new implementations to avoid TS2393 duplicate errors.
 - [Icon style as CSS render](icon-style-as-css-render.md) — icon style packs (technique/color/corners/stroke) applied live via CSS on one canonical path; bare path fragments must be wrapped in `<svg>` before `[innerHTML]` or they silently don't render.
 - [Angular template expression limits](angular-template-expr-limits.md) — templates reject TS `as` casts and arrow functions (`=>`); push casting/lookup logic into component methods instead.
+- [Premium/paywall gating pattern](premium-gating-pattern.md) — reuse AuthService.isPremium() and gate client-side; existing asset-detail badge alone doesn't actually block downloads.

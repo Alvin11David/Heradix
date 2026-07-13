@@ -1275,3 +1275,114 @@ $transition:    0.18s ease;
   padding: 40px 20px; text-align: center; color: var(--amx-text);
   svg { color: #ef4444; }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HERO — search-by-color swatches
+// ═══════════════════════════════════════════════════════════════════════════
+.amx-png__hero-colors {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  flex-wrap: wrap; margin-top: 16px;
+
+  span { font-size: 12px; color: rgba(255,255,255,.65); margin-right: 2px; }
+}
+
+.amx-png__hero-color-swatch {
+  width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,.35);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: #fff; transition: all $transition; padding: 0;
+
+  &:hover { transform: scale(1.15); border-color: rgba(255,255,255,.7); }
+  &.active { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
+  &--white { border-color: rgba(255,255,255,.6); color: #111; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CURATED PACKS
+// ═══════════════════════════════════════════════════════════════════════════
+.amx-png__packs {
+  padding: 16px 24px; border-bottom: 1px solid var(--amx-border-light);
+  background: var(--amx-card);
+}
+
+.amx-png__packs-track {
+  display: flex; gap: 10px; overflow-x: auto;
+  scrollbar-width: thin; scrollbar-color: var(--amx-border) transparent;
+}
+
+.amx-png__pack {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
+  border: 1.5px solid var(--amx-border-2); background: var(--amx-bg);
+  color: var(--amx-text); padding: 9px 16px; border-radius: 999px;
+  font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  transition: all $transition;
+
+  &:hover { border-color: $orange; background: rgba(245,130,10,.08); transform: translateY(-1px); }
+}
+
+.amx-png__pack-emoji { font-size: 15px; }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PREMIUM DOWNLOAD GATING (lock states)
+// ═══════════════════════════════════════════════════════════════════════════
+.amx-png-card__action-btn--dl.is-locked,
+.amx-png-list-row__dl-btn.is-locked {
+  background: linear-gradient(135deg, #f59e0b, $orange); color: #fff;
+}
+
+.amx-png-panel__download-btn.is-locked {
+  background: linear-gradient(135deg, #f59e0b, $orange);
+  &:hover { filter: brightness(1.05); }
+}
+
+.amx-png-panel__lock-note {
+  margin: 8px 0 0; font-size: 12px; color: var(--amx-muted); text-align: center;
+  a { color: $orange; font-weight: 700; cursor: pointer; text-decoration: underline; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LICENSE & USAGE section, report link
+// ═══════════════════════════════════════════════════════════════════════════
+.amx-png-panel__license-list {
+  list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px;
+
+  li {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12.5px; color: var(--amx-text);
+    svg { color: $orange; flex-shrink: 0; }
+  }
+}
+
+.amx-png-panel__report-link {
+  display: block; margin-top: 6px; border: none; background: none;
+  color: var(--amx-muted); font-size: 11.5px; text-decoration: underline;
+  cursor: pointer; padding: 0;
+  &:hover { color: $orange; }
+}
+
+.amx-png-report-modal {
+  position: fixed; top: 50%; left: 50%; z-index: 310;
+  transform: translate(-50%, -50%);
+  width: 420px; max-width: calc(100vw - 32px);
+  background: var(--amx-card); border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.35);
+  overflow: hidden; animation: scaleIn .2s cubic-bezier(.16,1,.3,1);
+}
+
+.amx-png-report-modal__body {
+  padding: 18px 20px 22px;
+
+  p { font-size: 13px; color: var(--amx-text); margin: 0 0 12px; }
+
+  textarea {
+    width: 100%; border: 1px solid var(--amx-border-2); border-radius: 10px;
+    background: var(--amx-bg); color: var(--amx-text); padding: 10px 12px;
+    font-size: 13px; font-family: inherit; resize: vertical; margin-bottom: 12px;
+    &:focus { outline: none; border-color: $orange; }
+  }
+}
+
+.amx-png-report-modal__sent {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 20px 0; text-align: center; color: var(--amx-text);
+  svg { color: #22c55e; }
+}

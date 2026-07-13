@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { PngService } from './png.service';
 import { PngAsset, PngSortMode, PngViewMode, PngCollection } from '../../core/models/png.model';
 import { removeBackgroundFromImage, resizeImageToDataUrl } from '../../shared/utils/bg-removal';
+import { AuthService } from '../../core/auth/auth.service';
 
 const PAGE_SIZE = 32;
 
@@ -57,6 +58,18 @@ export const STYLE_OPTIONS = [
 const SIDEBAR_SECTIONS = ['license', 'style', 'orientation', 'color', 'people', 'resolution', 'date'] as const;
 type SidebarSection = (typeof SIDEBAR_SECTIONS)[number];
 
+/** Themed packs shown as a discovery strip — PNGTree/Freepik-style curated bundles, each just a preset filter combo. */
+const CURATED_PACKS = [
+  { label: 'Holiday & Events',   emoji: '🎄', categoryId: 'holiday',    tag: '' },
+  { label: 'Business Essentials',emoji: '💼', categoryId: 'business',   tag: '' },
+  { label: 'Animal Kingdom',     emoji: '🐾', categoryId: 'animals',    tag: '' },
+  { label: 'Tech & Gadgets',     emoji: '💻', categoryId: 'technology', tag: '' },
+  { label: 'Food & Drink',       emoji: '🍕', categoryId: 'food',       tag: '' },
+  { label: 'Travel Essentials',  emoji: '✈️', categoryId: 'travel',     tag: '' },
+  { label: 'Fashion & Beauty',   emoji: '👗', categoryId: 'fashion',    tag: '' },
+  { label: 'Gold & Luxury',      emoji: '✨', categoryId: null,         tag: 'gold' },
+] as const;
+
 @Component({
   selector: 'amx-png',
   standalone: true,
@@ -68,6 +81,7 @@ type SidebarSection = (typeof SIDEBAR_SECTIONS)[number];
 export class PngComponent {
   private readonly router  = inject(Router);
   readonly svc             = inject(PngService);
+  private readonly auth    = inject(AuthService);
 
   // ── Static data ────────────────────────────────────────────────────────────
   readonly categories    = this.svc.categories;
@@ -76,6 +90,10 @@ export class PngComponent {
   readonly sizePresets   = SIZE_PRESETS;
   readonly colorSwatches = COLOR_SWATCHES;
   readonly styleOptions  = STYLE_OPTIONS;
+  readonly curatedPacks  = CURATED_PACKS;
+
+  // ── Account / premium gating ─────────────────────────────────────────────
+  readonly isPremiumUser = this.auth.isPremium;
 
   // ── Pagination / display ───────────────────────────────────────────────────
   readonly visibleCount   = signal(PAGE_SIZE);
@@ -192,6 +210,15 @@ export class PngComponent {
   setCategory(id: string | null): void { this.svc.setCategory(id); this.resetPage(); }
   isActiveCategory(id: string): boolean { return this.filters().categoryId === id; }
 
+  /** Applies a curated pack's preset filter combo (category and/or tag search) — PNGTree/Freepik-style themed bundle discovery. */
+  applyPack(pack: (typeof CURATED_PACKS)[number]): void {
+    this.svc.clearFilters();
+    if (pack.categoryId) this.svc.setCategory(pack.categoryId);
+    if (pack.tag) this.svc.setQuery(pack.tag);
+    this.resetPage();
+    document.querySelector('.amx-png__grid-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   setLicense(v: 'all' | 'free' | 'premium'): void { this.svc.setLicense(v); this.resetPage(); }
   setSort(v: PngSortMode): void { this.svc.setSort(v); this.sortMenuOpen.set(false); }
   setViewMode(m: PngViewMode): void { this.svc.setViewMode(m); }
@@ -252,10 +279,13 @@ export class PngComponent {
     this.bulkSelected.set(new Set(this.visibleResults().map((p) => p.id)));
   }
   downloadBulkSelected(): void {
-    const ids   = this.bulkSelected();
-    const items = this.results().filter((p) => ids.has(p.id));
+    const ids     = this.bulkSelected();
+    const all     = this.results().filter((p) => ids.has(p.id));
+    const items   = all.filter((p) => !this.isLocked(p));
+    const locked  = all.length - items.length;
     items.forEach((png, idx) => setTimeout(() => this.downloadPng(png), idx * 250));
-    this.showToast(`⬇️ Downloading ${items.length} PNG${items.length === 1 ? '' : 's'}…`, 'success');
+    if (items.length) this.showToast(`⬇️ Downloading ${items.length} PNG${items.length === 1 ? '' : 's'}…`, 'success');
+    if (locked) this.showToast(`⭐ ${locked} Premium PNG${locked === 1 ? '' : 's'} skipped — upgrade to include ${locked === 1 ? 'it' : 'them'}`, 'info');
     this.toggleBulkMode();
   }
 
@@ -280,8 +310,12 @@ export class PngComponent {
   toggleLightboxZoom(): void { this.lightboxZoom.update((v) => !v); }
 
   // ── Download / Editor ──────────────────────────────────────────────────────
+  /** True if this asset's license requires a premium subscription the current user doesn't have — gates downloads like Shutterstock/Adobe Stock/Envato Elements. */
+  isLocked(png: PngAsset): boolean { return png.isPremium && !this.isPremiumUser(); }
+
   downloadPng(png: PngAsset, event?: Event): void {
     event?.stopPropagation();
+    if (this.isLocked(png)) { this.goPremium(png); return; }
     const a = document.createElement('a');
     a.href     = png.url;
     a.download = `${png.slug}.png`;
@@ -293,9 +327,16 @@ export class PngComponent {
     this.showToast(`⬇️ Downloading "${png.name}"…`, 'success');
   }
 
+  /** Sends a non-subscriber to the pricing page instead of downloading a premium-only PNG. */
+  goPremium(png?: PngAsset): void {
+    this.showToast(`⭐ "${png?.name ?? 'This PNG'}" is a Premium asset — upgrade to download it`, 'info');
+    this.router.navigate(['/pricing']);
+  }
+
   /** Downloads the asset resized to the currently selected download size (panel only). Falls back to the full-resolution file if client-side resizing isn't possible for this image (e.g. the source host doesn't allow cross-origin canvas reads). */
   downloadWithSize(png: PngAsset, event?: Event): void {
     event?.stopPropagation();
+    if (this.isLocked(png)) { this.goPremium(png); return; }
     const size = this.selectedSize();
     if (!size.px) { this.downloadPng(png); return; }
 
@@ -325,12 +366,32 @@ export class PngComponent {
 
   useInEditor(png: PngAsset, event?: Event): void {
     event?.stopPropagation();
+    if (this.isLocked(png)) { this.goPremium(png); return; }
     this.router.navigate(['/editor'], { queryParams: { imageUrl: png.url, title: png.name } });
   }
 
   copyLink(png: PngAsset, event?: Event): void {
     event?.stopPropagation();
     navigator.clipboard?.writeText(png.url).then(() => this.showToast('🔗 Link copied to clipboard', 'success'));
+  }
+
+  // ── Report content (CleanPNG/KissPNG-style copyright/compliance link) ──────
+  readonly reportOpen   = signal(false);
+  readonly reportReason = signal('');
+  readonly reportSent   = signal(false);
+
+  openReport(event?: Event): void {
+    event?.stopPropagation();
+    this.reportOpen.set(true);
+    this.reportReason.set('');
+    this.reportSent.set(false);
+  }
+  closeReport(): void { this.reportOpen.set(false); }
+  submitReport(png: PngAsset): void {
+    if (!this.reportReason().trim()) return;
+    // No backend for this mock marketplace — acknowledge locally so the flow is testable end-to-end.
+    this.reportSent.set(true);
+    setTimeout(() => this.closeReport(), 1600);
   }
 
   // ── Collections ─────────────────────────────────────────────────────────────

@@ -28,6 +28,11 @@ Angular 20 client application for Amarapix — a design-asset marketplace with a
   - **Lightbox zoom**: click the detail panel preview for a fullscreen pan/zoom view on a checkerboard background, with prev/next navigation.
   - **Prev/Next navigation**: arrow keys or panel header buttons cycle through the current result set without closing the detail panel.
   - **Bulk select**: a "Select" toggle in the toolbar lets users multi-select cards and batch-download them.
+  - **Premium paywall gating**: PRO-badged assets now actually check `AuthService.isPremium()` before downloading, using in the editor, or bulk-downloading (previously the "Premium"/"PRO" badge was cosmetic only) — locked assets show a lock icon and redirect non-subscribers to `/pricing` with an explanatory toast, matching Shutterstock/Adobe Stock/Envato Elements-style paywalls.
+  - **Curated Packs strip**: a PNGTree/Freepik-style row of themed bundles (Holiday, Business, Animals, Tech, etc.) that jump straight to a pre-filtered view of the grid.
+  - **Search by color**: Pixabay-style color swatches surfaced directly under the hero search bar (in addition to the existing sidebar color-tone filter) for one-click visual search.
+  - **License & Usage panel**: the detail panel now states usage terms (personal/commercial use, attribution, resale restrictions, premium requirement) — CleanPNG/PNGWing-style license disclosure.
+  - **Report this image**: a lightweight compliance/DMCA-style report link + modal in the detail panel, matching CleanPNG/KissPNG's content-report flow (client-side only, no backend to send to).
 
 ## User preferences
 (none recorded yet)

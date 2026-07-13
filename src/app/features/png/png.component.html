@@ -54,6 +54,18 @@
         <button *ngFor="let tag of trendingTags" class="amx-png__trending-tag" (click)="applyTag(tag)">{{ tag }}</button>
       </div>
 
+      <!-- Search by color — Pixabay-style visual color search, surfaced at top level -->
+      <div class="amx-png__hero-colors" (click)="$event.stopPropagation()">
+        <span>Search by color:</span>
+        <button *ngFor="let c of colorSwatches" class="amx-png__hero-color-swatch"
+          [class.active]="filters().colorTone === c.key"
+          [class.amx-png__hero-color-swatch--white]="c.key === 'white'"
+          [style.background]="c.hex" [attr.title]="c.label" [attr.aria-label]="'Search ' + c.label + ' PNGs'"
+          (click)="toggleColorTone(c.key)">
+          <svg *ngIf="filters().colorTone === c.key" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+
       <button class="amx-png__create-cta" (click)="openCreateTool(); $event.stopPropagation()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" opacity="0"/><path d="m4 16 4.5-6L12 14l3-4 5 6"/><circle cx="8.5" cy="7.5" r="1.5"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
         Upload a photo &amp; remove the background — free
@@ -86,6 +98,18 @@
       </button>
     </div>
   </nav>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       CURATED PACKS — PNGTree/Freepik-style themed bundle discovery
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <section class="amx-png__packs">
+    <div class="amx-png__packs-track">
+      <button *ngFor="let pack of curatedPacks" class="amx-png__pack" (click)="applyPack(pack)">
+        <span class="amx-png__pack-emoji">{{ pack.emoji }}</span>
+        <span>{{ pack.label }}</span>
+      </button>
+    </div>
+  </section>
 
   <!-- ══════════════════════════════════════════════════════════════════════════
        RECENTLY VIEWED
@@ -450,9 +474,10 @@
                       (click)="useInEditor(png, $event)" data-tip="Use in Editor" aria-label="Use in Editor">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
-                    <button class="amx-png-card__action-btn amx-png-card__action-btn--dl"
-                      (click)="downloadPng(png, $event)" data-tip="Download" aria-label="Download PNG">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
+                    <button class="amx-png-card__action-btn amx-png-card__action-btn--dl" [class.is-locked]="isLocked(png)"
+                      (click)="downloadPng(png, $event)" [attr.data-tip]="isLocked(png) ? 'Premium — Upgrade' : 'Download'" aria-label="Download PNG">
+                      <svg *ngIf="!isLocked(png)" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
+                      <svg *ngIf="isLocked(png)" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
                     </button>
                   </div>
                 </div>
@@ -496,9 +521,10 @@
                 (click)="toggleFavorite(png, $event)" aria-label="Favorite">
                 <svg width="14" height="14" viewBox="0 0 24 24" [attr.fill]="isFavorite(png) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
               </button>
-              <button class="amx-png-list-row__dl-btn" (click)="downloadPng(png, $event)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
-                Download
+              <button class="amx-png-list-row__dl-btn" [class.is-locked]="isLocked(png)" (click)="downloadPng(png, $event)">
+                <svg *ngIf="!isLocked(png)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
+                <svg *ngIf="isLocked(png)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
+                {{ isLocked(png) ? 'Upgrade' : 'Download' }}
               </button>
             </div>
           </article>
@@ -617,10 +643,17 @@
 
         <!-- Primary actions -->
         <div class="amx-png-panel__primary-actions">
-          <button class="amx-png-panel__download-btn" (click)="downloadWithSize(png)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
-            {{ png.isPremium ? 'Download Pro PNG' : 'Download Free PNG' }} ({{ selectedSize().label }})
+          <button class="amx-png-panel__download-btn" [class.is-locked]="isLocked(png)" (click)="downloadWithSize(png)">
+            <svg *ngIf="!isLocked(png)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
+            <svg *ngIf="isLocked(png)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
+            <ng-container *ngIf="!isLocked(png)">
+              {{ png.isPremium ? 'Download Pro PNG' : 'Download Free PNG' }} ({{ selectedSize().label }})
+            </ng-container>
+            <ng-container *ngIf="isLocked(png)">Upgrade to Download</ng-container>
           </button>
+          <p *ngIf="isLocked(png)" class="amx-png-panel__lock-note">
+            This is a Premium PNG. <a (click)="$event.stopPropagation(); goPremium(png)">Upgrade your plan</a> to unlock full-resolution downloads.
+          </p>
         </div>
 
         <!-- Secondary actions -->
@@ -655,10 +688,34 @@
           </div>
         </div>
 
+        <!-- License & usage — CleanPNG/PNGWing-style terms disclosure -->
+        <div class="amx-png-panel__section amx-png-panel__license">
+          <div class="amx-png-panel__section-title">License &amp; Usage</div>
+          <ul class="amx-png-panel__license-list">
+            <li>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              For personal &amp; commercial projects
+            </li>
+            <li>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              No attribution required
+            </li>
+            <li *ngIf="png.isPremium">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2 19h20v2H2v-2zM12 3l4 8 4-4-3 10H7L4 7l4 4 4-8z"/></svg>
+              Requires an active Premium subscription
+            </li>
+            <li>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              Not for resale or redistribution as-is
+            </li>
+          </ul>
+        </div>
+
         <!-- Source -->
         <div class="amx-png-panel__source">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           Sourced from <strong>{{ png.source }}</strong>
+          <button class="amx-png-panel__report-link" (click)="openReport($event)">Report this image</button>
         </div>
       </div>
 
@@ -753,6 +810,31 @@
       <img [src]="lpng.url" [alt]="lpng.name" [class.zoomed]="lightboxZoom()" (click)="toggleLightboxZoom()" />
     </div>
     <div class="amx-png-lightbox__caption">{{ lpng.name }} · click image to {{ lightboxZoom() ? 'shrink' : 'zoom' }}</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       REPORT CONTENT (CleanPNG/KissPNG-style copyright/compliance report)
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="amx-png-col-overlay" *ngIf="reportOpen()" (click)="closeReport()"></div>
+  <div class="amx-png-report-modal" *ngIf="reportOpen() && selected() as rpng" role="dialog" aria-labelledby="report-modal-title">
+    <div class="amx-png-col-modal__header">
+      <h3 id="report-modal-title">Report this image</h3>
+      <button class="amx-png-col-modal__close" (click)="closeReport()" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="amx-png-report-modal__body">
+      <ng-container *ngIf="!reportSent()">
+        <p>Reporting <strong>{{ rpng.name }}</strong> for a copyright claim or policy violation. Tell us what's wrong:</p>
+        <textarea rows="4" placeholder="e.g. This is my copyrighted photo and was uploaded without permission…"
+          [value]="reportReason()" (input)="reportReason.set($any($event.target).value)"></textarea>
+        <button class="amx-png-create__primary-btn" [disabled]="!reportReason().trim()" (click)="submitReport(rpng)">Submit Report</button>
+      </ng-container>
+      <div *ngIf="reportSent()" class="amx-png-report-modal__sent">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>
+        <p>Thanks — our team will review this report.</p>
+      </div>
+    </div>
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════════════════
