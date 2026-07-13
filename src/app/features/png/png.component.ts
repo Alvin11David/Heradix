@@ -9,6 +9,7 @@ import { PngAsset, PngSortMode, PngViewMode, PngCollection } from '../../core/mo
 import { removeBackgroundFromImage, resizeImageToDataUrl } from '../../shared/utils/bg-removal';
 import { AuthService } from '../../core/auth/auth.service';
 import { DAILY_FREE_DOWNLOAD_LIMIT } from './png.service';
+import { estimatePngFileSize, formatFileSize } from '../../shared/utils/file-size-estimate';
 
 const PAGE_SIZE = 32;
 
@@ -183,6 +184,24 @@ export class PngComponent {
     return [...tags].slice(0, 8);
   });
 
+  // ── Recent searches (Pixabay/PNGTree-style search history, separate from suggestions) ──
+  readonly searchHistory = this.svc.searchHistory;
+  /** Shown only when the search box is focused with an empty query — once the user types, tag suggestions take over. */
+  readonly showSearchHistory = computed(() => this.suggestionsOpen() && !this.filters().query.trim() && this.searchHistory().length > 0);
+
+  applyHistoryTerm(term: string): void { this.setQuery(term); this.suggestionsOpen.set(false); }
+  removeHistoryTerm(term: string, event: Event): void { event.stopPropagation(); this.svc.removeSearchHistoryItem(term); }
+  clearSearchHistory(event?: Event): void { event?.stopPropagation(); this.svc.clearSearchHistory(); }
+
+  /** Commits the current query into search history — called on Enter / search button, not on every keystroke. */
+  commitSearch(): void {
+    this.svc.trackSearch(this.filters().query);
+    this.suggestionsOpen.set(false);
+  }
+
+  // ── Related tag cloud (PNGWing/CleanPNG/KissPNG-style SEO tag list below results) ──
+  readonly relatedTags = computed<string[]>(() => this.svc.relatedTags(this.results(), this.filters().query, 16));
+
   // ── Keyboard / outside click ────────────────────────────────────────────────
   @HostListener('document:keydown.escape')
   onEscape(): void {
@@ -274,6 +293,11 @@ export class PngComponent {
   closeDetail(): void { this.selected.set(null); }
   selectSize(size: (typeof SIZE_PRESETS)[number]): void { this.selectedSize.set(size); }
 
+  /** Approximate download size for a size-picker option — PNGWing/CleanPNG-style "know the file size before downloading". */
+  sizeFileSize(png: PngAsset, size: (typeof SIZE_PRESETS)[number]): string {
+    return formatFileSize(estimatePngFileSize(png.width, png.height, size.px));
+  }
+
   // ── Bulk select ─────────────────────────────────────────────────────────
   toggleBulkMode(): void {
     this.bulkMode.update((v) => !v);
@@ -299,6 +323,130 @@ export class PngComponent {
     if (items.length) this.showToast(`⬇️ Downloading ${items.length} PNG${items.length === 1 ? '' : 's'}…`, 'success');
     if (locked) this.showToast(`⭐ ${locked} Premium PNG${locked === 1 ? '' : 's'} skipped — upgrade to include ${locked === 1 ? 'it' : 'them'}`, 'info');
     this.toggleBulkMode();
+  }
+
+  // ── Bundle / ZIP download (CleanPNG "resource pack" / Freepik pack-style single-file download) ──
+  readonly zipping = signal(false);
+
+  /** Downloads the currently bulk-selected assets bundled into a single ZIP, instead of N separate browser downloads. */
+  downloadBulkAsZip(): void {
+    const ids   = this.bulkSelected();
+    const all   = this.results().filter((p) => ids.has(p.id));
+    const items = all.filter((p) => !this.isLocked(p));
+    const locked = all.length - items.length;
+    if (!items.length) return;
+    if (locked) this.showToast(`⭐ ${locked} Premium PNG${locked === 1 ? '' : 's'} skipped — upgrade to include ${locked === 1 ? 'it' : 'them'}`, 'info');
+    this.zipAndDownload(items, 'amarapix-pngs');
+    this.toggleBulkMode();
+  }
+
+  /** Downloads every asset saved in a board/collection bundled into a single ZIP — CleanPNG-style "resource pack" download. */
+  downloadCollectionAsZip(col: PngCollection, event?: Event): void {
+    event?.stopPropagation();
+    const items = col.assetIds
+      .map((id) => this.svc.byId(id))
+      .filter((p): p is PngAsset => !!p && !this.isLocked(p));
+    if (!items.length) { this.showToast('This board has no downloadable PNGs yet', 'info'); return; }
+    this.zipAndDownload(items, col.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'board');
+  }
+
+  /** Applies the same daily free-download cap used by single downloads (isQuotaExceeded/registerFreeDownload) to a batch, so ZIP bundles can't be used to bypass it. Premium/already-unlocked assets are never capped; only non-premium assets for non-premium users draw from the shared quota. */
+  private applyQuotaCap(items: PngAsset[]): { allowed: PngAsset[]; quotaSkipped: number } {
+    if (this.isPremiumUser()) return { allowed: items, quotaSkipped: 0 };
+    let remaining = this.freeDownloadsRemaining();
+    const allowed: PngAsset[] = [];
+    let quotaSkipped = 0;
+    for (const png of items) {
+      if (!png.isPremium) {
+        if (remaining <= 0) { quotaSkipped++; continue; }
+        remaining--;
+      }
+      allowed.push(png);
+    }
+    return { allowed, quotaSkipped };
+  }
+
+  private async zipAndDownload(requested: PngAsset[], filename: string): Promise<void> {
+    if (this.zipping()) return;
+
+    const { allowed: items, quotaSkipped } = this.applyQuotaCap(requested);
+    if (quotaSkipped) {
+      this.showToast(`⏳ ${quotaSkipped} PNG${quotaSkipped === 1 ? '' : 's'} skipped — today's free-download limit (${this.dailyFreeLimit}/day) reached`, 'info');
+    }
+    if (!items.length) { if (!quotaSkipped) this.showToast('Nothing to download', 'info'); return; }
+
+    this.zipping.set(true);
+    this.showToast(`📦 Zipping ${items.length} PNG${items.length === 1 ? '' : 's'}…`, 'info', 6000);
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      // Many source hosts in this mock library don't send permissive CORS headers, so a
+      // client-side fetch()-into-ZIP can fail per-asset even though a direct anchor download
+      // of the same URL works fine (that's how the existing single-item download works).
+      // We never let that turn into a lost download: anything that can't be zipped falls back
+      // to the same anchor-navigation technique used everywhere else in this component, so
+      // every requested asset still reaches the user one way or another.
+      const results = await Promise.allSettled(
+        items.map(async (png) => {
+          const res = await fetch(png.url);
+          if (!res.ok) throw new Error(`fetch failed for ${png.slug}`);
+          const blob = await res.blob();
+          zip.file(`${png.slug}.png`, blob);
+          return png;
+        })
+      );
+      const zipped = results
+        .filter((r): r is PromiseFulfilledResult<PngAsset> => r.status === 'fulfilled')
+        .map((r) => r.value);
+      const zippedIds = new Set(zipped.map((p) => p.id));
+      const fellBackToDirect = items.filter((p) => !zippedIds.has(p.id));
+
+      if (zipped.length) {
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const url  = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      // Assets that couldn't be bundled are still downloaded individually — never silently dropped.
+      fellBackToDirect.forEach((png, idx) => setTimeout(() => this.directDownload(png), idx * 250));
+
+      // Usage/quota is only charged for assets actually delivered (zipped or fallen-back), one
+      // count per asset — matching the single-download flow's accounting exactly.
+      [...zipped, ...fellBackToDirect].forEach((png) => this.registerDownloadUsage(png));
+
+      if (!fellBackToDirect.length) {
+        this.showToast(`⬇️ Downloaded ${zipped.length} PNG${zipped.length === 1 ? '' : 's'} as one ZIP`, 'success');
+      } else if (!zipped.length) {
+        this.showToast(`⬇️ Your browser blocked ZIP bundling for these — downloading ${fellBackToDirect.length} PNG${fellBackToDirect.length === 1 ? '' : 's'} individually instead`, 'info');
+      } else {
+        this.showToast(`⬇️ Downloaded ${zipped.length} as a ZIP; ${fellBackToDirect.length} more couldn't be bundled so ${fellBackToDirect.length === 1 ? 'it' : "they're"} downloading individually`, 'info');
+      }
+    } catch (e) {
+      console.error('ZIP bundle download failed — falling back to individual downloads', e);
+      items.forEach((png, idx) => setTimeout(() => this.directDownload(png), idx * 250));
+      items.forEach((png) => this.registerDownloadUsage(png));
+      this.showToast(`⬇️ Couldn't build a ZIP — downloading ${items.length} PNG${items.length === 1 ? '' : 's'} individually instead`, 'info');
+    } finally {
+      this.zipping.set(false);
+    }
+  }
+
+  /** Plain anchor-navigation download, shared by the single-download flow and the ZIP fallback path — no fetch/CORS dependency. */
+  private directDownload(png: PngAsset): void {
+    const a = document.createElement('a');
+    a.href     = png.url;
+    a.download = `${png.slug}.png`;
+    a.target   = '_blank';
+    a.rel      = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   }
 
   selectRelated(png: PngAsset): void {
@@ -332,14 +480,7 @@ export class PngComponent {
     event?.stopPropagation();
     if (this.isLocked(png)) { this.goPremium(png); return; }
     if (this.isQuotaExceeded(png)) { this.goQuotaLimit(); return; }
-    const a = document.createElement('a');
-    a.href     = png.url;
-    a.download = `${png.slug}.png`;
-    a.target   = '_blank';
-    a.rel      = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    this.directDownload(png);
     this.registerDownloadUsage(png);
     this.showToast(`⬇️ Downloading "${png.name}"…`, 'success');
   }

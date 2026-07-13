@@ -33,6 +33,10 @@ Angular 20 client application for Amarapix — a design-asset marketplace with a
   - **Search by color**: Pixabay-style color swatches surfaced directly under the hero search bar (in addition to the existing sidebar color-tone filter) for one-click visual search.
   - **License & Usage panel**: the detail panel now states usage terms (personal/commercial use, attribution, resale restrictions, premium requirement) — CleanPNG/PNGWing-style license disclosure.
   - **Report this image**: a lightweight compliance/DMCA-style report link + modal in the detail panel, matching CleanPNG/KissPNG's content-report flow (client-side only, no backend to send to).
+  - **Recent searches**: Pixabay/PNGTree-style search history dropdown (separate from "Recently viewed" assets) — shown when the search box is focused empty, persisted in `localStorage`, with per-term remove and "Clear" all.
+  - **Related search tag cloud**: PNGWing/CleanPNG/KissPNG-style tag cloud below the results grid, computed from the most common tags in the current result set (excludes the active query term).
+  - **File size estimates in the size picker**: each Small/Medium/Large option in the detail panel now shows an approximate KB/MB download size (heuristic based on target pixel dimensions), matching PNGWing/CleanPNG's "know before you download" pattern — see `src/app/shared/utils/file-size-estimate.ts`.
+  - **ZIP bundle downloads**: "Download as ZIP" for bulk-selected assets, and a per-board zip button in the Collections modal — CleanPNG "resource pack"/Freepik pack-style single-file download instead of N separate browser downloads. Uses the `jszip` dependency; fetches each asset, zips client-side, and triggers one download.
 
 ## User preferences
 (none recorded yet)

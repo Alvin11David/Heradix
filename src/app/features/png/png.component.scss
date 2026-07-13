@@ -142,6 +142,31 @@ $transition:    0.18s ease;
 }
 
 // Trending tags
+.amx-png__suggestions--history {
+  li.amx-png__suggestions-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px 8px; cursor: default;
+    span { font-size: 11.5px; font-weight: 700; color: var(--amx-muted); text-transform: uppercase; letter-spacing: .04em; }
+    button {
+      border: none; background: none; color: $orange; font-size: 12px; font-weight: 700;
+      cursor: pointer; padding: 0;
+      &:hover { text-decoration: underline; }
+    }
+  }
+}
+
+.amx-png__suggestions-history-item {
+  justify-content: space-between;
+}
+
+.amx-png__suggestions-history-term { flex: 1; }
+
+.amx-png__suggestions-history-remove {
+  border: none; background: none; color: var(--amx-muted); font-size: 15px;
+  cursor: pointer; padding: 2px 6px; border-radius: 6px; line-height: 1;
+  &:hover { color: $orange; background: rgba(245,130,10,.1); }
+}
+
 .amx-png__trending {
   display: flex; align-items: center; justify-content: center;
   flex-wrap: wrap; gap: 8px; font-size: 13px;
@@ -978,6 +1003,15 @@ $transition:    0.18s ease;
   &__item-name { font-size: 13.5px; font-weight: 600; color: var(--amx-text); display: block; }
   &__item-count { font-size: 11.5px; color: var(--amx-muted); }
 
+  &__item-zip {
+    flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid var(--amx-border-2); background: var(--amx-bg);
+    color: var(--amx-muted); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all $transition;
+    &:hover:not(:disabled) { border-color: $orange; color: $orange; }
+    &:disabled { opacity: .45; cursor: not-allowed; }
+  }
+
   &__footer { padding: 14px 16px 16px; border-top: 1px solid var(--amx-border-light); margin-top: 12px; }
 
   &__save {
@@ -1099,6 +1133,26 @@ $transition:    0.18s ease;
   .amx-png__bulk-bar-download {
     background: $orange; border-color: $orange; color: #fff;
     &:hover:not(:disabled) { filter: brightness(1.07); }
+  }
+
+  .amx-png__bulk-bar-download--zip {
+    background: transparent; color: $orange; border-color: $orange;
+    &:hover:not(:disabled) { background: rgba(245,130,10,.1); filter: none; }
+  }
+}
+
+// ── Related search tag cloud — PNGWing/CleanPNG/KissPNG-style SEO tag list under results ──
+.amx-png__tagcloud {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--amx-border-2);
+
+  &-label { font-size: 12.5px; font-weight: 700; color: var(--amx-muted); margin-right: 4px; }
+
+  &-tag {
+    border: 1px solid var(--amx-border-2); background: var(--amx-card);
+    color: var(--amx-muted); padding: 5px 12px; border-radius: 999px;
+    font-size: 12px; cursor: pointer; transition: all $transition;
+    &:hover { border-color: $orange; color: $orange; }
   }
 }
 

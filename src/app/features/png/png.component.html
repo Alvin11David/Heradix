@@ -27,24 +27,36 @@
             placeholder="Search laptops, flowers, dragons, crowns…"
             [value]="filters().query"
             (input)="setQuery($any($event.target).value)"
-            (focus)="suggestionsOpen.set(suggestions().length > 0)"
-            (input)="suggestionsOpen.set(suggestions().length > 0)"
+            (focus)="suggestionsOpen.set(true)"
+            (keydown.enter)="commitSearch()"
             aria-label="Search transparent PNGs"
           />
           <button *ngIf="filters().query" class="amx-png__search-clear" (click)="setQuery('')" aria-label="Clear search">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
           <div class="amx-png__search-divider" aria-hidden="true"></div>
-          <button class="amx-png__search-btn">
+          <button class="amx-png__search-btn" (click)="commitSearch()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             Search
           </button>
         </div>
-        <!-- Suggestions dropdown -->
+        <!-- Suggestions dropdown (tag matches while typing) -->
         <ul *ngIf="suggestionsOpen() && suggestions().length" class="amx-png__suggestions">
           <li *ngFor="let s of suggestions()" (click)="applySuggestion(s)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             {{ s }}
+          </li>
+        </ul>
+        <!-- Recent searches — Pixabay/PNGTree-style history, shown only when the box is empty & focused -->
+        <ul *ngIf="showSearchHistory()" class="amx-png__suggestions amx-png__suggestions--history">
+          <li class="amx-png__suggestions-head">
+            <span>Recent searches</span>
+            <button (click)="clearSearchHistory($event)">Clear</button>
+          </li>
+          <li *ngFor="let term of searchHistory()" (click)="applyHistoryTerm(term)" class="amx-png__suggestions-history-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>
+            <span class="amx-png__suggestions-history-term">{{ term }}</span>
+            <button class="amx-png__suggestions-history-remove" (click)="removeHistoryTerm(term, $event)" aria-label="Remove from history">×</button>
           </li>
         </ul>
       </div>
@@ -449,6 +461,10 @@
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
             Download selected
           </button>
+          <button class="amx-png__bulk-bar-download amx-png__bulk-bar-download--zip" (click)="downloadBulkAsZip()" [disabled]="!bulkCount() || zipping()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>
+            {{ zipping() ? 'Zipping…' : 'Download as ZIP' }}
+          </button>
         </div>
       </div>
 
@@ -585,6 +601,12 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
         </div>
+
+        <!-- Related search tag cloud — PNGWing/CleanPNG/KissPNG-style SEO tag list -->
+        <div class="amx-png__tagcloud" *ngIf="relatedTags().length">
+          <span class="amx-png__tagcloud-label">Related searches:</span>
+          <button *ngFor="let tag of relatedTags()" class="amx-png__tagcloud-tag" (click)="applyTag(tag)">{{ tag }}</button>
+        </div>
       </div>
     </main>
   </div>
@@ -668,7 +690,7 @@
             <button *ngFor="let size of sizePresets" class="amx-png-panel__size-chip"
               [class.active]="selectedSize().label === size.label" (click)="selectSize(size)">
               {{ size.label }}
-              <small>{{ size.dim }}</small>
+              <small>{{ size.dim }} · ~{{ sizeFileSize(png, size) }}</small>
             </button>
           </div>
         </div>
@@ -861,6 +883,9 @@
             <span class="amx-png-col-modal__item-name">{{ col.name }}</span>
             <span class="amx-png-col-modal__item-count">{{ col.assetIds.length }} items</span>
           </div>
+          <button *ngIf="col.assetIds.length" class="amx-png-col-modal__item-zip" (click)="downloadCollectionAsZip(col, $event)" [disabled]="zipping()" aria-label="Download board as ZIP" data-tip="Download all as ZIP">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>
+          </button>
         </li>
       </ul>
     </div>

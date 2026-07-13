@@ -10,6 +10,9 @@ const COLLECTIONS_KEY = 'amx_png_collections';
 const RECENT_KEY      = 'amx_png_recent';
 const QUOTA_KEY        = 'amx_png_daily_quota';
 const CONTRIBUTOR_KEY  = 'amx_png_contributions';
+/** Pixabay/PNGTree-style "recent searches" history, distinct from recently *viewed assets* above. */
+const SEARCH_HISTORY_KEY = 'amx_png_search_history';
+const MAX_SEARCH_HISTORY = 10;
 
 /** Freepik/PNGWing-style daily free-download cap for non-subscribers. Premium members bypass this entirely. */
 export const DAILY_FREE_DOWNLOAD_LIMIT = 15;
@@ -70,6 +73,8 @@ export class PngService {
   readonly favorites   = signal<Set<string>>(this.loadFavorites());
   readonly collections = signal<PngCollection[]>(this.loadCollections());
   readonly recentIds   = signal<string[]>(this.loadRecent());
+  /** Past search terms the user typed — Pixabay/PNGTree "recent searches" dropdown, separate from recently *viewed* assets. */
+  readonly searchHistory = signal<string[]>(this.loadSearchHistory());
   readonly viewMode    = signal<PngViewMode>('masonry');
   readonly quota        = signal<QuotaState>(this.loadQuota());
   readonly contributions = signal<ContributorSubmission[]>(this.loadContributions());
@@ -196,6 +201,42 @@ export class PngService {
     try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)); } catch { /* quota */ }
   }
 
+  /** Records a submitted search term in the "recent searches" history (deduped, most-recent-first, capped). */
+  trackSearch(query: string): void {
+    const term = query.trim();
+    if (term.length < 2) return;
+    const next = [term, ...this.searchHistory().filter((t) => t.toLowerCase() !== term.toLowerCase())].slice(0, MAX_SEARCH_HISTORY);
+    this.searchHistory.set(next);
+    try { localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(next)); } catch { /* quota */ }
+  }
+
+  removeSearchHistoryItem(term: string): void {
+    const next = this.searchHistory().filter((t) => t !== term);
+    this.searchHistory.set(next);
+    try { localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(next)); } catch { /* quota */ }
+  }
+
+  clearSearchHistory(): void {
+    this.searchHistory.set([]);
+    try { localStorage.removeItem(SEARCH_HISTORY_KEY); } catch { /* quota */ }
+  }
+
+  /** Top co-occurring tags across the current result set, for a PNGWing/CleanPNG/KissPNG-style related-search tag cloud below the grid. */
+  relatedTags(list: PngAsset[], excludeQuery: string, limit = 16): string[] {
+    const excl = excludeQuery.trim().toLowerCase();
+    const counts = new Map<string, number>();
+    for (const png of list) {
+      for (const tag of png.tags) {
+        if (tag.toLowerCase() === excl) continue;
+        counts.set(tag, (counts.get(tag) ?? 0) + 1);
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([tag]) => tag);
+  }
+
   /** Records one free download against today's quota. Call only for non-premium users downloading free assets. */
   registerFreeDownload(): void {
     const today = todayKey();
@@ -289,6 +330,11 @@ export class PngService {
 
   private loadRecent(): string[] {
     try { const raw = localStorage.getItem(RECENT_KEY); return raw ? JSON.parse(raw) : []; }
+    catch { return []; }
+  }
+
+  private loadSearchHistory(): string[] {
+    try { const raw = localStorage.getItem(SEARCH_HISTORY_KEY); return raw ? JSON.parse(raw) : []; }
     catch { return []; }
   }
 
