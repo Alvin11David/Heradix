@@ -21,24 +21,22 @@ export interface IconAsset {
   platforms: IconPlatform[];
   aesthetic: IconAesthetic[];
   trend: IconTrend;
-  /** Which icon library this icon comes from. */
+
   library?: IconLibraryId;
   hasAnimatedVariant: boolean;
   isPremium: boolean;
   downloads: number;
   createdAt: string;
-  /** Inner SVG markup (paths/shapes only), designed for the given viewBox. */
+
   path: string;
-  /** SVG viewBox — defaults to "0 0 24 24" if absent. Non-24x24 libraries set this. */
+
   viewBox?: string;
-  /** Full-color inner SVG content with embedded fill/stroke colors. When present,
-   *  the icon renders with its real colors and bypasses the global style CSS overrides. */
+
   colorSvg?: string;
   author?: IconAuthor;
 }
 
-/** Live rendering controls that apply across the whole grid, mirroring how a
- *  "style pack" re-renders the same icon set rather than filtering it out. */
+
 export interface IconStyleState {
   technique: IconTechnique;
   colorMode: IconColorMode;
@@ -64,6 +62,6 @@ export interface IconFilterState {
   author: IconAuthor[];
   categoryId: string | null;
   favoritesOnly: boolean;
-  /** Active library filter — null means "all loaded libraries" */
+
   libraryId: IconLibraryId | null;
 }

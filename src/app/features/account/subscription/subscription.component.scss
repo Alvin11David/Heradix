@@ -352,8 +352,8 @@
       font-variant-ligatures: common-ligatures;
       font-variant-numeric: proportional-nums;
 
-      svg { 
-        stroke: var(--amx-orange); 
+      svg {
+        stroke: var(--amx-orange);
         filter: drop-shadow(0 1px 2px rgba(245, 130, 10, 0.2));
       }
 
@@ -573,14 +573,14 @@
     font-variant-ligatures: common-ligatures;
     font-variant-numeric: proportional-nums;
 
-    svg { 
-      stroke: var(--amx-orange); 
+    svg {
+      stroke: var(--amx-orange);
       flex-shrink: 0;
       filter: drop-shadow(0 1px 2px rgba(245, 130, 10, 0.15));
     }
 
-    strong { 
-      font-weight: 700; 
+    strong {
+      font-weight: 700;
       color: var(--amx-text);
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
@@ -741,7 +741,7 @@
         svg { stroke: var(--amx-muted); }
       }
 
-      &:hover { 
+      &:hover {
         box-shadow: inset 3px 0 0 0 color-mix(in srgb, var(--amx-text) 12%, transparent), var(--amx-shadow-sm);
         transform: scale(0.92);
       }

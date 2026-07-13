@@ -1,8 +1,6 @@
 <div class="amx-png" [class.amx-png--panel-open]="!!selected()">
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       HERO
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <section class="amx-png__hero">
     <div class="amx-png__hero-bg" aria-hidden="true">
       <div class="amx-png__hero-checker"></div>
@@ -40,14 +38,14 @@
             Search
           </button>
         </div>
-        <!-- Suggestions dropdown (tag matches while typing) -->
+        
         <ul *ngIf="suggestionsOpen() && suggestions().length" class="amx-png__suggestions">
           <li *ngFor="let s of suggestions()" (click)="applySuggestion(s)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             {{ s }}
           </li>
         </ul>
-        <!-- Recent searches — Pixabay/PNGTree-style history, shown only when the box is empty & focused -->
+        
         <ul *ngIf="showSearchHistory()" class="amx-png__suggestions amx-png__suggestions--history">
           <li class="amx-png__suggestions-head">
             <span>Recent searches</span>
@@ -66,7 +64,7 @@
         <button *ngFor="let tag of trendingTags" class="amx-png__trending-tag" (click)="applyTag(tag)">{{ tag }}</button>
       </div>
 
-      <!-- Search by color — Pixabay-style visual color search, surfaced at top level -->
+      
       <div class="amx-png__hero-colors" (click)="$event.stopPropagation()">
         <span>Search by color:</span>
         <button *ngFor="let c of colorSwatches" class="amx-png__hero-color-swatch"
@@ -89,14 +87,14 @@
         </button>
       </div>
 
-      <!-- Free-tier daily quota — Freepik-style download cap -->
+      
       <p class="amx-png__quota-note" *ngIf="!isPremiumUser()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         {{ freeDownloadsRemaining() }} of {{ dailyFreeLimit }} free downloads left today ·
         <a (click)="goPremium()">Go unlimited with Premium</a>
       </p>
 
-      <!-- Stats banner -->
+      
       <div class="amx-png__stats">
         <div class="amx-png__stat"><span>120+</span> PNGs</div>
         <div class="amx-png__stat-div" aria-hidden="true"></div>
@@ -109,9 +107,7 @@
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       CATEGORY RAIL
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <nav class="amx-png__cats" aria-label="PNG categories">
     <div class="amx-png__cats-track">
       <button class="amx-png__cat-chip" [class.active]="!filters().categoryId" (click)="setCategory(null)">
@@ -124,9 +120,7 @@
     </div>
   </nav>
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       CURATED PACKS — PNGTree/Freepik-style themed bundle discovery
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <section class="amx-png__packs">
     <div class="amx-png__packs-track">
       <button *ngFor="let pack of curatedPacks" class="amx-png__pack" (click)="applyPack(pack)">
@@ -136,9 +130,7 @@
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       EDITOR'S PICKS — Freepik/Envato Elements-style staff-curated showcase
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <section class="amx-png__editors" *ngIf="editorsPicks().length">
     <div class="amx-png__section-header">
       <h2>
@@ -155,9 +147,7 @@
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       RECENTLY VIEWED
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <section class="amx-png__recent" *ngIf="recentAssets().length">
     <div class="amx-png__recent-head">
       <span>Recently viewed</span>
@@ -170,15 +160,13 @@
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       BODY (sidebar + main)
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <div class="amx-png__body">
 
-    <!-- Mobile sidebar overlay backdrop -->
+    
     <div class="amx-png__mobile-backdrop" *ngIf="mobileSidebar()" (click)="mobileSidebar.set(false)" aria-hidden="true"></div>
 
-    <!-- ── LEFT SIDEBAR ─────────────────────────────────────────────────────── -->
+    
     <aside class="amx-png__sidebar"
       [class.amx-png__sidebar--collapsed]="!sidebarOpen()"
       [class.amx-png__sidebar--mobile-open]="mobileSidebar()"
@@ -193,7 +181,7 @@
 
       <div class="amx-png__sidebar-body">
 
-        <!-- License -->
+        
         <div class="amx-png__filter-section" [class.open]="isSectionOpen('license')">
           <button class="amx-png__filter-section-hd" (click)="toggleSection('license')" aria-expanded="true">
             <span>License</span>
@@ -214,7 +202,7 @@
           </div>
         </div>
 
-        <!-- Style -->
+        
         <div class="amx-png__filter-section" [class.open]="isSectionOpen('style')">
           <button class="amx-png__filter-section-hd" (click)="toggleSection('style')">
             <span>Style</span>
@@ -231,7 +219,7 @@
           </div>
         </div>
 
-        <!-- Orientation -->
+        
         <div class="amx-png__filter-section" [class.open]="isSectionOpen('orientation')">
           <button class="amx-png__filter-section-hd" (click)="toggleSection('orientation')">
             <span>Orientation</span>
@@ -259,7 +247,7 @@
           </div>
         </div>
 
-        <!-- Color -->
+        
         <div class="amx-png__filter-section" [class.open]="isSectionOpen('color')">
           <button class="amx-png__filter-section-hd" (click)="toggleSection('color')">
             <span>Color Tone</span>
@@ -281,7 +269,7 @@
           </div>
         </div>
 
-        <!-- People -->
+        
         <div class="amx-png__filter-section" [class.open]="isSectionOpen('people')">
           <button class="amx-png__filter-section-hd" (click)="toggleSection('people')">
             <span>People</span>
@@ -296,7 +284,7 @@
           </div>
         </div>
 
-        <!-- Resolution -->
+        
         <div class="amx-png__filter-section" [class.open]="isSectionOpen('resolution')">
           <button class="amx-png__filter-section-hd" (click)="toggleSection('resolution')">
             <span>Resolution</span>
@@ -315,7 +303,7 @@
           </div>
         </div>
 
-        <!-- Date added -->
+        
         <div class="amx-png__filter-section" [class.open]="isSectionOpen('date')">
           <button class="amx-png__filter-section-hd" (click)="toggleSection('date')">
             <span>Date Added</span>
@@ -331,7 +319,7 @@
           </div>
         </div>
 
-        <!-- Favorites -->
+        
         <div class="amx-png__filter-section open">
           <div class="amx-png__filter-section-body">
             <button class="amx-png__fav-toggle" [class.active]="filters().favoritesOnly" (click)="toggleFavoritesOnly()">
@@ -345,20 +333,20 @@
       </div>
     </aside>
 
-    <!-- ── MAIN CONTENT ──────────────────────────────────────────────────────── -->
+    
     <main class="amx-png__main">
 
-      <!-- Toolbar -->
+      
       <div class="amx-png__toolbar">
         <div class="amx-png__toolbar-left">
-          <!-- Mobile filter toggle -->
+          
           <button class="amx-png__mobile-filter-btn" (click)="mobileSidebar.set(true)" aria-label="Open filters">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             Filters
             <span *ngIf="activeFilterCount() > 0" class="amx-png__filter-badge">{{ activeFilterCount() }}</span>
           </button>
 
-          <!-- Desktop sidebar toggle -->
+          
           <button class="amx-png__sidebar-toggle" (click)="sidebarOpen.set(!sidebarOpen())" [attr.aria-label]="sidebarOpen() ? 'Hide sidebar' : 'Show sidebar'">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
           </button>
@@ -369,13 +357,13 @@
         </div>
 
         <div class="amx-png__toolbar-right">
-          <!-- Bulk select toggle -->
+          
           <button class="amx-png__bulk-toggle" [class.active]="bulkMode()" (click)="toggleBulkMode()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
             {{ bulkMode() ? 'Cancel select' : 'Select' }}
           </button>
 
-          <!-- View mode -->
+          
           <div class="amx-png__view-toggle" role="group" aria-label="View mode">
             <button [class.active]="viewMode() === 'masonry'"
               (click)="setViewMode('masonry')" aria-label="Masonry view">
@@ -391,7 +379,7 @@
             </button>
           </div>
 
-          <!-- Sort -->
+          
           <div class="amx-png__sort">
             <button class="amx-png__sort-btn" (click)="sortMenuOpen.set(!sortMenuOpen()); $event.stopPropagation()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
@@ -408,7 +396,7 @@
         </div>
       </div>
 
-      <!-- Active filter chips -->
+      
       <div class="amx-png__active-filters" *ngIf="activeFilterCount() > 0">
         <span *ngIf="filters().categoryId" class="amx-png__chip">
           {{ categoryEmoji(filters().categoryId!) }} {{ categoryName(filters().categoryId!) }}
@@ -449,7 +437,7 @@
         <button class="amx-png__chip-clear" (click)="clearFilters()">Clear all</button>
       </div>
 
-      <!-- Bulk select action bar -->
+      
       <div class="amx-png__bulk-bar" *ngIf="bulkMode()">
         <span class="amx-png__bulk-bar-count">
           <strong>{{ bulkCount() }}</strong> selected
@@ -468,10 +456,21 @@
         </div>
       </div>
 
-      <!-- ── GRID ──────────────────────────────────────────────────────────── -->
+      
       <div class="amx-png__grid-wrap">
 
-        <!-- Masonry / Grid -->
+        
+        <div *ngIf="svc.loading()" class="amx-png__loading">
+          <div class="amx-png__spinner"></div>
+          <p>Searching Pixabay library…</p>
+        </div>
+
+        
+        <div *ngIf="svc.error() as err" class="amx-png__error">
+          <p>{{ err }}</p>
+          <button class="amx-png__retry-btn" (click)="svc.search()">Retry</button>
+        </div>
+
         <div *ngIf="visibleResults().length && viewMode() !== 'list'"
           class="amx-png__grid"
           [class.amx-png__grid--masonry]="viewMode() === 'masonry'"
@@ -486,18 +485,18 @@
             <div class="amx-png-card__frame">
               <img [src]="png.thumb" [alt]="png.name" loading="lazy" decoding="async" />
 
-              <!-- Locked-preview watermark — Shutterstock/iStock/Adobe Stock/Depositphotos/123RF-style, so premium content can't be lifted from the preview -->
+              
               <div *ngIf="isLocked(png)" class="amx-png__watermark" aria-hidden="true">
                 <span *ngFor="let i of watermarkRepeat">AMARAPIX PREVIEW</span>
               </div>
 
-              <!-- Bulk select checkbox -->
+              
               <button *ngIf="bulkMode()" class="amx-png-card__check" [class.checked]="isBulkSelected(png)"
                 (click)="toggleBulkSelect(png, $event)" aria-label="Select for bulk download">
                 <svg *ngIf="isBulkSelected(png)" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
               </button>
 
-              <!-- Badges -->
+              
               <div class="amx-png-card__badges">
                 <span *ngIf="png.isPremium" class="amx-png-card__badge amx-png-card__badge--premium">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M2 19h20v2H2v-2zM12 3l4 8 4-4-3 10H7L4 7l4 4 4-8z"/></svg>
@@ -507,7 +506,7 @@
                 <span *ngIf="png.resolution === '4k'" class="amx-png-card__badge amx-png-card__badge--4k">4K</span>
               </div>
 
-              <!-- Hover overlay -->
+              
               <div class="amx-png-card__overlay">
                 <div class="amx-png-card__overlay-top">
                   <button class="amx-png-card__icon-btn" [class.active]="isFavorite(png)"
@@ -545,7 +544,7 @@
           </article>
         </div>
 
-        <!-- List view -->
+        
         <div *ngIf="visibleResults().length && viewMode() === 'list'" class="amx-png__list">
           <article *ngFor="let png of visibleResults(); trackBy: trackById"
             class="amx-png-list-row" (click)="openDetail(png)" tabindex="0" role="button"
@@ -588,7 +587,7 @@
           </article>
         </div>
 
-        <!-- Empty state -->
+        
         <div *ngIf="!visibleResults().length" class="amx-png__empty">
           <div class="amx-png__empty-icon">
             <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
@@ -600,7 +599,7 @@
           <button class="amx-png__empty-clear" (click)="clearFilters()">Clear all filters</button>
         </div>
 
-        <!-- Load more -->
+        
         <div class="amx-png__pagination" *ngIf="hasMore()">
           <p class="amx-png__pagination-info">Showing {{ visibleCount() }} of {{ results().length }} results</p>
           <div class="amx-png__pagination-bar">
@@ -612,7 +611,7 @@
           </button>
         </div>
 
-        <!-- Related search tag cloud — PNGWing/CleanPNG/KissPNG-style SEO tag list -->
+        
         <div class="amx-png__tagcloud" *ngIf="relatedTags().length">
           <span class="amx-png__tagcloud-label">Related searches:</span>
           <button *ngFor="let tag of relatedTags()" class="amx-png__tagcloud-tag" (click)="applyTag(tag)">{{ tag }}</button>
@@ -621,15 +620,13 @@
     </main>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       DETAIL SLIDE-OVER PANEL
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <div class="amx-png-panel-overlay" *ngIf="selected()" (click)="closeDetail()" aria-label="Close detail panel"></div>
 
   <aside class="amx-png-panel" [class.amx-png-panel--open]="!!selected()" *ngIf="selected() as png" aria-label="Asset detail">
     <div class="amx-png-panel__inner">
 
-      <!-- Panel header -->
+      
       <div class="amx-png-panel__header">
         <div class="amx-png-panel__breadcrumb">
           <span>{{ png.categoryLabel }}</span>
@@ -649,7 +646,7 @@
         </div>
       </div>
 
-      <!-- Preview area -->
+      
       <div class="amx-png-panel__preview" (click)="openLightbox($event)" role="button" tabindex="0" aria-label="Zoom image">
         <img [src]="png.url" [alt]="png.name" />
         <div *ngIf="isLocked(png)" class="amx-png__watermark" aria-hidden="true">
@@ -663,7 +660,7 @@
         </div>
       </div>
 
-      <!-- Info -->
+      
       <div class="amx-png-panel__info">
         <div class="amx-png-panel__badges">
           <span *ngIf="png.isPremium" class="amx-png-card__badge amx-png-card__badge--premium">
@@ -677,7 +674,7 @@
 
         <h2 class="amx-png-panel__title">{{ png.name }}</h2>
 
-        <!-- Stats row -->
+        
         <div class="amx-png-panel__stats">
           <div class="amx-png-panel__stat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
@@ -696,7 +693,7 @@
           </div>
         </div>
 
-        <!-- Size selector -->
+        
         <div class="amx-png-panel__sizes">
           <div class="amx-png-panel__sizes-label">Download size</div>
           <div class="amx-png-panel__size-list">
@@ -708,7 +705,7 @@
           </div>
         </div>
 
-        <!-- License tier — Adobe Stock/Shutterstock/iStock-style Standard vs Extended, for Premium assets -->
+        
         <div class="amx-png-panel__sizes" *ngIf="png.isPremium && !isLocked(png)">
           <div class="amx-png-panel__sizes-label">License type</div>
           <div class="amx-png-panel__license-tiers">
@@ -723,7 +720,7 @@
           </div>
         </div>
 
-        <!-- Primary actions -->
+        
         <div class="amx-png-panel__primary-actions">
           <button class="amx-png-panel__download-btn" [class.is-locked]="isLocked(png)" (click)="downloadWithSize(png)">
             <svg *ngIf="!isLocked(png)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
@@ -741,7 +738,7 @@
           </p>
         </div>
 
-        <!-- Attribution — Vecteezy-style: free downloads require credit unless the user is Premium -->
+        
         <div class="amx-png-panel__attribution" *ngIf="requiresAttribution(png)">
           <div class="amx-png-panel__section-title">Attribution required</div>
           <p>Free PNGs require credit when used publicly. Premium members can skip this.</p>
@@ -754,7 +751,7 @@
           </div>
         </div>
 
-        <!-- Share — StickPNG/PurePNG/PNGWing-style social share -->
+        
         <div class="amx-png-panel__share">
           <span>Share:</span>
           <button (click)="shareTo('pinterest', png, $event)" aria-label="Share on Pinterest" class="amx-png-panel__share-btn amx-png-panel__share-btn--pin">
@@ -768,7 +765,7 @@
           </button>
         </div>
 
-        <!-- Secondary actions -->
+        
         <div class="amx-png-panel__secondary-actions">
           <button class="amx-png-panel__action-btn" (click)="useInEditor(png)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -790,7 +787,7 @@
           </button>
         </div>
 
-        <!-- Tags -->
+        
         <div class="amx-png-panel__section">
           <div class="amx-png-panel__section-title">Tags</div>
           <div class="amx-png-panel__tags">
@@ -800,7 +797,7 @@
           </div>
         </div>
 
-        <!-- License & usage — CleanPNG/PNGWing-style terms disclosure -->
+        
         <div class="amx-png-panel__section amx-png-panel__license">
           <div class="amx-png-panel__section-title">License &amp; Usage</div>
           <ul class="amx-png-panel__license-list">
@@ -823,7 +820,7 @@
           </ul>
         </div>
 
-        <!-- Source -->
+        
         <div class="amx-png-panel__source">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           Sourced from <strong>{{ png.source }}</strong>
@@ -831,7 +828,7 @@
         </div>
       </div>
 
-      <!-- Related PNGs -->
+      
       <div class="amx-png-panel__related" *ngIf="related().length">
         <div class="amx-png-panel__section-title">Related PNGs</div>
         <div class="amx-png-panel__related-grid">
@@ -847,9 +844,7 @@
     </div>
   </aside>
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       COLLECTIONS MODAL
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <div class="amx-png-col-overlay" *ngIf="collectionsOpen()" (click)="closeCollections()" aria-label="Close collections modal"></div>
   <div class="amx-png-col-modal" *ngIf="collectionsOpen()" role="dialog" aria-labelledby="col-modal-title">
     <div class="amx-png-col-modal__header">
@@ -860,7 +855,7 @@
     </div>
 
     <div class="amx-png-col-modal__body">
-      <!-- New collection form -->
+      
       <button *ngIf="!showNewCollectionForm()" class="amx-png-col-modal__new-btn" (click)="showNewCollectionForm.set(true)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Create new board
@@ -879,7 +874,7 @@
         </div>
       </div>
 
-      <!-- Existing collections -->
+      
       <div *ngIf="svc.collections().length === 0 && !showNewCollectionForm()" class="amx-png-col-modal__empty">
         No boards yet. Create your first one above.
       </div>
@@ -908,9 +903,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       LIGHTBOX
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <div class="amx-png-lightbox" *ngIf="lightboxOpen() && selected() as lpng" (click)="closeLightbox()">
     <button class="amx-png-lightbox__close" (click)="closeLightbox()" aria-label="Close zoom">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -930,9 +923,7 @@
     <div class="amx-png-lightbox__caption">{{ lpng.name }} · click image to {{ lightboxZoom() ? 'shrink' : 'zoom' }}</div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       BECOME A CONTRIBUTOR (Shutterstock/Adobe Stock/iStock/Depositphotos/123RF upload-to-sell)
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <div class="amx-png-col-overlay" *ngIf="contributorOpen()" (click)="closeContributor()"></div>
   <div class="amx-png-report-modal amx-png-contributor-modal" *ngIf="contributorOpen()" role="dialog" aria-labelledby="contributor-modal-title">
     <div class="amx-png-col-modal__header">
@@ -993,9 +984,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       REPORT CONTENT (CleanPNG/KissPNG-style copyright/compliance report)
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <div class="amx-png-col-overlay" *ngIf="reportOpen()" (click)="closeReport()"></div>
   <div class="amx-png-report-modal" *ngIf="reportOpen() && selected() as rpng" role="dialog" aria-labelledby="report-modal-title">
     <div class="amx-png-col-modal__header">
@@ -1018,9 +1007,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       CREATE YOUR OWN CUTOUT (upload & remove background)
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <div class="amx-png-create-overlay" *ngIf="createOpen()" (click)="closeCreateTool()" aria-label="Close tool"></div>
   <div class="amx-png-create-modal" *ngIf="createOpen()" role="dialog" aria-labelledby="create-modal-title">
     <div class="amx-png-create-modal__header">
@@ -1032,7 +1019,7 @@
 
     <div class="amx-png-create-modal__body">
 
-      <!-- Upload stage -->
+      
       <div *ngIf="createStage() === 'upload'"
         class="amx-png-create__dropzone" [class.drag-over]="createDragOver()"
         (dragover)="onCreateDragOver($event)" (dragleave)="onCreateDragLeave()" (drop)="onCreateDrop($event)">
@@ -1045,13 +1032,13 @@
         </label>
       </div>
 
-      <!-- Processing stage -->
+      
       <div *ngIf="createStage() === 'processing'" class="amx-png-create__processing">
         <div class="amx-png-create__spinner"></div>
         <p>Removing background…</p>
       </div>
 
-      <!-- Result stage -->
+      
       <div *ngIf="createStage() === 'result'" class="amx-png-create__result">
         <div class="amx-png-create__compare">
           <div class="amx-png-create__compare-col">
@@ -1073,7 +1060,7 @@
         </div>
       </div>
 
-      <!-- Error stage -->
+      
       <div *ngIf="createStage() === 'error'" class="amx-png-create__error">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <p>{{ createError() }}</p>
@@ -1082,9 +1069,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════════════════════
-       TOAST
-  ══════════════════════════════════════════════════════════════════════════ -->
+  
   <div class="amx-png-toast" [class.amx-png-toast--visible]="!!toast()" [class.amx-png-toast--info]="toast()?.type === 'info'">
     {{ toast()?.msg }}
   </div>

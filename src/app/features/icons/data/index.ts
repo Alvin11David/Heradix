@@ -1,4 +1,3 @@
-// AUTO-GENERATED index — do not edit manually.
 import type { IconLibraryId } from '../../../core/models/icon.model';
 
 export type { IconLibraryId };

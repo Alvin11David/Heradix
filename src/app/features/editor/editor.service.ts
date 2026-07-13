@@ -126,11 +126,7 @@ export class EditorService {
   canUndo = computed(() => this._undoStack.length > 0);
   canRedo = computed(() => this._redoStack.length > 0);
 
-  /**
-   * This build is frontend-only: there is no project/export backend to call.
-   * Projects are persisted to localStorage keyed by a stable id (per asset,
-   * or a single "draft" slot), so reloading the editor restores your work.
-   */
+
   private storageKey(id: string): string {
     return `${this.STORAGE_PREFIX}${id}`;
   }
@@ -148,7 +144,7 @@ export class EditorService {
     try {
       localStorage.setItem(this.storageKey(project.id), JSON.stringify(project));
     } catch {
-      // Storage unavailable (private browsing, quota, etc.) — in-memory state still works.
+
     }
   }
 

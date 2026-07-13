@@ -38,6 +38,9 @@ testem.log
 /typings
 __screenshots__/
 
+# Heradix source (separate repo)
+/Heradix/
+
 # System files
 .DS_Store
 Thumbs.db

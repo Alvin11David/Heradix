@@ -1,17 +1,4 @@
-/**
- * Client-side background removal (no AI backend): estimates the background
- * color from the image corners and keys out matching pixels, with a soft
- * feather at the edge of the tolerance band. Works best on photos with a
- * solid or near-solid background.
- *
- * Mirrors the algorithm used by the canvas editor's "Remove Background" AI
- * tool, extracted here so it can be reused outside the editor (e.g. the PNG
- * marketplace's "Create Your Own Cutout" upload tool).
- *
- * Throws if the canvas becomes tainted by a cross-origin image without CORS
- * headers, or if the image has no pixel data — callers should catch and
- * surface a clear error rather than silently failing.
- */
+
 export function removeBackgroundFromImage(el: HTMLImageElement, tolerance = 46): string {
   const w = el.naturalWidth || el.width;
   const h = el.naturalHeight || el.height;
@@ -27,7 +14,7 @@ export function removeBackgroundFromImage(el: HTMLImageElement, tolerance = 46):
   const imageData = ctx.getImageData(0, 0, w, h);
   const data = imageData.data;
 
-  // Estimate the background color from the four corners.
+
   const corners = [
     [0, 0],
     [w - 1, 0],
@@ -59,12 +46,7 @@ export function removeBackgroundFromImage(el: HTMLImageElement, tolerance = 46):
   return off.toDataURL('image/png');
 }
 
-/**
- * Resizes an already-loaded image to a max width (preserving aspect ratio)
- * and returns it as a PNG data URL. Throws (canvas taint) if the image is
- * cross-origin without CORS headers — callers should catch and fall back to
- * a direct download of the original file.
- */
+
 export function resizeImageToDataUrl(el: HTMLImageElement, maxWidth: number): string {
   const w = el.naturalWidth || el.width;
   const h = el.naturalHeight || el.height;

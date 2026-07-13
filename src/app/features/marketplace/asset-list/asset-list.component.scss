@@ -501,7 +501,7 @@
     --market-thumb-button: var(--amx-orange);
   }
 
-  /* Calendar cards have light pastel gradients in both modes — force dark text */
+
   .amx-cal-card {
     &__title    { color: #111827; }
     &__when     { color: rgba(17, 24, 39, 0.60); }

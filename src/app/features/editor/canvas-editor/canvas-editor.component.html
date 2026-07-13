@@ -1,5 +1,5 @@
 <div class="editor" [class.editor--presentation]="presentationMode()" *ngIf="!loading()">
-  <!-- ══ Top Toolbar ══════════════════════════════════════════ -->
+  
   <header class="editor-toolbar">
     <div class="tb-left">
       <button class="tb-btn tb-btn--icon" (click)="saveAndClose()" aria-label="Back to Marketplace" data-tip="Back to Marketplace">
@@ -12,7 +12,7 @@
     </div>
 
     <div class="tb-center">
-      <!-- Primary tools group -->
+      
       <div class="tb-tool-group">
         <button class="tb-tool" [class.tb-tool--active]="toolMode() === 'select'"
           (click)="setTool('select')" aria-label="Select (V)" data-tip="Select (V)">
@@ -66,7 +66,7 @@
 
       <div class="tb-sep"></div>
 
-      <!-- Action buttons -->
+      
       <button class="tb-tool" (click)="selectAll()" aria-label="Select All (Ctrl+A)" data-tip="Select All (Ctrl+A)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -148,9 +148,9 @@
     </div>
   </header>
 
-  <!-- ══ Contextual Selection Toolbar (floats below top bar) ═══ -->
+  
   <div class="sel-toolbar" *ngIf="selectedLayerIds().size > 0" style="position: fixed; top: 62px; left: 50%; transform: translateX(-50%); z-index: 50;">
-    <!-- Align -->
+    
     <button class="sel-btn" (click)="alignSelected('left')" aria-label="Align left" data-tip="Align left">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="4" y1="4" x2="4" y2="20"/><rect x="6" y="7" width="10" height="4" rx="1"/><rect x="6" y="13" width="14" height="4" rx="1"/>
@@ -182,7 +182,7 @@
       </svg>
     </button>
     <div class="sel-sep"></div>
-    <!-- Arrange -->
+    
     <button class="sel-btn" (click)="moveSelectedForward()" aria-label="Bring forward" data-tip="Bring forward">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="8" y="8" width="12" height="12" rx="2"/><rect x="4" y="4" width="12" height="12" rx="2" stroke-dasharray="2 2"/>
@@ -206,7 +206,7 @@
       </svg>
     </button>
     <div class="sel-sep"></div>
-    <!-- Group / Ungroup -->
+    
     <button class="sel-btn" (click)="groupSelected()" [disabled]="selectedLayerIds().size < 2" aria-label="Group (Ctrl+G — select 2+ objects)" data-tip="Group (Ctrl+G — select 2+ objects)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="2" y="2" width="8" height="8" rx="1.5"/><rect x="14" y="2" width="8" height="8" rx="1.5"/>
@@ -221,7 +221,7 @@
       </svg>
     </button>
     <div class="sel-sep"></div>
-    <!-- Flip H / Flip V -->
+    
     <button class="sel-btn" (click)="flipSelectedHorizontal()" aria-label="Flip horizontal" data-tip="Flip horizontal">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/>
@@ -235,7 +235,7 @@
       </svg>
     </button>
     <div class="sel-sep"></div>
-    <!-- Distribute H / V (3+ objects) -->
+    
     <button class="sel-btn" (click)="distributeHorizontally()" [disabled]="selectedLayerIds().size < 3"
       aria-label="Distribute horizontally (3+ objects)" data-tip="Distribute horizontally (3+ objects)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -251,7 +251,7 @@
       </svg>
     </button>
     <div class="sel-sep"></div>
-    <!-- Duplicate / Lock / Delete -->
+    
     <button class="sel-btn" (click)="duplicateSelected()" aria-label="Duplicate (Ctrl+D)" data-tip="Duplicate (Ctrl+D)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="9" y="9" width="13" height="13" rx="2"/>
@@ -272,15 +272,15 @@
     </button>
   </div>
 
-  <!-- ══ Main Body ═══════════════════════════════════════════ -->
+  
   <div class="editor-body"
     [class.editor-body--left-collapsed]="leftPanelCollapsed()"
     [class.editor-body--right-collapsed]="rightPanelCollapsed()">
 
-    <!-- ── Left Sidebar (Canva-style tabbed) ─────────────── -->
+    
     <aside class="panel panel--left" *ngIf="!leftPanelCollapsed()">
 
-      <!-- Tab bar -->
+      
       <nav class="lp-tabs">
         <button class="lp-tab" [class.lp-tab--active]="leftPanelTab()==='layers'"
           (click)="setLeftTab('layers')" aria-label="Layers" data-tip="Layers">
@@ -313,15 +313,6 @@
           </svg>
           <span>Photos</span>
         </button>
-        <button class="lp-tab" [class.lp-tab--active]="leftPanelTab()==='png'"
-          (click)="setLeftTab('png')" aria-label="Transparent PNGs" data-tip="Transparent PNGs">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="2" width="20" height="20" rx="3"/>
-            <path d="M2 8h20M8 2v8" stroke-dasharray="3 2"/>
-            <circle cx="15" cy="15" r="4" fill="currentColor" fill-opacity=".25" stroke-width="1.5"/>
-          </svg>
-          <span>PNG</span>
-        </button>
         <button class="lp-tab" [class.lp-tab--active]="leftPanelTab()==='text'"
           (click)="setLeftTab('text')" aria-label="Text Styles" data-tip="Text Styles">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -340,7 +331,7 @@
         </button>
       </nav>
 
-      <!-- ── TAB: LAYERS ───────────────────────────────────── -->
+      
       <div class="lp-body" *ngIf="leftPanelTab()==='layers'">
         <div class="lp-section-header">
           <span class="lp-section-title">Layers</span>
@@ -422,7 +413,7 @@
         </div>
       </div>
 
-      <!-- ── TAB: TEMPLATES (PosterMyWall / Canva) ─────────── -->
+      
       <div class="lp-body" *ngIf="leftPanelTab()==='templates'">
         <div class="lp-section-header">
           <span class="lp-section-title">Templates</span>
@@ -449,7 +440,7 @@
         </div>
       </div>
 
-      <!-- ── TAB: ELEMENTS (Canva / Freepik / Envato) ───────── -->
+      
       <div class="lp-body" *ngIf="leftPanelTab()==='elements'">
         <div class="lp-section-header"><span class="lp-section-title">Elements & Shapes</span></div>
         <div class="lp-pad">
@@ -460,34 +451,34 @@
           <button class="el-item" *ngFor="let el of elementShapes; trackBy: $any(trackLayer)"
             (click)="addElement(el)" [attr.aria-label]="el.name" [attr.data-tip]="el.name">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-              <!-- rect -->
+              
               <ng-container *ngIf="el.type==='rect'&&!el.params?.['rx']"><rect x="4" y="7" width="16" height="10" rx="1"/></ng-container>
               <ng-container *ngIf="el.type==='rect'&&el.params?.['rx']"><rect x="4" y="7" width="16" height="10" rx="5"/></ng-container>
-              <!-- circle -->
+              
               <ng-container *ngIf="el.type==='circle'"><circle cx="12" cy="12" r="8"/></ng-container>
-              <!-- triangle -->
+              
               <ng-container *ngIf="el.type==='polygon'&&el.params?.['_sides']===3"><polygon points="12,4 22,20 2,20"/></ng-container>
-              <!-- pentagon -->
+              
               <ng-container *ngIf="el.type==='polygon'&&el.params?.['_sides']===5"><polygon points="12,2 22,9 18,21 6,21 2,9"/></ng-container>
-              <!-- hexagon -->
+              
               <ng-container *ngIf="el.type==='polygon'&&el.params?.['_sides']===6"><polygon points="12,2 22,7 22,17 12,22 2,17 2,7"/></ng-container>
-              <!-- octagon -->
+              
               <ng-container *ngIf="el.type==='polygon'&&el.params?.['_sides']===8"><polygon points="8,2 16,2 22,8 22,16 16,22 8,22 2,16 2,8"/></ng-container>
-              <!-- 5-star -->
+              
               <ng-container *ngIf="el.type==='star'&&el.params?.['_starPoints']===5"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></ng-container>
-              <!-- 6-star -->
+              
               <ng-container *ngIf="el.type==='star'&&el.params?.['_starPoints']===6"><polygon points="12,2 14,8 20,6 16,12 20,18 14,16 12,22 10,16 4,18 8,12 4,6 10,8"/></ng-container>
-              <!-- 4-star -->
+              
               <ng-container *ngIf="el.type==='star'&&el.params?.['_starPoints']===4"><polygon points="12,2 14,10 22,12 14,14 12,22 10,14 2,12 10,10"/></ng-container>
-              <!-- line (solid) -->
+              
               <ng-container *ngIf="el.type==='line'&&!el.params?.['strokeDashArray']"><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" fill="none"/></ng-container>
-              <!-- line (dashed) -->
+              
               <ng-container *ngIf="el.type==='line'&&el.params?.['strokeDashArray']"><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="5,3"/></ng-container>
             </svg>
             <span>{{ el.name }}</span>
           </button>
         </div>
-        <!-- ── Icon Library (Canva / Freepik) ──────────────────────── -->
+        
         <div class="lp-section-divider"></div>
         <div class="lp-section-label">Icons</div>
         <div class="icon-grid">
@@ -512,7 +503,7 @@
         </div>
       </div>
 
-      <!-- ── TAB: PHOTOS (Unsplash / Freepik / Envato) ──────── -->
+      
       <div class="lp-body" *ngIf="leftPanelTab()==='photos'">
         <div class="lp-section-header"><span class="lp-section-title">Stock Photos</span></div>
         <div class="lp-pad">
@@ -545,257 +536,7 @@
         </div>
       </div>
 
-      <!-- ══════════════════════════════════════════════════════════
-           TAB: TRANSPARENT PNGs (Pixabay / PNGTree / CleanPNG style)
-           ══════════════════════════════════════════════════════════ -->
-      <div class="lp-body lp-body--png" *ngIf="leftPanelTab()==='png'">
-
-        <!-- ── Search bar ─────────────────────────────────────────── -->
-        <div class="png-search-wrap">
-          <div class="png-search-inner">
-            <svg class="png-search-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input class="png-search-input" type="text" placeholder="Search transparent PNGs…"
-              [value]="pngQuery()"
-              (input)="pngQuery.set($any($event.target).value)"
-              (keydown.enter)="searchPngs()"/>
-            <button class="png-search-clear" *ngIf="pngQuery()" (click)="clearPngSearch()" aria-label="Clear search">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-          </div>
-          <button class="png-search-go" (click)="searchPngs()" aria-label="Search PNGs">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </button>
-        </div>
-
-        <!-- ── Category chips (horizontally scrollable) ──────────── -->
-        <div class="png-cats-scroll">
-          <div class="png-cats">
-            <button class="png-cat" [class.png-cat--active]="pngCategory()==='all'"
-              (click)="setPngCategory('all')">✨ All</button>
-            <button class="png-cat" *ngFor="let cat of pngCategories"
-              [class.png-cat--active]="pngCategory()===cat.id"
-              (click)="setPngCategory(cat.id)">{{ cat.emoji }} {{ cat.label }}</button>
-          </div>
-        </div>
-
-        <!-- ── Toolbar: Sort tabs + View toggle ───────────────────── -->
-        <div class="png-toolbar">
-          <div class="png-sort-tabs">
-            <button class="png-sort-tab" [class.png-sort-tab--active]="pngSortBy()==='popular'"
-              (click)="setPngSort('popular')">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              Popular
-            </button>
-            <button class="png-sort-tab" [class.png-sort-tab--active]="pngSortBy()==='new'"
-              (click)="setPngSort('new')">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              New
-            </button>
-            <button class="png-sort-tab" [class.png-sort-tab--active]="pngSortBy()==='trending'"
-              (click)="setPngSort('trending')">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-              Trending
-            </button>
-          </div>
-          <div class="png-view-toggle">
-            <button class="png-view-btn" [class.png-view-btn--active]="pngViewMode()==='grid'"
-              (click)="pngViewMode.set('grid')" aria-label="Grid view" data-tip="Grid">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-              </svg>
-            </button>
-            <button class="png-view-btn" [class.png-view-btn--active]="pngViewMode()==='list'"
-              (click)="pngViewMode.set('list')" aria-label="List view" data-tip="List">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
-                <circle cx="3" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><circle cx="3" cy="18" r="1" fill="currentColor"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- ── Color palette filter ───────────────────────────────── -->
-        <div class="png-color-row">
-          <span class="png-color-label">Color</span>
-          <div class="png-color-dots">
-            <button class="png-color-dot" *ngFor="let c of pngColors"
-              [style.background]="c.hex"
-              [class.png-color-dot--active]="pngColorFilter()===c.id"
-              (click)="setPngColor(c.id)"
-              [attr.aria-label]="'Filter by ' + c.label"
-              [attr.data-tip]="c.label">
-              <svg *ngIf="pngColorFilter()===c.id" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </button>
-          </div>
-          <button class="png-color-clear" *ngIf="pngColorFilter()" (click)="setPngColor(null)" aria-label="Clear color filter" data-tip="Clear">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-
-        <!-- ── Results meta ───────────────────────────────────────── -->
-        <div class="png-results-meta" *ngIf="!pngSearching()">
-          <span class="png-results-count">{{ pngAllResults().length | number }} PNGs</span>
-          <span class="png-results-hint" *ngIf="pngCategory()!=='all'">
-            in {{ getPngCategoryLabel(pngCategory()) }}
-          </span>
-          <span class="png-source-label">Free &amp; Premium</span>
-        </div>
-
-        <!-- ── Loading state ─────────────────────────────────────── -->
-        <div class="png-loading" *ngIf="pngSearching()">
-          <div class="png-loading-dots">
-            <span></span><span></span><span></span>
-          </div>
-          <p>Searching PNGs…</p>
-        </div>
-
-        <!-- ── Empty state ───────────────────────────────────────── -->
-        <div class="png-empty" *ngIf="!pngSearching() && pngAllResults().length === 0">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.2">
-            <rect x="2" y="2" width="20" height="20" rx="3"/>
-            <path d="M2 8h20M8 2v8" stroke-dasharray="3 2"/>
-            <circle cx="15" cy="15" r="4"/>
-          </svg>
-          <p>No PNGs found.<br/>Try a different keyword or category.</p>
-          <button class="png-reset-btn" (click)="clearPngSearch(); setPngCategory('all')">
-            Reset filters
-          </button>
-        </div>
-
-        <!-- ── PNG Grid ───────────────────────────────────────────── -->
-        <div class="png-grid" [class.png-grid--list]="pngViewMode()==='list'"
-          *ngIf="!pngSearching() && pngAllResults().length > 0">
-
-          <div class="png-item" *ngFor="let p of pngDisplayResults(); trackBy: $any(trackLayer)"
-            [class.png-item--list]="pngViewMode()==='list'"
-            [class.png-item--selected]="selectedPng()?.id === p.id"
-            (click)="selectPng(p)">
-
-            <!-- Thumbnail with checkerboard (simulates transparency) -->
-            <div class="png-item-thumb" [class.png-item-thumb--tall]="p.height > p.width">
-              <img [src]="p.thumb" [alt]="p.title" loading="lazy"/>
-
-              <!-- Hover overlay -->
-              <div class="png-item-overlay">
-                <button class="png-item-add-btn"
-                  (click)="$event.stopPropagation(); insertPng(p)"
-                  aria-label="Add to canvas" data-tip="Add to canvas">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-                  Add
-                </button>
-                <div class="png-item-stats">
-                  <span>
-                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    {{ formatPngCount(p.downloads) }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Badges -->
-              <span class="png-badge png-badge--pro" *ngIf="p.isPremium">PRO</span>
-              <span class="png-badge png-badge--free" *ngIf="!p.isPremium">FREE</span>
-              <span class="png-badge png-badge--src">{{ p.source }}</span>
-            </div>
-
-            <!-- List-mode info row -->
-            <div class="png-item-info" *ngIf="pngViewMode()==='list'">
-              <span class="png-item-title">{{ p.title }}</span>
-              <div class="png-item-meta-row">
-                <span class="png-item-dims">{{ p.width }}×{{ p.height }}</span>
-                <span class="png-item-dl">
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  {{ formatPngCount(p.downloads) }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div><!-- /png-grid -->
-
-        <!-- ── Load more button ──────────────────────────────────── -->
-        <div class="png-load-more-wrap" *ngIf="pngHasMore() && !pngSearching()">
-          <button class="png-load-more-btn" (click)="loadMorePngs()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 10 12 15 17 10"/></svg>
-            Load More
-            <span class="png-load-count">({{ pngAllResults().length - pngDisplayResults().length }} more)</span>
-          </button>
-        </div>
-
-        <!-- ══════════════════════════════════════════════════════════
-             DETAIL DRAWER — slides up when an item is selected
-             ══════════════════════════════════════════════════════════ -->
-        <div class="png-detail-drawer" *ngIf="selectedPng()" (click)="$event.stopPropagation()">
-
-          <!-- Drawer handle + close -->
-          <div class="png-detail-header">
-            <div class="png-detail-handle"></div>
-            <button class="png-detail-close" (click)="closePngDetail()" aria-label="Close" data-tip="Close">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-          </div>
-
-          <div class="png-detail-body">
-            <!-- Large preview -->
-            <div class="png-detail-preview">
-              <img [src]="selectedPng()!.thumb" [alt]="selectedPng()!.title" loading="lazy"/>
-              <span class="png-detail-badge-pro" *ngIf="selectedPng()!.isPremium">PRO</span>
-            </div>
-
-            <!-- Info -->
-            <div class="png-detail-info">
-              <h3 class="png-detail-title">{{ selectedPng()!.title }}</h3>
-              <div class="png-detail-row">
-                <div class="png-detail-stat">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  {{ formatPngCount(selectedPng()!.downloads) }}
-                  <span>Downloads</span>
-                </div>
-                <div class="png-detail-stat">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  {{ formatPngCount(selectedPng()!.views) }}
-                  <span>Views</span>
-                </div>
-                <div class="png-detail-stat">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-                  {{ selectedPng()!.width }}×{{ selectedPng()!.height }}
-                  <span>Resolution</span>
-                </div>
-              </div>
-
-              <!-- Source badge row -->
-              <div class="png-detail-source-row">
-                <span class="png-detail-source">{{ selectedPng()!.source }}</span>
-                <span class="png-detail-license" [class.png-detail-license--pro]="selectedPng()!.isPremium">
-                  {{ selectedPng()!.isPremium ? 'Premium License' : 'Free License' }}
-                </span>
-              </div>
-
-              <!-- Tags -->
-              <div class="png-detail-tags">
-                <span class="png-detail-tag" *ngFor="let tag of selectedPng()!.tags"
-                  (click)="pngQuery.set(tag); searchPngs()">
-                  #{{ tag }}
-                </span>
-              </div>
-
-              <!-- Actions -->
-              <div class="png-detail-actions">
-                <button class="png-detail-add-btn" (click)="insertPng(selectedPng()!); closePngDetail()">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-                  Add to Canvas
-                </button>
-                <button class="png-detail-bg-btn" (click)="setPngAsBackground(selectedPng()!); closePngDetail()" aria-label="Set as background" data-tip="Use as background">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                  Background
-                </button>
-              </div>
-            </div>
-          </div>
-        </div><!-- /png-detail-drawer -->
-
-      </div><!-- /lp-body--png -->
-
-      <!-- ── TAB: TEXT STYLES (Canva) ─────────────────────────── -->
+      
       <div class="lp-body" *ngIf="leftPanelTab()==='text'">
         <div class="lp-section-header"><span class="lp-section-title">Text Styles</span></div>
         <div class="lp-pad">
@@ -814,7 +555,7 @@
         </div>
       </div>
 
-      <!-- ── TAB: BACKGROUND (Canva / PosterMyWall / Freepik) ── -->
+      
       <div class="lp-body" *ngIf="leftPanelTab()==='background'">
         <div class="lp-section-header"><span class="lp-section-title">Background</span></div>
         <div class="lp-section-label">Solid Colors</div>
@@ -848,7 +589,7 @@
 
     </aside>
 
-    <!-- ── Canvas ─────────────────────────────────────────── -->
+    
     <main class="canvas-area" #canvasArea
       (drop)="onFileDrop($event)" (dragover)="onDragOver($event)">
 
@@ -867,7 +608,7 @@
 
       <canvas #canvasEl id="amx-fabric-canvas"></canvas>
 
-      <!-- Safe Zone overlay (Vistaprint bleed / print guides) -->
+      
       <div class="safe-zone-overlay" *ngIf="showSafeZone()">
         <div class="safe-zone-inner">
           <div class="safe-zone-label">Safe Zone</div>
@@ -875,7 +616,7 @@
         <div class="safe-zone-bleed-label">Bleed Area</div>
       </div>
 
-      <!-- Draw / Pencil controls (Canva / Freepik drawing mode) -->
+      
       <div class="draw-controls" *ngIf="toolMode() === 'draw'" (click)="$event.stopPropagation()">
         <div class="draw-controls-title">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -918,7 +659,7 @@
         <button class="draw-done-btn" (click)="setTool('select')">Done Drawing</button>
       </div>
 
-      <!-- Presentation mode exit button -->
+      
       <button class="presentation-exit-btn" *ngIf="presentationMode()" (click)="togglePresentationMode()"
         aria-label="Exit presentation" data-tip="Exit presentation (Esc)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -927,7 +668,7 @@
         Exit
       </button>
 
-      <!-- AI Tools overlay -->
+      
       <div class="canvas-overlay top-left" *ngIf="toolMode() === 'ai'">
         <div class="ai-menu">
           <div class="ai-menu-title">AI Tools</div>
@@ -945,7 +686,7 @@
         </div>
       </div>
 
-      <!-- Upload dialog -->
+      
       <div class="canvas-overlay" *ngIf="showUploadDialog()">
         <div class="upload-card" (click)="$event.stopPropagation()">
           <div class="upload-card-icon">
@@ -962,7 +703,7 @@
         </div>
       </div>
 
-      <!-- Templates dialog -->
+      
       <div class="canvas-overlay" *ngIf="showTemplatePicker()" (click)="showTemplatePicker.set(false)">
         <div class="templates-card" (click)="$event.stopPropagation()">
           <div class="templates-header">
@@ -980,7 +721,7 @@
       </div>
     </main>
 
-    <!-- ── Properties Panel ───────────────────────────────── -->
+    
     <aside class="panel panel--props" *ngIf="!rightPanelCollapsed()">
       <div class="panel-header">
         <h3 class="panel-title">Properties</h3>
@@ -994,12 +735,12 @@
       <div class="panel-scroll">
         <ng-container *ngIf="selectedLayerType(); else noSelection">
 
-          <!-- ── Transform (Position / Size / Rotation — Canva / Vistaprint) ── -->
+          
           <div class="prop-section-header">
             <span class="prop-section-title">Transform</span>
           </div>
           <div class="prop-section-body">
-            <!-- X / Y row -->
+            
             <div class="transform-grid">
               <div class="transform-field">
                 <label class="transform-label">X</label>
@@ -1013,7 +754,7 @@
                   [value]="selectedY()"
                   (change)="setPosY(+$any($event.target).value)"/>
               </div>
-              <!-- W / H with aspect-lock -->
+              
               <div class="transform-field">
                 <label class="transform-label">W</label>
                 <input type="number" class="prop-input transform-input" min="1"
@@ -1026,14 +767,14 @@
                   [value]="selectedH()"
                   (change)="setSizeH(+$any($event.target).value)"/>
               </div>
-              <!-- Rotation -->
+              
               <div class="transform-field">
                 <label class="transform-label">°</label>
                 <input type="number" class="prop-input transform-input" min="0" max="360"
                   [value]="selectedRotation()"
                   (change)="setRotation(+$any($event.target).value)"/>
               </div>
-              <!-- Aspect lock -->
+              
               <button class="transform-lock-btn" [class.transform-lock-btn--active]="aspectLocked()"
                 (click)="toggleAspectLock()"
                 [attr.aria-label]="aspectLocked() ? 'Unlock aspect ratio' : 'Lock aspect ratio'"
@@ -1050,7 +791,7 @@
                 </svg>
               </button>
             </div>
-            <!-- Flip buttons -->
+            
             <div class="flip-row">
               <button class="align-btn" (click)="flipSelectedHorizontal()" aria-label="Flip horizontal" data-tip="Flip horizontal">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -1070,7 +811,7 @@
           </div>
           <div class="prop-divider"></div>
 
-          <!-- ── Appearance (always visible) ── -->
+          
           <div class="prop-section-header">
             <span class="prop-section-title">Appearance</span>
           </div>
@@ -1098,7 +839,7 @@
             </div>
           </div>
 
-          <!-- ── Arrange (always visible when selection) ── -->
+          
           <div class="prop-divider"></div>
           <div class="prop-section-header">
             <span class="prop-section-title">Arrange</span>
@@ -1146,7 +887,7 @@
             </div>
           </div>
 
-          <!-- ── Shadow (always visible) ── -->
+          
           <div class="prop-divider"></div>
           <div class="prop-section-header">
             <span class="prop-section-title">Shadow</span>
@@ -1184,14 +925,14 @@
             </div>
           </div>
 
-          <!-- ══ TEXT PROPERTIES ══════════════════════════════ -->
+          
           <ng-container *ngIf="selectedLayerType() === 'text'">
             <div class="prop-divider"></div>
             <div class="prop-section-header">
               <span class="prop-section-title">Typography</span>
             </div>
             <div class="prop-section-body">
-              <!-- Font family -->
+              
               <div class="prop-section">
                 <label class="prop-label">Font</label>
                 <div class="fp-wrap" (click)="$event.stopPropagation()">
@@ -1210,7 +951,7 @@
                   </div>
                 </div>
               </div>
-              <!-- Font size -->
+              
               <div class="prop-section">
                 <label class="prop-label">Size</label>
                 <div class="fs-wrap">
@@ -1224,7 +965,7 @@
                     (change)="updateProperty('fontSize', +$any($event.target).value)"/>
                 </div>
               </div>
-              <!-- Weight -->
+              
               <div class="prop-section">
                 <label class="prop-label">Weight</label>
                 <select class="prop-select" [value]="selectedFontWeight()"
@@ -1232,7 +973,7 @@
                   <option *ngFor="let w of fontWeights" [value]="w.value">{{ w.value }} — {{ w.label }}</option>
                 </select>
               </div>
-              <!-- Style buttons + text align -->
+              
               <div class="prop-row">
                 <button class="prop-style-btn" [class.prop-style-btn--active]="selectedFontWeight() >= 700"
                   (click)="updateProperty('fontWeight', selectedFontWeight() >= 700 ? 400 : 700)" aria-label="Bold" data-tip="Bold">
@@ -1260,7 +1001,7 @@
                   </svg>
                 </button>
                 <div class="tb-sep" style="height:20px; margin: 0 3px"></div>
-                <!-- Text align buttons -->
+                
                 <button class="prop-style-btn" [class.prop-style-btn--active]="selectedTextAlign() === 'left'"
                   (click)="updateProperty('textAlign', 'left')" aria-label="Align left" data-tip="Align left">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1286,7 +1027,7 @@
                   </svg>
                 </button>
               </div>
-              <!-- Text transform: AA / aa / Aa -->
+              
               <div class="prop-row" style="margin-top:6px">
                 <button class="prop-style-btn tt-btn" (click)="applyTextTransform('upper')"
                   aria-label="ALL CAPS" data-tip="ALL CAPS">AA</button>
@@ -1295,7 +1036,7 @@
                 <button class="prop-style-btn tt-btn" (click)="applyTextTransform('capitalize')"
                   aria-label="Title Case" data-tip="Title Case">Aa</button>
               </div>
-              <!-- Line height & letter spacing -->
+              
               <div class="prop-section">
                 <label class="prop-label">Line H</label>
                 <input type="range" class="prop-range" min="0.5" max="3" step="0.05"
@@ -1327,7 +1068,7 @@
               </div>
             </div>
 
-            <!-- Text color -->
+            
             <div class="prop-divider"></div>
             <div class="prop-section-header">
               <span class="prop-section-title">Text Color</span>
@@ -1348,7 +1089,7 @@
               </div>
             </div>
 
-            <!-- Text effects (outline / bg highlight) -->
+            
             <div class="prop-divider"></div>
             <div class="prop-section-header">
               <span class="prop-section-title">Text Effects</span>
@@ -1384,14 +1125,14 @@
             </div>
           </ng-container>
 
-          <!-- ══ SHAPE PROPERTIES ═════════════════════════════ -->
+          
           <ng-container *ngIf="selectedLayerType() === 'rect' || selectedLayerType() === 'circle' || selectedLayerType() === 'polygon' || selectedLayerType() === 'star' || selectedLayerType() === 'line'">
             <div class="prop-divider"></div>
             <div class="prop-section-header">
               <span class="prop-section-title">Fill</span>
             </div>
             <div class="prop-section-body" *ngIf="selectedLayerType() !== 'line'">
-              <!-- Fill type toggle -->
+              
               <div class="prop-section">
                 <label class="prop-label">Type</label>
                 <div class="cap-join-pills">
@@ -1403,7 +1144,7 @@
                     (click)="applyFillType('radial')">Radial</button>
                 </div>
               </div>
-              <!-- Solid fill color picker -->
+              
               <ng-container *ngIf="selectedFillType() === 'solid'">
                 <div class="color-picker-row">
                   <div class="color-picker-swatch" [style.background]="selectedFill()">
@@ -1420,7 +1161,7 @@
                   </div>
                 </div>
               </ng-container>
-              <!-- Gradient stops -->
+              
               <ng-container *ngIf="selectedFillType() !== 'solid'">
                 <div class="prop-section">
                   <label class="prop-label">Stop 1</label>
@@ -1453,7 +1194,7 @@
               </ng-container>
             </div>
 
-            <!-- Stroke -->
+            
             <div class="prop-divider"></div>
             <div class="prop-section-header">
               <span class="prop-section-title">Stroke</span>
@@ -1478,7 +1219,7 @@
               </div>
             </div>
 
-            <!-- Rect-specific -->
+            
             <ng-container *ngIf="selectedLayerType() === 'rect'">
               <div class="prop-divider"></div>
               <div class="prop-section-header">
@@ -1511,7 +1252,7 @@
               </div>
             </ng-container>
 
-            <!-- Circle-specific -->
+            
             <ng-container *ngIf="selectedLayerType() === 'circle'">
               <div class="prop-divider"></div>
               <div class="prop-section-header"><span class="prop-section-title">Circle Shape</span></div>
@@ -1537,7 +1278,7 @@
               </div>
             </ng-container>
 
-            <!-- Line-specific -->
+            
             <ng-container *ngIf="selectedLayerType() === 'line'">
               <div class="prop-divider"></div>
               <div class="prop-section-header"><span class="prop-section-title">Line</span></div>
@@ -1576,7 +1317,7 @@
               </div>
             </ng-container>
 
-            <!-- Polygon-specific -->
+            
             <ng-container *ngIf="selectedLayerType() === 'polygon'">
               <div class="prop-divider"></div>
               <div class="prop-section-header"><span class="prop-section-title">Polygon</span></div>
@@ -1596,7 +1337,7 @@
               </div>
             </ng-container>
 
-            <!-- Star-specific -->
+            
             <ng-container *ngIf="selectedLayerType() === 'star'">
               <div class="prop-divider"></div>
               <div class="prop-section-header"><span class="prop-section-title">Star</span></div>
@@ -1617,7 +1358,7 @@
             </ng-container>
           </ng-container>
 
-          <!-- ══ IMAGE PROPERTIES ═════════════════════════════ -->
+          
           <ng-container *ngIf="selectedLayerType() === 'image'">
             <div class="prop-divider"></div>
             <div class="prop-section-header"><span class="prop-section-title">Image</span></div>
@@ -1642,7 +1383,7 @@
               </div>
             </div>
 
-            <!-- Image Filters (Canva / Instagram / Magnific) -->
+            
             <div class="prop-divider"></div>
             <div class="prop-section-header">
               <span class="prop-section-title">Filters</span>
@@ -1658,7 +1399,7 @@
               </div>
             </div>
 
-            <!-- Image Adjustments (Magnific / Canva) -->
+            
             <div class="prop-divider"></div>
             <div class="prop-section-header">
               <span class="prop-section-title">Adjustments</span>
@@ -1692,7 +1433,7 @@
             </div>
           </ng-container>
 
-          <!-- ══ RECENTLY USED COLORS (Dribbble / Canva) ══════ -->
+          
           <ng-container *ngIf="recentColors().length">
             <div class="prop-divider"></div>
             <div class="prop-section-header"><span class="prop-section-title">Recent Colors</span></div>
@@ -1721,7 +1462,7 @@
     </aside>
   </div>
 
-  <!-- ══ Status Bar ══════════════════════════════════════════ -->
+  
   <footer class="editor-statusbar">
     <div class="sb-left">
       <span class="sb-item">{{ layers().length }} objects</span>
@@ -1729,7 +1470,7 @@
       <span class="sb-item">{{ ed.project()?.width ?? 800 }} × {{ ed.project()?.height ?? 600 }}</span>
     </div>
     <div class="sb-center">
-      <!-- ── Figma-style Layout Grid button + panel ── -->
+      
       <div class="lgrid-wrap" (click)="$event.stopPropagation()">
         <button class="sb-btn" [class.sb-btn--active]="hasVisibleGrids()"
           (click)="showGridPanel.set(!showGridPanel())"
@@ -1742,7 +1483,7 @@
           <span class="lgrid-count" *ngIf="layoutGrids().length > 0">{{ layoutGrids().length }}</span>
         </button>
 
-        <!-- Panel popover -->
+        
         <div class="lgrid-panel" *ngIf="showGridPanel()">
           <div class="lgrid-panel-header">
             <span class="lgrid-panel-title">Layout Grid</span>
@@ -1754,7 +1495,7 @@
             </button>
           </div>
 
-          <!-- Empty state -->
+          
           <div class="lgrid-empty" *ngIf="layoutGrids().length === 0">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
               <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -1763,13 +1504,13 @@
             <p>No grids yet.<br>Click <strong>Add</strong> to create one.</p>
           </div>
 
-          <!-- Grid rows -->
+          
           <div class="lgrid-list" *ngIf="layoutGrids().length > 0">
             <div class="lgrid-item" *ngFor="let g of layoutGrids()">
 
-              <!-- Row: visibility + type icon + type label + quick config + delete -->
+              
               <div class="lgrid-item-row">
-                <!-- Visibility toggle -->
+                
                 <button class="lgrid-vis" (click)="toggleLayoutGridVisibility(g.id)"
                   [attr.aria-label]="g.visible ? 'Hide grid' : 'Show grid'"
                   [attr.data-tip]="g.visible ? 'Hide' : 'Show'">
@@ -1782,13 +1523,13 @@
                   </svg>
                 </button>
 
-                <!-- Color swatch -->
+                
                 <div class="lgrid-color" [style.background]="g.color" [style.opacity]="g.opacity * 4 + 0.25">
                   <input type="color" [value]="g.color"
                     (input)="updateLayoutGrid(g.id, { color: $any($event.target).value })"/>
                 </div>
 
-                <!-- Type selector -->
+                
                 <select class="lgrid-type-sel" [value]="g.type"
                   (change)="updateLayoutGrid(g.id, { type: $any($any($event.target).value) })">
                   <option value="grid">Grid</option>
@@ -1796,7 +1537,7 @@
                   <option value="rows">Rows</option>
                 </select>
 
-                <!-- Quick value (size for grid, count for columns/rows) -->
+                
                 <input *ngIf="g.type === 'grid'" type="number" class="lgrid-num" min="1" max="200"
                   [value]="g.size" (change)="updateLayoutGrid(g.id, { size: +$any($event.target).value })"
                   title="Cell size (px)"/>
@@ -1804,7 +1545,7 @@
                   [value]="g.count" (change)="updateLayoutGrid(g.id, { count: +$any($event.target).value })"
                   title="Count"/>
 
-                <!-- Delete -->
+                
                 <button class="lgrid-del" (click)="removeLayoutGrid(g.id)" aria-label="Remove grid" data-tip="Remove">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -1812,7 +1553,7 @@
                 </button>
               </div>
 
-              <!-- Expanded config row -->
+              
               <div class="lgrid-config" *ngIf="g.type !== 'grid'">
                 <label class="lgrid-cfg-label">Gutter
                   <input type="number" class="lgrid-num lgrid-num--sm" min="0" max="200"
@@ -1836,10 +1577,10 @@
                 </label>
               </div>
 
-            </div><!-- /lgrid-item -->
-          </div><!-- /lgrid-list -->
+            </div>
+          </div>
 
-          <!-- Add type shortcuts -->
+          
           <div class="lgrid-add-row">
             <button class="lgrid-type-btn" (click)="addLayoutGrid('grid')" data-tip="Add square grid">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1857,8 +1598,8 @@
               </svg>Rows
             </button>
           </div>
-        </div><!-- /lgrid-panel -->
-      </div><!-- /lgrid-wrap -->
+        </div>
+      </div>
       <button class="sb-btn" (click)="toggleSafeZone()" [class.sb-btn--active]="showSafeZone()" aria-label="Safe zone / bleed" data-tip="Safe Zone (Vistaprint print bleed)">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="4,2"/>
@@ -1947,7 +1688,6 @@
   </footer>
 </div>
 
-<!-- ══ Loading Skeleton ═══════════════════════════════════════ -->
 <div class="editor-loading" *ngIf="loading()"
   style="display:flex; flex-direction:column; height:100vh; background:#0f0f13; padding:16px">
   <div style="display:flex; gap:12px; padding:12px; margin-bottom:16px">
@@ -1969,7 +1709,6 @@
   </div>
 </div>
 
-<!-- ══ Canvas Size / Format Dialog (Vistaprint / Canva) ══════ -->
 <div class="editor-modal" *ngIf="showSizeDialog()" (click)="showSizeDialog.set(false)">
   <div class="size-dialog" (click)="$event.stopPropagation()">
     <div class="export-header">
@@ -2017,7 +1756,6 @@
   </div>
 </div>
 
-<!-- ══ Keyboard Shortcuts Modal ══════════════════════════════ -->
 <div class="editor-modal" *ngIf="showShortcutsModal()" (click)="showShortcutsModal.set(false)">
   <div class="shortcuts-dialog" (click)="$event.stopPropagation()">
     <div class="export-header">
@@ -2073,7 +1811,6 @@
   </div>
 </div>
 
-<!-- ══ Export Modal ══════════════════════════════════════════ -->
 <div class="editor-modal" *ngIf="showExport()" (click)="closeExport()">
   <div class="export-dialog" (click)="$event.stopPropagation()">
     <div class="export-header">
@@ -2140,7 +1877,6 @@
   </div>
 </div>
 
-<!-- ══ Floating Quick-action Toolbar ═════════════════════════ -->
 <div
   class="float-bar"
   *ngIf="floatBar().visible"
@@ -2150,7 +1886,7 @@
   role="toolbar"
   aria-label="Quick actions"
 >
-  <!-- Bold / Italic — text only -->
+  
   <ng-container *ngIf="floatBar().isText">
     <button
       class="fb-btn"
@@ -2173,22 +1909,22 @@
     <div class="fb-sep"></div>
   </ng-container>
 
-  <!-- Duplicate -->
+  
   <button class="fb-btn" (click)="ctxDuplicate()" aria-label="Duplicate" data-tip="Duplicate (Ctrl+D)">
     <svg class="fb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="14" height="14" rx="2"/><path d="M3 17V5a2 2 0 012-2h12"/></svg>
   </button>
 
-  <!-- Bring Forward -->
+  
   <button class="fb-btn" (click)="ctxBringForward()" aria-label="Bring forward" data-tip="Bring Forward">
     <svg class="fb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
   </button>
 
-  <!-- Send Backward -->
+  
   <button class="fb-btn" (click)="ctxSendBackward()" aria-label="Send backward" data-tip="Send Backward">
     <svg class="fb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 13 12 18 7 13"/><polyline points="17 6 12 11 7 6"/></svg>
   </button>
 
-  <!-- Lock / Unlock -->
+  
   <button
     class="fb-btn"
     [class.fb-btn--active]="floatBar().isLocked"
@@ -2205,13 +1941,12 @@
 
   <div class="fb-sep"></div>
 
-  <!-- Delete -->
+  
   <button class="fb-btn fb-btn--danger" (click)="ctxDelete()" aria-label="Delete" data-tip="Delete">
     <svg class="fb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
   </button>
 </div>
 
-<!-- ══ Right-click Context Menu ══════════════════════════════ -->
 <div
   class="ctx-menu"
   *ngIf="ctxMenu().visible"
@@ -2221,7 +1956,7 @@
   role="menu"
   aria-label="Canvas context menu"
 >
-  <!-- ─ Edit section (context-sensitive) ─ -->
+  
   <ng-container *ngIf="ctxMenu().hasSelection && (ctxMenu().isText || ctxMenu().isImage)">
     <button class="ctx-item ctx-item--accent" *ngIf="ctxMenu().isText" (click)="ctxEditText()" role="menuitem">
       <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
@@ -2234,7 +1969,7 @@
     <div class="ctx-divider"></div>
   </ng-container>
 
-  <!-- ─ Clipboard ─ -->
+  
   <button class="ctx-item" *ngIf="ctxMenu().hasSelection" (click)="ctxCopy()" role="menuitem">
     <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
     <span>Copy</span><span class="ctx-kbd">Ctrl+C</span>
@@ -2254,7 +1989,7 @@
 
   <div class="ctx-divider" *ngIf="ctxMenu().hasSelection || ctxMenu().hasClipboard"></div>
 
-  <!-- ─ Layer order ─ -->
+  
   <ng-container *ngIf="ctxMenu().hasSelection">
     <button class="ctx-item" (click)="ctxBringToFront()" role="menuitem">
       <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="13" height="13" rx="1"/><rect x="8" y="3" width="13" height="13" rx="1"/></svg>
@@ -2274,7 +2009,7 @@
     </button>
     <div class="ctx-divider"></div>
 
-    <!-- ─ Transform ─ -->
+    
     <button class="ctx-item" (click)="ctxFlipH()" role="menuitem">
       <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V8m10 8V8M3 12h18"/><path d="M3 8l4 4-4 4M21 8l-4 4 4 4"/></svg>
       <span>Flip Horizontal</span>
@@ -2293,7 +2028,7 @@
     </button>
     <div class="ctx-divider"></div>
 
-    <!-- ─ Align to canvas ─ -->
+    
     <button class="ctx-item" (click)="ctxCenterH()" role="menuitem">
       <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="3" x2="12" y2="21"/><rect x="5" y="8" width="14" height="3" rx="1"/></svg>
       <span>Center Horizontally</span>
@@ -2305,7 +2040,7 @@
     <div class="ctx-divider"></div>
   </ng-container>
 
-  <!-- ─ Group / Ungroup ─ -->
+  
   <button class="ctx-item" *ngIf="ctxMenu().selCount > 1" (click)="ctxGroup()" role="menuitem">
     <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="7" height="7" rx="1"/><rect x="15" y="2" width="7" height="7" rx="1"/><rect x="2" y="15" width="7" height="7" rx="1"/><rect x="15" y="15" width="7" height="7" rx="1"/><path d="M9 5.5h6M5.5 9v6M18.5 9v6M9 18.5h6"/></svg>
     <span>Group</span><span class="ctx-kbd">Ctrl+G</span>
@@ -2316,7 +2051,7 @@
   </button>
   <div class="ctx-divider" *ngIf="ctxMenu().selCount > 1 || (ctxMenu().isGroup && ctxMenu().selCount === 1)"></div>
 
-  <!-- ─ Lock + Select All ─ -->
+  
   <button class="ctx-item" *ngIf="ctxMenu().hasSelection" (click)="ctxLock()" role="menuitem">
     <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <rect x="3" y="11" width="18" height="11" rx="2"/>
@@ -2330,7 +2065,7 @@
     <span>Select All</span><span class="ctx-kbd">Ctrl+A</span>
   </button>
 
-  <!-- ─ Delete ─ -->
+  
   <ng-container *ngIf="ctxMenu().hasSelection">
     <div class="ctx-divider"></div>
     <button class="ctx-item ctx-item--danger" (click)="ctxDelete()" role="menuitem">
@@ -2340,7 +2075,6 @@
   </ng-container>
 </div>
 
-<!-- ══ Toast notifications ════════════════════════════════════ -->
 <div class="toast-container" aria-live="polite">
   <div
     *ngFor="let toast of toasts()"
@@ -2357,7 +2091,6 @@
   </div>
 </div>
 
-<!-- ══ AI Result Modal ════════════════════════════════════════ -->
 <div class="editor-modal" *ngIf="showAiResult()" (click)="discardAiResult()">
   <div class="export-dialog" (click)="$event.stopPropagation()">
     <div class="export-header">

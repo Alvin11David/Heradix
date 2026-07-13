@@ -125,7 +125,7 @@ export class AssetDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       this.asset.set(a);
       this.loading.set(false);
       this.selectedFormat.set(a.format);
-      
+
       this.svc.getSimilarAssets(a.id).pipe(
         timeout(5000),
         catchError(() => of(this.buildMockSimilar(slug)))

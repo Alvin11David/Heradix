@@ -43,24 +43,24 @@ export class IconsService {
   readonly favorites = signal<Set<string>>(this.loadFavorites());
   readonly collections = signal<IconCollection[]>(this.loadCollections());
 
-  /** Map from library ID → loaded icon array. amarapix starts pre-loaded. */
+
   private readonly _libraries = signal<Map<IconLibraryId, IconAsset[]>>(
     new Map([['amarapix', ICON_LIBRARY as IconAsset[]]])
   );
-  /** Set of library IDs currently being loaded */
+
   private readonly _loading = signal<Set<IconLibraryId>>(new Set());
 
-  /** Whether a specific library is currently loading */
+
   isLoading(id: IconLibraryId): boolean {
     return this._loading().has(id);
   }
 
-  /** Whether a specific library has been loaded */
+
   isLoaded(id: IconLibraryId): boolean {
     return this._libraries().has(id);
   }
 
-  /** All icons currently loaded across all libraries */
+
   private readonly _allIcons = computed<IconAsset[]>(() => {
     const libs = this._libraries();
     const result: IconAsset[] = [];
@@ -92,13 +92,13 @@ export class IconsService {
     }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   });
 
-  /** Total icons loaded so far */
+
   readonly totalLoaded = computed(() => this._allIcons().length);
 
-  /** Expose all icons for collection icon lookups */
+
   readonly allIcons = this._allIcons;
 
-  /** Lazy-load a library by ID via static JSON asset. No-op if already loaded/loading. */
+
   async loadLibrary(id: IconLibraryId): Promise<void> {
     if (id === 'amarapix') return;
     if (this._libraries().has(id)) return;
@@ -166,7 +166,6 @@ export class IconsService {
     return this.favorites().has(id);
   }
 
-  // ── Collections ──────────────────────────────────────────────────────────
 
   createCollection(name: string): string {
     const id = `col_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
@@ -213,6 +212,17 @@ export class IconsService {
     return this.collections().some(c => c.iconIds.includes(iconId));
   }
 
+  reorderCollections(fromIndex: number, toIndex: number): void {
+    if (fromIndex === toIndex) return;
+    this.collections.update(cols => {
+      const arr = [...cols];
+      const [moved] = arr.splice(fromIndex, 1);
+      arr.splice(toIndex, 0, moved);
+      return arr;
+    });
+    this.saveCollections(this.collections());
+  }
+
   private loadCollections(): IconCollection[] {
     try {
       const raw = localStorage.getItem(COLLECTIONS_KEY);
@@ -221,10 +231,9 @@ export class IconsService {
   }
 
   private saveCollections(cols: IconCollection[]): void {
-    try { localStorage.setItem(COLLECTIONS_KEY, JSON.stringify(cols)); } catch { /* quota */ }
+    try { localStorage.setItem(COLLECTIONS_KEY, JSON.stringify(cols)); } catch {  }
   }
 
-  // ── Favorites ─────────────────────────────────────────────────────────────
 
   private loadFavorites(): Set<string> {
     try {
@@ -238,6 +247,6 @@ export class IconsService {
   private saveFavorites(set: Set<string>): void {
     try {
       localStorage.setItem(FAVORITES_KEY, JSON.stringify([...set]));
-    } catch { /* ignore quota errors */ }
+    } catch {  }
   }
 }

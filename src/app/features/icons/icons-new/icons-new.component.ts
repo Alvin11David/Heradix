@@ -11,11 +11,7 @@ import {
   IconColorMode, IconCorners, IconSizeDensity, IconLibraryId,
   IconCollection, IconPlatform, IconStyleState,
 } from '../../../core/models/icon.model';
-
-// ─── Interfaces ────────────────────────────────────────────────────────────────
-
 interface IconGroup { label: string; icons: IconAsset[]; }
-
 interface StylePack {
   id: string;
   name: string;
@@ -26,7 +22,6 @@ interface StylePack {
   gradient: string;
   darkBg?: boolean;
 }
-
 interface TrendCard {
   id: string;
   name: string;
@@ -36,14 +31,9 @@ interface TrendCard {
   bg: string;
   darkBg?: boolean;
 }
-
 type AnimationType = 'none' | 'spin' | 'pulse' | 'bounce' | 'shake' | 'ping';
-
-// ─── Static data ───────────────────────────────────────────────────────────────
-
 const PNG_SIZES = [16, 32, 64, 128, 256, 512];
 const DAY = 24 * 60 * 60 * 1000;
-
 export const STYLE_PACKS: StylePack[] = [
   {
     id: 'ios17', name: 'iOS 17', subtitle: 'Ultra-thin system icons', badge: 'NEW',
@@ -106,7 +96,6 @@ export const STYLE_PACKS: StylePack[] = [
     accent: '#f59e0b', gradient: 'linear-gradient(135deg,#fef3c7 0%,#fffbeb 100%)',
   },
 ];
-
 const TREND_CARDS: TrendCard[] = [
   {
     id: 'glassmorphism', name: 'Glassmorphism', tag: '🔥 Trending',
@@ -139,7 +128,6 @@ const TREND_CARDS: TrendCard[] = [
     accent: '#111827', bg: 'linear-gradient(135deg,rgba(17,24,39,0.07),rgba(55,65,81,0.03))',
   },
 ];
-
 const PLATFORM_TABS = [
   { id: null as null, label: 'All Platforms' },
   { id: 'ios' as const, label: 'iOS' },
@@ -147,7 +135,6 @@ const PLATFORM_TABS = [
   { id: 'windows' as const, label: 'Windows' },
   { id: 'macos' as const, label: 'macOS' },
 ];
-
 const ANIMATION_TYPES: { id: AnimationType; label: string; emoji: string }[] = [
   { id: 'none', label: 'Static', emoji: '◼' },
   { id: 'spin', label: 'Spin', emoji: '↻' },
@@ -156,9 +143,6 @@ const ANIMATION_TYPES: { id: AnimationType; label: string; emoji: string }[] = [
   { id: 'shake', label: 'Shake', emoji: '↔' },
   { id: 'ping', label: 'Ping', emoji: '◯' },
 ];
-
-// ─── Levenshtein fuzzy match helper ────────────────────────────────────────────
-
 function levenshtein(a: string, b: string): number {
   const m = a.length, n = b.length;
   const dp: number[][] = Array.from({ length: m + 1 }, (_, i) =>
@@ -169,7 +153,6 @@ function levenshtein(a: string, b: string): number {
         : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
   return dp[m][n];
 }
-
 function fuzzyScore(token: string, target: string): number {
   if (target.includes(token)) return 0;
   const dist = levenshtein(token, target);
@@ -178,9 +161,6 @@ function fuzzyScore(token: string, target: string): number {
   if (dist <= 2 && maxLen >= 6) return 12;
   return 0;
 }
-
-// ─── Icon request model ────────────────────────────────────────────────────────
-
 interface IconRequest {
   id: string;
   name: string;
@@ -191,18 +171,13 @@ interface IconRequest {
   submittedAt: string;
   status: 'pending' | 'planned' | 'done';
 }
-
 const ICON_REQUESTS_KEY = 'amx_icon_requests';
-
 function loadRequests(): IconRequest[] {
   try { return JSON.parse(localStorage.getItem(ICON_REQUESTS_KEY) ?? '[]'); } catch { return []; }
 }
-
 function saveRequests(reqs: IconRequest[]): void {
-  try { localStorage.setItem(ICON_REQUESTS_KEY, JSON.stringify(reqs)); } catch { /* noop */ }
+  try { localStorage.setItem(ICON_REQUESTS_KEY, JSON.stringify(reqs)); } catch {  }
 }
-
-// AI synonym map for semantic search
 const AI_SYNONYMS: Record<string, string[]> = {
   settings: ['gear', 'cog', 'config', 'preferences', 'options', 'tune', 'wrench'],
   home: ['house', 'homepage', 'main', 'dashboard', 'start'],
@@ -248,9 +223,6 @@ const AI_SYNONYMS: Record<string, string[]> = {
   tool: ['wrench', 'hammer', 'build', 'fix', 'repair'],
   wifi: ['network', 'connection', 'internet', 'wireless', 'signal'],
 };
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
 @Component({
   selector: 'amx-icons-new',
   standalone: true,
@@ -262,10 +234,8 @@ const AI_SYNONYMS: Record<string, string[]> = {
 export class IconsNewComponent implements AfterViewInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
   readonly svc = inject(IconsService);
-
   @ViewChild('scrollSentinel') scrollSentinelRef?: ElementRef<HTMLElement>;
   private scrollObserver?: IntersectionObserver;
-
   readonly categories = ICON_CATEGORIES;
   readonly libraryMeta = ICON_LIBRARIES;
   readonly pngSizes = PNG_SIZES;
@@ -273,10 +243,8 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
   readonly trendCards = TREND_CARDS;
   readonly platformTabs = PLATFORM_TABS;
   readonly animationTypes = ANIMATION_TYPES;
-
   readonly style = this.svc.style;
   readonly filters = this.svc.filters;
-
   readonly aiSearchOn = signal(false);
   readonly mobileFiltersOpen = signal(false);
   readonly selected = signal<IconAsset | null>(null);
@@ -288,52 +256,41 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
   readonly animType = signal<AnimationType>('none');
   readonly showStyleGallery = signal(true);
   readonly showTrending = signal(true);
-
-  // ── Icon request community feature ───────────────────
   readonly requestModalOpen = signal(false);
   readonly iconRequests = signal<IconRequest[]>(loadRequests());
   readonly requestForm = signal({ name: '', description: '', style: 'line', email: '' });
   readonly requestSubmitted = signal(false);
   readonly requestVoted = signal<Set<string>>(new Set());
   readonly requestsTab = signal<'submit' | 'browse'>('submit');
-
-  // Multi-select
   readonly multiSelectMode = signal(false);
   readonly selectedIcons = signal<Set<string>>(new Set());
   readonly selectedCount = computed(() => this.selectedIcons().size);
   readonly bulkCollectIcon = signal<IconAsset | null>(null);
-
-  // -- Collections
   readonly activeTab = signal<'browse' | 'collections'>('browse');
   readonly activeCollectionId = signal<string | null>(null);
   readonly collectionPickerIcon = signal<IconAsset | null>(null);
   readonly newCollectionName = signal('');
   readonly renamingCollectionId = signal<string | null>(null);
   readonly addFeedbackId = signal<string | null>(null);
-
   readonly openCollection = computed(() => {
     const id = this.activeCollectionId();
     return id ? (this.svc.collections().find(c => c.id === id) ?? null) : null;
   });
-
   readonly activeCollectionIcons = computed<IconAsset[]>(() => {
     const col = this.openCollection();
     if (!col) return [];
     const allMap = new Map(this.svc.allIcons().map(i => [i.id, i]));
     return col.iconIds.map(i => allMap.get(i)).filter(Boolean) as IconAsset[];
   });
-
   collectionPreviewIcons(col: IconCollection): IconAsset[] {
     const allMap = new Map(this.svc.allIcons().map(i => [i.id, i]));
     return col.iconIds.slice(0, 4).map(id => allMap.get(id)).filter(Boolean) as IconAsset[];
   }
-
   readonly PRESET_COLORS = [
     '#f5820a', '#ef4444', '#ec4899', '#a855f7',
     '#6366f1', '#2563eb', '#0891b2', '#059669',
     '#16a34a', '#ca8a04', '#374151', '#9ca3af',
   ];
-
   readonly currentHue = computed(() => {
     const hex = this.style().recolorHue;
     if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return 25;
@@ -349,42 +306,31 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     else h = ((r - g) / d + 4) / 6;
     return Math.round(h * 360);
   });
-
   readonly activePlatform = computed<string | null>(() => {
     const platforms = this.filters().platforms;
     return platforms.length === 1 ? platforms[0] : null;
   });
-
   private readonly rawFiltered = this.svc.filteredIcons;
-
   readonly filtered = computed<IconAsset[]>(() => {
     const list = this.rawFiltered();
     const q = this.filters().query.trim().toLowerCase();
     if (!q) return list;
-
     if (!this.aiSearchOn()) {
       return list.filter(icon => {
         const h = `${icon.name} ${icon.tags.join(' ')} ${icon.category}`.toLowerCase();
         return h.includes(q);
       });
     }
-
-    // Semantic AI search: expand tokens with synonyms + score results
     const tokens = q.split(/\s+/).filter(Boolean);
     const expandedSet = new Set(tokens);
-
     for (const token of tokens) {
-      // Forward: token → its synonyms
       const fwd = AI_SYNONYMS[token] ?? [];
       fwd.forEach(s => expandedSet.add(s));
-      // Reverse: check if token appears as synonym of any key
       for (const [key, syns] of Object.entries(AI_SYNONYMS)) {
         if (syns.includes(token)) expandedSet.add(key);
       }
     }
-
     const expanded = Array.from(expandedSet);
-
     const scored = list.map(icon => {
       const nameLow = icon.name.toLowerCase();
       const tagLow = icon.tags.join(' ').toLowerCase();
@@ -392,37 +338,27 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       const nameWords = nameLow.split(/[\s\-_]+/);
       const tagWords = tagLow.split(/[\s,]+/);
       let score = 0;
-
       for (const token of tokens) {
-        // Exact / prefix / contains — name
         if (nameLow === token) score += 120;
         else if (nameLow.startsWith(token + ' ') || nameLow.endsWith(' ' + token)) score += 90;
         else if (nameLow.includes(token)) score += 60;
-        // Exact / contains — tags
         if (icon.tags.some(t => t.toLowerCase() === token)) score += 70;
         else if (tagLow.includes(token)) score += 35;
-        // Category
         if (catLow.includes(token)) score += 20;
-        // Fuzzy: compare token against each word in name + tags
         for (const w of nameWords) { score += fuzzyScore(token, w) * 0.8; }
         for (const w of tagWords)  { score += fuzzyScore(token, w) * 0.5; }
       }
-
       for (const syn of expanded) {
         if (tokens.includes(syn)) continue;
         if (nameLow.includes(syn)) score += 30;
         else if (tagLow.includes(syn)) score += 18;
       }
-
       return { icon, score };
     }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
-
     return scored.map(x => x.icon);
   });
-
   readonly visibleIcons = computed(() => this.filtered().slice(0, this.visibleCount()));
   readonly hasMore = computed(() => this.filtered().length > this.visibleCount());
-
   readonly groups = computed<IconGroup[]>(() => {
     const icons = this.visibleIcons();
     if (!icons.length) return [];
@@ -444,11 +380,7 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       .filter(([, arr]) => arr.length > 0)
       .map(([label, arr]) => ({ label, icons: arr }));
   });
-
-  // Icons to show in a style pack card preview (first 4 from filtered set)
   readonly previewIcons = computed(() => this.svc.filteredIcons().slice(0, 4));
-
-  /** Build a styled SVG string for a specific icon + style pack — used in preview cards */
   styledPackSvg(icon: IconAsset, pack: StylePack): string {
     const filled = pack.style.technique === 'filled' || pack.style.technique === '3d';
     const cap = pack.style.corners === 'sharp' ? 'square' : 'round';
@@ -458,11 +390,9 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     const vb = icon.viewBox ?? '0 0 24 24';
     return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" fill="${filled ? color : 'none'}" stroke="${filled ? 'none' : color}" stroke-width="${sw}" stroke-linecap="${cap}" stroke-linejoin="${join}">${icon.path}</svg>`;
   }
-
   styledPackSvgSafe(icon: IconAsset, pack: StylePack): SafeHtml {
     return this.sanitizer.bypassSecurityTrustHtml(this.styledPackSvg(icon, pack));
   }
-
   styledTrendSvgSafe(icon: IconAsset, card: TrendCard): SafeHtml {
     const filled = card.style.technique === 'filled' || card.style.technique === '3d';
     const cap = card.style.corners === 'sharp' ? 'square' : 'round';
@@ -472,9 +402,7 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     const svg = `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" fill="${filled ? color : 'none'}" stroke="${filled ? 'none' : color}" stroke-width="${sw}" stroke-linecap="${cap}" stroke-linejoin="${cap}">${icon.path}</svg>`;
     return this.sanitizer.bypassSecurityTrustHtml(svg);
   }
-
   readonly svgCache = new Map<string, SafeHtml>();
-
   markup(icon: IconAsset): SafeHtml {
     let cached = this.svgCache.get(icon.id);
     if (!cached) {
@@ -486,22 +414,16 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     }
     return cached;
   }
-
   isColored(icon: IconAsset): boolean { return !!icon.colorSvg; }
-
   libraryName(id: IconLibraryId | null | undefined): string {
     if (!id || id === 'amarapix') return 'Amarapix';
     return this.libraryMeta.find(l => l.id === id)?.name ?? id;
   }
-
-  /** Returns animation CSS class for the active animation type. */
   animClass(): string {
     if (!this.style().animatedOn) return '';
     const t = this.animType();
     return t === 'none' ? '' : `amx-icon-render--anim-${t}`;
   }
-
-  /** Style pack: derive active state by comparing current style against pack. */
   isActiveStylePack(packId: string): boolean {
     const pack = STYLE_PACKS.find(p => p.id === packId);
     if (!pack) return false;
@@ -514,7 +436,6 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       (ps.strokeWidth == null || s.strokeWidth === ps.strokeWidth)
     );
   }
-
   applyStylePack(pack: StylePack): void {
     this.svc.updateStyle({
       technique: pack.style.technique ?? this.style().technique,
@@ -524,7 +445,6 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       recolorHue: pack.accent,
     });
   }
-
   applyTrendCard(card: TrendCard): void {
     this.svc.updateStyle({
       technique: card.style.technique ?? this.style().technique,
@@ -534,30 +454,23 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       recolorHue: card.accent,
     });
   }
-
-  /** Stroke value as a string for CSS custom property binding. */
   spStroke(pack: StylePack): string {
     return String(pack.style.strokeWidth ?? 2);
   }
-
   spTech(pack: StylePack): string {
     return pack.style.technique ?? 'line';
   }
-
   trendTech(card: TrendCard): string {
     return card.style.technique ?? 'line';
   }
-
   trendStroke(card: TrendCard): string {
     return String(card.style.strokeWidth ?? 2);
   }
-
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.selected()) this.closeDetail();
     else if (this.multiSelectMode()) this.exitMultiSelect();
   }
-
   @HostListener('document:keydown', ['$event'])
   onKeydown(e: KeyboardEvent): void {
     if ((e.key === 'a' || e.key === 'A') && (e.ctrlKey || e.metaKey) && this.multiSelectMode()) {
@@ -565,8 +478,6 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       this.selectAll();
     }
   }
-
-  // -- Style controls
   setTechnique(t: string): void { this.svc.updateStyle({ technique: t as IconTechnique }); }
   setColorMode(c: string): void { this.svc.updateStyle({ colorMode: c as IconColorMode }); }
   setCorners(c: string): void { this.svc.updateStyle({ corners: c as IconCorners }); }
@@ -575,13 +486,11 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
   toggleAnimated(): void { this.svc.updateStyle({ animatedOn: !this.style().animatedOn }); }
   setAnimType(t: AnimationType): void { this.animType.set(t); }
   setRecolor(hex: string): void { this.svc.updateStyle({ recolorHue: hex }); }
-
   setRecolorHex(event: Event): void {
     const raw = (event.target as HTMLInputElement).value.trim();
     const hex = raw.startsWith('#') ? raw : `#${raw}`;
     if (/^#[0-9a-fA-F]{6}$/.test(hex)) this.setRecolor(hex);
   }
-
   setRecolorFromHue(hue: number): void {
     const s = 0.80, l = 0.50;
     const c = (1 - Math.abs(2 * l - 1)) * s;
@@ -597,7 +506,6 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     const h = (n: number) => Math.round((n + m) * 255).toString(16).padStart(2, '0');
     this.setRecolor(`#${h(r)}${h(g)}${h(b)}`);
   }
-
   @HostListener('document:click', ['$event'])
   onDocClick(e: MouseEvent): void {
     const target = e.target as HTMLElement;
@@ -609,14 +517,10 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       this.closeDetail();
     }
   }
-
-  // -- Platform tabs
   setPlatform(id: IconPlatform | null): void {
     this.svc.updateFilters({ platforms: id ? [id] : [] });
     this.visibleCount.set(48);
   }
-
-  // -- Multi-select
   toggleMultiSelectMode(): void {
     if (this.multiSelectMode()) {
       this.exitMultiSelect();
@@ -625,12 +529,10 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       this.selectedIcons.set(new Set());
     }
   }
-
   exitMultiSelect(): void {
     this.multiSelectMode.set(false);
     this.selectedIcons.set(new Set());
   }
-
   handleCardClick(icon: IconAsset, event: MouseEvent): void {
     if (this.multiSelectMode()) {
       event.stopPropagation();
@@ -639,66 +541,52 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       this.openDetail(icon);
     }
   }
-
   toggleIconSelection(id: string): void {
     const next = new Set(this.selectedIcons());
     if (next.has(id)) next.delete(id); else next.add(id);
     this.selectedIcons.set(next);
   }
-
   isIconSelected(id: string): boolean {
     return this.selectedIcons().has(id);
   }
-
   selectAll(): void {
     const ids = new Set(this.visibleIcons().map(i => i.id));
     this.selectedIcons.set(ids);
   }
-
   clearSelection(): void {
     this.selectedIcons.set(new Set());
   }
-
   bulkDownloadSvg(): void {
     for (const id of this.selectedIcons()) {
       const icon = this.svc.allIcons().find(i => i.id === id);
       if (icon) this.downloadSvg(icon);
     }
   }
-
   bulkDownloadPng(): void {
     for (const id of this.selectedIcons()) {
       const icon = this.svc.allIcons().find(i => i.id === id);
       if (icon) this.downloadPng(icon, 512);
     }
   }
-
   openBulkCollect(event: Event): void {
     event.stopPropagation();
-    // Use the first selected icon as the representative for collection picker
     const firstId = this.selectedIcons().values().next().value;
     if (!firstId) return;
     const icon = this.svc.allIcons().find(i => i.id === firstId) ?? null;
     this.bulkCollectIcon.set(icon);
     this.collectionPickerIcon.set(icon);
   }
-
-  // -- Collection actions
   openCollectionPicker(icon: IconAsset, event: Event): void {
     event.stopPropagation();
     this.collectionPickerIcon.set(icon);
     this.newCollectionName.set('');
   }
-
   closeCollectionPicker(): void {
     this.collectionPickerIcon.set(null);
   }
-
   addIconToCollection(collId: string): void {
     const icon = this.collectionPickerIcon();
     if (!icon) return;
-
-    // If in multi-select mode, add ALL selected icons
     if (this.multiSelectMode() && this.selectedIcons().size > 0) {
       for (const id of this.selectedIcons()) {
         this.svc.addToCollection(collId, id);
@@ -706,14 +594,12 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     } else {
       this.svc.addToCollection(collId, icon.id);
     }
-
     this.addFeedbackId.set(collId);
     setTimeout(() => {
       this.addFeedbackId.set(null);
       this.closeCollectionPicker();
     }, 700);
   }
-
   createCollectionAndAdd(): void {
     const icon = this.collectionPickerIcon();
     const name = this.newCollectionName().trim();
@@ -729,36 +615,60 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     this.newCollectionName.set('');
     this.closeCollectionPicker();
   }
-
   viewCollection(id: string): void { this.activeCollectionId.set(id); }
   backToCollections(): void { this.activeCollectionId.set(null); }
-
   deleteCollection(id: string, event: Event): void {
     event.stopPropagation();
     if (this.activeCollectionId() === id) this.activeCollectionId.set(null);
     this.svc.deleteCollection(id);
   }
-
   startRenaming(id: string, event: Event): void {
     event.stopPropagation();
     this.renamingCollectionId.set(id);
   }
-
   finishRenaming(id: string, event: Event): void {
     const val = (event.target as HTMLInputElement).value;
     if (val.trim()) this.svc.renameCollection(id, val);
     this.renamingCollectionId.set(null);
   }
-
   removeFromCollection(iconId: string, event: Event): void {
     event.stopPropagation();
     const colId = this.activeCollectionId();
     if (colId) this.svc.removeFromCollection(colId, iconId);
   }
 
-  resetStyle(): void { this.svc.resetStyle(); }
+  dragColIndex = -1;
 
-  // -- Filters
+  onDragStart(colId: string, event: DragEvent): void {
+    const idx = this.svc.collections().findIndex(c => c.id === colId);
+    if (idx < 0) return;
+    this.dragColIndex = idx;
+    (event.dataTransfer!).effectAllowed = 'move';
+    (event.target as HTMLElement).closest('.amx-collection-card')?.classList.add('amx-collection-card--dragging');
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    (event.dataTransfer!).dropEffect = 'move';
+  }
+
+  onDrop(colId: string, event: DragEvent): void {
+    event.preventDefault();
+    const fromIdx = this.dragColIndex;
+    const toIdx = this.svc.collections().findIndex(c => c.id === colId);
+    if (fromIdx >= 0 && toIdx >= 0) {
+      this.svc.reorderCollections(fromIdx, toIdx);
+    }
+    this.dragColIndex = -1;
+    document.querySelectorAll('.amx-collection-card--dragging').forEach(el => el.classList.remove('amx-collection-card--dragging'));
+  }
+
+  onDragEnd(event: DragEvent): void {
+    this.dragColIndex = -1;
+    document.querySelectorAll('.amx-collection-card--dragging').forEach(el => el.classList.remove('amx-collection-card--dragging'));
+  }
+
+  resetStyle(): void { this.svc.resetStyle(); }
   setQuery(value: string): void { this.svc.updateFilters({ query: value }); this.visibleCount.set(48); }
   setCategory(id: string | null): void { this.svc.updateFilters({ categoryId: id }); this.visibleCount.set(48); }
   toggleAesthetic(v: string): void { this.svc.toggleArrayFilter('aesthetic', v as IconAesthetic); this.visibleCount.set(48); }
@@ -773,14 +683,11 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     this.visibleCount.set(48);
   }
   loadMore(): void { this.visibleCount.update(v => v + 48); }
-
   isActiveAesthetic(v: string): boolean { return this.filters().aesthetic.includes(v as IconAesthetic); }
   isActiveTrend(v: string): boolean { return this.filters().trend.includes(v as IconTrend); }
-
   categoryName(id: string): string {
     return this.categories.find(c => c.id === id)?.name ?? '';
   }
-
   get activeFilterCount(): number {
     const f = this.filters();
     return f.aesthetic.length + f.trend.length + f.platforms.length
@@ -788,39 +695,29 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       + (this.style().animatedOn ? 1 : 0)
       + (f.libraryId ? 1 : 0);
   }
-
-  // -- Libraries
   setLibrary(id: IconLibraryId | null): void {
     this.svc.setLibrary(id);
     this.visibleCount.set(48);
   }
-
   isActiveLibrary(id: IconLibraryId): boolean { return this.filters().libraryId === id; }
   isLibraryLoading(id: IconLibraryId): boolean { return this.svc.isLoading(id); }
   isLibraryLoaded(id: IconLibraryId): boolean { return this.svc.isLoaded(id); }
-
-  // -- Favorites
   toggleFavorite(icon: IconAsset, event?: Event): void {
     event?.stopPropagation();
     this.svc.toggleFavorite(icon.id);
   }
   isFavorite(icon: IconAsset): boolean { return this.svc.isFavorite(icon.id); }
-
-  // -- Detail panel
   openDetail(icon: IconAsset): void {
     this.selected.set(icon);
     this.copyState.set('idle');
     this.copyPngState.set('idle');
   }
   closeDetail(): void { this.selected.set(null); }
-
   relatedIcons(icon: IconAsset): IconAsset[] {
     return this.svc.filteredIcons()
       .filter(i => i.id !== icon.id && i.category === icon.category)
       .slice(0, 8);
   }
-
-  // -- Export / Copy
   buildStandaloneSvg(icon: IconAsset, size = 512): string {
     const s = this.style();
     const fillMode = s.technique === 'filled' || s.technique === '3d';
@@ -830,7 +727,6 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     const viewBox = icon.viewBox ?? '0 0 24 24';
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${viewBox}" fill="${fillMode ? color : 'none'}" stroke="${fillMode ? 'none' : color}" stroke-width="${s.strokeWidth}" stroke-linecap="${cap}" stroke-linejoin="${join}">${icon.path}</svg>`;
   }
-
   async copySvg(icon: IconAsset): Promise<void> {
     const svg = this.buildStandaloneSvg(icon, 24);
     try {
@@ -839,7 +735,6 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       setTimeout(() => this.copyState.set('idle'), 1800);
     } catch { this.copyState.set('idle'); }
   }
-
   async copyPng(icon: IconAsset, size = 128): Promise<void> {
     const svg = this.buildStandaloneSvg(icon, size);
     const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
@@ -858,26 +753,16 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
           await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
           this.copyPngState.set('copied');
           setTimeout(() => this.copyPngState.set('idle'), 1800);
-        } catch { /* clipboard API unsupported */ }
+        } catch {  }
       }, 'image/png');
     };
     img.src = url;
   }
-
   downloadSvg(icon: IconAsset): void {
     const svg = this.buildStandaloneSvg(icon, 512);
     const blob = new Blob([svg], { type: 'image/svg+xml' });
     this.triggerDownload(URL.createObjectURL(blob), `${icon.slug}.svg`);
   }
-
-  /**
-   * Build a Figma-optimised SVG:
-   * – no `currentColor` (all colours resolved to hex)
-   * – explicit pixel dimensions so Figma imports at the right size
-   * – <title> tag for Figma layer naming
-   * – data-figma-node-name attribute picked up by Figma's paste parser
-   * – clean generator comment for attribution
-   */
   private buildFigmaSvg(icon: IconAsset, size = 24): string {
     const s = this.style();
     const color = s.recolorHue;
@@ -885,11 +770,9 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     const cap = s.corners === 'round' ? 'round' : 'butt';
     const join = s.corners === 'round' ? 'round' : 'miter';
     const viewBox = icon.viewBox ?? '0 0 24 24';
-
     const fillAttr  = fillMode ? color : 'none';
     const strokeAttr = fillMode ? 'none' : color;
     const strokeWidthAttr = fillMode ? '0' : String(s.strokeWidth);
-
     return [
       `<!-- Generated by Amarapix — https://amarapix.io -->`,
       `<svg`,
@@ -909,7 +792,6 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       `</svg>`,
     ].join('\n');
   }
-
   async copyFigmaSvg(icon: IconAsset): Promise<void> {
     const svg = this.buildFigmaSvg(icon, 24);
     try {
@@ -918,33 +800,24 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       setTimeout(() => this.figmaCopyState.set('idle'), 2000);
     } catch { this.figmaCopyState.set('idle'); }
   }
-
   async openInFigma(icon: IconAsset): Promise<void> {
-    // Copy the Figma-ready SVG so the user can paste it immediately
     const svg = this.buildFigmaSvg(icon, 24);
-    try { await navigator.clipboard.writeText(svg); } catch { /* ok */ }
+    try { await navigator.clipboard.writeText(svg); } catch {  }
     this.figmaCopyState.set('opening');
-    // Open a new blank Figma file — user just hits Cmd/Ctrl+V to paste the icon
     window.open('https://www.figma.com/', '_blank', 'noopener');
     setTimeout(() => this.figmaCopyState.set('idle'), 3000);
   }
-
-  /** Generate a real Lottie JSON file for the current animation type */
   downloadLottie(icon: IconAsset): void {
     const anim = this.animType();
     const color = this.style().recolorHue;
-    // Parse hex to [r,g,b] 0-1 range
     const hexToLottieColor = (hex: string): [number, number, number] => {
       const n = parseInt(hex.replace('#', ''), 16);
       return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
     };
     const [r, g, b] = hexToLottieColor(color);
-
-    // Build transform keyframes based on animation type
     const fps = 30;
-    const dur = 60; // 2 seconds loop
+    const dur = 60;
     let ks: Record<string, unknown>;
-
     switch (anim) {
       case 'spin':
         ks = { r: { a: 1, k: [{ t: 0, s: [0], e: [360], i: { x: [0.5], y: [0.5] }, o: { x: [0.5], y: [0.5] } }, { t: dur, s: [360] }] } };
@@ -964,7 +837,6 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       default:
         ks = {};
     }
-
     const lottie = {
       v: '5.9.0', fr: fps, ip: 0, op: dur, w: 512, h: 512,
       nm: icon.name, ddd: 0,
@@ -991,26 +863,19 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
       markers: [],
       meta: { g: 'Amarapix Icon Browser', a: '', k: icon.tags.join(', '), d: icon.name, tc: color },
     };
-
     const blob = new Blob([JSON.stringify(lottie, null, 2)], { type: 'application/json' });
     this.triggerDownload(URL.createObjectURL(blob), `${icon.slug}-${anim === 'none' ? 'static' : anim}.lottie.json`);
   }
-
-  // ── Icon request / community ──────────────────────────
-
   openRequestModal(): void {
     this.requestModalOpen.set(true);
     this.requestSubmitted.set(false);
     this.requestsTab.set('submit');
     this.requestForm.set({ name: '', description: '', style: 'line', email: '' });
   }
-
   closeRequestModal(): void { this.requestModalOpen.set(false); }
-
   updateRequestForm(field: keyof ReturnType<typeof this.requestForm>, value: string): void {
     this.requestForm.update(f => ({ ...f, [field]: value }));
   }
-
   submitIconRequest(): void {
     const f = this.requestForm();
     if (!f.name.trim()) return;
@@ -1030,7 +895,6 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     this.requestSubmitted.set(true);
     this.requestsTab.set('browse');
   }
-
   voteForRequest(id: string): void {
     const voted = new Set(this.requestVoted());
     if (voted.has(id)) return;
@@ -1042,13 +906,10 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     this.iconRequests.set(updated);
     saveRequests(updated);
   }
-
   hasVoted(id: string): boolean { return this.requestVoted().has(id); }
-
   requestStatusLabel(status: IconRequest['status']): string {
     return { pending: '⏳ Pending', planned: '🗓 Planned', done: '✅ Done' }[status];
   }
-
   downloadPng(icon: IconAsset, size: number): void {
     const svg = this.buildStandaloneSvg(icon, size);
     const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
@@ -1067,14 +928,11 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     };
     img.src = url;
   }
-
   private triggerDownload(url: string, filename: string): void {
     const a = document.createElement('a');
     a.href = url; a.download = filename;
     document.body.appendChild(a); a.click(); a.remove();
   }
-
-  // -- Infinite scroll
   ngAfterViewInit(): void {
     const sentinel = this.scrollSentinelRef?.nativeElement;
     if (!sentinel || typeof IntersectionObserver === 'undefined') return;
@@ -1085,11 +943,9 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     }, { rootMargin: '300px' });
     this.scrollObserver.observe(sentinel);
   }
-
   ngOnDestroy(): void {
     this.scrollObserver?.disconnect();
   }
-
   trackById(_: number, icon: IconAsset): string { return icon.id; }
   trackByPackId(_: number, pack: StylePack): string { return pack.id; }
   trackByTrendId(_: number, card: TrendCard): string { return card.id; }

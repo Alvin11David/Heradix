@@ -23,32 +23,15 @@ import { jsPDF } from 'jspdf';
 
 type TemplateCategory = 'All' | 'Social Media' | 'Poster' | 'Business' | 'Event' | 'Print';
 
-// ── Transparent PNG asset ─────────────────────────────────────────
-export interface PngAsset {
-  id: string;
-  title: string;
-  thumb: string;
-  url: string;
-  category: string;
-  tags: string[];
-  width: number;
-  height: number;
-  downloads: number;
-  views: number;
-  source: string;
-  isPremium: boolean;
-}
-
-// ── Figma-style layout grid ────────────────────────────────────────
 export interface LayoutGrid {
   id: string;
   type: 'grid' | 'columns' | 'rows';
   visible: boolean;
   color: string;
-  opacity: number;   // 0–1
-  // type==='grid'
+  opacity: number;
+
   size: number;
-  // type==='columns'|'rows'
+
   count: number;
   gutter: number;
   margin: number;
@@ -100,25 +83,21 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly gridView = signal(false);
   readonly guidesVisible = signal(true);
   readonly smartGuidesEnabled = signal(true);
-  // Hide page guide borders by default for a more infinite-canvas feel
+
   readonly pageMarginsVisible = signal(false);
   readonly snapToGridEnabled = signal(true);
   readonly snapToObjectsEnabled = signal(true);
 
-  // ── Figma-style layout grids ──────────────────────────────────────
   readonly layoutGrids = signal<LayoutGrid[]>([]);
   readonly showGridPanel = signal(false);
   readonly hasVisibleGrids = computed(() => this.layoutGrids().some(g => g.visible));
 
-  // ── Draw / Pencil tool (Canva / Freepik / PosterMyWall) ──────────
   readonly drawBrushSize = signal(14);
   readonly drawBrushColor = signal('#1a1a2e');
   readonly drawErase = signal(false);
 
-  // ── Presentation / Fullscreen mode ───────────────────────────────
   readonly presentationMode = signal(false);
 
-  // ── Aspect-ratio lock (Vistaprint / Canva) ────────────────────────
   readonly aspectLocked = signal(false);
   private _lockedAspectRatio = 1;
 
@@ -141,8 +120,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const visible = this.filteredLayers().length;
     return this.layerSearchQuery().trim().length ? `${visible} / ${total}` : `${total}`;
   });
-  // Use a single very large page so the editor feels endless while keeping
-  // export/print dimensions manageable when needed.
+
   readonly pages = signal<
     Array<{
       id: string;
@@ -154,172 +132,35 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       margin?: number;
     }>
   >([
-    // 10k x 8k gives a very large working area; adjust if you want larger/smaller
-    { id: 'page-1', name: 'Canvas', x: 0, y: 0, width: 10000, height: 8000, margin: 120 },
+
+    { id: 'page-1', name: 'Page 1', x: 0, y: 0, width: 10000, height: 8000, margin: 120 },
   ]);
   readonly currentPageIndex = signal(0);
   readonly currentPage = computed(() => this.pages()[this.currentPageIndex()] ?? this.pages()[0]);
   readonly currentPageLabel = computed(() => this.currentPage()?.name ?? 'Page 1');
   assetsSearchQuery = '';
 
-  // ── Expose Math for template expressions ─────────────
   readonly Math = Math;
 
-  // ── Left panel tab navigation (Canva-style) ───────────
-  readonly leftPanelTab = signal<'layers'|'templates'|'elements'|'photos'|'png'|'text'|'background'>('layers');
+  readonly leftPanelTab = signal<'layers'|'templates'|'elements'|'photos'|'text'|'background'>('layers');
 
-  // ── Canvas size dialog (Vistaprint / Canva) ───────────
   readonly showSizeDialog = signal(false);
   readonly customWidth = signal(800);
   readonly customHeight = signal(600);
 
-  // ── Shortcuts modal ───────────────────────────────────
   readonly showShortcutsModal = signal(false);
 
-  // ── Safe zone / bleed (Vistaprint) ────────────────────
   readonly showSafeZone = signal(false);
 
-  // ── Stock photos (Unsplash) ───────────────────────────
   readonly photoQuery = signal('');
   readonly photoResults = signal<{id:string;thumb:string;url:string;alt:string;author:string;tags?:string}[]>([]);
   readonly photoSearching = signal(false);
 
-  // ── Transparent PNG library ───────────────────────────
-  readonly pngQuery = signal('');
-  readonly pngCategory = signal<string>('all');
-  readonly pngSortBy = signal<'popular'|'new'|'trending'>('popular');
-  readonly pngColorFilter = signal<string|null>(null);
-  readonly pngViewMode = signal<'grid'|'list'>('grid');
-  readonly pngSearching = signal(false);
-  readonly pngPage = signal(1);
-  readonly pngPageSize = 24;
-  readonly selectedPng = signal<PngAsset|null>(null);
-  readonly pngAllResults = signal<PngAsset[]>([]);
-  readonly pngDisplayResults = computed(() =>
-    this.pngAllResults().slice(0, this.pngPage() * this.pngPageSize)
-  );
-  readonly pngHasMore = computed(() =>
-    this.pngDisplayResults().length < this.pngAllResults().length
-  );
-
-  readonly pngCategories: {id:string;label:string;emoji:string}[] = [
-    {id:'animals',    label:'Animals',      emoji:'🐾'},
-    {id:'nature',     label:'Nature',       emoji:'🌿'},
-    {id:'food',       label:'Food & Drink', emoji:'🍔'},
-    {id:'technology', label:'Technology',   emoji:'💻'},
-    {id:'business',   label:'Business',     emoji:'💼'},
-    {id:'people',     label:'People',       emoji:'👤'},
-    {id:'travel',     label:'Travel',       emoji:'✈️'},
-    {id:'sports',     label:'Sports',       emoji:'⚽'},
-    {id:'fashion',    label:'Fashion',      emoji:'👗'},
-    {id:'holidays',   label:'Holidays',     emoji:'🎉'},
-    {id:'flowers',    label:'Flowers',      emoji:'🌸'},
-    {id:'vehicles',   label:'Vehicles',     emoji:'🚗'},
-    {id:'music',      label:'Music',        emoji:'🎵'},
-    {id:'education',  label:'Education',    emoji:'📚'},
-    {id:'health',     label:'Health',       emoji:'🏥'},
-  ];
-
-  readonly pngColors: {id:string;hex:string;label:string}[] = [
-    {id:'red',    hex:'#ef4444', label:'Red'},
-    {id:'orange', hex:'#f97316', label:'Orange'},
-    {id:'yellow', hex:'#eab308', label:'Yellow'},
-    {id:'green',  hex:'#22c55e', label:'Green'},
-    {id:'teal',   hex:'#14b8a6', label:'Teal'},
-    {id:'blue',   hex:'#3b82f6', label:'Blue'},
-    {id:'purple', hex:'#a855f7', label:'Purple'},
-    {id:'pink',   hex:'#ec4899', label:'Pink'},
-    {id:'brown',  hex:'#92400e', label:'Brown'},
-    {id:'black',  hex:'#111827', label:'Black'},
-    {id:'white',  hex:'#f3f4f6', label:'White'},
-    {id:'gray',   hex:'#6b7280', label:'Gray'},
-  ];
-
-  private readonly _curatedPngs: PngAsset[] = [
-    // Animals
-    {id:'png-1',  title:'Golden Retriever Dog',      thumb:'https://picsum.photos/seed/dog1/280/320',  url:'https://picsum.photos/seed/dog1/1200/1400',  category:'animals',    tags:['dog','pet','golden','retriever'], width:1200,height:1400,downloads:48200,views:192000,source:'Pixabay',  isPremium:false},
-    {id:'png-2',  title:'White Cat Sitting',         thumb:'https://picsum.photos/seed/cat2/280/300',  url:'https://picsum.photos/seed/cat2/1200/1300',  category:'animals',    tags:['cat','white','kitten','pet'],     width:1200,height:1300,downloads:39100,views:156000,source:'PNGTree',  isPremium:false},
-    {id:'png-3',  title:'Butterfly Wings Open',      thumb:'https://picsum.photos/seed/butt3/280/260', url:'https://picsum.photos/seed/butt3/1200/1100', category:'animals',    tags:['butterfly','insect','wings'],     width:1200,height:1100,downloads:27400,views:109600,source:'CleanPNG', isPremium:false},
-    {id:'png-4',  title:'Eagle In Flight',           thumb:'https://picsum.photos/seed/eagle4/280/250',url:'https://picsum.photos/seed/eagle4/1400/1200',category:'animals',    tags:['eagle','bird','flight','wild'],   width:1400,height:1200,downloads:21800,views:87200, source:'PNGWing',  isPremium:false},
-    {id:'png-5',  title:'Lion Portrait',             thumb:'https://picsum.photos/seed/lion5/280/300', url:'https://picsum.photos/seed/lion5/1200/1300', category:'animals',    tags:['lion','wildlife','africa','big'], width:1200,height:1300,downloads:55300,views:221200,source:'Pixabay',  isPremium:false},
-    {id:'png-6',  title:'Tropical Parrot',           thumb:'https://picsum.photos/seed/parr6/280/340', url:'https://picsum.photos/seed/parr6/1200/1450', category:'animals',    tags:['parrot','bird','tropical','color'],width:1200,height:1450,downloads:18600,views:74400, source:'KissPNG',  isPremium:false},
-    // Nature
-    {id:'png-7',  title:'Maple Leaf Red',            thumb:'https://picsum.photos/seed/leaf7/280/280', url:'https://picsum.photos/seed/leaf7/1200/1200', category:'nature',     tags:['leaf','maple','red','autumn'],    width:1200,height:1200,downloads:62100,views:248400,source:'Pixabay',  isPremium:false},
-    {id:'png-8',  title:'Pine Tree Silhouette',      thumb:'https://picsum.photos/seed/pine8/280/360', url:'https://picsum.photos/seed/pine8/1000/1440', category:'nature',     tags:['tree','pine','forest','green'],   width:1000,height:1440,downloads:34700,views:138800,source:'StickPNG', isPremium:false},
-    {id:'png-9',  title:'Ocean Wave Splash',         thumb:'https://picsum.photos/seed/wave9/280/200', url:'https://picsum.photos/seed/wave9/1600/1200', category:'nature',     tags:['wave','ocean','water','splash'],  width:1600,height:1200,downloads:29400,views:117600,source:'PurePNG',  isPremium:false},
-    {id:'png-10', title:'Mountain Range Snow',       thumb:'https://picsum.photos/seed/mtn10/280/210',url:'https://picsum.photos/seed/mtn10/1600/1200', category:'nature',     tags:['mountain','snow','landscape'],   width:1600,height:1200,downloads:41200,views:164800,source:'PNGIMG',   isPremium:false},
-    {id:'png-11', title:'Sunflower Bloom',           thumb:'https://picsum.photos/seed/sun11/280/300',url:'https://picsum.photos/seed/sun11/1200/1300', category:'flowers',    tags:['sunflower','flower','yellow'],   width:1200,height:1300,downloads:57800,views:231200,source:'Pixabay',  isPremium:false},
-    {id:'png-12', title:'Rose Red Petals',           thumb:'https://picsum.photos/seed/rose12/280/300',url:'https://picsum.photos/seed/rose12/1200/1300',category:'flowers',   tags:['rose','red','petals','romantic'],width:1200,height:1300,downloads:71200,views:284800,source:'Freepik',   isPremium:true},
-    // Food
-    {id:'png-13', title:'Fresh Strawberries',        thumb:'https://picsum.photos/seed/straw13/280/280',url:'https://picsum.photos/seed/straw13/1200/1200',category:'food',    tags:['strawberry','fruit','red','food'],width:1200,height:1200,downloads:44600,views:178400,source:'Pixabay',  isPremium:false},
-    {id:'png-14', title:'Hamburger Meal',            thumb:'https://picsum.photos/seed/burg14/280/260',url:'https://picsum.photos/seed/burg14/1400/1200',category:'food',     tags:['burger','food','fast food'],     width:1400,height:1200,downloads:38900,views:155600,source:'PNGTree',  isPremium:false},
-    {id:'png-15', title:'Coffee Cup Latte Art',      thumb:'https://picsum.photos/seed/coff15/280/300',url:'https://picsum.photos/seed/coff15/1200/1300',category:'food',     tags:['coffee','cup','latte','drink'],  width:1200,height:1300,downloads:63400,views:253600,source:'Freepik',   isPremium:true},
-    {id:'png-16', title:'Birthday Cake Slice',       thumb:'https://picsum.photos/seed/cake16/280/320',url:'https://picsum.photos/seed/cake16/1200/1450',category:'food',     tags:['cake','birthday','sweet','food'],width:1200,height:1450,downloads:51700,views:206800,source:'CleanPNG', isPremium:false},
-    {id:'png-17', title:'Avocado Half Cut',          thumb:'https://picsum.photos/seed/avoc17/280/280',url:'https://picsum.photos/seed/avoc17/1200/1200',category:'food',     tags:['avocado','fruit','healthy','green'],width:1200,height:1200,downloads:29200,views:116800,source:'PNGIMG',  isPremium:false},
-    {id:'png-18', title:'Sushi Platter',             thumb:'https://picsum.photos/seed/sush18/280/240',url:'https://picsum.photos/seed/sush18/1400/1200',category:'food',     tags:['sushi','japanese','food'],       width:1400,height:1200,downloads:22100,views:88400, source:'PNGWing',  isPremium:false},
-    // Technology
-    {id:'png-19', title:'Smartphone Modern',         thumb:'https://picsum.photos/seed/phon19/280/360',url:'https://picsum.photos/seed/phon19/1000/1440',category:'technology',tags:['phone','smartphone','mobile'],   width:1000,height:1440,downloads:72400,views:289600,source:'Freepik',   isPremium:true},
-    {id:'png-20', title:'Laptop Mockup Open',        thumb:'https://picsum.photos/seed/lapt20/280/220',url:'https://picsum.photos/seed/lapt20/1600/1200',category:'technology',tags:['laptop','computer','mockup'],    width:1600,height:1200,downloads:84200,views:336800,source:'Envato',    isPremium:true},
-    {id:'png-21', title:'Wireless Headphones',       thumb:'https://picsum.photos/seed/head21/280/280',url:'https://picsum.photos/seed/head21/1200/1200',category:'technology',tags:['headphones','audio','wireless'],  width:1200,height:1200,downloads:43100,views:172400,source:'Pixabay',  isPremium:false},
-    {id:'png-22', title:'Smart Watch Display',       thumb:'https://picsum.photos/seed/wtch22/280/300',url:'https://picsum.photos/seed/wtch22/1200/1350',category:'technology',tags:['watch','smartwatch','wearable'], width:1200,height:1350,downloads:37800,views:151200,source:'PNGTree',  isPremium:false},
-    {id:'png-23', title:'Gaming Controller',         thumb:'https://picsum.photos/seed/ctrl23/280/240',url:'https://picsum.photos/seed/ctrl23/1400/1200',category:'technology',tags:['gaming','controller','game'],    width:1400,height:1200,downloads:58600,views:234400,source:'KissPNG',  isPremium:false},
-    {id:'png-24', title:'Drone Flying View',         thumb:'https://picsum.photos/seed/dron24/280/260',url:'https://picsum.photos/seed/dron24/1400/1200',category:'technology',tags:['drone','aerial','tech','fly'],   width:1400,height:1200,downloads:31200,views:124800,source:'CleanPNG', isPremium:false},
-    // Business
-    {id:'png-25', title:'Briefcase Leather',         thumb:'https://picsum.photos/seed/brie25/280/260',url:'https://picsum.photos/seed/brie25/1400/1200',category:'business',  tags:['briefcase','business','work'],   width:1400,height:1200,downloads:28900,views:115600,source:'Pixabay',  isPremium:false},
-    {id:'png-26', title:'Gold Coins Stack',          thumb:'https://picsum.photos/seed/coin26/280/280',url:'https://picsum.photos/seed/coin26/1200/1200',category:'business',  tags:['coins','money','gold','wealth'],  width:1200,height:1200,downloads:61400,views:245600,source:'Freepik',   isPremium:true},
-    {id:'png-27', title:'Bar Chart Growth',          thumb:'https://picsum.photos/seed/char27/280/240',url:'https://picsum.photos/seed/char27/1400/1200',category:'business',  tags:['chart','graph','growth','data'], width:1400,height:1200,downloads:39600,views:158400,source:'StickPNG', isPremium:false},
-    {id:'png-28', title:'Handshake Deal',            thumb:'https://picsum.photos/seed/hand28/280/240',url:'https://picsum.photos/seed/hand28/1400/1200',category:'business',  tags:['handshake','deal','business'],   width:1400,height:1200,downloads:25300,views:101200,source:'PurePNG',  isPremium:false},
-    // People
-    {id:'png-29', title:'Business Woman Standing',   thumb:'https://picsum.photos/seed/wom29/280/360', url:'https://picsum.photos/seed/wom29/1000/1440', category:'people',     tags:['woman','business','person'],     width:1000,height:1440,downloads:77400,views:309600,source:'Freepik',   isPremium:true},
-    {id:'png-30', title:'Man In Suit Pose',          thumb:'https://picsum.photos/seed/man30/280/360', url:'https://picsum.photos/seed/man30/1000/1440', category:'people',     tags:['man','suit','business','pose'],  width:1000,height:1440,downloads:66100,views:264400,source:'Envato',    isPremium:true},
-    {id:'png-31', title:'Child Playing Happy',       thumb:'https://picsum.photos/seed/chil31/280/320',url:'https://picsum.photos/seed/chil31/1000/1300',category:'people',     tags:['child','kid','playing','happy'], width:1000,height:1300,downloads:34800,views:139200,source:'Pixabay',  isPremium:false},
-    {id:'png-32', title:'Doctor White Coat',         thumb:'https://picsum.photos/seed/doc32/280/360', url:'https://picsum.photos/seed/doc32/1000/1440', category:'health',     tags:['doctor','medical','health','coat'],width:1000,height:1440,downloads:42700,views:170800,source:'PNGTree',  isPremium:false},
-    // Travel
-    {id:'png-33', title:'Eiffel Tower Paris',        thumb:'https://picsum.photos/seed/eiff33/280/360',url:'https://picsum.photos/seed/eiff33/1000/1400',category:'travel',     tags:['paris','eiffel','france','tower'],width:1000,height:1400,downloads:88200,views:352800,source:'Pixabay',  isPremium:false},
-    {id:'png-34', title:'Airplane Boeing Flight',    thumb:'https://picsum.photos/seed/plan34/280/200',url:'https://picsum.photos/seed/plan34/1600/1200',category:'vehicles',   tags:['airplane','plane','flight','sky'],width:1600,height:1200,downloads:53400,views:213600,source:'CleanPNG', isPremium:false},
-    {id:'png-35', title:'Suitcase Travel Blue',      thumb:'https://picsum.photos/seed/suit35/280/320',url:'https://picsum.photos/seed/suit35/1000/1300',category:'travel',     tags:['suitcase','travel','vacation'],  width:1000,height:1300,downloads:31900,views:127600,source:'KissPNG',  isPremium:false},
-    {id:'png-36', title:'World Globe Map',           thumb:'https://picsum.photos/seed/glob36/280/280',url:'https://picsum.photos/seed/glob36/1200/1200',category:'travel',     tags:['globe','world','map','travel'],  width:1200,height:1200,downloads:48700,views:194800,source:'PNGIMG',   isPremium:false},
-    // Sports
-    {id:'png-37', title:'Soccer Ball Classic',       thumb:'https://picsum.photos/seed/socc37/280/280',url:'https://picsum.photos/seed/socc37/1200/1200',category:'sports',     tags:['soccer','ball','football','sport'],width:1200,height:1200,downloads:69200,views:276800,source:'Pixabay',  isPremium:false},
-    {id:'png-38', title:'Basketball Leather',        thumb:'https://picsum.photos/seed/bask38/280/280',url:'https://picsum.photos/seed/bask38/1200/1200',category:'sports',     tags:['basketball','sport','ball'],     width:1200,height:1200,downloads:45600,views:182400,source:'StickPNG', isPremium:false},
-    {id:'png-39', title:'Gold Trophy Cup',           thumb:'https://picsum.photos/seed/trop39/280/340',url:'https://picsum.photos/seed/trop39/1000/1350',category:'sports',     tags:['trophy','gold','winner','cup'],  width:1000,height:1350,downloads:74300,views:297200,source:'Freepik',   isPremium:false},
-    {id:'png-40', title:'Tennis Racket Ball',        thumb:'https://picsum.photos/seed/tenn40/280/260',url:'https://picsum.photos/seed/tenn40/1400/1200',category:'sports',     tags:['tennis','racket','ball','sport'],width:1400,height:1200,downloads:26800,views:107200,source:'PNGWing',  isPremium:false},
-    // Fashion
-    {id:'png-41', title:'Red High Heels',            thumb:'https://picsum.photos/seed/heel41/280/300',url:'https://picsum.photos/seed/heel41/1200/1300',category:'fashion',    tags:['heels','shoes','red','fashion'],  width:1200,height:1300,downloads:52400,views:209600,source:'Freepik',   isPremium:true},
-    {id:'png-42', title:'Sunglasses Modern',         thumb:'https://picsum.photos/seed/sung42/280/240',url:'https://picsum.photos/seed/sung42/1400/1200',category:'fashion',    tags:['sunglasses','glasses','fashion'], width:1400,height:1200,downloads:38200,views:152800,source:'PNGTree',  isPremium:false},
-    {id:'png-43', title:'Leather Handbag',           thumb:'https://picsum.photos/seed/bag43/280/280', url:'https://picsum.photos/seed/bag43/1200/1200', category:'fashion',    tags:['handbag','leather','fashion'],   width:1200,height:1200,downloads:44900,views:179600,source:'CleanPNG', isPremium:false},
-    {id:'png-44', title:'Wristwatch Luxury',         thumb:'https://picsum.photos/seed/wris44/280/300',url:'https://picsum.photos/seed/wris44/1200/1300',category:'fashion',    tags:['watch','luxury','fashion','wrist'],width:1200,height:1300,downloads:61700,views:246800,source:'Envato',    isPremium:true},
-    // Holidays
-    {id:'png-45', title:'Christmas Tree Decorated',  thumb:'https://picsum.photos/seed/xmas45/280/380',url:'https://picsum.photos/seed/xmas45/1000/1450',category:'holidays',   tags:['christmas','tree','holiday','xmas'],width:1000,height:1450,downloads:93200,views:372800,source:'Pixabay',  isPremium:false},
-    {id:'png-46', title:'Gift Box Ribbon Red',       thumb:'https://picsum.photos/seed/gift46/280/280',url:'https://picsum.photos/seed/gift46/1200/1200',category:'holidays',   tags:['gift','box','ribbon','present'],  width:1200,height:1200,downloads:71600,views:286400,source:'KissPNG',  isPremium:false},
-    {id:'png-47', title:'Halloween Pumpkin',         thumb:'https://picsum.photos/seed/pump47/280/300',url:'https://picsum.photos/seed/pump47/1200/1300',category:'holidays',   tags:['halloween','pumpkin','orange'],   width:1200,height:1300,downloads:58900,views:235600,source:'StickPNG', isPremium:false},
-    {id:'png-48', title:'Fireworks Celebration',     thumb:'https://picsum.photos/seed/firw48/280/300',url:'https://picsum.photos/seed/firw48/1200/1300',category:'holidays',   tags:['fireworks','celebration','party'],width:1200,height:1300,downloads:44300,views:177200,source:'PurePNG',  isPremium:false},
-    // Music
-    {id:'png-49', title:'Electric Guitar Rock',      thumb:'https://picsum.photos/seed/guit49/280/360',url:'https://picsum.photos/seed/guit49/1000/1440',category:'music',      tags:['guitar','electric','music','rock'],width:1000,height:1440,downloads:47200,views:188800,source:'Pixabay',  isPremium:false},
-    {id:'png-50', title:'Musical Notes Gold',        thumb:'https://picsum.photos/seed/note50/280/260',url:'https://picsum.photos/seed/note50/1400/1200',category:'music',      tags:['notes','music','gold','melody'],  width:1400,height:1200,downloads:35600,views:142400,source:'PNGIMG',   isPremium:false},
-    {id:'png-51', title:'Piano Keys Close-Up',       thumb:'https://picsum.photos/seed/pian51/280/220',url:'https://picsum.photos/seed/pian51/1600/1200',category:'music',      tags:['piano','keys','music','keyboard'],width:1600,height:1200,downloads:28400,views:113600,source:'CleanPNG', isPremium:false},
-    // Education
-    {id:'png-52', title:'Open Book Pages',           thumb:'https://picsum.photos/seed/book52/280/240',url:'https://picsum.photos/seed/book52/1400/1200',category:'education',  tags:['book','read','education','study'],width:1400,height:1200,downloads:52800,views:211200,source:'Pixabay',  isPremium:false},
-    {id:'png-53', title:'Graduation Cap Hat',        thumb:'https://picsum.photos/seed/grad53/280/260',url:'https://picsum.photos/seed/grad53/1400/1200',category:'education',  tags:['graduation','cap','hat','degree'],width:1400,height:1200,downloads:64300,views:257200,source:'Freepik',   isPremium:false},
-    {id:'png-54', title:'Pencils Colored Set',       thumb:'https://picsum.photos/seed/penc54/280/280',url:'https://picsum.photos/seed/penc54/1200/1200',category:'education',  tags:['pencils','colored','school','art'],width:1200,height:1200,downloads:38100,views:152400,source:'KissPNG',  isPremium:false},
-    // Health
-    {id:'png-55', title:'Stethoscope Medical',       thumb:'https://picsum.photos/seed/stet55/280/280',url:'https://picsum.photos/seed/stet55/1200/1200',category:'health',     tags:['stethoscope','medical','health'], width:1200,height:1200,downloads:41600,views:166400,source:'PNGTree',  isPremium:false},
-    {id:'png-56', title:'Heart Beat EKG',            thumb:'https://picsum.photos/seed/heart56/280/220',url:'https://picsum.photos/seed/heart56/1600/1200',category:'health',   tags:['heart','ekg','medical','pulse'],  width:1600,height:1200,downloads:33200,views:132800,source:'PNGIMG',   isPremium:false},
-    // Vehicles
-    {id:'png-57', title:'Red Sports Car',            thumb:'https://picsum.photos/seed/car57/280/210', url:'https://picsum.photos/seed/car57/1600/1200', category:'vehicles',   tags:['car','sports','red','vehicle'],   width:1600,height:1200,downloads:82400,views:329600,source:'Freepik',   isPremium:true},
-    {id:'png-58', title:'Motorcycle Chrome',         thumb:'https://picsum.photos/seed/moto58/280/230',url:'https://picsum.photos/seed/moto58/1600/1200',category:'vehicles',   tags:['motorcycle','chrome','bike'],    width:1600,height:1200,downloads:54700,views:218800,source:'PurePNG',  isPremium:false},
-    {id:'png-59', title:'Vintage Bicycle',           thumb:'https://picsum.photos/seed/bike59/280/260',url:'https://picsum.photos/seed/bike59/1400/1200',category:'vehicles',   tags:['bicycle','vintage','bike','cycle'],width:1400,height:1200,downloads:36900,views:147600,source:'StickPNG', isPremium:false},
-    {id:'png-60', title:'Hot Air Balloon',           thumb:'https://picsum.photos/seed/ball60/280/320',url:'https://picsum.photos/seed/ball60/1200/1350',category:'travel',     tags:['balloon','air','colorful','sky'], width:1200,height:1350,downloads:48100,views:192400,source:'CleanPNG', isPremium:false},
-  ];
-
-  // ── Toast notifications ───────────────────────────────
   readonly toasts = signal<{id: number; message: string; type: 'info' | 'error' | 'success'}[]>([]);
   private _toastCounter = 0;
 
-  // ── Clipboard (copy/paste) ────────────────────────────
   private _clipboard: any[] = [];
 
-  // ── Right-click context menu ─────────────────────────
   readonly ctxMenu = signal<{
     visible: boolean; x: number; y: number;
     hasSelection: boolean; selCount: number;
@@ -327,7 +168,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     isText: boolean; isImage: boolean; hasClipboard: boolean;
   }>({ visible: false, x: 0, y: 0, hasSelection: false, selCount: 0, objType: '', isLocked: false, isGroup: false, isText: false, isImage: false, hasClipboard: false });
 
-  // ── Floating quick-action toolbar ────────────────────
   readonly floatBar = signal<{
     visible: boolean; x: number; y: number;
     isText: boolean; isImage: boolean; isGroup: boolean;
@@ -335,17 +175,14 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     isBold: boolean; isItalic: boolean;
   }>({ visible: false, x: 0, y: 0, isText: false, isImage: false, isGroup: false, isLocked: false, selCount: 0, isBold: false, isItalic: false });
 
-  // ── Recently used colors (Dribbble / Canva) ───────────
   readonly recentColors = signal<string[]>([]);
 
-  // ── Image adjustments (Magnific / Canva) ──────────────
   readonly imgBrightness = signal(0);
   readonly imgContrast = signal(0);
   readonly imgSaturation = signal(0);
   readonly imgHue = signal(0);
   readonly activeImageFilter = signal('Normal');
 
-  // ── Canvas size presets (Vistaprint / Canva / PosterMyWall) ──
   readonly canvasPresets = [
     { label: 'Instagram Post',     w: 1080, h: 1080, tag: 'Social' },
     { label: 'Instagram Story',    w: 1080, h: 1920, tag: 'Social' },
@@ -365,7 +202,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     { label: 'Banner 728×90',      w: 728,  h: 90,   tag: 'Web'    },
   ];
 
-  // ── Text style presets (Canva) ────────────────────────
   readonly textStylePresets = [
     { label: 'Display',    fs: 80, fw: 900, ff: 'Poppins',          lh: 1.0, color: '#1a1a2e', preview: 'Aa' },
     { label: 'Big Title',  fs: 60, fw: 700, ff: 'Poppins',          lh: 1.1, color: '#1a1a2e', preview: 'Aa' },
@@ -379,7 +215,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     { label: 'Label',      fs: 10, fw: 600, ff: 'Inter',            lh: 1.4, color: '#6366f1', preview: 'AA' },
   ];
 
-  // ── Element shapes library (Canva / Freepik) ──────────
   readonly elementShapes: {name:string;type:string;params?:Record<string,any>;svgPreview:string}[] = [
     { name:'Rectangle',    type:'rect',    svgPreview:'<rect x="4" y="7" width="16" height="10" rx="1"/>' },
     { name:'Rounded Rect', type:'rect',    params:{rx:16,ry:16}, svgPreview:'<rect x="4" y="7" width="16" height="10" rx="5"/>' },
@@ -395,7 +230,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     { name:'Dashed Line',  type:'line',    params:{strokeDashArray:[8,4]}, svgPreview:'<line x1="2" y1="12" x2="22" y2="12" stroke-width="2" stroke-dasharray="5,3"/>' },
   ];
 
-  // ── Background solid colors (Canva palette) ───────────
   readonly bgSolidColors = [
     '#ffffff','#f8f9fa','#e9ecef','#adb5bd','#000000',
     '#212529','#495057','#6c757d','#868e96','#343a40',
@@ -405,7 +239,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     '#fef9c3','#fce7f3','#e0f2fe','#dcfce7','#faf5ff',
   ];
 
-  // ── Gradient presets (PosterMyWall / Canva) ───────────
   readonly bgGradients = [
     { label:'Ocean',   c1:'#667eea', c2:'#764ba2' },
     { label:'Sunset',  c1:'#f093fb', c2:'#f5576c' },
@@ -425,7 +258,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     { label:'Aurora',  c1:'#00c9ff', c2:'#92fe9d' },
   ];
 
-  // ── Image filter presets (Canva / Instagram / Magnific) ─
   readonly imageFilterPresets = [
     { label:'Normal',   filters:[] as string[] },
     { label:'Grayscale',filters:['Grayscale'] },
@@ -441,8 +273,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     { label:'Moody',    filters:['Brightness:-0.1','Contrast:0.2','Saturation:-0.2'] },
   ];
 
-  // ── Curated stock photos (Unsplash CDN — no API key needed) ──
-  // Rich tag strings enable keyword matching across multiple topics.
   private readonly _curatedPhotos = [
     { id:'p1',  thumb:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&q=80', alt:'Mountains', author:'Samuel Ferrara', tags:'mountain nature landscape outdoor travel snow peak' },
     { id:'p2',  thumb:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&q=80', alt:'Forest path', author:'Sergei Akulich', tags:'forest nature trees path green outdoor woods' },
@@ -494,10 +324,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     { id:'p48', thumb:'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=240&h=160&fit=crop&q=70', url:'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=1280&q=80', alt:'Waffles breakfast', author:'Brenda Godinez', tags:'food breakfast waffles brunch cafe sweet delicious morning' },
   ];
 
-  // ── Templates (Canva / PosterMyWall style starting points) ──
-  // Each template resizes the canvas and lays down real Fabric objects
-  // (background + heading + subheading) sized for its format, so picking
-  // one gives you an actual editable starting point instead of a picture.
   readonly templateCategories: TemplateCategory[] = ['All', 'Social Media', 'Poster', 'Business', 'Event', 'Print'];
   readonly templates: {
     id: string;
@@ -542,7 +368,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     'Ubuntu', 'Libre Baskerville', 'Dancing Script', 'Pacifico', 'Bebas Neue',
   ];
 
-  // ── SVG Icon library (Canva / Freepik / Envato Elements) ─────────
   readonly editorIcons: {name: string; svg: string}[] = [
     { name: 'Heart', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#e94560"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>` },
     { name: 'Star', svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>` },
@@ -697,7 +522,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly selectedGradientAngle = computed(() => this._selectionProps()['_gradientAngle'] ?? 0);
   readonly selectedGradientRadius = computed(() => this._selectionProps()['_gradientRadius'] ?? 50);
 
-  // ── Transform panel: position / size / rotation ──────────────────
   readonly selectedX = computed(() => Math.round(this._selectionProps()['left'] ?? 0));
   readonly selectedY = computed(() => Math.round(this._selectionProps()['top'] ?? 0));
   readonly selectedW = computed(() => {
@@ -846,7 +670,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.canvas.on('object:scaling', () => this.updateFloatBar());
     this.canvas.on('object:rotating', () => this.updateFloatBar());
 
-    // Assign ids to freehand draw paths and trigger layer sync
     this.canvas.on('path:created', (e: any) => {
       if (e.path) {
         e.path._id = e.path._id || `draw-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -896,11 +719,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loadAssetImage(this._assetImageUrl);
     }
 
-    // Load Google Fonts for expanded font picker
     this.loadGoogleFonts();
 
-    // The setup above (grid render, initial onModify sync) isn't a real user
-    // edit — restoring or starting a project shouldn't show "Saving…".
     this.ed.dirty.set(false);
     this.ed.saveState.set('saved');
   }
@@ -1944,7 +1764,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     const mod = isMac ? e.metaKey : e.ctrlKey;
 
-    // Undo / Redo
     if (mod && e.key === 'z') {
       e.preventDefault();
       if (e.shiftKey) this.ed.redo();
@@ -1956,85 +1775,85 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.ed.redo();
       return;
     }
-    // Save
+
     if (mod && !e.shiftKey && e.key === 's') {
       e.preventDefault();
       this.save();
       return;
     }
-    // Select All
+
     if (mod && e.key.toLowerCase() === 'a') {
       e.preventDefault();
       this.selectAll();
       return;
     }
-    // Copy
+
     if (mod && !e.shiftKey && e.key === 'c') {
       e.preventDefault();
       this.copySelected();
       return;
     }
-    // Cut
+
     if (mod && !e.shiftKey && e.key === 'x') {
       e.preventDefault();
       this.cutSelected();
       return;
     }
-    // Paste
+
     if (mod && !e.shiftKey && e.key === 'v') {
       e.preventDefault();
       this.pasteClipboard();
       return;
     }
-    // Duplicate
+
     if (mod && e.key === 'd') {
       e.preventDefault();
       this.duplicateSelected();
       return;
     }
-    // Toggle grid
+
     if (mod && !e.shiftKey && e.key === 'g') {
       e.preventDefault();
       this.toggleGrid();
       return;
     }
-    // Zoom in
+
     if (mod && (e.key === '+' || e.key === '=')) {
       e.preventDefault();
       this.zoomIn();
       return;
     }
-    // Zoom out
+
     if (mod && (e.key === '-' || e.key === '_')) {
       e.preventDefault();
       this.zoomOut();
       return;
     }
-    // Reset zoom to 100%
+
     if (mod && e.key === '0') {
       e.preventDefault();
       this.setZoom(1);
       return;
     }
-    // Fit to screen
+
     if (mod && e.shiftKey && e.key.toLowerCase() === 'f') {
       e.preventDefault();
       this.zoomToFit();
       return;
     }
-    // Bring forward
+
     if (mod && e.key === ']') {
       e.preventDefault();
       this.moveSelectedForward();
       return;
     }
-    // Send backward
+
     if (mod && e.key === '[') {
       e.preventDefault();
       this.moveSelectedBackward();
       return;
     }
-    // Arrow nudge (1px, Shift+Arrow = 10px)
+
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       if (this.canvas?.getActiveObjects?.()?.length) {
         e.preventDefault();
@@ -2042,12 +1861,12 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
     }
-    // Delete / Backspace
+
     if (e.key === 'Delete' || e.key === 'Backspace') {
       this.deleteSelected();
       return;
     }
-    // Escape
+
     if (e.key === 'Escape') {
       this.canvas?.discardActiveObject();
       this.canvas?.renderAll();
@@ -2059,7 +1878,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.ed.toolMode.set('select');
       return;
     }
-    // Single-key tool shortcuts (no modifier)
+
     if (!mod && !e.shiftKey && !e.altKey) {
       switch (e.key) {
         case 'v': this.setTool('select'); return;
@@ -2067,8 +1886,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         case 'r': this.setTool('shape'); return;
         case 'c': this.addShape('circle'); return;
         case 'l': this.addShape('line'); return;
-        case 'p': this.setTool('draw'); return;  // p = pencil
-        case 'F': this.togglePresentationMode(); return;  // Shift+f
+        case 'p': this.setTool('draw'); return;
+        case 'F': this.togglePresentationMode(); return;
         case '?': this.toggleShortcutsModal(); return;
       }
     }
@@ -2347,7 +2166,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     let top = target.top;
 
     if (this.snapToGridEnabled()) {
-      // Use the first visible grid's size for snapping, fall back to 20
+
       const firstGrid = this.layoutGrids().find(g => g.visible && g.type === 'grid');
       const snapSize = firstGrid ? firstGrid.size : gridSize;
       left = Math.round(left / snapSize) * snapSize;
@@ -2401,12 +2220,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     return nearestDistance <= threshold ? snapped : value;
   }
 
-  // ── Figma-style layout grid rendering ────────────────────────────
 
   private renderLayoutGrids(): void {
     if (!this.canvas || !this.fabric) return;
 
-    // Clear all existing grid objects
     const existing = this.canvas.getObjects().filter((o: any) => o._isGrid);
     existing.forEach((o: any) => this.canvas?.remove(o));
 
@@ -2417,7 +2234,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!grid.visible) continue;
 
       if (grid.type === 'grid') {
-        // Square grid — horizontal + vertical lines
+
         for (let x = 0; x <= cw; x += grid.size) {
           this.canvas.add(new this.fabric.Line([x, 0, x, ch], {
             _isGrid: true, _gridId: grid.id,
@@ -2465,13 +2282,11 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    // Push all grid objects behind everything else
     const gridObjs = this.canvas.getObjects().filter((o: any) => o._isGrid);
     gridObjs.forEach((o: any) => this.canvas?.sendToBack(o));
     this.canvas.renderAll();
   }
 
-  // ── Layout grid management (Figma-style) ──────────────────────────
 
   addLayoutGrid(type: LayoutGrid['type'] = 'columns'): void {
     const defaults: Record<LayoutGrid['type'], Partial<LayoutGrid>> = {
@@ -2514,7 +2329,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleGrid(): void {
-    // Ctrl+G: hide/show ALL layout grids at once (Figma: Ctrl+Shift+4)
+
     const grids = this.layoutGrids();
     const anyVisible = grids.some(g => g.visible);
     this.layoutGrids.update(gs => gs.map(g => ({ ...g, visible: !anyVisible })));
@@ -2864,7 +2679,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setTool(mode: ToolMode): void {
-    // Disable draw mode when switching away
+
     if (this.ed.toolMode() === 'draw' && mode !== 'draw') {
       this.disableDrawingMode();
     }
@@ -3192,7 +3007,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     if (!objs.length) return;
 
-    // Try to use ActiveSelection when available so objects remain ungrouped
     try {
       const ActiveSelection =
         (this.fabric as any).ActiveSelection ?? (this.canvas as any).ActiveSelection;
@@ -3204,10 +3018,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
     } catch (e) {
-      // fall through to fallback
+
     }
 
-    // Fallback: mark all ids in EditorService and visually apply selection appearance
     const ids = new Set<string>();
     objs.forEach((o: any) => {
       ids.add(o._id ?? `obj-${Date.now()}`);
@@ -3458,18 +3271,13 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     e.preventDefault();
   }
 
-  /**
-   * Real, client-side background removal (no AI backend): estimates the
-   * background color from the image corners and keys out matching pixels,
-   * with a soft feather at the edge of the tolerance band. Works best on
-   * photos with a solid or near-solid background.
-   */
+
   removeBg(): void {
     const obj = this._selectedObject;
     const isImg = !!obj && (obj.type === 'image' || obj.isType?.('image'));
     if (!obj || !isImg) return;
     this.ed.aiJobState.set({ status: 'processing' });
-    // Defer so the "Processing…" state renders before the pixel work runs.
+
     setTimeout(() => {
       try {
         const previewUrl = this.chromaKeyRemoveBackground(obj);
@@ -3503,7 +3311,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const imageData = ctx.getImageData(0, 0, w, h);
     const data = imageData.data;
 
-    // Estimate the background color from the four corners.
     const corners = [
       [0, 0],
       [w - 1, 0],
@@ -3587,17 +3394,12 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showExport.set(false);
   }
 
-  /**
-   * All exports are generated entirely in the browser (no export backend):
-   * PNG/JPG via Fabric's canvas rasterizer, SVG via Fabric's native vector
-   * serializer, and PDF by embedding the rasterized design with jsPDF.
-   */
+
   exportDesign(format: ExportFormat): void {
     if (!this.canvas) return;
     this._exportFormat = format;
     this.ed.exportState.set({ status: 'queued' });
-    // Defer a tick so the "Preparing export…" state is visible before the
-    // (synchronous) rendering work runs, then produce the real file.
+
     setTimeout(() => {
       this.ed.exportState.set({ status: 'rendering' });
       setTimeout(() => {
@@ -3615,7 +3417,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 100);
   }
 
-  /** Renders the whole design client-side and returns a downloadable data URL. */
+
   private renderExport(format: ExportFormat): string {
     if (!this.canvas) throw new Error('Canvas not ready');
     const w = this.canvas.getWidth();
@@ -3629,7 +3431,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const fmt = format === 'JPG' ? 'jpeg' : 'png';
     const multiplier = 2;
     const bg = this.canvas.backgroundColor;
-    // JPG has no alpha channel — fall back to white so it never renders black.
+
     if (fmt === 'jpeg' && (!bg || this.exportTransparent === false)) {
       this.canvas.set('backgroundColor', bg || '#ffffff');
       this.canvas.renderAll();
@@ -3676,14 +3478,13 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  /** Export the currently selected object(s) as an image (client-side). */
+
   exportSelection(format: ExportFormat): void {
     if (!this.canvas) {
       this.exportDesign(format);
       return;
     }
 
-    // Determine selected objects from Fabric active selection or service selection
     let objects: any[] = [];
     if (this.canvas.getActiveObjects && this.canvas.getActiveObjects().length) {
       objects = this.canvas.getActiveObjects();
@@ -3695,12 +3496,11 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (!objects.length) {
-      // nothing selected -> fallback to full project export
+
       this.exportDesign(format);
       return;
     }
 
-    // Compute bounding box of selection
     let left = Number.POSITIVE_INFINITY;
     let top = Number.POSITIVE_INFINITY;
     let right = Number.NEGATIVE_INFINITY;
@@ -3723,9 +3523,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const height = Math.max(1, bottom - top);
 
     const fmt = format === 'JPG' ? 'jpeg' : 'png';
-    const multiplier = 2; // increase resolution for exports
+    const multiplier = 2;
 
-    // fabric.Canvas.toDataURL accepts an options object
     try {
       const dataUrl = this.canvas.toDataURL({
         format: fmt,
@@ -3737,7 +3536,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         quality: fmt === 'jpeg' ? Math.max(0.1, Math.min(1, this.exportQuality / 100)) : undefined,
       } as any);
 
-      // trigger download
       const a = document.createElement('a');
       const ext = fmt === 'jpeg' ? 'jpg' : 'png';
       a.href = dataUrl;
@@ -3745,13 +3543,13 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       a.click();
       this.closeExport();
     } catch (e) {
-      // fallback to server export when client export fails
+
       console.warn('Selection export failed, falling back to project export', e);
       this.exportDesign(format);
     }
   }
 
-  /** Duplicate the currently selected canvas object(s). */
+
   duplicateSelected(): void {
     if (!this.canvas || !this.fabric) return;
     const active = this.canvas.getActiveObjects?.() ?? [];
@@ -3773,7 +3571,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           this.canvas?.renderAll();
           this.onSelect({ target: cloned });
         });
-        // Sync: some fabric versions return from clone synchronously
+
         if (clone && typeof clone.set === 'function') {
           clone.set({
             _id: `layer-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -3787,12 +3585,12 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           this.canvas?.renderAll();
           this.onSelect({ target: clone });
         }
-      } catch { /* ignore clone errors */ }
+      } catch {  }
     });
     this.ed.setDirty();
   }
 
-  /** Toggle lock on the currently selected object(s). */
+
   toggleSelectedLock(): void {
     if (!this.canvas) return;
     const active = this.canvas.getActiveObjects?.() ?? [];
@@ -3816,18 +3614,13 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onModify();
   }
 
-  /**
-   * Align selected objects relative to each other or to the canvas.
-   * Works for single objects (aligns to canvas center/edges) and
-   * multiple objects (aligns to their collective bounding box).
-   */
+
   alignSelected(alignment: 'left' | 'right' | 'top' | 'bottom' | 'centerX' | 'centerY'): void {
     if (!this.canvas) return;
     const objects: any[] = this.canvas.getActiveObjects?.() ?? [];
     if (!objects.length) return;
     this.ed.pushUndoState();
 
-    // Compute collective bounding box
     let minLeft = Number.POSITIVE_INFINITY;
     let minTop = Number.POSITIVE_INFINITY;
     let maxRight = Number.NEGATIVE_INFINITY;
@@ -3874,17 +3667,12 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onModify();
   }
 
-  // ═══ NEW FEATURE METHODS ══════════════════════════════
 
   setTemplateCategory(category: TemplateCategory): void {
     this.templateCategory.set(category);
   }
 
-  /**
-   * Applies a template as a real, editable starting point: resizes the
-   * canvas to the template's format, sets its gradient background, and
-   * drops in an editable heading/subheading you can restyle immediately.
-   */
+
   applyTemplate(t: (typeof this.templates)[number]): void {
     if (!this.canvas || !this.fabric) return;
     this.ed.pushUndoState();
@@ -3936,14 +3724,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.leftPanelTab.set('layers');
   }
 
-  // ── Left panel tab navigation (Canva-style) ───────────
-  setLeftTab(tab: 'layers'|'templates'|'elements'|'photos'|'png'|'text'|'background'): void {
+  setLeftTab(tab: 'layers'|'templates'|'elements'|'photos'|'text'|'background'): void {
     this.leftPanelTab.set(tab);
     if (tab === 'photos' && this.photoResults().length === 0) {
       this.photoResults.set(this._curatedPhotos);
-    }
-    if (tab === 'png' && this.pngAllResults().length === 0) {
-      this.pngAllResults.set([...this._curatedPngs].sort((a, b) => b.downloads - a.downloads));
     }
   }
 
@@ -3971,78 +3755,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.addImage(photo.url);
   }
 
-  // ── PNG library methods ────────────────────────────────
-  searchPngs(): void {
-    const q = this.pngQuery().trim().toLowerCase();
-    const cat = this.pngCategory();
-    this.pngSearching.set(true);
-    this.pngPage.set(1);
-    this.selectedPng.set(null);
-    let results = [...this._curatedPngs];
-    if (cat !== 'all') results = results.filter(p => p.category === cat);
-    if (q) {
-      const terms = q.split(/\s+/).filter(Boolean);
-      results = results.map(p => {
-        const hay = `${p.title} ${p.tags.join(' ')} ${p.category}`.toLowerCase();
-        const score = terms.reduce((s, t) => hay.includes(t) ? s + 1 : s, 0);
-        return { p, score };
-      }).filter(x => x.score > 0).sort((a, b) => b.score - a.score).map(x => x.p);
-    }
-    if (this.pngSortBy() === 'popular')  results.sort((a, b) => b.downloads - a.downloads);
-    else if (this.pngSortBy() === 'new') results.reverse();
-    else results.sort((a, b) => b.views - a.views);
-    setTimeout(() => {
-      this.pngAllResults.set(results);
-      this.pngSearching.set(false);
-    }, 120);
-  }
-
-  clearPngSearch(): void { this.pngQuery.set(''); this.searchPngs(); }
-
-  setPngCategory(id: string): void {
-    this.pngCategory.set(id);
-    this.selectedPng.set(null);
-    this.searchPngs();
-  }
-
-  setPngSort(s: 'popular'|'new'|'trending'): void {
-    this.pngSortBy.set(s);
-    this.searchPngs();
-  }
-
-  setPngColor(id: string|null): void {
-    this.pngColorFilter.set(this.pngColorFilter() === id ? null : id);
-  }
-
-  insertPng(asset: PngAsset): void {
-    this.addImage(asset.url);
-    this.showToast(`"${asset.title}" added to canvas`, 'success');
-  }
-
-  selectPng(asset: PngAsset): void {
-    this.selectedPng.set(this.selectedPng()?.id === asset.id ? null : asset);
-  }
-
-  closePngDetail(): void { this.selectedPng.set(null); }
-
-  loadMorePngs(): void { this.pngPage.update(p => p + 1); }
-
-  formatPngCount(n: number): string {
-    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-    if (n >= 1000) return (n / 1000).toFixed(0) + 'K';
-    return String(n);
-  }
-
-  getPngCategoryLabel(id: string): string {
-    return this.pngCategories.find(c => c.id === id)?.label ?? id;
-  }
-
-  setPngAsBackground(asset: PngAsset): void {
-    this.addImage(asset.url);
-    this.showToast('PNG added — resize to fill canvas as background', 'info');
-  }
-
-  // ── Text style presets (Canva) ────────────────────────
   addStyledText(preset: {label:string;fs:number;fw:number;ff:string;lh:number;color:string;preview:string}): void {
     if (!this.canvas || !this.fabric) return;
     this.ed.pushUndoState();
@@ -4070,7 +3782,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ed.setDirty();
   }
 
-  // ── Element shapes library (Canva / Freepik) ──────────
   addElement(el: {name:string;type:string;params?:Record<string,any>;svgPreview:string}): void {
     if (!this.canvas || !this.fabric) return;
     const cx = this.canvas.getWidth() / 2;
@@ -4110,7 +3821,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ed.setDirty();
   }
 
-  // ── Canvas background (Canva / Freepik / PosterMyWall) ─
   setCanvasBgColor(color: string): void {
     if (!this.canvas) return;
     this.ed.pushUndoState();
@@ -4134,14 +3844,13 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       this.canvas.set('backgroundColor', gradient as any);
     } catch {
-      // fallback to solid if gradient API differs
+
       this.canvas.set('backgroundColor', g.c1);
     }
     this.canvas.renderAll();
     this.ed.setDirty();
   }
 
-  // ── Image adjustments (Magnific / Canva style) ────────
   applyImageAdjustment(): void {
     const obj = this._selectedObject;
     if (!obj || !this.fabric) return;
@@ -4183,12 +3892,12 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         else if (name === 'Contrast' && val != null) filters.push(new this.fabric.filters.Contrast({ contrast: val }));
         else if (name === 'Saturation' && val != null) filters.push(new this.fabric.filters.Saturation({ saturation: val }));
         else if (name === 'HueRotation' && val != null) filters.push(new this.fabric.filters.HueRotation({ rotation: val / 360 }));
-      } catch { /* filter not available */ }
+      } catch {  }
     }
     obj.filters = filters;
     obj.applyFilters?.();
     this.canvas?.renderAll();
-    // Reset adjustment sliders to neutral
+
     this.imgBrightness.set(0); this.imgContrast.set(0);
     this.imgSaturation.set(0); this.imgHue.set(0);
     this.ed.setDirty();
@@ -4206,7 +3915,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ed.setDirty();
   }
 
-  // ── Canvas size / format (Vistaprint / Canva) ─────────
   applyCanvasPreset(preset: {label:string;w:number;h:number;tag:string}): void {
     if (!this.canvas) return;
     this.customWidth.set(preset.w);
@@ -4227,25 +3935,19 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showSizeDialog.set(false);
   }
 
-  // ── Color tracking (Dribbble / Canva) ─────────────────
   trackRecentColor(color: string): void {
     if (!color || color === 'transparent' || color === '') return;
     this.recentColors.update(cols => [color, ...cols.filter(c => c !== color)].slice(0, 12));
   }
 
-  // ── Safe zone overlay (Vistaprint) ────────────────────
   toggleSafeZone(): void {
     this.showSafeZone.update(v => !v);
   }
 
-  // ── Shortcuts modal ───────────────────────────────────
   toggleShortcutsModal(): void {
     this.showShortcutsModal.update(v => !v);
   }
 
-  // ═══════════════════════════════════════════════════════
-
-  // ── Toast notifications ───────────────────────────────
   showToast(message: string, type: 'info' | 'error' | 'success' = 'info', durationMs = 3500): void {
     const id = ++this._toastCounter;
     this.toasts.update(t => [...t, { id, message, type }]);
@@ -4256,7 +3958,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.toasts.update(t => t.filter(toast => toast.id !== id));
   }
 
-  // ── Copy / Paste ──────────────────────────────────────
   copySelected(): void {
     if (!this.canvas) return;
     const active = this.canvas.getActiveObjects?.() ?? [];
@@ -4320,7 +4021,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // ── Arrow-key nudge ───────────────────────────────────
   nudgeSelected(key: string, delta: number): void {
     if (!this.canvas) return;
     const objs = this.canvas.getActiveObjects?.() ?? [];
@@ -4339,17 +4039,12 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onModify();
   }
 
-  // ═══════════════════════════════════════════════════════
-  // ── Right-click context menu ─────────────────────────
 
   private handleCanvasContextMenu(e: MouseEvent): void {
     e.preventDefault();
     e.stopPropagation();
     if (!this.canvas) return;
 
-    // Find object under cursor and select it if not already selected.
-    // Guard: only call setActiveObject on proper Fabric objects that have onSelect()
-    // (findTarget can return custom stroke-side handles or arrow controls that lack it).
     const target = (this.canvas as any).findTarget(e, false);
     if (
       target &&
@@ -4363,7 +4058,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
           this.canvas.setActiveObject(target);
           this.canvas.renderAll();
           this.onSelect({ target, selected: [target] });
-        } catch { /* non-selectable object — ignore */ }
+        } catch {  }
       }
     }
 
@@ -4374,7 +4069,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const isImage = objType === 'image';
     const isGroup = objType === 'group' || objType === 'activeselection';
 
-    // Position — flip to stay inside viewport
     const menuW = 236, menuH = 460;
     let x = e.clientX, y = e.clientY;
     if (x + menuW > window.innerWidth - 8) x = x - menuW;
@@ -4457,7 +4151,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // ── Core new utility methods ──────────────────────────
 
   flipSelectedHorizontal(): void {
     const objs = this.canvas?.getActiveObjects?.() ?? [];
@@ -4521,7 +4214,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onModify();
   }
 
-  // ── Floating toolbar ─────────────────────────────────
 
   updateFloatBar(): void {
     const canvas = this.canvas;
@@ -4537,9 +4229,9 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const GAP = 10;
     let screenX = canvasRect.left + br.left + br.width / 2;
     let screenY = canvasRect.top + br.top - GAP - TOOLBAR_H;
-    // flip below if not enough room above
+
     if (screenY < 8) screenY = canvasRect.top + br.top + br.height + GAP;
-    // clamp horizontal
+
     screenX = Math.max(120, Math.min(screenX, window.innerWidth - 120));
 
     const type = (activeObj as any).type ?? '';
@@ -4577,11 +4269,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updateFloatBar();
   }
 
-  // ═══════════════════════════════════════════════════════
-
-  // ═══ NEW FEATURE METHODS (Position/Size/Distribute/Draw/Etc.) ════
-
-  // ── Transform panel: X / Y / W / H / Rotation ────────────────────
 
   setPosX(v: number): void {
     const obj = this._selectedObject;
@@ -4663,7 +4350,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.aspectLocked.update(v => !v);
   }
 
-  // ── Distribute evenly (Canva / Vistaprint) ────────────────────────
 
   distributeHorizontally(): void {
     if (!this.canvas) return;
@@ -4719,7 +4405,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onModify();
   }
 
-  // ── Text transform (Uppercase / lowercase / Capitalize) ───────────
 
   applyTextTransform(transform: 'upper' | 'lower' | 'capitalize'): void {
     const obj = this._selectedObject;
@@ -4739,7 +4424,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ed.setDirty();
   }
 
-  // ── SVG Icon library ──────────────────────────────────────────────
 
   addIcon(icon: {name: string; svg: string}): void {
     if (!this.canvas || !this.fabric) return;
@@ -4766,7 +4450,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // ── Draw / Pencil / Freehand (Canva / Freepik) ────────────────────
 
   enableDrawingMode(): void {
     if (!this.canvas || !this.fabric) return;
@@ -4798,7 +4481,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updateDrawBrush();
   }
 
-  // ── Presentation / Fullscreen mode (Canva) ────────────────────────
 
   togglePresentationMode(): void {
     this.presentationMode.update(v => !v);
@@ -4809,7 +4491,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // ── Google Fonts dynamic loader ───────────────────────────────────
 
   private loadGoogleFonts(): void {
     if (document.querySelector('link[data-amx-gfonts]')) return;
@@ -4825,7 +4506,6 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     document.head.appendChild(link);
   }
 
-  // ═══════════════════════════════════════════════════════════════════
 
   saveAndClose(): void {
     this.save();

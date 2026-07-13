@@ -1,6 +1,6 @@
 import {
-  Component, ChangeDetectionStrategy, HostListener,
-  inject, signal, computed, ElementRef, ViewChild,
+  Component, ChangeDetectionStrategy, HostListener, OnInit,
+  inject, signal, computed, effect, ElementRef, ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -60,7 +60,7 @@ export const STYLE_OPTIONS = [
 const SIDEBAR_SECTIONS = ['license', 'style', 'orientation', 'color', 'people', 'resolution', 'date'] as const;
 type SidebarSection = (typeof SIDEBAR_SECTIONS)[number];
 
-/** Themed packs shown as a discovery strip — PNGTree/Freepik-style curated bundles, each just a preset filter combo. */
+
 const CURATED_PACKS = [
   { label: 'Holiday & Events',   emoji: '🎄', categoryId: 'holiday',    tag: '' },
   { label: 'Business Essentials',emoji: '💼', categoryId: 'business',   tag: '' },
@@ -80,12 +80,16 @@ const CURATED_PACKS = [
   templateUrl: './png.component.html',
   styleUrl: './png.component.scss',
 })
-export class PngComponent {
+export class PngComponent implements OnInit {
   private readonly router  = inject(Router);
   readonly svc             = inject(PngService);
   private readonly auth    = inject(AuthService);
 
-  // ── Static data ────────────────────────────────────────────────────────────
+  ngOnInit(): void {
+    this.svc.search();
+  }
+
+
   readonly categories    = this.svc.categories;
   readonly trendingTags  = TRENDING_TAGS;
   readonly sortLabels    = SORT_LABELS;
@@ -94,45 +98,47 @@ export class PngComponent {
   readonly styleOptions  = STYLE_OPTIONS;
   readonly curatedPacks  = CURATED_PACKS;
 
-  // ── Account / premium gating ─────────────────────────────────────────────
+
   readonly isPremiumUser = this.auth.isPremium;
 
-  // ── Daily free-download quota (Freepik-style cap for non-subscribers) ───
+
   readonly freeDownloadsRemaining = this.svc.freeDownloadsRemaining;
   readonly dailyFreeLimit         = DAILY_FREE_DOWNLOAD_LIMIT;
 
-  // ── Editor's Picks (Freepik/Envato Elements curated strip) ──────────────
+
   readonly editorsPicks = this.svc.editorsPicks;
 
-  // ── License tier (Adobe Stock/Shutterstock/iStock Standard vs Extended) ─
+
   readonly licenseTier = signal<'standard' | 'extended'>('standard');
 
-  // ── Pagination / display ───────────────────────────────────────────────────
+
   readonly visibleCount   = signal(PAGE_SIZE);
   readonly results        = this.svc.filtered;
   readonly visibleResults = computed(() => this.results().slice(0, this.visibleCount()));
   readonly hasMore        = computed(() => this.results().length > this.visibleCount());
 
-  // ── UI state ──────────────────────────────────────────────────────────────
+
   readonly sidebarOpen    = signal(true);
   readonly mobileSidebar  = signal(false);
   readonly sortMenuOpen   = signal(false);
   readonly viewMode       = this.svc.viewMode;
 
-  // section expand/collapse (all open by default)
+
   readonly expandedSections = signal<Set<SidebarSection>>(
     new Set(['license', 'style', 'orientation', 'color', 'people', 'resolution', 'date'])
   );
 
-  // ── Detail panel ───────────────────────────────────────────────────────────
+
   readonly selected     = signal<PngAsset | null>(null);
   readonly selectedSize = signal(SIZE_PRESETS[2]);
-  readonly related      = computed<PngAsset[]>(() => {
+  readonly related      = signal<PngAsset[]>([]);
+  private readonly _relatedEffect = effect(() => {
     const cur = this.selected();
-    return cur ? this.svc.related(cur, 8) : [];
+    if (!cur) { this.related.set([]); return; }
+    this.svc.related(cur, 8).then((r) => this.related.set(r));
   });
 
-  /** Position of the selected asset within the current result set, for prev/next navigation. */
+
   readonly selectedIndex = computed<number>(() => {
     const cur = this.selected();
     if (!cur) return -1;
@@ -144,19 +150,19 @@ export class PngComponent {
     return i >= 0 && i < this.results().length - 1;
   });
 
-  // ── Lightbox ──────────────────────────────────────────────────────────────
+
   readonly lightboxOpen = signal(false);
   readonly lightboxZoom = signal(false);
 
-  // ── Recently viewed ──────────────────────────────────────────────────────
+
   readonly recentAssets = this.svc.recentAssets;
 
-  // ── Bulk select ─────────────────────────────────────────────────────────
+
   readonly bulkMode     = signal(false);
   readonly bulkSelected = signal<Set<string>>(new Set());
   readonly bulkCount    = computed(() => this.bulkSelected().size);
 
-  // ── Create Your Own Cutout (upload & remove background) ────────────────
+
   readonly createOpen     = signal(false);
   readonly createStage    = signal<'upload' | 'processing' | 'result' | 'error'>('upload');
   readonly createOriginal = signal<string | null>(null);
@@ -164,45 +170,45 @@ export class PngComponent {
   readonly createError    = signal<string | null>(null);
   readonly createDragOver = signal(false);
 
-  // ── Collections ─────────────────────────────────────────────────────────────
+
   readonly collectionsOpen       = signal(false);
   readonly collectionTarget      = signal<PngAsset | null>(null);
   readonly newCollectionName     = signal('');
   readonly showNewCollectionForm = signal(false);
 
-  // ── Toast ──────────────────────────────────────────────────────────────────
+
   readonly toast      = signal<{ msg: string; type: 'success' | 'info' } | null>(null);
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
-  // ── Search suggestions ─────────────────────────────────────────────────────
+
   readonly suggestionsOpen = signal(false);
   readonly suggestions     = computed<string[]>(() => {
     const q = this.svc.filters().query.trim().toLowerCase();
     if (q.length < 2) return [];
     const tags = new Set<string>();
-    this.svc.library.forEach((p) => p.tags.forEach((t) => { if (t.includes(q)) tags.add(t); }));
+    this.svc.library().forEach((p: PngAsset) => p.tags.forEach((t: string) => { if (t.includes(q)) tags.add(t); }));
     return [...tags].slice(0, 8);
   });
 
-  // ── Recent searches (Pixabay/PNGTree-style search history, separate from suggestions) ──
+
   readonly searchHistory = this.svc.searchHistory;
-  /** Shown only when the search box is focused with an empty query — once the user types, tag suggestions take over. */
+
   readonly showSearchHistory = computed(() => this.suggestionsOpen() && !this.filters().query.trim() && this.searchHistory().length > 0);
 
   applyHistoryTerm(term: string): void { this.setQuery(term); this.suggestionsOpen.set(false); }
   removeHistoryTerm(term: string, event: Event): void { event.stopPropagation(); this.svc.removeSearchHistoryItem(term); }
   clearSearchHistory(event?: Event): void { event?.stopPropagation(); this.svc.clearSearchHistory(); }
 
-  /** Commits the current query into search history — called on Enter / search button, not on every keystroke. */
+
   commitSearch(): void {
     this.svc.trackSearch(this.filters().query);
     this.suggestionsOpen.set(false);
   }
 
-  // ── Related tag cloud (PNGWing/CleanPNG/KissPNG-style SEO tag list below results) ──
+
   readonly relatedTags = computed<string[]>(() => this.svc.relatedTags(this.results(), this.filters().query, 16));
 
-  // ── Keyboard / outside click ────────────────────────────────────────────────
+
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.lightboxOpen()) { this.closeLightbox(); return; }
@@ -229,7 +235,7 @@ export class PngComponent {
     if (this.suggestionsOpen() && !t.closest('.amx-png__search-wrap')) this.suggestionsOpen.set(false);
   }
 
-  // ── Filter helpers ──────────────────────────────────────────────────────────
+
   get filters() { return this.svc.filters; }
   get activeFilterCount() { return this.svc.activeFilterCount; }
 
@@ -240,7 +246,7 @@ export class PngComponent {
   setCategory(id: string | null): void { this.svc.setCategory(id); this.resetPage(); }
   isActiveCategory(id: string): boolean { return this.filters().categoryId === id; }
 
-  /** Applies a curated pack's preset filter combo (category and/or tag search) — PNGTree/Freepik-style themed bundle discovery. */
+
   applyPack(pack: (typeof CURATED_PACKS)[number]): void {
     this.svc.clearFilters();
     if (pack.categoryId) this.svc.setCategory(pack.categoryId);
@@ -266,7 +272,7 @@ export class PngComponent {
 
   loadMore(): void { this.visibleCount.update((v) => v + PAGE_SIZE); }
 
-  // ── Sidebar sections ────────────────────────────────────────────────────────
+
   toggleSection(s: SidebarSection): void {
     const next = new Set(this.expandedSections());
     if (next.has(s)) next.delete(s); else next.add(s);
@@ -274,7 +280,7 @@ export class PngComponent {
   }
   isSectionOpen(s: SidebarSection): boolean { return this.expandedSections().has(s); }
 
-  // ── Favorites ───────────────────────────────────────────────────────────────
+
   toggleFavorite(png: PngAsset, event?: Event): void {
     event?.stopPropagation();
     this.svc.toggleFavorite(png.id);
@@ -282,7 +288,7 @@ export class PngComponent {
   }
   isFavorite(png: PngAsset): boolean { return this.svc.isFavorite(png.id); }
 
-  // ── Detail panel ────────────────────────────────────────────────────────────
+
   openDetail(png: PngAsset): void {
     if (this.bulkMode()) { this.toggleBulkSelect(png); return; }
     this.selected.set(png);
@@ -293,12 +299,12 @@ export class PngComponent {
   closeDetail(): void { this.selected.set(null); }
   selectSize(size: (typeof SIZE_PRESETS)[number]): void { this.selectedSize.set(size); }
 
-  /** Approximate download size for a size-picker option — PNGWing/CleanPNG-style "know the file size before downloading". */
+
   sizeFileSize(png: PngAsset, size: (typeof SIZE_PRESETS)[number]): string {
     return formatFileSize(estimatePngFileSize(png.width, png.height, size.px));
   }
 
-  // ── Bulk select ─────────────────────────────────────────────────────────
+
   toggleBulkMode(): void {
     this.bulkMode.update((v) => !v);
     if (!this.bulkMode()) this.bulkSelected.set(new Set());
@@ -325,10 +331,10 @@ export class PngComponent {
     this.toggleBulkMode();
   }
 
-  // ── Bundle / ZIP download (CleanPNG "resource pack" / Freepik pack-style single-file download) ──
+
   readonly zipping = signal(false);
 
-  /** Downloads the currently bulk-selected assets bundled into a single ZIP, instead of N separate browser downloads. */
+
   downloadBulkAsZip(): void {
     const ids   = this.bulkSelected();
     const all   = this.results().filter((p) => ids.has(p.id));
@@ -340,7 +346,7 @@ export class PngComponent {
     this.toggleBulkMode();
   }
 
-  /** Downloads every asset saved in a board/collection bundled into a single ZIP — CleanPNG-style "resource pack" download. */
+
   downloadCollectionAsZip(col: PngCollection, event?: Event): void {
     event?.stopPropagation();
     const items = col.assetIds
@@ -350,7 +356,7 @@ export class PngComponent {
     this.zipAndDownload(items, col.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'board');
   }
 
-  /** Applies the same daily free-download cap used by single downloads (isQuotaExceeded/registerFreeDownload) to a batch, so ZIP bundles can't be used to bypass it. Premium/already-unlocked assets are never capped; only non-premium assets for non-premium users draw from the shared quota. */
+
   private applyQuotaCap(items: PngAsset[]): { allowed: PngAsset[]; quotaSkipped: number } {
     if (this.isPremiumUser()) return { allowed: items, quotaSkipped: 0 };
     let remaining = this.freeDownloadsRemaining();
@@ -380,12 +386,12 @@ export class PngComponent {
     try {
       const JSZip = (await import('jszip')).default;
       const zip = new JSZip();
-      // Many source hosts in this mock library don't send permissive CORS headers, so a
-      // client-side fetch()-into-ZIP can fail per-asset even though a direct anchor download
-      // of the same URL works fine (that's how the existing single-item download works).
-      // We never let that turn into a lost download: anything that can't be zipped falls back
-      // to the same anchor-navigation technique used everywhere else in this component, so
-      // every requested asset still reaches the user one way or another.
+
+
+
+
+
+
       const results = await Promise.allSettled(
         items.map(async (png) => {
           const res = await fetch(png.url);
@@ -413,11 +419,11 @@ export class PngComponent {
         URL.revokeObjectURL(url);
       }
 
-      // Assets that couldn't be bundled are still downloaded individually — never silently dropped.
+
       fellBackToDirect.forEach((png, idx) => setTimeout(() => this.directDownload(png), idx * 250));
 
-      // Usage/quota is only charged for assets actually delivered (zipped or fallen-back), one
-      // count per asset — matching the single-download flow's accounting exactly.
+
+
       [...zipped, ...fellBackToDirect].forEach((png) => this.registerDownloadUsage(png));
 
       if (!fellBackToDirect.length) {
@@ -437,7 +443,7 @@ export class PngComponent {
     }
   }
 
-  /** Plain anchor-navigation download, shared by the single-download flow and the ZIP fallback path — no fetch/CORS dependency. */
+
   private directDownload(png: PngAsset): void {
     const a = document.createElement('a');
     a.href     = png.url;
@@ -467,16 +473,16 @@ export class PngComponent {
     if (i >= 0 && i < this.results().length - 1) this.selectRelated(this.results()[i + 1]);
   }
 
-  // ── Lightbox ────────────────────────────────────────────────────────────
+
   openLightbox(event?: Event): void { event?.stopPropagation(); this.lightboxZoom.set(false); this.lightboxOpen.set(true); }
   closeLightbox(): void { this.lightboxOpen.set(false); }
   toggleLightboxZoom(): void { this.lightboxZoom.update((v) => !v); }
 
-  // ── Download / Editor ──────────────────────────────────────────────────────
-  /** True if this asset's license requires a premium subscription the current user doesn't have — gates downloads like Shutterstock/Adobe Stock/Envato Elements. */
+
+
   isLocked(png: PngAsset): boolean { return png.isPremium && !this.isPremiumUser(); }
 
-  /** Repeat count for the tiled preview watermark (Shutterstock/iStock/Adobe Stock/Depositphotos/123RF-style), independent of image size. */
+
   readonly watermarkRepeat = Array.from({ length: 12 });
 
   downloadPng(png: PngAsset, event?: Event): void {
@@ -488,7 +494,7 @@ export class PngComponent {
     this.showToast(`⬇️ Downloading "${png.name}"…`, 'success');
   }
 
-  /** True when a non-premium user has hit today's free-download cap (Freepik-style daily limit; premium members are unlimited and never hit this). */
+
   isQuotaExceeded(png: PngAsset): boolean {
     return !png.isPremium && !this.isPremiumUser() && this.freeDownloadsRemaining() <= 0;
   }
@@ -502,13 +508,13 @@ export class PngComponent {
     this.router.navigate(['/pricing']);
   }
 
-  /** Sends a non-subscriber to the pricing page instead of downloading a premium-only PNG. */
+
   goPremium(png?: PngAsset): void {
     this.showToast(`⭐ "${png?.name ?? 'This PNG'}" is a Premium asset — upgrade to download it`, 'info');
     this.router.navigate(['/pricing']);
   }
 
-  /** Downloads the asset resized to the currently selected download size (panel only). Falls back to the full-resolution file if client-side resizing isn't possible for this image (e.g. the source host doesn't allow cross-origin canvas reads). */
+
   downloadWithSize(png: PngAsset, event?: Event): void {
     event?.stopPropagation();
     if (this.isLocked(png)) { this.goPremium(png); return; }
@@ -541,7 +547,7 @@ export class PngComponent {
     img.src = png.url;
   }
 
-  // ── Attribution (Vecteezy-style: free downloads require credit, Premium doesn't) ──
+
   requiresAttribution(png: PngAsset): boolean { return !png.isPremium; }
   attributionText(png: PngAsset): string {
     return `"${png.name}" by ${png.source} via Amarapix — https://amarapix.app/png/${png.slug}`;
@@ -551,7 +557,7 @@ export class PngComponent {
     navigator.clipboard?.writeText(this.attributionText(png)).then(() => this.showToast('📋 Attribution text copied', 'success'));
   }
 
-  // ── Social sharing (StickPNG/PurePNG/PNGWing-style share buttons) ──────────
+
   shareTo(network: 'pinterest' | 'facebook' | 'twitter', png: PngAsset, event?: Event): void {
     event?.stopPropagation();
     const pageUrl = `${location.origin}/png?asset=${png.slug}`;
@@ -574,7 +580,7 @@ export class PngComponent {
     navigator.clipboard?.writeText(png.url).then(() => this.showToast('🔗 Link copied to clipboard', 'success'));
   }
 
-  // ── Report content (CleanPNG/KissPNG-style copyright/compliance link) ──────
+
   readonly reportOpen   = signal(false);
   readonly reportReason = signal('');
   readonly reportSent   = signal(false);
@@ -588,12 +594,12 @@ export class PngComponent {
   closeReport(): void { this.reportOpen.set(false); }
   submitReport(png: PngAsset): void {
     if (!this.reportReason().trim()) return;
-    // No backend for this mock marketplace — acknowledge locally so the flow is testable end-to-end.
+
     this.reportSent.set(true);
     setTimeout(() => this.closeReport(), 1600);
   }
 
-  // ── Become a Contributor (Shutterstock/Adobe Stock/iStock/Depositphotos/123RF-style upload-to-sell) ──
+
   readonly contributorOpen  = signal(false);
   readonly contributorTitle = signal('');
   readonly contributorCategory = signal('');
@@ -642,7 +648,7 @@ export class PngComponent {
     this.contributorDone.set(true);
   }
 
-  // ── Collections ─────────────────────────────────────────────────────────────
+
   openCollections(png: PngAsset, event?: Event): void {
     event?.stopPropagation();
     this.collectionTarget.set(png);
@@ -685,7 +691,7 @@ export class PngComponent {
 
   updateCollectionName(value: string): void { this.newCollectionName.set(value); }
 
-  // ── Create Your Own Cutout (upload & remove background) ─────────────────
+
   openCreateTool(): void {
     this.createOpen.set(true);
     this.createStage.set('upload');
@@ -734,7 +740,7 @@ export class PngComponent {
     this.createStage.set('processing');
     const img = new Image();
     img.onload = () => {
-      // Defer so the "Processing…" state renders before the pixel work runs.
+
       setTimeout(() => {
         try {
           this.createResult.set(removeBackgroundFromImage(img));
@@ -779,14 +785,14 @@ export class PngComponent {
     this.router.navigate(['/editor'], { queryParams: { imageUrl: url, title: 'My Cutout' } });
   }
 
-  // ── Toast ──────────────────────────────────────────────────────────────────
+
   showToast(msg: string, type: 'success' | 'info' = 'success', duration = 2400): void {
     if (this.toastTimer) clearTimeout(this.toastTimer);
     this.toast.set({ msg, type });
     this.toastTimer = setTimeout(() => this.toast.set(null), duration);
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+
   categoryName(id: string): string { return this.categories.find((c) => c.id === id)?.name ?? ''; }
   categoryEmoji(id: string): string { return this.categories.find((c) => c.id === id)?.emoji ?? ''; }
 

@@ -1,6 +1,6 @@
 :host { display: block; }
 
-// ── Tokens ─────────────────────────────────────────────────────────────────
+
 $sidebar-w:     272px;
 $panel-w:       420px;
 $radius-card:   14px;
@@ -9,7 +9,7 @@ $radius-lg:     18px;
 $orange:        var(--amx-orange, #f5820a);
 $transition:    0.18s ease;
 
-// ── Checkerboard mixin ─────────────────────────────────────────────────────
+
 @mixin checker($size: 16px, $light: rgba(0,0,0,.04), $dark: transparent) {
   $half: $size * 0.5;
   background-color: var(--amx-card);
@@ -22,9 +22,9 @@ $transition:    0.18s ease;
   background-position: 0 0, 0 $half, $half (-$half), (-$half) 0;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ROOT
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png {
   background: var(--amx-bg);
   min-height: 100vh;
@@ -34,9 +34,9 @@ $transition:    0.18s ease;
   &--panel-open { padding-right: $panel-w; @media (max-width: 900px) { padding-right: 0; } }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// HERO
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__hero {
   position: relative;
   overflow: hidden;
@@ -87,7 +87,7 @@ $transition:    0.18s ease;
   margin: 0 0 28px; line-height: 1.6;
 }
 
-// Search bar
+
 .amx-png__search-wrap { position: relative; max-width: 640px; margin: 0 auto 18px; }
 
 .amx-png__search {
@@ -141,7 +141,7 @@ $transition:    0.18s ease;
   }
 }
 
-// Trending tags
+
 .amx-png__suggestions--history {
   li.amx-png__suggestions-head {
     display: flex; align-items: center; justify-content: space-between;
@@ -181,7 +181,7 @@ $transition:    0.18s ease;
   }
 }
 
-// Stats banner
+
 .amx-png__stats {
   display: flex; align-items: center; justify-content: center;
   flex-wrap: wrap; gap: 16px; margin-top: 28px;
@@ -194,9 +194,9 @@ $transition:    0.18s ease;
   span { color: #fff; font-weight: 800; font-size: 15px; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CATEGORY RAIL
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__cats {
   position: sticky; top: 0; z-index: 30;
   background: var(--amx-card); border-bottom: 1px solid var(--amx-border);
@@ -221,24 +221,24 @@ $transition:    0.18s ease;
   &.active { background: $orange; border-color: $orange; color: #fff; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// BODY (sidebar + main)
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__body {
   display: flex; align-items: flex-start;
   max-width: 1600px; margin: 0 auto;
   padding: 0;
 }
 
-// Mobile backdrop
+
 .amx-png__mobile-backdrop {
   position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 90;
   @media (min-width: 769px) { display: none; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SIDEBAR
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__sidebar {
   width: $sidebar-w; flex-shrink: 0;
   position: sticky; top: 41px;
@@ -250,7 +250,7 @@ $transition:    0.18s ease;
 
   &--collapsed { width: 0; overflow: hidden; opacity: 0; border-right: none; }
 
-  // Mobile: off-canvas drawer
+
   @media (max-width: 768px) {
     position: fixed; inset: 0 auto 0 0; z-index: 100;
     top: 0; max-height: 100vh;
@@ -288,7 +288,7 @@ $transition:    0.18s ease;
 
 .amx-png__sidebar-body { padding: 8px 0 20px; }
 
-// Filter accordion section
+
 .amx-png__filter-section {
   border-bottom: 1px solid var(--amx-border-light);
 
@@ -314,7 +314,7 @@ $transition:    0.18s ease;
   }
 }
 
-// License buttons
+
 .amx-png__license-btns {
   display: flex; gap: 6px;
 
@@ -329,7 +329,7 @@ $transition:    0.18s ease;
   }
 }
 
-// Style / people / date pills
+
 .amx-png__pill-grid { display: flex; flex-wrap: wrap; gap: 6px; }
 
 .amx-png__pill {
@@ -342,7 +342,7 @@ $transition:    0.18s ease;
   &.active { background: $orange; border-color: $orange; color: #fff; }
 }
 
-// Orientation
+
 .amx-png__orient-btns {
   display: flex; gap: 6px;
 
@@ -357,7 +357,7 @@ $transition:    0.18s ease;
   }
 }
 
-// Color palette
+
 .amx-png__color-grid {
   display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
 }
@@ -374,7 +374,7 @@ $transition:    0.18s ease;
   svg { color: #333; }
 }
 
-// Resolution badges inside pills
+
 .amx-png__res-badge {
   font-size: 9px; font-weight: 900; padding: 2px 5px; border-radius: 4px;
   letter-spacing: .04em;
@@ -382,7 +382,7 @@ $transition:    0.18s ease;
   &--4k { background: linear-gradient(135deg, #f59e0b, #f97316); color: #fff; }
 }
 
-// Favorites toggle
+
 .amx-png__fav-toggle {
   display: flex; align-items: center; gap: 7px;
   width: 100%; border: 1px solid var(--amx-border-2); background: var(--amx-bg);
@@ -393,12 +393,12 @@ $transition:    0.18s ease;
   &.active { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,.06); }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// MAIN CONTENT
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__main { flex: 1; min-width: 0; }
 
-// ── Toolbar ────────────────────────────────────────────────────────────────
+
 .amx-png__toolbar {
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 10px;
@@ -430,7 +430,7 @@ $transition:    0.18s ease;
   strong { color: var(--amx-text); font-weight: 800; }
 }
 
-// View toggle
+
 .amx-png__view-toggle {
   display: flex; background: var(--amx-bg); border: 1px solid var(--amx-border-2);
   border-radius: $radius-sm; padding: 3px; gap: 2px;
@@ -445,7 +445,7 @@ $transition:    0.18s ease;
   }
 }
 
-// Sort
+
 .amx-png__sort {
   position: relative;
 
@@ -472,7 +472,7 @@ $transition:    0.18s ease;
   }
 }
 
-// ── Active filter chips ────────────────────────────────────────────────────
+
 .amx-png__active-filters {
   display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
   padding: 10px 20px; background: var(--amx-bg); border-bottom: 1px solid var(--amx-border-light);
@@ -499,12 +499,38 @@ $transition:    0.18s ease;
   &:hover { text-decoration: underline; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// GRID WRAP
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__grid-wrap { padding: 18px 16px 0; }
 
-// Masonry grid
+.amx-png__loading {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 60px 20px; gap: 16px; color: var(--amx-muted);
+  p { font-size: 14px; margin: 0; }
+}
+
+.amx-png__spinner {
+  width: 36px; height: 36px; border: 3px solid var(--amx-border-2);
+  border-top-color: var(--amx-orange); border-radius: 50%;
+  animation: amxPngSpin .6s linear infinite;
+}
+
+@keyframes amxPngSpin { to { transform: rotate(360deg); } }
+
+.amx-png__error {
+  text-align: center; padding: 40px 20px; color: #ef4444;
+  p { font-size: 14px; margin: 0 0 12px; }
+}
+
+.amx-png__retry-btn {
+  border: 1px solid var(--amx-border-2); background: var(--amx-card);
+  color: var(--amx-text); padding: 8px 20px; border-radius: 10px;
+  font-weight: 600; font-size: 13px; cursor: pointer;
+  &:hover { border-color: var(--amx-orange); color: var(--amx-orange); }
+}
+
+
 .amx-png__grid {
   &--masonry {
     columns: 4 200px; column-gap: 14px;
@@ -520,7 +546,7 @@ $transition:    0.18s ease;
   }
 }
 
-// ── PNG Card ───────────────────────────────────────────────────────────────
+
 .amx-png-card {
   break-inside: avoid; margin-bottom: 14px;
   cursor: pointer; border-radius: $radius-card;
@@ -537,8 +563,8 @@ $transition:    0.18s ease;
     .amx-png-card__meta { border-top-color: $orange; }
   }
 
-  // Premium cards get a quiet gold-leaning glow instead of the plain badge
-  // alone doing all the work of signalling "this one costs a click".
+
+
   &--premium {
     border-color: rgba(245, 158, 11, 0.22);
     box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.06);
@@ -623,7 +649,7 @@ $transition:    0.18s ease;
   }
 }
 
-// ── List view ─────────────────────────────────────────────────────────────
+
 .amx-png__list { display: flex; flex-direction: column; gap: 8px; }
 
 .amx-png-list-row {
@@ -678,7 +704,7 @@ $transition:    0.18s ease;
   }
 }
 
-// ── Empty state ────────────────────────────────────────────────────────────
+
 .amx-png__empty {
   display: flex; flex-direction: column; align-items: center;
   text-align: center; padding: 80px 20px; color: var(--amx-muted);
@@ -701,7 +727,7 @@ $transition:    0.18s ease;
   }
 }
 
-// ── Pagination / load more ─────────────────────────────────────────────────
+
 .amx-png__pagination {
   display: flex; flex-direction: column; align-items: center;
   padding: 36px 0 12px; gap: 12px;
@@ -723,14 +749,14 @@ $transition:    0.18s ease;
   &:hover { border-color: $orange; color: $orange; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// DETAIL SLIDE-OVER PANEL
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png-panel-overlay {
   position: fixed; inset: 0; z-index: 150;
   background: rgba(0,0,0,.2);
   animation: fadeIn .2s ease;
-  @media (min-width: 901px) { display: none; } // on desktop the panel pushes, no overlay needed
+  @media (min-width: 901px) { display: none; }
 }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -817,7 +843,7 @@ $transition:    0.18s ease;
   svg { color: var(--amx-muted); margin-bottom: 4px; }
 }
 
-// Sizes
+
 .amx-png-panel__sizes { background: var(--amx-bg); border-radius: 12px; padding: 14px; }
 
 .amx-png-panel__sizes-label {
@@ -839,7 +865,7 @@ $transition:    0.18s ease;
   &.active { border-color: $orange; color: $orange; background: rgba(245,130,10,.07); }
 }
 
-// Primary download button
+
 .amx-png-panel__primary-actions { }
 
 .amx-png-panel__download-btn {
@@ -852,7 +878,7 @@ $transition:    0.18s ease;
   &:active { transform: translateY(0); }
 }
 
-// Secondary action buttons
+
 .amx-png-panel__secondary-actions {
   display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
 }
@@ -867,7 +893,7 @@ $transition:    0.18s ease;
   &.active { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,.06); }
 }
 
-// Tags
+
 .amx-png-panel__section { }
 .amx-png-panel__section-title {
   font-size: 11px; font-weight: 800; text-transform: uppercase;
@@ -883,14 +909,14 @@ $transition:    0.18s ease;
   &:hover { background: var(--amx-border-2); color: $orange; }
 }
 
-// Source
+
 .amx-png-panel__source {
   display: flex; align-items: center; gap: 6px;
   font-size: 11.5px; color: var(--amx-muted); padding: 0 0 4px;
   strong { color: var(--amx-text); }
 }
 
-// Related
+
 .amx-png-panel__related {
   border-top: 1px solid var(--amx-border-light);
   padding: 18px 20px 24px;
@@ -921,9 +947,9 @@ $transition:    0.18s ease;
   img { max-width: 100%; max-height: 100%; object-fit: contain; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// COLLECTIONS MODAL
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png-col-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300;
   backdrop-filter: blur(3px); animation: fadeIn .15s ease;
@@ -1038,9 +1064,9 @@ $transition:    0.18s ease;
   to   { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png-toast {
   position: fixed; bottom: 28px; left: 50%;
   transform: translateX(-50%) translateY(24px);
@@ -1057,9 +1083,9 @@ $transition:    0.18s ease;
   &--info { background: #1d4ed8; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CREATE YOUR OWN CUTOUT — hero CTA
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__create-cta {
   margin: 18px auto 0; display: inline-flex; align-items: center; gap: 9px;
   background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.28);
@@ -1071,9 +1097,9 @@ $transition:    0.18s ease;
   svg { color: $orange; flex-shrink: 0; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// RECENTLY VIEWED
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__recent {
   padding: 18px 24px 4px; border-bottom: 1px solid var(--amx-border-light);
   background: var(--amx-card);
@@ -1105,9 +1131,9 @@ $transition:    0.18s ease;
   &:hover img { border-color: $orange; transform: translateY(-2px); }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// BULK SELECT
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__bulk-toggle {
   display: flex; align-items: center; gap: 6px;
   border: 1px solid var(--amx-border-2); background: var(--amx-bg);
@@ -1153,7 +1179,7 @@ $transition:    0.18s ease;
   }
 }
 
-// ── Related search tag cloud — PNGWing/CleanPNG/KissPNG-style SEO tag list under results ──
+
 .amx-png__tagcloud {
   display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
   margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--amx-border-2);
@@ -1181,8 +1207,8 @@ $transition:    0.18s ease;
 .amx-png-card--bulk .amx-png-card__frame { cursor: pointer; }
 .amx-png-card--selected .amx-png-card__frame { outline: 3px solid $orange; outline-offset: -3px; }
 
-// ── Locked-preview watermark — Shutterstock/iStock/Adobe Stock/Depositphotos/123RF-style tiled
-// text over premium previews the current user hasn't unlocked, so it can't be lifted as-is. ──
+
+
 .amx-png__watermark {
   position: absolute; inset: 0; z-index: 2; pointer-events: none;
   display: flex; flex-wrap: wrap; align-content: center; justify-content: center;
@@ -1199,9 +1225,9 @@ $transition:    0.18s ease;
   &--sm span { font-size: 8px; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// PANEL — header nav / prev-next
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png-panel__header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
 .amx-png-panel__nav-btn {
@@ -1215,9 +1241,9 @@ $transition:    0.18s ease;
 
 .amx-png-panel__preview { cursor: zoom-in; }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// LIGHTBOX
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png-lightbox {
   position: fixed; inset: 0; z-index: 500;
   background: rgba(10,10,14,.94); backdrop-filter: blur(6px);
@@ -1262,9 +1288,9 @@ $transition:    0.18s ease;
   margin-top: 16px; color: rgba(255,255,255,.7); font-size: 12.5px; text-align: center;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CREATE YOUR OWN CUTOUT — modal
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png-create-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300;
   backdrop-filter: blur(3px); animation: fadeIn .15s ease;
@@ -1360,9 +1386,9 @@ $transition:    0.18s ease;
   svg { color: #ef4444; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// HERO — search-by-color swatches
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__hero-colors {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   flex-wrap: wrap; margin-top: 16px;
@@ -1380,9 +1406,9 @@ $transition:    0.18s ease;
   &--white { border-color: rgba(255,255,255,.6); color: #111; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CURATED PACKS
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__packs {
   padding: 16px 24px; border-bottom: 1px solid var(--amx-border-light);
   background: var(--amx-card);
@@ -1405,9 +1431,9 @@ $transition:    0.18s ease;
 
 .amx-png__pack-emoji { font-size: 15px; }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// PREMIUM DOWNLOAD GATING (lock states)
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png-card__action-btn--dl.is-locked,
 .amx-png-list-row__dl-btn.is-locked {
   background: linear-gradient(135deg, #f59e0b, $orange); color: #fff;
@@ -1423,9 +1449,9 @@ $transition:    0.18s ease;
   a { color: $orange; font-weight: 700; cursor: pointer; text-decoration: underline; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// LICENSE & USAGE section, report link
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png-panel__license-list {
   list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px;
 
@@ -1471,9 +1497,9 @@ $transition:    0.18s ease;
   svg { color: #22c55e; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// HERO — contributor CTA + free-tier quota banner
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__hero-ctas {
   display: flex; align-items: center; justify-content: center; gap: 10px;
   flex-wrap: wrap; margin-top: 18px;
@@ -1494,9 +1520,9 @@ $transition:    0.18s ease;
   a { color: #fff; font-weight: 700; text-decoration: underline; cursor: pointer; margin-left: 2px; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// EDITOR'S PICKS
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png__editors {
   padding: 20px 24px; border-bottom: 1px solid var(--amx-border-light);
   background: var(--amx-bg);
@@ -1536,9 +1562,9 @@ $transition:    0.18s ease;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// LICENSE TIERS (panel)
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png-panel__license-tiers {
   display: flex; flex-direction: column; gap: 8px;
 }
@@ -1555,9 +1581,9 @@ $transition:    0.18s ease;
 .amx-png-panel__tier-name { font-size: 13px; font-weight: 800; color: var(--amx-text); }
 .amx-png-panel__tier-desc { font-size: 11px; color: var(--amx-muted); }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ATTRIBUTION (panel)
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png-panel__attribution {
   margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--amx-border-light);
 
@@ -1582,9 +1608,9 @@ $transition:    0.18s ease;
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SOCIAL SHARE (panel)
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png-panel__share {
   display: flex; align-items: center; gap: 8px; margin-top: 14px;
   span { font-size: 12px; color: var(--amx-muted); margin-right: 2px; }
@@ -1601,9 +1627,9 @@ $transition:    0.18s ease;
   &--x   { background: #111; }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// BECOME A CONTRIBUTOR modal
-// ═══════════════════════════════════════════════════════════════════════════
+
+
+
 .amx-png-contributor-modal { width: 460px; max-height: 85vh; overflow-y: auto; }
 
 .amx-png-contributor__field {

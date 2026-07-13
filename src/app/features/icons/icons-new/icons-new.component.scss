@@ -1,5 +1,4 @@
 :host { display: block; }
-
 .amx-icons {
   --icon-color: #f5820a;
   --icon-stroke: 2;
@@ -7,9 +6,7 @@
   background: var(--amx-bg);
   min-height: 100vh;
   padding-bottom: 80px;
-
   &__defs { position: absolute; }
-
   &__mobile-filters-btn {
     display: none;
     align-items: center;
@@ -24,7 +21,6 @@
     font-size: 13px;
     cursor: pointer;
   }
-
   &__filter-count {
     background: var(--amx-orange);
     color: #fff;
@@ -34,7 +30,6 @@
     padding: 1px 6px;
   }
 }
-
 .amx-icons__layout {
   display: grid;
   grid-template-columns: 256px 1fr;
@@ -44,8 +39,6 @@
   padding: 24px 24px 0;
   align-items: start;
 }
-
-// ============================= SIDEBAR =============================
 .amx-icons__sidebar {
   position: sticky;
   top: 16px;
@@ -58,7 +51,6 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-
   &-head {
     display: flex;
     align-items: center;
@@ -67,7 +59,6 @@
     margin-bottom: 8px;
     h3 { font-family: var(--font-display); font-size: 16px; }
   }
-
   &-close { display: none; background: none; border: none; font-size: 16px; cursor: pointer; color: var(--amx-muted); }
   &-scrim {
     display: none;
@@ -76,18 +67,15 @@
     z-index: 40;
   }
 }
-
 .amx-icons__clear {
   border: none; background: none; color: var(--amx-link);
   font-size: 12px; font-weight: 600; cursor: pointer;
   &:hover { color: var(--amx-link-hover); }
 }
-
 .amx-filter-group {
   padding: 14px 0;
   border-bottom: 1px solid var(--amx-border-light);
   &:last-child { border-bottom: none; }
-
   h4 {
     font-size: 11px;
     text-transform: uppercase;
@@ -97,9 +85,7 @@
     font-weight: 700;
   }
 }
-
 .amx-filter-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
-
 .amx-filter-chip {
   width: 100%;
   text-align: left;
@@ -111,13 +97,11 @@
   color: var(--amx-text-2);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
-
   &:hover { background: var(--amx-bg-soft); }
   &--active { background: var(--amx-tag-bg); color: var(--amx-orange-dark); font-weight: 700; }
   &--lib { display: flex; align-items: center; gap: 8px; }
   &--loading { opacity: 0.7; }
 }
-
 .amx-lib-dot {
   width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
   background: var(--amx-muted);
@@ -132,14 +116,12 @@
   &[data-lib="heroicons"] { background: #0284C7; }
   &[data-lib="ionicons"]  { background: #3880FF; }
 }
-
 .amx-lib-count {
   margin-left: auto; font-size: 11px; font-weight: 600;
   color: var(--amx-muted); background: var(--amx-bg-soft);
   border-radius: 999px; padding: 1px 6px; flex-shrink: 0;
 }
 .amx-filter-chip--active .amx-lib-count { background: rgba(255,255,255,0.25); color: var(--amx-orange-dark); }
-
 .amx-lib-spinner {
   width: 10px; height: 10px;
   border: 2px solid var(--amx-border-2);
@@ -148,9 +130,7 @@
   animation: amx-spin 0.7s linear infinite;
   margin-left: auto; flex-shrink: 0;
 }
-
 .amx-pill-row { display: flex; gap: 6px; &--wrap { flex-wrap: wrap; } }
-
 .amx-pill {
   border: 1px solid var(--amx-border-2);
   background: var(--amx-bg-soft);
@@ -160,7 +140,6 @@
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.15s;
-
   &:hover { border-color: var(--amx-orange); color: var(--amx-orange-dark); }
   &--active { background: var(--amx-orange); border-color: var(--amx-orange); color: #fff; }
   &--stroke { min-width: 34px; text-align: center; }
@@ -168,15 +147,12 @@
     width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;
   }
 }
-
-// Animation type buttons
 .amx-anim-types {
   margin-top: 10px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 5px;
 }
-
 .amx-anim-type-btn {
   display: flex;
   flex-direction: column;
@@ -191,27 +167,20 @@
   font-weight: 600;
   color: var(--amx-text-2);
   transition: all 0.15s;
-
   &__icon {
     font-size: 13px;
     line-height: 1;
   }
-
   &:hover { border-color: var(--amx-orange); color: var(--amx-orange-dark); }
   &--active { background: var(--amx-orange); border-color: var(--amx-orange); color: #fff; }
 }
-
-// ============================= MAIN =============================
 .amx-icons__main { min-width: 0; }
-
-// Platform tabs
 .amx-platform-tabs {
   display: flex;
   gap: 4px;
   margin-bottom: 16px;
   flex-wrap: wrap;
 }
-
 .amx-platform-tab {
   display: inline-flex;
   align-items: center;
@@ -225,10 +194,8 @@
   color: var(--amx-text-2);
   cursor: pointer;
   transition: all 0.15s;
-
   &:hover { border-color: var(--amx-orange); color: var(--amx-orange-dark); background: var(--amx-tag-bg); }
   &--active { border-color: var(--amx-orange); background: var(--amx-orange); color: #fff; }
-
   &__icon {
     width: 14px; height: 14px;
     display: inline-block;
@@ -238,7 +205,6 @@
     flex-shrink: 0;
   }
 }
-
 .amx-icons__toolbar {
   display: flex;
   align-items: center;
@@ -246,7 +212,6 @@
   flex-wrap: wrap;
   margin-bottom: 20px;
 }
-
 .amx-icons__search {
   flex: 1;
   min-width: 220px;
@@ -259,19 +224,15 @@
   padding: 10px 14px;
   color: var(--amx-muted);
   transition: border-color 0.15s;
-
   &:focus-within { border-color: var(--amx-orange); }
-
   &--ai { border-color: rgba(168,85,247,0.5); background: rgba(168,85,247,0.04); }
   &--ai:focus-within { border-color: #a855f7; }
-
   input {
     flex: 1;
     border: none; outline: none; background: none;
     font-size: 14px; color: var(--amx-text);
     &::placeholder { color: var(--amx-input-placeholder); }
   }
-
   &-ai-badge {
     background: linear-gradient(135deg, #a855f7, #6366f1);
     color: #fff;
@@ -283,7 +244,6 @@
     flex-shrink: 0;
   }
 }
-
 .amx-icons__ai-toggle {
   display: flex;
   align-items: center;
@@ -298,7 +258,6 @@
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s;
-
   .amx-icons__ai-knob {
     width: 28px; height: 16px;
     border-radius: 999px;
@@ -322,10 +281,8 @@
     }
   }
 }
-
 .amx-icons__recolor {
   position: relative;
-
   &-btn {
     display: flex;
     align-items: center;
@@ -338,18 +295,15 @@
     color: var(--amx-text-2);
     cursor: pointer;
     transition: all 0.15s;
-
     &:hover { border-color: var(--amx-border); }
     &--open { border-color: var(--amx-orange); background: var(--amx-tag-bg); color: var(--amx-orange-dark); }
   }
-
   &-swatch {
     width: 16px; height: 16px; border-radius: 50%;
     flex-shrink: 0;
     box-shadow: 0 0 0 2px var(--amx-card), 0 0 0 3px var(--amx-border-2);
   }
 }
-
 .amx-recolor-panel {
   position: absolute;
   top: calc(100% + 8px);
@@ -362,7 +316,6 @@
   padding: 14px;
   z-index: 50;
   animation: amx-recolor-pop 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
-
   &__header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
   &__preview-swatch { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; box-shadow: 0 0 0 1px var(--amx-border-2); }
   &__hex-wrap {
@@ -409,13 +362,10 @@
     &--active { border-color: #fff; box-shadow: 0 0 0 2px var(--amx-orange); transform: scale(1.1); }
   }
 }
-
 @keyframes amx-recolor-pop {
   from { opacity: 0; transform: scale(0.92) translateY(-4px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
-
-// Select toggle button
 .amx-icons__select-toggle {
   display: flex;
   align-items: center;
@@ -429,45 +379,37 @@
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
-
   &:hover { border-color: var(--amx-orange); color: var(--amx-orange-dark); }
   &--on { background: var(--amx-orange); border-color: var(--amx-orange); color: #fff; }
 }
-
 .amx-icons__density-toggle {
   display: flex;
   border: 1.5px solid var(--amx-border-2);
   border-radius: 10px;
   overflow: hidden;
-
   button {
     border: none; background: var(--amx-card); color: var(--amx-muted);
     padding: 8px 11px; cursor: pointer; display: flex;
     &.active { background: var(--amx-orange); color: #fff; }
   }
 }
-
-// ============================= STYLE GALLERY =============================
 .amx-style-gallery {
   margin-bottom: 24px;
   background: var(--amx-card);
   border: 1px solid var(--amx-border);
   border-radius: var(--amx-radius-lg);
   padding: 18px 20px 20px;
-
   &__head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16px;
   }
-
   &__title-row {
     display: flex;
     align-items: baseline;
     gap: 8px;
   }
-
   &__title {
     font-family: var(--font-display);
     font-size: 15px;
@@ -475,13 +417,11 @@
     color: var(--amx-text);
     margin: 0;
   }
-
   &__count {
     font-size: 11px;
     color: var(--amx-muted);
     font-weight: 500;
   }
-
   &__collapse {
     display: flex;
     align-items: center;
@@ -496,7 +436,6 @@
     transition: all 0.15s;
     &:hover { background: var(--amx-border-2); color: var(--amx-text-2); }
   }
-
   &__scroll {
     display: flex;
     gap: 12px;
@@ -507,7 +446,6 @@
     scrollbar-width: none;
     &::-webkit-scrollbar { display: none; }
   }
-
   &__restore {
     display: inline-flex;
     align-items: center;
@@ -525,8 +463,6 @@
     &:hover { border-color: var(--amx-orange); color: var(--amx-orange-dark); background: var(--amx-tag-bg); }
   }
 }
-
-// Style pack card
 .amx-sp-card {
   flex-shrink: 0;
   width: 152px;
@@ -538,20 +474,16 @@
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.15s;
   position: relative;
   text-align: left;
-
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 32px rgba(0,0,0,0.14);
   }
-
   &--active {
     border-color: var(--sp-color, var(--amx-orange));
     box-shadow: 0 0 0 1px var(--sp-color, var(--amx-orange)), 0 8px 24px rgba(0,0,0,0.12);
   }
-
   &--dark &__name { color: rgba(255,255,255,0.95); }
   &--dark &__sub  { color: rgba(255,255,255,0.55); }
-
   &__badge {
     position: absolute;
     top: 8px; right: 8px;
@@ -562,7 +494,6 @@
     padding: 2px 6px;
     border-radius: 4px;
   }
-
   &__icons {
     display: flex;
     gap: 4px;
@@ -570,12 +501,10 @@
     height: 40px;
     align-items: center;
   }
-
   &__icon {
     width: 28px; height: 28px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-
     ::ng-deep svg {
       width: 100%; height: 100%;
       overflow: visible;
@@ -583,21 +512,17 @@
       stroke-linejoin: round;
     }
   }
-
   &__meta { display: flex; flex-direction: column; gap: 2px; }
-
   &__name {
     font-size: 13px; font-weight: 700;
     color: var(--amx-text);
     line-height: 1.2;
   }
-
   &__sub {
     font-size: 10.5px;
     color: var(--amx-muted);
     line-height: 1.3;
   }
-
   &__check {
     position: absolute;
     bottom: 10px; right: 10px;
@@ -608,8 +533,6 @@
     display: flex; align-items: center; justify-content: center;
   }
 }
-
-// Icon rendering inside style pack cards based on data-tech attribute
 .amx-sp-card[data-tech="line"] .amx-sp-card__icon ::ng-deep svg {
   fill: none;
   stroke: var(--sp-color, var(--amx-orange));
@@ -630,18 +553,14 @@
   stroke-width: var(--sp-stroke, 2);
   filter: url(#amxHandDrawn);
 }
-
-// ============================= TRENDING CAROUSEL =============================
 .amx-trending {
   margin-bottom: 24px;
-
   &__head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
   }
-
   &__title {
     display: flex;
     align-items: center;
@@ -652,7 +571,6 @@
     margin: 0;
     font-family: var(--font-body);
   }
-
   &__dismiss {
     display: flex; align-items: center; justify-content: center;
     width: 22px; height: 22px; border-radius: 50%;
@@ -661,7 +579,6 @@
     transition: all 0.12s;
     &:hover { background: var(--amx-bg-soft); color: var(--amx-text-2); }
   }
-
   &__scroll {
     display: flex;
     gap: 10px;
@@ -671,7 +588,6 @@
     &::-webkit-scrollbar { display: none; }
   }
 }
-
 .amx-trend-card {
   flex-shrink: 0;
   width: 140px;
@@ -681,16 +597,13 @@
   cursor: pointer;
   text-align: left;
   transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
-
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 28px rgba(0,0,0,0.14);
     border-color: var(--sp-color, var(--amx-orange));
   }
-
   &--dark .amx-trend-card__name { color: rgba(255,255,255,0.9); }
   &--dark .amx-trend-card__tag  { color: rgba(255,255,255,0.5); }
-
   &__icons {
     display: flex;
     gap: 3px;
@@ -698,9 +611,7 @@
     height: 28px;
     align-items: center;
   }
-
   &__meta { display: flex; flex-direction: column; gap: 2px; }
-
   &__tag {
     font-size: 9.5px;
     font-weight: 700;
@@ -708,7 +619,6 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
-
   &__name {
     font-size: 12.5px;
     font-weight: 700;
@@ -716,8 +626,6 @@
     line-height: 1.2;
   }
 }
-
-// Icon rendering inside trend cards
 .amx-trend-card[data-tech="line"] .amx-sp-card__icon ::ng-deep svg {
   fill: none; stroke: var(--sp-color, var(--amx-orange)); stroke-width: var(--sp-stroke, 2);
 }
@@ -730,8 +638,6 @@
 .amx-trend-card[data-tech="hand-drawn"] .amx-sp-card__icon ::ng-deep svg {
   fill: none; stroke: var(--sp-color, var(--amx-orange)); stroke-width: var(--sp-stroke, 2); filter: url(#amxHandDrawn);
 }
-
-// ============================= HERO =============================
 .amx-icons__hero {
   display: flex;
   align-items: center;
@@ -744,22 +650,18 @@
   margin-bottom: 24px;
   overflow: hidden;
   position: relative;
-
   &-copy {
     max-width: 560px;
     h1 { font-size: 30px; margin-bottom: 8px; color: var(--amx-text); }
     p { color: var(--amx-text-2); font-size: 14px; line-height: 1.65; margin-bottom: 16px; }
   }
-
   &-stats {
     display: flex; gap: 24px;
     div { display: flex; flex-direction: column; }
     strong { font-family: var(--font-display); font-size: 20px; color: var(--amx-orange-dark); }
     span { font-size: 11px; color: var(--amx-muted); }
   }
-
   &-showcase { display: flex; gap: 12px; flex-shrink: 0; }
-
   &-tile {
     width: 80px; height: 80px;
     background: var(--amx-card);
@@ -770,13 +672,10 @@
     .amx-icon-render { width: 36px; height: 36px; }
   }
 }
-
 @media (max-width: 900px) {
   .amx-icons__hero { flex-direction: column; align-items: flex-start; }
   .amx-icons__hero-showcase { align-self: center; }
 }
-
-// ============================= META / GROUPS =============================
 .amx-icons__meta-row {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
@@ -798,19 +697,15 @@
     &:hover { opacity: 1; }
   }
 }
-
 .amx-icon-skeleton-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
   gap: 10px;
 }
-
 .amx-icon-skeleton-card {
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   padding: 16px 8px 12px; border-radius: 14px; background: var(--amx-card); border: 1px solid var(--amx-border-3);
-
   @for $i from 1 through 24 { &:nth-child(#{$i}) { animation-delay: #{$i * 0.03}s; } }
-
   &__icon {
     width: 36px; height: 36px; border-radius: 10px;
     background: linear-gradient(90deg, var(--amx-border-light) 25%, var(--amx-border-3) 50%, var(--amx-border-light) 75%);
@@ -824,26 +719,20 @@
     animation: amx-icon-shimmer 1.5s ease-in-out infinite;
   }
 }
-
 @keyframes amx-icon-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
 .amx-icons__group { margin-bottom: 28px; }
 .amx-icons__group-title {
   display: flex; align-items: baseline; gap: 8px;
   font-size: 15px; font-family: var(--font-display); color: var(--amx-text); margin-bottom: 14px;
   span { font-size: 12px; color: var(--amx-muted); font-weight: 500; font-family: var(--font-body); }
 }
-
-// ============================= ICON GRID =============================
 .amx-icon-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 10px;
-
   &--small { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 7px; }
   &--large { grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 14px; }
 }
-
 .amx-icon-card {
   display: flex;
   flex-direction: column;
@@ -857,44 +746,36 @@
   transition: transform 0.15s ease, box-shadow 0.18s ease, border-color 0.15s ease;
   position: relative;
   overflow: visible;
-
   &:hover {
     transform: translateY(-4px) scale(1.01);
     box-shadow: 0 8px 24px rgba(0,0,0,0.11);
     border-color: var(--amx-orange);
     z-index: 2;
-
     .amx-icon-card__quick { opacity: 1; transform: translateY(0); pointer-events: auto; }
   }
-
   &--selectmode { cursor: default; }
-
   &--selected {
     border-color: var(--amx-orange);
     background: var(--amx-tag-bg);
     box-shadow: 0 0 0 2px var(--amx-orange);
     transform: scale(0.97);
   }
-
   &__preview {
     position: relative;
     width: 44px; height: 44px;
     display: flex; align-items: center; justify-content: center;
   }
-
   &__name {
     font-size: 11.5px; color: var(--amx-text-2); text-align: center;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
     line-height: 1.3;
   }
-
   &__premium {
     position: absolute; top: -8px; right: -14px;
     background: var(--amx-premium-text); color: #fff;
     font-size: 7.5px; font-weight: 800; padding: 2px 5px; border-radius: 4px;
     letter-spacing: 0.04em;
   }
-
   &__lib-badge {
     position: absolute; bottom: -6px; left: -6px;
     width: 10px; height: 10px; border-radius: 50%;
@@ -908,7 +789,6 @@
     &[data-lib="heroicons"] { background: #0284C7; }
     &[data-lib="ionicons"]  { background: #3880FF; }
   }
-
   &__fav {
     position: absolute; bottom: -7px; right: -10px;
     width: 22px; height: 22px; border-radius: 50%;
@@ -918,10 +798,7 @@
     opacity: 0; transition: opacity 0.15s, color 0.15s; cursor: pointer;
     &--active { opacity: 1; color: var(--amx-danger); }
   }
-
   &:hover &__fav { opacity: 1; }
-
-  // Quick action bar (hover)
   &__quick {
     position: absolute;
     bottom: -1px; left: -1px; right: -1px;
@@ -937,7 +814,6 @@
     transition: opacity 0.18s ease, transform 0.18s ease;
     z-index: 4;
   }
-
   &__quick-btn {
     display: flex;
     align-items: center;
@@ -953,15 +829,12 @@
     white-space: nowrap;
     transition: all 0.1s;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-
     &:hover {
       background: var(--amx-orange);
       border-color: var(--amx-orange);
       color: #fff;
     }
   }
-
-  // Multi-select checkbox
   &__checkbox {
     position: absolute;
     top: 7px; left: 7px;
@@ -972,10 +845,8 @@
     display: flex; align-items: center; justify-content: center;
     z-index: 5;
     transition: all 0.15s;
-
     svg { display: none; }
   }
-
   &--selected &__checkbox {
     background: var(--amx-orange);
     border-color: var(--amx-orange);
@@ -983,28 +854,21 @@
     svg { display: block; }
   }
 }
-
-// Multi-select mode: hide quick actions, show checkboxes cleanly
 .amx-icons--multiselect .amx-icon-card:hover .amx-icon-card__quick {
   opacity: 0;
   pointer-events: none;
 }
-
 .amx-icon-grid--small .amx-icon-card {
   padding: 10px 4px 7px;
   .amx-icon-card__preview { width: 30px; height: 30px; }
   .amx-icon-card__name { font-size: 10px; }
   .amx-icon-card__quick { display: none; }
 }
-
 .amx-icon-grid--large .amx-icon-card .amx-icon-card__preview { width: 54px; height: 54px; }
-
-// Infinite scroll sentinel
 .amx-scroll-sentinel {
   height: 1px;
   margin-top: 8px;
 }
-
 .amx-icons__load-more {
   display: flex; justify-content: center; margin-top: 12px;
   button {
@@ -1015,7 +879,6 @@
     &:hover { border-color: var(--amx-orange); color: var(--amx-orange-dark); }
   }
 }
-
 .amx-icons__empty {
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   padding: 70px 20px; color: var(--amx-muted); text-align: center;
@@ -1025,42 +888,29 @@
     font-weight: 600; padding: 10px 22px; border-radius: 999px; cursor: pointer;
   }
 }
-
-// ============================= ICON RENDER =============================
 .amx-icon-render {
   width: 100%; height: 100%; display: block;
-
   svg, ::ng-deep svg {
     width: 100%; height: 100%;
     stroke: var(--icon-color); fill: none;
     stroke-width: var(--icon-stroke); stroke-linecap: round; stroke-linejoin: round;
     overflow: visible;
   }
-
   &--big { ::ng-deep svg { width: 100px; height: 100px; } }
-
   &--colored {
     svg, ::ng-deep svg { stroke: none !important; fill: none !important; stroke-width: 0 !important; overflow: visible; }
   }
-
-  // Legacy animation
   &--animated { animation: amx-icon-bob 1.6s ease-in-out infinite; }
-
-  // New animation types
   &--anim-spin    { animation: amx-icon-spin 2s linear infinite; }
   &--anim-pulse   { animation: amx-icon-pulse 1.5s ease-in-out infinite; }
   &--anim-bounce  { animation: amx-icon-bounce 1.3s ease infinite; }
   &--anim-shake   { animation: amx-icon-shake 0.65s ease-in-out infinite; }
   &--anim-ping    { animation: amx-icon-ping 1.1s cubic-bezier(0, 0, 0.2, 1) infinite; }
 }
-
-// Technique modifiers
 .amx-icons--corners-sharp .amx-icon-render svg,
 .amx-icons--corners-sharp .amx-icon-render ::ng-deep svg { stroke-linecap: square; stroke-linejoin: miter; }
-
 .amx-icons--tech-filled .amx-icon-render svg,
 .amx-icons--tech-filled .amx-icon-render ::ng-deep svg { fill: var(--icon-color); stroke: none; }
-
 .amx-icons--tech-3d .amx-icon-render svg,
 .amx-icons--tech-3d .amx-icon-render ::ng-deep svg {
   fill: url(#amxIconGradient); stroke: none;
@@ -1068,8 +918,6 @@
 }
 .amx-icons--tech-hand .amx-icon-render svg,
 .amx-icons--tech-hand .amx-icon-render ::ng-deep svg { filter: url(#amxHandDrawn); }
-
-// Color modes
 .amx-icons--color-duo .amx-icon-render svg,
 .amx-icons--color-duo .amx-icon-render ::ng-deep svg { fill: var(--icon-color); stroke: none; opacity: 1; }
 .amx-icons--color-duo.amx-icons--tech-line .amx-icon-render svg,
@@ -1077,20 +925,16 @@
 .amx-icons--color-duo.amx-icons--tech-hand .amx-icon-render svg,
 .amx-icons--color-duo.amx-icons--tech-hand .amx-icon-render ::ng-deep svg { fill: none; stroke: var(--icon-color); }
 .amx-icons--color-duo .amx-icon-render ::ng-deep svg > :nth-child(even) { opacity: 0.40; }
-
 .amx-icons--color-multi .amx-icon-render ::ng-deep svg > :nth-child(1) { stroke: var(--icon-color); fill: var(--icon-color); }
 .amx-icons--color-multi .amx-icon-render ::ng-deep svg > :nth-child(2) { stroke: #2563eb; fill: #2563eb; }
 .amx-icons--color-multi .amx-icon-render ::ng-deep svg > :nth-child(3) { stroke: #059669; fill: #059669; }
 .amx-icons--color-multi .amx-icon-render ::ng-deep svg > :nth-child(4) { stroke: #d97706; fill: #d97706; }
 .amx-icons--color-multi .amx-icon-render ::ng-deep svg > :nth-child(5) { stroke: #db2777; fill: #db2777; }
 .amx-icons--color-multi.amx-icons--tech-line .amx-icon-render ::ng-deep svg > * { fill: none !important; }
-
 .amx-icons--color-gradient .amx-icon-render svg,
 .amx-icons--color-gradient .amx-icon-render ::ng-deep svg { fill: url(#amxIconGradient); stroke: none; }
 .amx-icons--color-gradient.amx-icons--tech-line .amx-icon-render svg,
 .amx-icons--color-gradient.amx-icons--tech-line .amx-icon-render ::ng-deep svg { fill: none; stroke: var(--icon-color); }
-
-// ============================= ANIMATION KEYFRAMES =============================
 @keyframes amx-spin { to { transform: rotate(360deg); } }
 @keyframes amx-icon-bob {
   0%, 100% { transform: translateY(0) scale(1); }
@@ -1118,8 +962,6 @@
   0% { transform: scale(1); opacity: 1; }
   70%, 100% { transform: scale(1.6); opacity: 0; }
 }
-
-// ============================= BULK ACTION BAR =============================
 .amx-bulk-bar {
   position: fixed;
   bottom: 24px;
@@ -1127,7 +969,6 @@
   transform: translateX(-50%);
   z-index: 90;
   animation: amx-bulk-rise 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-
   &__inner {
     display: flex;
     align-items: center;
@@ -1139,7 +980,6 @@
     box-shadow: 0 12px 40px rgba(0,0,0,0.32), 0 4px 12px rgba(0,0,0,0.18);
     white-space: nowrap;
   }
-
   &__count {
     display: flex;
     align-items: center;
@@ -1149,12 +989,10 @@
     opacity: 0.95;
     flex-shrink: 0;
   }
-
   &__actions {
     display: flex;
     gap: 6px;
   }
-
   &__exit {
     display: flex; align-items: center; justify-content: center;
     width: 28px; height: 28px; border-radius: 50%;
@@ -1166,7 +1004,6 @@
     &:hover { background: rgba(255,255,255,0.2); color: #fff; }
   }
 }
-
 .amx-bulk-btn {
   display: flex;
   align-items: center;
@@ -1180,24 +1017,19 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.12s;
-
   &:hover { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.4); }
   &--clear { background: none; border-color: transparent; opacity: 0.65; &:hover { opacity: 1; background: rgba(255,255,255,0.1); } }
 }
-
 @keyframes amx-bulk-rise {
   from { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.96); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 }
-
-// ============================= DETAIL PANEL =============================
 .amx-icon-detail-scrim {
   position: fixed; inset: 0;
   background: var(--amx-overlay);
   z-index: 60;
   animation: amx-fade-in 0.15s ease;
 }
-
 .amx-icon-detail {
   position: fixed;
   top: 0; right: 0;
@@ -1211,7 +1043,6 @@
   padding: 26px 22px 50px;
   overflow-y: auto;
   animation: amx-slide-in 0.24s cubic-bezier(0.22, 1, 0.36, 1);
-
   &__close {
     position: absolute; top: 16px; right: 16px;
     border: 1px solid var(--amx-border-2);
@@ -1222,7 +1053,6 @@
     transition: all 0.12s;
     &:hover { background: var(--amx-border-2); color: var(--amx-text-2); }
   }
-
   &__preview {
     display: flex; align-items: center; justify-content: center;
     height: 160px;
@@ -1232,7 +1062,6 @@
     position: relative;
     overflow: hidden;
   }
-
   &__preview-ring {
     position: absolute;
     width: 120px; height: 120px;
@@ -1250,14 +1079,11 @@
       border: 1px dashed var(--amx-border-3);
     }
   }
-
   &__title { font-size: 19px; font-weight: 700; margin-bottom: 6px; }
-
   &__meta {
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
     margin-bottom: 18px;
   }
-
   &__cat-tag, &__lib-tag {
     display: inline-flex; align-items: center;
     background: var(--amx-bg-soft);
@@ -1267,11 +1093,8 @@
     font-size: 11.5px; font-weight: 600;
     color: var(--amx-text-2);
   }
-
   &__lib-tag { background: var(--amx-tag-bg); color: var(--amx-orange-dark); border-color: transparent; }
-
   &__downloads { font-size: 11.5px; color: var(--amx-muted); }
-
   &__actions {
     display: flex; gap: 8px; margin-bottom: 18px;
     button {
@@ -1281,20 +1104,16 @@
       color: var(--amx-text-2); cursor: pointer; transition: all 0.12s;
     }
   }
-
   &__fav--active { color: var(--amx-danger) !important; border-color: var(--amx-danger) !important; }
   &__collect:hover, &__fav:hover { border-color: var(--amx-orange) !important; color: var(--amx-orange-dark) !important; }
-
   &__block {
     padding: 14px 0;
     border-top: 1px solid var(--amx-border-light);
     h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--amx-muted); margin-bottom: 10px; font-weight: 700; }
   }
-
   &__copy-row {
     display: flex; gap: 7px;
   }
-
   &__copy-btn {
     flex: 1;
     display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -1304,7 +1123,6 @@
     font-size: 12.5px; font-weight: 700;
     color: var(--amx-text-2); cursor: pointer;
     transition: all 0.12s;
-
     &:hover { border-color: var(--amx-orange); color: var(--amx-orange-dark); background: var(--amx-tag-bg); }
     &--done {
       background: var(--amx-success-bg);
@@ -1312,7 +1130,6 @@
       color: var(--amx-success);
     }
   }
-
   &__svg-btn {
     display: flex; align-items: center; justify-content: center; gap: 7px;
     width: 100%; border: none;
@@ -1323,15 +1140,12 @@
     margin-bottom: 12px;
     &:hover { background: var(--amx-orange-dark); }
   }
-
   &__png-label {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 8px;
     span:first-child { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--amx-muted); font-weight: 700; }
   }
-
   &__png-hint { font-size: 11px; color: var(--amx-faint); }
-
   &__sizes {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1347,21 +1161,17 @@
       &:hover { border-color: var(--amx-orange); color: var(--amx-orange-dark); background: var(--amx-tag-bg); span { color: var(--amx-orange-dark); } }
     }
   }
-
   &__tags { display: flex; flex-wrap: wrap; gap: 5px; }
-
   &__tag-btn {
     background: var(--amx-tag-bg); color: var(--amx-tag-text);
     font-size: 11.5px; padding: 4px 10px; border-radius: 999px;
     border: none; cursor: pointer; transition: all 0.12s;
     &:hover { background: var(--amx-orange); color: #fff; }
   }
-
   &__related {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
-
     button {
       display: flex; flex-direction: column; align-items: center; gap: 5px;
       border: 1.5px solid var(--amx-border);
@@ -1372,7 +1182,6 @@
       .amx-icon-render { width: 24px; height: 24px; }
     }
   }
-
   &__related-name {
     font-size: 9.5px; color: var(--amx-muted);
     text-align: center; max-width: 100%;
@@ -1380,23 +1189,17 @@
     font-weight: 500;
   }
 }
-
 @keyframes amx-ring-spin { to { transform: rotate(360deg); } }
-
-// ============================= ANIMATIONS =============================
 @keyframes amx-spin { to { transform: rotate(360deg); } }
 @keyframes amx-fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes amx-slide-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
 @keyframes amx-overlay-fade { from { opacity: 0; } to { opacity: 1; } }
-
-// ============================= TABS =============================
 .amx-icons__tabs {
   display: flex; gap: 2px;
   padding-top: 4px;
   border-bottom: 1.5px solid var(--amx-border-2);
   margin-bottom: 18px;
 }
-
 .amx-icons__tab {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 7px 14px 9px;
@@ -1408,24 +1211,19 @@
   cursor: pointer; border-radius: 0;
   transition: color 0.15s, border-color 0.15s;
   white-space: nowrap;
-
   &:hover { color: var(--amx-text-2); }
   &--active { color: var(--amx-orange-dark, var(--amx-orange)); border-bottom-color: var(--amx-orange); }
 }
-
 .amx-icons__tab-badge {
   background: var(--amx-orange); color: #fff;
   font-size: 10px; font-weight: 700; border-radius: 20px;
   padding: 1px 6px; min-width: 18px; text-align: center; line-height: 16px;
 }
-
-// ============================= COLLECTIONS =============================
 .amx-collections__header {
   display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px;
   h2 { font-size: 18px; font-weight: 700; color: var(--amx-text); margin: 0; }
   &-sub { font-size: 13px; color: var(--amx-muted); }
 }
-
 .amx-collections__empty {
   text-align: center; padding: 64px 20px; color: var(--amx-muted);
   svg { margin: 0 auto 16px; display: block; opacity: 0.35; }
@@ -1439,13 +1237,11 @@
     &:hover { opacity: 0.88; }
   }
 }
-
 .amx-collections__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
   gap: 14px;
 }
-
 .amx-collection-card {
   background: var(--amx-card);
   border: 1.5px solid var(--amx-border-2);
@@ -1453,25 +1249,20 @@
   overflow: hidden;
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
-
   &:hover { border-color: var(--amx-border); box-shadow: 0 6px 20px rgba(0,0,0,0.09); transform: translateY(-2px); }
-
   &__previews {
     display: grid; grid-template-columns: 1fr 1fr; gap: 0;
     background: var(--amx-bg-soft); padding: 16px 12px;
     min-height: 80px; align-items: center; justify-items: center;
-
     .amx-icon-render--preview {
       width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; opacity: 0.85;
       svg { width: 100%; height: 100%; }
     }
   }
-
   &__placeholder {
     grid-column: 1 / -1; display: flex; align-items: center; justify-content: center;
     width: 100%; height: 100%; color: var(--amx-border);
   }
-
   &__info { padding: 12px 14px 4px; }
   &__name { display: block; font-size: 13px; font-weight: 700; color: var(--amx-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   &__count { display: block; font-size: 11px; color: var(--amx-muted); margin-top: 3px; }
@@ -1490,7 +1281,6 @@
     &--delete:hover { background: rgba(239,68,68,0.08); color: #ef4444; border-color: rgba(239,68,68,0.28); }
   }
 }
-
 .amx-collection-view {
   &__header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
   &__back {
@@ -1513,8 +1303,6 @@
   }
   &__count { font-size: 13px; color: var(--amx-muted); margin-left: auto; white-space: nowrap; }
 }
-
-// Card collect button
 .amx-icon-card__collect {
   position: absolute; bottom: 4px; right: 4px;
   width: 22px; height: 22px; border-radius: 50%;
@@ -1528,8 +1316,6 @@
   &--saved { display: flex; }
 }
 .amx-icon-card:hover .amx-icon-card__collect { display: flex; }
-
-// Card remove button (collection drill-in)
 .amx-icon-card__remove {
   position: absolute; top: 4px; right: 4px;
   width: 20px; height: 20px; border-radius: 50%;
@@ -1538,8 +1324,6 @@
   &:hover { background: #ef4444; }
 }
 .amx-icon-card--collection:hover .amx-icon-card__remove { display: flex; }
-
-// Detail collect button
 .amx-icon-detail__collect {
   display: flex; align-items: center; justify-content: center; gap: 6px; flex: 1;
   border: 1.5px solid var(--amx-border-2); background: var(--amx-card);
@@ -1548,8 +1332,6 @@
   transition: all 0.12s;
   &:hover { border-color: var(--amx-orange); background: var(--amx-tag-bg); color: var(--amx-orange-dark); }
 }
-
-// Collection picker overlay
 .amx-collection-picker-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.45); z-index: 200;
@@ -1557,7 +1339,6 @@
   backdrop-filter: blur(4px);
   animation: amx-overlay-fade 0.14s ease;
 }
-
 .amx-collection-picker {
   background: var(--amx-elevated, var(--amx-card));
   border: 1px solid var(--amx-border-2);
@@ -1566,7 +1347,6 @@
   width: 320px; max-height: 500px;
   display: flex; flex-direction: column; overflow: hidden;
   animation: amx-recolor-pop 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
-
   &__head {
     display: flex; align-items: center; gap: 10px;
     padding: 14px 14px 12px; border-bottom: 1px solid var(--amx-border-2); flex-shrink: 0;
@@ -1618,12 +1398,9 @@
     &:not(:disabled):hover { opacity: 0.88; }
   }
 }
-
-// ============================= RESPONSIVE =============================
 @media (max-width: 980px) {
   .amx-icons__layout { grid-template-columns: 1fr; padding: 16px; }
   .amx-icons__mobile-filters-btn { display: flex; }
-
   .amx-icons__sidebar {
     position: fixed; top: 0; left: 0; bottom: 0; width: 300px;
     max-height: 100vh; z-index: 50; border-radius: 0;
@@ -1632,19 +1409,15 @@
   }
   .amx-icons__sidebar-close { display: block; }
   .amx-icons__sidebar-scrim { display: block; }
-
   .amx-icons__hero { padding: 22px 20px; }
   .amx-icons__hero-copy h1 { font-size: 24px; }
 }
-
 @media (max-width: 560px) {
   .amx-icons__hero-showcase { display: none; }
   .amx-icon-detail { width: 100%; }
   .amx-icon-detail__related { grid-template-columns: repeat(4, 1fr); }
   .amx-bulk-bar__inner { flex-wrap: wrap; }
 }
-
-/* ── Style pack card: real icon rendering ─────────────────── */
 .amx-sp-card__icons--real {
   display: flex;
   gap: 6px;
@@ -1652,7 +1425,6 @@
   align-items: center;
   padding: 8px 0 4px;
 }
-
 .amx-sp-card__icon--styled {
   display: flex;
   align-items: center;
@@ -1661,7 +1433,6 @@
   height: 28px;
   svg { width: 100%; height: 100%; }
 }
-
 .amx-trend-card__icon--styled {
   display: flex;
   align-items: center;
@@ -1670,8 +1441,6 @@
   height: 28px;
   svg { width: 100%; height: 100%; }
 }
-
-/* ── Lottie download button ──────────────────────────────── */
 .amx-icon-detail__lottie-btn {
   display: flex;
   align-items: center;
@@ -1688,14 +1457,12 @@
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
-
   &:hover {
     background: rgba(99,102,241,0.08);
     color: #6366f1;
     border-color: rgba(99,102,241,0.3);
   }
 }
-
 .amx-icon-detail__lottie-anim {
   margin-left: auto;
   font-size: 10px;
@@ -1707,8 +1474,6 @@
   border-radius: 4px;
   padding: 2px 6px;
 }
-
-/* ── Request icon button in toolbar ─────────────────────── */
 .amx-icons__request-btn {
   display: flex;
   align-items: center;
@@ -1725,14 +1490,12 @@
   white-space: nowrap;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
   position: relative;
-
   &:hover {
     background: rgba(99,102,241,0.08);
     color: #6366f1;
     border-color: rgba(99,102,241,0.3);
   }
 }
-
 .amx-icons__request-badge {
   background: #6366f1;
   color: #fff;
@@ -1743,8 +1506,6 @@
   min-width: 16px;
   text-align: center;
 }
-
-/* ── Icon request modal ──────────────────────────────────── */
 .amx-request-overlay {
   position: fixed;
   inset: 0;
@@ -1757,12 +1518,10 @@
   padding: 16px;
   animation: overlay-fade-in 0.18s ease;
 }
-
 @keyframes overlay-fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
 .amx-request-modal {
   background: var(--amx-card);
   border: 1px solid var(--amx-border);
@@ -1776,12 +1535,10 @@
   flex-direction: column;
   animation: modal-pop-in 0.2s cubic-bezier(0.16,1,0.3,1);
 }
-
 @keyframes modal-pop-in {
   from { opacity: 0; transform: scale(0.94) translateY(8px); }
   to   { opacity: 1; transform: scale(1)   translateY(0); }
 }
-
 .amx-request-modal__head {
   display: flex;
   align-items: center;
@@ -1789,7 +1546,6 @@
   padding: 20px 24px 0;
   gap: 12px;
 }
-
 .amx-request-modal__title-row {
   display: flex;
   align-items: center;
@@ -1797,7 +1553,6 @@
   svg { color: #6366f1; flex-shrink: 0; }
   h2 { margin: 0; font-size: 16px; font-weight: 700; color: var(--amx-text); }
 }
-
 .amx-request-modal__close {
   width: 28px; height: 28px;
   display: flex; align-items: center; justify-content: center;
@@ -1807,7 +1562,6 @@
   transition: background 0.12s;
   &:hover { background: var(--amx-hover); }
 }
-
 .amx-request-modal__tabs {
   display: flex;
   gap: 4px;
@@ -1815,7 +1569,6 @@
   border-bottom: 1px solid var(--amx-border);
   margin-top: 16px;
 }
-
 .amx-request-modal__tab {
   display: flex;
   align-items: center;
@@ -1831,16 +1584,13 @@
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   transition: color 0.15s;
-
   &--active {
     color: #6366f1;
     border-bottom-color: #6366f1;
     font-weight: 600;
   }
-
   &:hover:not(.amx-request-modal__tab--active) { color: var(--amx-text); }
 }
-
 .amx-request-modal__tab-badge {
   background: #6366f1;
   color: #fff;
@@ -1849,20 +1599,16 @@
   border-radius: 999px;
   padding: 1px 5px;
 }
-
 .amx-request-modal__body {
   overflow-y: auto;
   padding: 24px;
   flex: 1;
 }
-
-/* Submit form */
 .amx-request-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-
 .amx-request-form__label {
   display: flex;
   flex-direction: column;
@@ -1871,10 +1617,8 @@
   font-weight: 500;
   color: var(--amx-text);
 }
-
 .amx-request-form__req { color: #ef4444; }
 .amx-request-form__hint { font-weight: 400; color: var(--amx-text-2); }
-
 .amx-request-form__input,
 .amx-request-form__textarea,
 .amx-request-form__select {
@@ -1888,12 +1632,9 @@
   transition: border-color 0.15s;
   width: 100%;
   box-sizing: border-box;
-
   &:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
 }
-
 .amx-request-form__textarea { resize: vertical; min-height: 72px; }
-
 .amx-request-form__submit {
   padding: 11px 20px;
   border: none;
@@ -1906,12 +1647,9 @@
   cursor: pointer;
   transition: background 0.15s, opacity 0.15s;
   align-self: flex-start;
-
   &:hover { background: #4f46e5; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
-
-/* Success state */
 .amx-request-success {
   text-align: center;
   padding: 32px 0;
@@ -1922,8 +1660,6 @@
     font-family: inherit; cursor: pointer; text-decoration: underline;
   }
 }
-
-/* Empty state */
 .amx-request-empty {
   text-align: center;
   padding: 32px 0;
@@ -1937,8 +1673,6 @@
     &:hover { background: rgba(99,102,241,0.08); }
   }
 }
-
-/* Request list */
 .amx-request-list {
   list-style: none;
   margin: 0;
@@ -1947,7 +1681,6 @@
   flex-direction: column;
   gap: 10px;
 }
-
 .amx-request-item {
   display: flex;
   gap: 12px;
@@ -1957,10 +1690,8 @@
   border-radius: 10px;
   background: var(--amx-bg);
   transition: border-color 0.15s;
-
   &:hover { border-color: rgba(99,102,241,0.3); }
 }
-
 .amx-request-item__vote {
   display: flex;
   flex-direction: column;
@@ -1977,9 +1708,7 @@
   cursor: pointer;
   transition: background 0.12s, color 0.12s, border-color 0.12s;
   flex-shrink: 0;
-
   &:hover { background: rgba(99,102,241,0.08); color: #6366f1; border-color: rgba(99,102,241,0.3); }
-
   &--voted {
     background: rgba(99,102,241,0.12);
     color: #6366f1;
@@ -1987,9 +1716,7 @@
     svg { stroke: #6366f1; }
   }
 }
-
 .amx-request-item__body { flex: 1; min-width: 0; }
-
 .amx-request-item__top {
   display: flex;
   align-items: center;
@@ -1997,13 +1724,11 @@
   margin-bottom: 4px;
   flex-wrap: wrap;
 }
-
 .amx-request-item__name {
   font-size: 13.5px;
   font-weight: 600;
   color: var(--amx-text);
 }
-
 .amx-request-item__status {
   font-size: 11px;
   font-weight: 600;
@@ -2013,36 +1738,30 @@
   &--planned  { background: rgba(99,102,241,0.12); color: #6366f1; }
   &--done     { background: rgba(16,185,129,0.12); color: #10b981; }
 }
-
 .amx-request-item__desc {
   font-size: 12.5px;
   color: var(--amx-text-2);
   margin: 0 0 6px;
   line-height: 1.5;
 }
-
 .amx-request-item__meta {
   display: flex;
   gap: 10px;
   font-size: 11px;
   color: var(--amx-text-2);
 }
-
 .amx-request-item__style {
   background: var(--amx-hover);
   border-radius: 4px;
   padding: 1px 6px;
   text-transform: capitalize;
 }
-
-/* ── Figma export section ────────────────────────────────── */
 .amx-icon-detail__block--figma {
   border: 1px solid rgba(99,102,241,0.18);
   border-radius: 10px;
   padding: 14px;
   background: rgba(99,102,241,0.03);
   margin-top: 4px;
-
   h4 {
     display: flex;
     align-items: center;
@@ -2055,24 +1774,20 @@
     color: var(--amx-text-2);
   }
 }
-
 .amx-figma-logo {
   flex-shrink: 0;
 }
-
 .amx-figma-hint {
   font-size: 12px;
   color: var(--amx-text-2);
   line-height: 1.5;
   margin: 0 0 12px;
 }
-
 .amx-figma-actions {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-
 .amx-figma-btn {
   display: flex;
   align-items: center;
@@ -2085,37 +1800,29 @@
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
-
   &:active { transform: scale(0.98); }
-
   &--copy {
     border: 1px solid var(--amx-border);
     background: var(--amx-bg);
     color: var(--amx-text-2);
-
     &:hover { background: rgba(99,102,241,0.07); color: #6366f1; border-color: rgba(99,102,241,0.3); }
-
     &.amx-figma-btn--done {
       background: rgba(16,185,129,0.1);
       color: #10b981;
       border-color: rgba(16,185,129,0.3);
     }
   }
-
   &--open {
     border: none;
     background: #6366f1;
     color: #fff;
-
     &:hover { background: #4f46e5; }
-
     &.amx-figma-btn--done {
       background: #10b981;
       color: #fff;
     }
   }
 }
-
 .amx-figma-tip {
   display: flex;
   align-items: center;
@@ -2129,9 +1836,7 @@
   color: #10b981;
   line-height: 1.4;
   animation: figma-tip-in 0.2s ease;
-
   svg { flex-shrink: 0; }
-
   kbd {
     display: inline-block;
     padding: 1px 5px;
@@ -2142,7 +1847,6 @@
     background: rgba(16,185,129,0.1);
   }
 }
-
 @keyframes figma-tip-in {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }

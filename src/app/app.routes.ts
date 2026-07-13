@@ -24,16 +24,6 @@ export const routes: Routes = [
   },
 
   {
-    path: 'icons',
-    loadComponent: () => import('./features/icons/icons-new/icons-new.component').then(m => m.IconsNewComponent),
-  },
-
-  {
-    path: 'png',
-    loadComponent: () => import('./features/png/png.component').then(m => m.PngComponent),
-  },
-
-  {
     path: 'editor',
     canActivate: [authGuard],
     loadComponent: () => import('./features/editor/canvas-editor/canvas-editor.component').then(m => m.CanvasEditorComponent),
@@ -45,6 +35,16 @@ export const routes: Routes = [
       { path: '', loadComponent: () => import('./features/academy/course-list/course-list.component').then(m => m.CourseListComponent) },
       { path: ':id', loadComponent: () => import('./features/academy/course-player/course-player.component').then(m => m.CoursePlayerComponent) },
     ],
+  },
+
+  {
+    path: 'icons',
+    loadComponent: () => import('./features/icons/icons-new/icons-new.component').then(m => m.IconsNewComponent),
+  },
+
+  {
+    path: 'png',
+    loadComponent: () => import('./features/png/png.component').then(m => m.PngComponent),
   },
 
   {

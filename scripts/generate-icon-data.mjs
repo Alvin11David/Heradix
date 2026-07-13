@@ -1,12 +1,4 @@
 #!/usr/bin/env node
-/**
- * Icon data generation script.
- * Reads SVG files / JSON from each installed icon library and writes
- * static JSON files to src/assets/icons/ for fast fetch()-based loading.
- *
- * Run: node scripts/generate-icon-data.mjs
- */
-
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'fs';
 import { join, basename, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -20,13 +12,12 @@ if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
 const TODAY_MS = new Date('2026-07-11T09:00:00Z').getTime();
 const DAY = 86400000;
 
-// ─── helpers ──────────────────────────────────────────────────────────────────
 
 function slugify(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 
-/** Extract the inner markup from an SVG string (strips outer <svg> wrapper). */
+
 function innerSvg(svgStr) {
   return svgStr
     .replace(/<!--[\s\S]*?-->/g, '')
@@ -38,7 +29,7 @@ function innerSvg(svgStr) {
     .trim();
 }
 
-/** Read viewBox from an SVG string. Returns null if 0 0 24 24 (the default). */
+
 function parseViewBox(svgStr) {
   const m = svgStr.match(/viewBox=["']([^"']+)["']/i);
   if (!m) return null;
@@ -80,7 +71,7 @@ function seededDate(i) {
   return new Date(TODAY_MS - days * DAY).toISOString();
 }
 
-/** Build a plain icon object — paths stored raw (no TS escaping needed for JSON). */
+
 function makeIcon(id, name, path, library, viewBox = null, extra = {}) {
   const cat = extra.category ?? inferCategory(name);
   const obj = {
@@ -130,7 +121,6 @@ function camelToWords(str) {
   return str.replace(/([A-Z])/g, ' $1').trim();
 }
 
-// ─── write JSON asset file ─────────────────────────────────────────────────────
 
 function writeJsonFile(library, displayName, icons) {
   const outPath = join(OUT_DIR, `${library}.json`);
@@ -139,9 +129,6 @@ function writeJsonFile(library, displayName, icons) {
   console.log(`✓ ${displayName}: ${icons.length} icons → ${outPath} (~${kb} KB path data)`);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// TABLER ICONS
-// ═══════════════════════════════════════════════════════════════════════════════
 function generateTabler() {
   console.log('Processing Tabler Icons…');
   const jsonPath = join(ROOT, 'node_modules/@tabler/icons/tabler-nodes-outline.json');
@@ -169,9 +156,6 @@ function generateTabler() {
   writeJsonFile('tabler', 'Tabler Icons', icons);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// LUCIDE ICONS
-// ═══════════════════════════════════════════════════════════════════════════════
 function generateLucide() {
   console.log('Processing Lucide Icons…');
   const dir = join(ROOT, 'node_modules/lucide-static/icons');
@@ -183,9 +167,6 @@ function generateLucide() {
   writeJsonFile('lucide', 'Lucide', icons);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// BOOTSTRAP ICONS
-// ═══════════════════════════════════════════════════════════════════════════════
 function generateBootstrap() {
   console.log('Processing Bootstrap Icons…');
   const dir = join(ROOT, 'node_modules/bootstrap-icons/icons');
@@ -198,9 +179,6 @@ function generateBootstrap() {
   writeJsonFile('bootstrap', 'Bootstrap Icons', icons);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// HEROICONS
-// ═══════════════════════════════════════════════════════════════════════════════
 function generateHeroicons() {
   console.log('Processing Heroicons…');
   const dir = join(ROOT, 'node_modules/heroicons/24/outline');
@@ -212,9 +190,6 @@ function generateHeroicons() {
   writeJsonFile('heroicons', 'Heroicons', icons);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// PHOSPHOR ICONS
-// ═══════════════════════════════════════════════════════════════════════════════
 function generatePhosphor() {
   console.log('Processing Phosphor Icons…');
   const dir = join(ROOT, 'node_modules/@phosphor-icons/core/assets/regular');
@@ -227,9 +202,6 @@ function generatePhosphor() {
   writeJsonFile('phosphor', 'Phosphor Icons', icons);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// REMIX ICON
-// ═══════════════════════════════════════════════════════════════════════════════
 function generateRemix() {
   console.log('Processing Remix Icon…');
   const baseDir = join(ROOT, 'node_modules/remixicon/icons');
@@ -255,9 +227,6 @@ function generateRemix() {
   writeJsonFile('remixicon', 'Remix Icon', icons);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// IONICONS
-// ═══════════════════════════════════════════════════════════════════════════════
 function generateIonicons() {
   console.log('Processing Ionicons…');
   const dir = join(ROOT, 'node_modules/ionicons/dist/svg');
@@ -269,9 +238,6 @@ function generateIonicons() {
   writeJsonFile('ionicons', 'Ionicons', icons);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MATERIAL DESIGN ICONS
-// ═══════════════════════════════════════════════════════════════════════════════
 function generateMdi() {
   console.log('Processing Material Design Icons…');
   const mdiPath = join(ROOT, 'node_modules/@mdi/js/mdi.js');
@@ -291,7 +257,6 @@ function generateMdi() {
   writeJsonFile('mdi', 'Material Design Icons', icons);
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
 console.log('🔧 Generating icon JSON assets → src/assets/icons/\n');
 generateTabler();
 generateLucide();
