@@ -1,37 +1,80 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { PngAsset, PngCategory, PngFilterState } from '../../core/models/png.model';
+import {
+  PngAsset, PngCategory, PngCollection, PngFilterState,
+  PngOrientation, PngViewMode,
+} from '../../core/models/png.model';
 import { PNG_CATEGORIES, PNG_LIBRARY } from './png-data';
 
-const FAVORITES_KEY = 'amx_png_favorites';
+const FAVORITES_KEY   = 'amx_png_favorites';
+const COLLECTIONS_KEY = 'amx_png_collections';
+const RECENT_KEY      = 'amx_png_recent';
 
 export const DEFAULT_PNG_FILTERS: PngFilterState = {
-  query: '',
-  categoryId: null,
-  license: 'all',
-  sort: 'popular',
+  query:        '',
+  categoryId:   null,
+  license:      'all',
+  sort:         'popular',
   favoritesOnly: false,
+  style:        null,
+  hasPeople:    'all',
+  colorTone:    null,
+  resolution:   'all',
+  dateAdded:    'all',
+  orientation:  'all',
 };
+
+function getOrientation(w: number, h: number): PngOrientation {
+  const ratio = w / h;
+  if (ratio > 1.15) return 'landscape';
+  if (ratio < 0.87) return 'portrait';
+  return 'square';
+}
+
+function matchesDateFilter(createdAt: string, dateAdded: string): boolean {
+  if (dateAdded === 'all') return true;
+  const now    = Date.now();
+  const ts     = new Date(createdAt).getTime();
+  const diff   = now - ts;
+  const DAY    = 86400000;
+  if (dateAdded === 'today')  return diff < DAY;
+  if (dateAdded === 'week')   return diff < 7  * DAY;
+  if (dateAdded === 'month')  return diff < 30 * DAY;
+  return true;
+}
 
 @Injectable({ providedIn: 'root' })
 export class PngService {
   readonly categories: PngCategory[] = PNG_CATEGORIES;
-  readonly library: PngAsset[] = PNG_LIBRARY;
+  readonly library: PngAsset[]       = PNG_LIBRARY;
 
-  readonly filters = signal<PngFilterState>({ ...DEFAULT_PNG_FILTERS });
-  readonly favorites = signal<Set<string>>(this.loadFavorites());
+  readonly filters     = signal<PngFilterState>({ ...DEFAULT_PNG_FILTERS });
+  readonly favorites   = signal<Set<string>>(this.loadFavorites());
+  readonly collections = signal<PngCollection[]>(this.loadCollections());
+  readonly recentIds   = signal<string[]>(this.loadRecent());
+  readonly viewMode    = signal<PngViewMode>('masonry');
 
   readonly totalCount = computed(() => this.library.length);
 
   readonly filtered = computed<PngAsset[]>(() => {
-    const f = this.filters();
+    const f    = this.filters();
     const favs = this.favorites();
-    const q = f.query.trim().toLowerCase();
+    const q    = f.query.trim().toLowerCase();
 
     let list = this.library.filter((png) => {
       if (f.favoritesOnly && !favs.has(png.id)) return false;
       if (f.categoryId && png.category !== f.categoryId) return false;
-      if (f.license === 'free' && png.isPremium) return false;
+      if (f.license === 'free'    && png.isPremium)  return false;
       if (f.license === 'premium' && !png.isPremium) return false;
+      if (f.style     && png.style     !== f.style)          return false;
+      if (f.colorTone && png.colorTone !== f.colorTone)      return false;
+      if (f.resolution !== 'all' && png.resolution !== f.resolution) return false;
+      if (f.hasPeople === 'yes' && !png.hasPeople)  return false;
+      if (f.hasPeople === 'no'  && png.hasPeople)   return false;
+      if (f.orientation !== 'all') {
+        const orient = getOrientation(png.width, png.height);
+        if (orient !== f.orientation) return false;
+      }
+      if (!matchesDateFilter(png.createdAt, f.dateAdded)) return false;
       if (q) {
         const haystack = `${png.name} ${png.tags.join(' ')} ${png.categoryLabel}`.toLowerCase();
         if (!haystack.includes(q)) return false;
@@ -40,14 +83,37 @@ export class PngService {
     });
 
     list = [...list].sort((a, b) => {
-      if (f.sort === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      if (f.sort === 'newest')    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       if (f.sort === 'downloads') return b.downloads - a.downloads;
-      // 'popular' — blend of likes and downloads
+      if (f.sort === 'views')     return b.views - a.views;
+      // 'popular' — weighted blend
       return (b.likes * 3 + b.downloads) - (a.likes * 3 + a.downloads);
     });
 
     return list;
   });
+
+  readonly activeFilterCount = computed(() => {
+    const f = this.filters();
+    return (
+      (f.categoryId    ? 1 : 0) +
+      (f.license !== 'all'  ? 1 : 0) +
+      (f.favoritesOnly ? 1 : 0) +
+      (f.style         ? 1 : 0) +
+      (f.colorTone     ? 1 : 0) +
+      (f.resolution !== 'all' ? 1 : 0) +
+      (f.hasPeople !== 'all'  ? 1 : 0) +
+      (f.dateAdded !== 'all'  ? 1 : 0) +
+      (f.orientation !== 'all'? 1 : 0)
+    );
+  });
+
+  /** Assets the user recently viewed (most recent first). */
+  readonly recentAssets = computed<PngAsset[]>(() =>
+    this.recentIds()
+      .map((id) => this.library.find((p) => p.id === id))
+      .filter((p): p is PngAsset => !!p)
+  );
 
   updateFilters(patch: Partial<PngFilterState>): void {
     this.filters.update((f) => ({ ...f, ...patch }));
@@ -57,25 +123,23 @@ export class PngService {
     this.filters.set({ ...DEFAULT_PNG_FILTERS });
   }
 
-  setQuery(query: string): void {
-    this.updateFilters({ query });
-  }
-
+  setQuery(query: string):             void { this.updateFilters({ query }); }
   setCategory(categoryId: string | null): void {
     this.updateFilters({ categoryId: this.filters().categoryId === categoryId ? null : categoryId });
   }
-
-  setLicense(license: PngFilterState['license']): void {
-    this.updateFilters({ license });
+  setLicense(license: PngFilterState['license']): void { this.updateFilters({ license }); }
+  setSort(sort: PngFilterState['sort']):           void { this.updateFilters({ sort }); }
+  setStyle(style: PngFilterState['style']):        void {
+    this.updateFilters({ style: this.filters().style === style ? null : style });
   }
-
-  setSort(sort: PngFilterState['sort']): void {
-    this.updateFilters({ sort });
+  setColorTone(colorTone: PngFilterState['colorTone']): void {
+    this.updateFilters({ colorTone: this.filters().colorTone === colorTone ? null : colorTone });
   }
-
-  toggleFavoritesOnly(): void {
-    this.updateFilters({ favoritesOnly: !this.filters().favoritesOnly });
-  }
+  setResolution(resolution: PngFilterState['resolution']): void { this.updateFilters({ resolution }); }
+  setHasPeople(hasPeople: PngFilterState['hasPeople']):    void { this.updateFilters({ hasPeople }); }
+  setDateAdded(dateAdded: PngFilterState['dateAdded']):    void { this.updateFilters({ dateAdded }); }
+  setOrientation(orientation: PngFilterState['orientation']): void { this.updateFilters({ orientation }); }
+  toggleFavoritesOnly(): void { this.updateFilters({ favoritesOnly: !this.filters().favoritesOnly }); }
 
   toggleFavorite(id: string): void {
     const next = new Set(this.favorites());
@@ -83,33 +147,83 @@ export class PngService {
     this.favorites.set(next);
     this.saveFavorites(next);
   }
+  isFavorite(id: string): boolean { return this.favorites().has(id); }
 
-  isFavorite(id: string): boolean {
-    return this.favorites().has(id);
+  setViewMode(mode: PngViewMode): void { this.viewMode.set(mode); }
+
+  trackRecent(id: string): void {
+    const next = [id, ...this.recentIds().filter((x) => x !== id)].slice(0, 20);
+    this.recentIds.set(next);
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)); } catch { /* quota */ }
   }
 
   related(png: PngAsset, limit = 8): PngAsset[] {
-    return this.library
-      .filter((p) => p.id !== png.id && p.category === png.category)
-      .slice(0, limit);
+    const sameCategory = this.library.filter((p) => p.id !== png.id && p.category === png.category);
+    if (sameCategory.length >= limit) return sameCategory.slice(0, limit);
+    const similar     = this.library.filter((p) => p.id !== png.id && p.category !== png.category &&
+      p.tags.some((t) => png.tags.includes(t)));
+    return [...sameCategory, ...similar].slice(0, limit);
   }
 
   byId(id: string): PngAsset | undefined {
     return this.library.find((p) => p.id === id);
   }
 
-  private loadFavorites(): Set<string> {
-    try {
-      const raw = localStorage.getItem(FAVORITES_KEY);
-      return raw ? new Set(JSON.parse(raw)) : new Set();
-    } catch {
-      return new Set();
-    }
+  // ── Collections ──────────────────────────────────────────────────────────────
+  createCollection(name: string): PngCollection {
+    const col: PngCollection = { id: `col-${Date.now()}`, name: name.trim(), assetIds: [], createdAt: new Date().toISOString() };
+    const next = [col, ...this.collections()];
+    this.collections.set(next);
+    this.saveCollections(next);
+    return col;
   }
 
+  addToCollection(colId: string, assetId: string): void {
+    const next = this.collections().map((c) =>
+      c.id === colId && !c.assetIds.includes(assetId)
+        ? { ...c, assetIds: [...c.assetIds, assetId] }
+        : c
+    );
+    this.collections.set(next);
+    this.saveCollections(next);
+  }
+
+  removeFromCollection(colId: string, assetId: string): void {
+    const next = this.collections().map((c) =>
+      c.id === colId ? { ...c, assetIds: c.assetIds.filter((id) => id !== assetId) } : c
+    );
+    this.collections.set(next);
+    this.saveCollections(next);
+  }
+
+  isInCollection(colId: string, assetId: string): boolean {
+    return this.collections().find((c) => c.id === colId)?.assetIds.includes(assetId) ?? false;
+  }
+
+  deleteCollection(colId: string): void {
+    const next = this.collections().filter((c) => c.id !== colId);
+    this.collections.set(next);
+    this.saveCollections(next);
+  }
+
+  private loadFavorites(): Set<string> {
+    try { const raw = localStorage.getItem(FAVORITES_KEY); return raw ? new Set(JSON.parse(raw)) : new Set(); }
+    catch { return new Set(); }
+  }
   private saveFavorites(set: Set<string>): void {
-    try {
-      localStorage.setItem(FAVORITES_KEY, JSON.stringify([...set]));
-    } catch { /* quota */ }
+    try { localStorage.setItem(FAVORITES_KEY, JSON.stringify([...set])); } catch { /* quota */ }
+  }
+
+  private loadCollections(): PngCollection[] {
+    try { const raw = localStorage.getItem(COLLECTIONS_KEY); return raw ? JSON.parse(raw) : []; }
+    catch { return []; }
+  }
+  private saveCollections(cols: PngCollection[]): void {
+    try { localStorage.setItem(COLLECTIONS_KEY, JSON.stringify(cols)); } catch { /* quota */ }
+  }
+
+  private loadRecent(): string[] {
+    try { const raw = localStorage.getItem(RECENT_KEY); return raw ? JSON.parse(raw) : []; }
+    catch { return []; }
   }
 }
