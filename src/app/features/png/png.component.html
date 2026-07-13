@@ -477,8 +477,10 @@
           [class.amx-png__grid--masonry]="viewMode() === 'masonry'"
           [class.amx-png__grid--uniform]="viewMode() === 'grid'">
 
-          <article *ngFor="let png of visibleResults(); trackBy: trackById"
-            class="amx-png-card" [class.amx-png-card--bulk]="bulkMode()" [class.amx-png-card--selected]="isBulkSelected(png)"
+          <article *ngFor="let png of visibleResults(); let i = index; trackBy: trackById"
+            class="amx-png-card amx-fade-up" [class.amx-png-card--bulk]="bulkMode()" [class.amx-png-card--selected]="isBulkSelected(png)"
+            [class.amx-png-card--premium]="png.isPremium"
+            [style.--amx-stagger]="(i % 12) * 35"
             (click)="openDetail(png)" tabindex="0" role="button"
             [attr.aria-label]="'View ' + png.name">
             <div class="amx-png-card__frame">

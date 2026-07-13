@@ -77,10 +77,6 @@
   --amx-success-bg:     #f0fdf4;
   --amx-warning:        #f59e0b;
 
-  --amx-page-gradient: radial-gradient(circle at top left, rgba(245, 130, 10, 0.14), transparent 34%),
-                       radial-gradient(circle at top right, rgba(17, 24, 39, 0.08), transparent 28%),
-                       linear-gradient(180deg, #fffaf4 0%, #f7f2ea 52%, #f2ebe1 100%);
-
   --amx-badge-pending:       #fff3cd;
   --amx-badge-pending-text:  #856404;
   --amx-badge-paid:          #d4edda;
@@ -113,7 +109,23 @@
   --amx-radius-sm:     8px;
 
   --font-body:         'Manrope', sans-serif;
-  --font-display:      'Space Grotesk', sans-serif;
+  --font-display:      'Bricolage Grotesque', 'Space Grotesk', sans-serif;
+
+  // ── Studio Light — secondary "ink" accent + ambient glow tokens ──────────
+  // Orange stays reserved for actions/premium; ink gives the UI a second
+  // expressive color so it stops reading as a single-hue template.
+  --amx-ink:            #1e1b3a;
+  --amx-ink-2:          #4c3f91;
+  --amx-ink-subtle:     rgba(76, 63, 145, 0.08);
+  --amx-ink-glow:       rgba(76, 63, 145, 0.16);
+
+  --amx-glow-warm:      rgba(245, 130, 10, 0.16);
+  --amx-glow-cool:      rgba(76, 63, 145, 0.14);
+
+  --amx-page-gradient: radial-gradient(circle at 8% -6%, var(--amx-glow-warm), transparent 32%),
+                       radial-gradient(circle at 96% 4%, var(--amx-glow-cool), transparent 30%),
+                       radial-gradient(circle at 50% 120%, rgba(245, 130, 10, 0.06), transparent 40%),
+                       linear-gradient(180deg, #fffaf4 0%, #f7f2ea 52%, #f2ebe1 100%);
 }
 
 
@@ -191,8 +203,17 @@
   --amx-success-bg:     rgba(5, 150, 105, 0.20);
   --amx-warning:        #f59e0b;
 
-  --amx-page-gradient: radial-gradient(circle at top left, rgba(245, 130, 10, 0.16), transparent 34%),
-                       radial-gradient(circle at top right, rgba(148, 163, 184, 0.10), transparent 30%),
+  --amx-ink:            #c9c2f5;
+  --amx-ink-2:          #8d7fe8;
+  --amx-ink-subtle:     rgba(141, 127, 232, 0.12);
+  --amx-ink-glow:       rgba(141, 127, 232, 0.22);
+
+  --amx-glow-warm:      rgba(245, 130, 10, 0.14);
+  --amx-glow-cool:      rgba(141, 127, 232, 0.16);
+
+  --amx-page-gradient: radial-gradient(circle at 8% -6%, var(--amx-glow-warm), transparent 32%),
+                       radial-gradient(circle at 96% 4%, var(--amx-glow-cool), transparent 30%),
+                       radial-gradient(circle at 50% 120%, rgba(245, 130, 10, 0.05), transparent 40%),
                        linear-gradient(180deg, #0b1220 0%, #111827 55%, #0f172a 100%);
 
   --amx-badge-pending:       rgba(255, 193, 7, 0.15);
@@ -259,6 +280,32 @@ h1, h2, h3, h4, h5, h6 {
 ::selection {
   background: rgba(245, 130, 10, 0.22);
   color: var(--amx-text);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--amx-scrollbar-thumb);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--amx-muted); background-clip: padding-box; }
+
+// ── Studio Light motion primitives — shared entrance/reveal utilities so
+// grids and lists feel like they're settling into place, not just appearing. ──
+@keyframes amx-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.amx-fade-up {
+  animation: amx-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--amx-stagger, 0) * 1ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .amx-fade-up { animation: none; }
 }
 
 
