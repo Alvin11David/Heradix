@@ -29,6 +29,7 @@
     "@angular/forms": "^20.3.0",
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
+    "@imgly/background-removal": "^1.7.0",
     "@mdi/js": "^7.4.47",
     "@phosphor-icons/core": "^2.1.1",
     "@tabler/icons": "^3.44.0",
