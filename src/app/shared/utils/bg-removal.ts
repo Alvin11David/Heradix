@@ -1,51 +1,25 @@
+import { removeBackground as aiRemoveBg } from '@imgly/background-removal';
 
-export function removeBackgroundFromImage(el: HTMLImageElement, tolerance = 46): string {
-  const w = el.naturalWidth || el.width;
-  const h = el.naturalHeight || el.height;
-  if (!w || !h) throw new Error('Image has no pixel data');
+export async function removeBackgroundFromImage(
+  image: HTMLImageElement | string,
+  onProgress?: (progress: number) => void
+): Promise<string> {
+  const source = typeof image === 'string' ? image : image.src || image;
 
-  const off = document.createElement('canvas');
-  off.width = w;
-  off.height = h;
-  const ctx = off.getContext('2d');
-  if (!ctx) throw new Error('2D context unavailable');
-  ctx.drawImage(el, 0, 0, w, h);
-
-  const imageData = ctx.getImageData(0, 0, w, h);
-  const data = imageData.data;
-
-
-  const corners = [
-    [0, 0],
-    [w - 1, 0],
-    [0, h - 1],
-    [w - 1, h - 1],
-  ];
-  let r = 0, g = 0, b = 0;
-  corners.forEach(([x, y]) => {
-    const i = (y * w + x) * 4;
-    r += data[i];
-    g += data[i + 1];
-    b += data[i + 2];
+  const blob = await aiRemoveBg(source, {
+    progress: (key, current, total) => {
+      const pct = total > 0 ? Math.round((current / total) * 100) : 50;
+      onProgress?.(pct);
+    },
   });
-  r /= corners.length;
-  g /= corners.length;
-  b /= corners.length;
 
-  for (let i = 0; i < data.length; i += 4) {
-    const dr = data[i] - r;
-    const dg = data[i + 1] - g;
-    const db = data[i + 2] - b;
-    const dist = Math.sqrt(dr * dr + dg * dg + db * db);
-    if (dist < tolerance) {
-      data[i + 3] = Math.round(data[i + 3] * (dist / tolerance));
-    }
-  }
-
-  ctx.putImageData(imageData, 0, 0);
-  return off.toDataURL('image/png');
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error('Failed to read result blob'));
+    reader.readAsDataURL(blob);
+  });
 }
-
 
 export function resizeImageToDataUrl(el: HTMLImageElement, maxWidth: number): string {
   const w = el.naturalWidth || el.width;

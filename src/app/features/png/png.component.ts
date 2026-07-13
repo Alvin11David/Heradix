@@ -169,6 +169,8 @@ export class PngComponent implements OnInit {
   readonly createResult   = signal<string | null>(null);
   readonly createError    = signal<string | null>(null);
   readonly createDragOver = signal(false);
+  readonly createProgress = signal(0);
+  private cancelRemoval = false;
 
 
   readonly collectionsOpen       = signal(false);
@@ -699,8 +701,10 @@ export class PngComponent implements OnInit {
     this.createResult.set(null);
     this.createError.set(null);
     this.createDragOver.set(false);
+    this.createProgress.set(0);
+    this.cancelRemoval = false;
   }
-  closeCreateTool(): void { this.createOpen.set(false); }
+  closeCreateTool(): void { this.createOpen.set(false); this.cancelRemoval = true; }
 
   onCreateDrop(event: DragEvent): void {
     event.preventDefault();
@@ -734,29 +738,25 @@ export class PngComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
-  private runBackgroundRemoval(): void {
+  private async runBackgroundRemoval(): Promise<void> {
     const src = this.createOriginal();
     if (!src) return;
     this.createStage.set('processing');
-    const img = new Image();
-    img.onload = () => {
+    this.createProgress.set(0);
+    this.cancelRemoval = false;
 
-      setTimeout(() => {
-        try {
-          this.createResult.set(removeBackgroundFromImage(img));
-          this.createStage.set('result');
-        } catch (e) {
-          console.error('Background removal failed', e);
-          this.createError.set("Couldn't remove the background from this image.");
-          this.createStage.set('error');
-        }
-      }, 300);
-    };
-    img.onerror = () => {
-      this.createError.set("Couldn't load that image.");
+    try {
+      const dataUrl = await removeBackgroundFromImage(src, (pct) => {
+        if (!this.cancelRemoval) this.createProgress.set(pct);
+      });
+      if (this.cancelRemoval) return;
+      this.createResult.set(dataUrl);
+      this.createStage.set('result');
+    } catch (e: any) {
+      if (this.cancelRemoval) return;
+      this.createError.set(e?.message ?? "Couldn't remove the background from this image.");
       this.createStage.set('error');
-    };
-    img.src = src;
+    }
   }
 
   retryCreate(): void {

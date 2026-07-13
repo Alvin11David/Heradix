@@ -1348,6 +1348,20 @@ $transition:    0.18s ease;
 
 @keyframes amxPngSpin { to { transform: rotate(360deg); } }
 
+.amx-png-create__progress-track {
+  width: 100%; max-width: 280px; height: 6px;
+  background: var(--amx-border-2); border-radius: 999px; overflow: hidden;
+}
+
+.amx-png-create__progress-fill {
+  height: 100%; background: linear-gradient(90deg, #f97316, #f59e0b);
+  border-radius: 999px; transition: width .2s ease;
+}
+
+.amx-png-create__progress-label {
+  font-size: 12px; font-weight: 700; color: var(--amx-muted);
+}
+
 .amx-png-create__compare { display: flex; gap: 12px; }
 
 .amx-png-create__compare-col {

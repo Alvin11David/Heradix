@@ -1036,6 +1036,10 @@
       <div *ngIf="createStage() === 'processing'" class="amx-png-create__processing">
         <div class="amx-png-create__spinner"></div>
         <p>Removing background…</p>
+        <div class="amx-png-create__progress-track">
+          <div class="amx-png-create__progress-fill" [style.width.%]="createProgress()"></div>
+        </div>
+        <span class="amx-png-create__progress-label">{{ createProgress() }}%</span>
       </div>
 
       
