@@ -8,6 +8,25 @@ import { PNG_CATEGORIES, PNG_LIBRARY } from './png-data';
 const FAVORITES_KEY   = 'amx_png_favorites';
 const COLLECTIONS_KEY = 'amx_png_collections';
 const RECENT_KEY      = 'amx_png_recent';
+const QUOTA_KEY        = 'amx_png_daily_quota';
+const CONTRIBUTOR_KEY  = 'amx_png_contributions';
+
+/** Freepik/PNGWing-style daily free-download cap for non-subscribers. Premium members bypass this entirely. */
+export const DAILY_FREE_DOWNLOAD_LIMIT = 15;
+
+interface QuotaState { date: string; count: number; }
+
+export interface ContributorSubmission {
+  id: string;
+  title: string;
+  category: string;
+  tags: string[];
+  previewUrl: string;
+  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: string;
+}
+
+function todayKey(): string { return new Date().toISOString().slice(0, 10); }
 
 export const DEFAULT_PNG_FILTERS: PngFilterState = {
   query:        '',
@@ -52,6 +71,26 @@ export class PngService {
   readonly collections = signal<PngCollection[]>(this.loadCollections());
   readonly recentIds   = signal<string[]>(this.loadRecent());
   readonly viewMode    = signal<PngViewMode>('masonry');
+  readonly quota        = signal<QuotaState>(this.loadQuota());
+  readonly contributions = signal<ContributorSubmission[]>(this.loadContributions());
+
+  /** Remaining free downloads today for non-premium users (Freepik-style daily cap). */
+  readonly freeDownloadsRemaining = computed(() => {
+    const q = this.quota();
+    const usedToday = q.date === todayKey() ? q.count : 0;
+    return Math.max(0, DAILY_FREE_DOWNLOAD_LIMIT - usedToday);
+  });
+
+  /** One standout pick per category, sorted by engagement — Freepik/Envato Elements "Editor's Picks" style curation (distinct from plain "most popular" sort, which would just repeat the top category). */
+  readonly editorsPicks = computed<PngAsset[]>(() => {
+    const byCategory = new Map<string, PngAsset>();
+    for (const p of this.library) {
+      const score = p.likes * 3 + p.downloads;
+      const cur = byCategory.get(p.category);
+      if (!cur || score > (cur.likes * 3 + cur.downloads)) byCategory.set(p.category, p);
+    }
+    return [...byCategory.values()].sort((a, b) => (b.likes * 3 + b.downloads) - (a.likes * 3 + a.downloads));
+  });
 
   readonly totalCount = computed(() => this.library.length);
 
@@ -157,6 +196,32 @@ export class PngService {
     try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)); } catch { /* quota */ }
   }
 
+  /** Records one free download against today's quota. Call only for non-premium users downloading free assets. */
+  registerFreeDownload(): void {
+    const today = todayKey();
+    const cur   = this.quota();
+    const next: QuotaState = cur.date === today ? { date: today, count: cur.count + 1 } : { date: today, count: 1 };
+    this.quota.set(next);
+    try { localStorage.setItem(QUOTA_KEY, JSON.stringify(next)); } catch { /* quota */ }
+  }
+
+  // ── Contributor submissions (Shutterstock/Adobe Stock/iStock/Depositphotos/123RF-style upload-to-sell flow) ──
+  submitContribution(input: { title: string; category: string; tags: string[]; previewUrl: string }): ContributorSubmission {
+    const sub: ContributorSubmission = {
+      id: `sub-${Date.now()}`,
+      title: input.title,
+      category: input.category,
+      tags: input.tags,
+      previewUrl: input.previewUrl,
+      status: 'pending',
+      submittedAt: new Date().toISOString(),
+    };
+    const next = [sub, ...this.contributions()];
+    this.contributions.set(next);
+    try { localStorage.setItem(CONTRIBUTOR_KEY, JSON.stringify(next)); } catch { /* quota */ }
+    return sub;
+  }
+
   related(png: PngAsset, limit = 8): PngAsset[] {
     const sameCategory = this.library.filter((p) => p.id !== png.id && p.category === png.category);
     if (sameCategory.length >= limit) return sameCategory.slice(0, limit);
@@ -224,6 +289,18 @@ export class PngService {
 
   private loadRecent(): string[] {
     try { const raw = localStorage.getItem(RECENT_KEY); return raw ? JSON.parse(raw) : []; }
+    catch { return []; }
+  }
+
+  private loadQuota(): QuotaState {
+    try {
+      const raw = localStorage.getItem(QUOTA_KEY);
+      return raw ? JSON.parse(raw) : { date: todayKey(), count: 0 };
+    } catch { return { date: todayKey(), count: 0 }; }
+  }
+
+  private loadContributions(): ContributorSubmission[] {
+    try { const raw = localStorage.getItem(CONTRIBUTOR_KEY); return raw ? JSON.parse(raw) : []; }
     catch { return []; }
   }
 }

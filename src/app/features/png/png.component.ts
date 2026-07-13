@@ -8,6 +8,7 @@ import { PngService } from './png.service';
 import { PngAsset, PngSortMode, PngViewMode, PngCollection } from '../../core/models/png.model';
 import { removeBackgroundFromImage, resizeImageToDataUrl } from '../../shared/utils/bg-removal';
 import { AuthService } from '../../core/auth/auth.service';
+import { DAILY_FREE_DOWNLOAD_LIMIT } from './png.service';
 
 const PAGE_SIZE = 32;
 
@@ -94,6 +95,16 @@ export class PngComponent {
 
   // ── Account / premium gating ─────────────────────────────────────────────
   readonly isPremiumUser = this.auth.isPremium;
+
+  // ── Daily free-download quota (Freepik-style cap for non-subscribers) ───
+  readonly freeDownloadsRemaining = this.svc.freeDownloadsRemaining;
+  readonly dailyFreeLimit         = DAILY_FREE_DOWNLOAD_LIMIT;
+
+  // ── Editor's Picks (Freepik/Envato Elements curated strip) ──────────────
+  readonly editorsPicks = this.svc.editorsPicks;
+
+  // ── License tier (Adobe Stock/Shutterstock/iStock Standard vs Extended) ─
+  readonly licenseTier = signal<'standard' | 'extended'>('standard');
 
   // ── Pagination / display ───────────────────────────────────────────────────
   readonly visibleCount   = signal(PAGE_SIZE);
@@ -257,6 +268,7 @@ export class PngComponent {
     if (this.bulkMode()) { this.toggleBulkSelect(png); return; }
     this.selected.set(png);
     this.selectedSize.set(SIZE_PRESETS[2]);
+    this.licenseTier.set('standard');
     this.svc.trackRecent(png.id);
   }
   closeDetail(): void { this.selected.set(null); }
@@ -292,8 +304,11 @@ export class PngComponent {
   selectRelated(png: PngAsset): void {
     this.selected.set(png);
     this.selectedSize.set(SIZE_PRESETS[2]);
+    this.licenseTier.set('standard');
     this.svc.trackRecent(png.id);
   }
+
+  selectLicenseTier(tier: 'standard' | 'extended'): void { this.licenseTier.set(tier); }
 
   goPrev(): void {
     const i = this.selectedIndex();
@@ -316,6 +331,7 @@ export class PngComponent {
   downloadPng(png: PngAsset, event?: Event): void {
     event?.stopPropagation();
     if (this.isLocked(png)) { this.goPremium(png); return; }
+    if (this.isQuotaExceeded(png)) { this.goQuotaLimit(); return; }
     const a = document.createElement('a');
     a.href     = png.url;
     a.download = `${png.slug}.png`;
@@ -324,7 +340,22 @@ export class PngComponent {
     document.body.appendChild(a);
     a.click();
     a.remove();
+    this.registerDownloadUsage(png);
     this.showToast(`⬇️ Downloading "${png.name}"…`, 'success');
+  }
+
+  /** True when a non-premium user has hit today's free-download cap (Freepik-style daily limit; premium members are unlimited and never hit this). */
+  isQuotaExceeded(png: PngAsset): boolean {
+    return !png.isPremium && !this.isPremiumUser() && this.freeDownloadsRemaining() <= 0;
+  }
+
+  private registerDownloadUsage(png: PngAsset): void {
+    if (!png.isPremium && !this.isPremiumUser()) this.svc.registerFreeDownload();
+  }
+
+  goQuotaLimit(): void {
+    this.showToast(`⏳ You've hit today's free-download limit (${this.dailyFreeLimit}/day) — go Premium for unlimited downloads`, 'info');
+    this.router.navigate(['/pricing']);
   }
 
   /** Sends a non-subscriber to the pricing page instead of downloading a premium-only PNG. */
@@ -337,6 +368,7 @@ export class PngComponent {
   downloadWithSize(png: PngAsset, event?: Event): void {
     event?.stopPropagation();
     if (this.isLocked(png)) { this.goPremium(png); return; }
+    if (this.isQuotaExceeded(png)) { this.goQuotaLimit(); return; }
     const size = this.selectedSize();
     if (!size.px) { this.downloadPng(png); return; }
 
@@ -351,6 +383,7 @@ export class PngComponent {
         document.body.appendChild(a);
         a.click();
         a.remove();
+        this.registerDownloadUsage(png);
         this.showToast(`⬇️ Downloading "${png.name}" (${size.label})…`, 'success');
       } catch {
         this.showToast(`Couldn't resize this image — downloading full resolution instead`, 'info');
@@ -362,6 +395,28 @@ export class PngComponent {
       this.downloadPng(png);
     };
     img.src = png.url;
+  }
+
+  // ── Attribution (Vecteezy-style: free downloads require credit, Premium doesn't) ──
+  requiresAttribution(png: PngAsset): boolean { return !png.isPremium; }
+  attributionText(png: PngAsset): string {
+    return `"${png.name}" by ${png.source} via Amarapix — https://amarapix.app/png/${png.slug}`;
+  }
+  copyAttribution(png: PngAsset, event?: Event): void {
+    event?.stopPropagation();
+    navigator.clipboard?.writeText(this.attributionText(png)).then(() => this.showToast('📋 Attribution text copied', 'success'));
+  }
+
+  // ── Social sharing (StickPNG/PurePNG/PNGWing-style share buttons) ──────────
+  shareTo(network: 'pinterest' | 'facebook' | 'twitter', png: PngAsset, event?: Event): void {
+    event?.stopPropagation();
+    const pageUrl = `${location.origin}/png?asset=${png.slug}`;
+    const text    = `${png.name} — free transparent PNG`;
+    let url = '';
+    if (network === 'pinterest') url = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(pageUrl)}&media=${encodeURIComponent(png.url)}&description=${encodeURIComponent(text)}`;
+    if (network === 'facebook')  url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
+    if (network === 'twitter')   url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank', 'noopener,width=600,height=520');
   }
 
   useInEditor(png: PngAsset, event?: Event): void {
@@ -392,6 +447,55 @@ export class PngComponent {
     // No backend for this mock marketplace — acknowledge locally so the flow is testable end-to-end.
     this.reportSent.set(true);
     setTimeout(() => this.closeReport(), 1600);
+  }
+
+  // ── Become a Contributor (Shutterstock/Adobe Stock/iStock/Depositphotos/123RF-style upload-to-sell) ──
+  readonly contributorOpen  = signal(false);
+  readonly contributorTitle = signal('');
+  readonly contributorCategory = signal('');
+  readonly contributorTags  = signal('');
+  readonly contributorFile  = signal<{ name: string; dataUrl: string } | null>(null);
+  readonly contributorError = signal('');
+  readonly contributorDone  = signal(false);
+  readonly mySubmissions    = this.svc.contributions;
+
+  openContributor(event?: Event): void {
+    event?.stopPropagation();
+    this.contributorOpen.set(true);
+    this.contributorTitle.set('');
+    this.contributorCategory.set(this.categories[0]?.id ?? '');
+    this.contributorTags.set('');
+    this.contributorFile.set(null);
+    this.contributorError.set('');
+    this.contributorDone.set(false);
+  }
+  closeContributor(): void { this.contributorOpen.set(false); }
+
+  onContributorFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file  = input.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { this.contributorError.set('Please choose an image file.'); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.contributorFile.set({ name: file.name, dataUrl: reader.result as string });
+      this.contributorError.set('');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  submitContributor(): void {
+    const title = this.contributorTitle().trim();
+    const file  = this.contributorFile();
+    if (!title)     { this.contributorError.set('Give your submission a title.'); return; }
+    if (!file)      { this.contributorError.set('Upload a preview image.'); return; }
+    this.svc.submitContribution({
+      title,
+      category: this.contributorCategory(),
+      tags: this.contributorTags().split(',').map((t) => t.trim()).filter(Boolean),
+      previewUrl: file.dataUrl,
+    });
+    this.contributorDone.set(true);
   }
 
   // ── Collections ─────────────────────────────────────────────────────────────
