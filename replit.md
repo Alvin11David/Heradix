@@ -21,6 +21,13 @@ Angular 20 client application for Amarapix — a design-asset marketplace with a
   - Icon grid is grouped into date sections (Today/Yesterday/This week/This month/Earlier) computed from each icon's seeded `createdAt`.
   - Icon detail slide-over panel: large live preview, favorite toggle, copy-SVG-to-clipboard, PNG export at multiple sizes (client-side canvas rendering) and SVG download, tags, related icons.
   - Style controls (technique/color mode/corners/stroke width) are implemented as live CSS-driven renders of a single canonical SVG path per icon (not separate artwork per style) — see memory note `icon-style-as-css-render.md` for why.
+- **PNG section** (`/png`, `src/app/features/png/`): finished out the stalled implementation and added features modeled on Pixabay/PNGWing/PNGTree-style transparent PNG libraries, on top of the existing filter/sort/collections/favorites system:
+  - **Create Your Own Cutout**: a hero CTA opens an upload tool that removes the background from any user-uploaded photo entirely client-side (drag-and-drop or file picker → chroma-key removal → download PNG / use in editor). Reuses the same corner-sampling chroma-key algorithm as the canvas editor's "Remove Background" tool, extracted into a shared utility at `src/app/shared/utils/bg-removal.ts` (`removeBackgroundFromImage`, `resizeImageToDataUrl`) so both features stay in sync.
+  - **Recently viewed rail**: surfaces the `recentAssets` the service was already tracking in `localStorage` but that had no UI before.
+  - **Functional size-based downloads**: the detail panel's Small/Medium/Large size picker now actually resizes the PNG client-side via canvas before downloading (previously cosmetic — always downloaded full resolution regardless of the selected size). Falls back to full-resolution download with a toast if the source image can't be read cross-origin.
+  - **Lightbox zoom**: click the detail panel preview for a fullscreen pan/zoom view on a checkerboard background, with prev/next navigation.
+  - **Prev/Next navigation**: arrow keys or panel header buttons cycle through the current result set without closing the detail panel.
+  - **Bulk select**: a "Select" toggle in the toolbar lets users multi-select cards and batch-download them.
 
 ## User preferences
 (none recorded yet)

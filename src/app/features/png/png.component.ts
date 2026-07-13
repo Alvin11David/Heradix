@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { PngService } from './png.service';
 import { PngAsset, PngSortMode, PngViewMode, PngCollection } from '../../core/models/png.model';
+import { removeBackgroundFromImage, resizeImageToDataUrl } from '../../shared/utils/bg-removal';
 
 const PAGE_SIZE = 32;
 
@@ -101,6 +102,38 @@ export class PngComponent {
     return cur ? this.svc.related(cur, 8) : [];
   });
 
+  /** Position of the selected asset within the current result set, for prev/next navigation. */
+  readonly selectedIndex = computed<number>(() => {
+    const cur = this.selected();
+    if (!cur) return -1;
+    return this.results().findIndex((p) => p.id === cur.id);
+  });
+  readonly hasPrev = computed(() => this.selectedIndex() > 0);
+  readonly hasNext = computed(() => {
+    const i = this.selectedIndex();
+    return i >= 0 && i < this.results().length - 1;
+  });
+
+  // ── Lightbox ──────────────────────────────────────────────────────────────
+  readonly lightboxOpen = signal(false);
+  readonly lightboxZoom = signal(false);
+
+  // ── Recently viewed ──────────────────────────────────────────────────────
+  readonly recentAssets = this.svc.recentAssets;
+
+  // ── Bulk select ─────────────────────────────────────────────────────────
+  readonly bulkMode     = signal(false);
+  readonly bulkSelected = signal<Set<string>>(new Set());
+  readonly bulkCount    = computed(() => this.bulkSelected().size);
+
+  // ── Create Your Own Cutout (upload & remove background) ────────────────
+  readonly createOpen     = signal(false);
+  readonly createStage    = signal<'upload' | 'processing' | 'result' | 'error'>('upload');
+  readonly createOriginal = signal<string | null>(null);
+  readonly createResult   = signal<string | null>(null);
+  readonly createError    = signal<string | null>(null);
+  readonly createDragOver = signal(false);
+
   // ── Collections ─────────────────────────────────────────────────────────────
   readonly collectionsOpen       = signal(false);
   readonly collectionTarget      = signal<PngAsset | null>(null);
@@ -124,9 +157,21 @@ export class PngComponent {
   // ── Keyboard / outside click ────────────────────────────────────────────────
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    if (this.lightboxOpen()) { this.closeLightbox(); return; }
+    if (this.createOpen()) { this.closeCreateTool(); return; }
     if (this.selected()) { this.closeDetail(); return; }
     if (this.collectionsOpen()) { this.closeCollections(); return; }
     if (this.mobileSidebar()) { this.mobileSidebar.set(false); }
+  }
+
+  @HostListener('document:keydown.arrowleft')
+  onArrowLeft(): void {
+    if (this.selected() && !this.lightboxOpen()) this.goPrev();
+  }
+
+  @HostListener('document:keydown.arrowright')
+  onArrowRight(): void {
+    if (this.selected() && !this.lightboxOpen()) this.goNext();
   }
 
   @HostListener('document:click', ['$event'])
@@ -182,6 +227,7 @@ export class PngComponent {
 
   // ── Detail panel ────────────────────────────────────────────────────────────
   openDetail(png: PngAsset): void {
+    if (this.bulkMode()) { this.toggleBulkSelect(png); return; }
     this.selected.set(png);
     this.selectedSize.set(SIZE_PRESETS[2]);
     this.svc.trackRecent(png.id);
@@ -189,11 +235,49 @@ export class PngComponent {
   closeDetail(): void { this.selected.set(null); }
   selectSize(size: (typeof SIZE_PRESETS)[number]): void { this.selectedSize.set(size); }
 
+  // ── Bulk select ─────────────────────────────────────────────────────────
+  toggleBulkMode(): void {
+    this.bulkMode.update((v) => !v);
+    if (!this.bulkMode()) this.bulkSelected.set(new Set());
+  }
+  toggleBulkSelect(png: PngAsset, event?: Event): void {
+    event?.stopPropagation();
+    const next = new Set(this.bulkSelected());
+    if (next.has(png.id)) next.delete(png.id); else next.add(png.id);
+    this.bulkSelected.set(next);
+  }
+  isBulkSelected(png: PngAsset): boolean { return this.bulkSelected().has(png.id); }
+  clearBulkSelection(): void { this.bulkSelected.set(new Set()); }
+  selectAllVisible(): void {
+    this.bulkSelected.set(new Set(this.visibleResults().map((p) => p.id)));
+  }
+  downloadBulkSelected(): void {
+    const ids   = this.bulkSelected();
+    const items = this.results().filter((p) => ids.has(p.id));
+    items.forEach((png, idx) => setTimeout(() => this.downloadPng(png), idx * 250));
+    this.showToast(`⬇️ Downloading ${items.length} PNG${items.length === 1 ? '' : 's'}…`, 'success');
+    this.toggleBulkMode();
+  }
+
   selectRelated(png: PngAsset): void {
     this.selected.set(png);
     this.selectedSize.set(SIZE_PRESETS[2]);
     this.svc.trackRecent(png.id);
   }
+
+  goPrev(): void {
+    const i = this.selectedIndex();
+    if (i > 0) this.selectRelated(this.results()[i - 1]);
+  }
+  goNext(): void {
+    const i = this.selectedIndex();
+    if (i >= 0 && i < this.results().length - 1) this.selectRelated(this.results()[i + 1]);
+  }
+
+  // ── Lightbox ────────────────────────────────────────────────────────────
+  openLightbox(event?: Event): void { event?.stopPropagation(); this.lightboxZoom.set(false); this.lightboxOpen.set(true); }
+  closeLightbox(): void { this.lightboxOpen.set(false); }
+  toggleLightboxZoom(): void { this.lightboxZoom.update((v) => !v); }
 
   // ── Download / Editor ──────────────────────────────────────────────────────
   downloadPng(png: PngAsset, event?: Event): void {
@@ -207,6 +291,36 @@ export class PngComponent {
     a.click();
     a.remove();
     this.showToast(`⬇️ Downloading "${png.name}"…`, 'success');
+  }
+
+  /** Downloads the asset resized to the currently selected download size (panel only). Falls back to the full-resolution file if client-side resizing isn't possible for this image (e.g. the source host doesn't allow cross-origin canvas reads). */
+  downloadWithSize(png: PngAsset, event?: Event): void {
+    event?.stopPropagation();
+    const size = this.selectedSize();
+    if (!size.px) { this.downloadPng(png); return; }
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const dataUrl = resizeImageToDataUrl(img, size.px);
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `${png.slug}-${size.px}px.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        this.showToast(`⬇️ Downloading "${png.name}" (${size.label})…`, 'success');
+      } catch {
+        this.showToast(`Couldn't resize this image — downloading full resolution instead`, 'info');
+        this.downloadPng(png);
+      }
+    };
+    img.onerror = () => {
+      this.showToast(`Couldn't resize this image — downloading full resolution instead`, 'info');
+      this.downloadPng(png);
+    };
+    img.src = png.url;
   }
 
   useInEditor(png: PngAsset, event?: Event): void {
@@ -261,6 +375,100 @@ export class PngComponent {
   }
 
   updateCollectionName(value: string): void { this.newCollectionName.set(value); }
+
+  // ── Create Your Own Cutout (upload & remove background) ─────────────────
+  openCreateTool(): void {
+    this.createOpen.set(true);
+    this.createStage.set('upload');
+    this.createOriginal.set(null);
+    this.createResult.set(null);
+    this.createError.set(null);
+    this.createDragOver.set(false);
+  }
+  closeCreateTool(): void { this.createOpen.set(false); }
+
+  onCreateDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.createDragOver.set(false);
+    const file = event.dataTransfer?.files?.[0];
+    if (file) this.loadUploadedFile(file);
+  }
+  onCreateDragOver(event: DragEvent): void { event.preventDefault(); this.createDragOver.set(true); }
+  onCreateDragLeave(): void { this.createDragOver.set(false); }
+
+  onCreateFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) this.loadUploadedFile(file);
+  }
+
+  private loadUploadedFile(file: File): void {
+    if (!file.type.startsWith('image/')) {
+      this.createError.set('Please upload an image file (PNG, JPG or WEBP).');
+      this.createStage.set('error');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.createOriginal.set(reader.result as string);
+      this.runBackgroundRemoval();
+    };
+    reader.onerror = () => {
+      this.createError.set("Couldn't read that file.");
+      this.createStage.set('error');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  private runBackgroundRemoval(): void {
+    const src = this.createOriginal();
+    if (!src) return;
+    this.createStage.set('processing');
+    const img = new Image();
+    img.onload = () => {
+      // Defer so the "Processing…" state renders before the pixel work runs.
+      setTimeout(() => {
+        try {
+          this.createResult.set(removeBackgroundFromImage(img));
+          this.createStage.set('result');
+        } catch (e) {
+          console.error('Background removal failed', e);
+          this.createError.set("Couldn't remove the background from this image.");
+          this.createStage.set('error');
+        }
+      }, 300);
+    };
+    img.onerror = () => {
+      this.createError.set("Couldn't load that image.");
+      this.createStage.set('error');
+    };
+    img.src = src;
+  }
+
+  retryCreate(): void {
+    this.createStage.set('upload');
+    this.createOriginal.set(null);
+    this.createResult.set(null);
+    this.createError.set(null);
+  }
+
+  downloadCreated(): void {
+    const url = this.createResult();
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'my-cutout.png';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    this.showToast('⬇️ Downloading your cutout…', 'success');
+  }
+
+  useCreatedInEditor(): void {
+    const url = this.createResult();
+    if (!url) return;
+    this.closeCreateTool();
+    this.router.navigate(['/editor'], { queryParams: { imageUrl: url, title: 'My Cutout' } });
+  }
 
   // ── Toast ──────────────────────────────────────────────────────────────────
   showToast(msg: string, type: 'success' | 'info' = 'success', duration = 2400): void {
