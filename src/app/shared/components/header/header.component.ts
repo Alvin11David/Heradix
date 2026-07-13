@@ -329,7 +329,10 @@ export class HeaderComponent {
     },
     { label: 'Mockups', route: '/marketplace' },
     { label: 'Icons',   route: '/icons' },
-    { label: 'PNG',     route: '/marketplace', hasDropdown: true },
+    {
+      label: 'PNG', route: '/png', hasDropdown: true,
+      dropdownItems: ['All PNGs', 'Business & Office', 'Technology', 'Nature & Plants', 'Animals', 'Food & Drink', 'Holidays & Events'],
+    },
     { label: 'Vectors', route: '/marketplace' },
     {
       label: 'Photos', route: '/marketplace', hasDropdown: true,

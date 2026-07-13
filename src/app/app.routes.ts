@@ -29,6 +29,11 @@ export const routes: Routes = [
   },
 
   {
+    path: 'png',
+    loadComponent: () => import('./features/png/png.component').then(m => m.PngComponent),
+  },
+
+  {
     path: 'editor',
     canActivate: [authGuard],
     loadComponent: () => import('./features/editor/canvas-editor/canvas-editor.component').then(m => m.CanvasEditorComponent),
