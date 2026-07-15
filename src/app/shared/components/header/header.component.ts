@@ -333,7 +333,7 @@ export class HeaderComponent {
       label: 'PNG', route: '/png', hasDropdown: true,
       dropdownItems: ['All PNGs', 'Business & Office', 'Technology', 'Nature & Plants', 'Animals', 'Food & Drink', 'Holidays & Events'],
     },
-    { label: 'Vectors', route: '/marketplace' },
+    { label: 'Vectors', route: '/vectors' },
     {
       label: 'Photos', route: '/marketplace', hasDropdown: true,
       dropdownItems: ['All Photos', 'AI Generated', 'City', 'Landscapes', 'People', 'Animals', 'Sports', 'Branding'],

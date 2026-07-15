@@ -38,5 +38,19 @@ Angular 20 client application for Amarapix — a design-asset marketplace with a
   - **File size estimates in the size picker**: each Small/Medium/Large option in the detail panel now shows an approximate KB/MB download size (heuristic based on target pixel dimensions), matching PNGWing/CleanPNG's "know before you download" pattern — see `src/app/shared/utils/file-size-estimate.ts`.
   - **ZIP bundle downloads**: "Download as ZIP" for bulk-selected assets, and a per-board zip button in the Collections modal — CleanPNG "resource pack"/Freepik pack-style single-file download instead of N separate browser downloads. Uses the `jszip` dependency; fetches each asset, zips client-side, and triggers one download.
 
+## Vectors Module (`/vectors`)
+- Full vector library and marketplace: homepage with 10+ curated sections (Featured, Trending, Staff Picks, AI Generated, Free, Premium, New Arrivals, etc.), category grid, seasonal collections, trending colors/tags/styles
+- Browse mode: sidebar filters (category, format SVG/EPS/AI/PDF/CDR/DXF/PNG, style, license, orientation, complexity, date, special toggles), masonry/grid/list views, sort by popular/newest/downloads/views/likes/rating, active filter chips, related tag cloud
+- Asset cards: hover overlay with Download + Edit actions, favorite/collect quick actions, dominant color dots, format badges, creator avatar + verified badge, PRO/FREE/AI/NEW/Animated badges
+- Detail panel: tabbed (Info / Similar / Creator), format download buttons, "Open in Editor" CTA, stats grid, star rating, color palette, tags, license disclosure, report modal
+- Collections: create/add-to from the detail panel, persisted in localStorage
+- Bulk select mode: multi-select cards, batch download
+- Search: hero search with recent searches dropdown, AI toggle, format chips; browse search bar with auto-suggest
+- Premium gating: PRO assets check AuthService.isPremium() before download; redirects to /pricing
+- All state managed via Angular Signals in `src/app/features/vectors/vectors.service.ts`; mock data in same file (ALL_VECTORS, buildAssets())
+- Route: `/vectors` → `src/app/features/vectors/vectors.component.ts`
+- Header "Vectors" nav link updated to point to `/vectors`
+- Installed `onnxruntime-web` to fix pre-existing dev server crash from `@imgly/background-removal`
+
 ## User preferences
 (none recorded yet)

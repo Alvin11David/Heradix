@@ -48,6 +48,11 @@ export const routes: Routes = [
   },
 
   {
+    path: 'vectors',
+    loadComponent: () => import('./features/vectors/vectors.component').then(m => m.VectorsComponent),
+  },
+
+  {
     path: 'pricing',
     loadComponent: () => import('./features/subscription/pricing/pricing.component').then(m => m.PricingComponent),
   },
