@@ -1,0 +1,677 @@
+# AMARAPIX Vector Library & Marketplace Module Prompt
+
+Design and implement a **world-class Vector Library and Marketplace** for AMARAPIX that rivals or surpasses Canva, Freepik, Vecteezy, Adobe Stock, SVG Repo, Icons8, and Storyset. The experience should be modern, premium, fast, AI-powered, scalable, and highly intuitive.
+
+---
+
+# General Requirements
+
+Create a dedicated **Vectors** section where users can discover, search, edit, organize, download, upload, share, and use millions of vector assets directly inside the AMARAPIX editor.
+
+The system should support:
+
+* SVG
+* EPS
+* AI
+* PDF
+* CDR
+* DXF
+* PNG Preview
+
+Every vector should be editable directly inside the editor without leaving the application.
+
+---
+
+# Homepage
+
+Create a beautiful homepage containing:
+
+* Featured Vectors
+* Trending Today
+* Trending This Week
+* Trending This Month
+* New Arrivals
+* Recently Uploaded
+* Most Downloaded
+* Most Liked
+* Most Viewed
+* Staff Picks
+* Editor's Choice
+* AI Generated Vectors
+* Free Vectors
+* Premium Vectors
+* Seasonal Collections
+* Recommended For You
+* Recently Viewed
+* Continue Editing
+* Popular Categories
+* Popular Creators
+* Featured Collections
+* Trending Colors
+* Trending Styles
+
+---
+
+# Search System
+
+Develop an advanced search engine supporting:
+
+* Keyword Search
+* Semantic AI Search
+* Image Search
+* Search by Uploading an Image
+* Voice Search
+* Similar Image Search
+* Search Suggestions
+* Auto Complete
+* Typo Correction
+* Search History
+* Trending Searches
+* Popular Searches
+* Recent Searches
+* Search by Creator
+* Search by Collection
+* Search by Tags
+* Search by Color
+* Search by Shape
+* Search by Style
+* Search by Category
+* Search by License
+* Search by Format
+
+---
+
+# Categories
+
+Create comprehensive categories including:
+
+Business
+
+* Office
+* Marketing
+* Startup
+* Finance
+* Banking
+* Analytics
+
+Technology
+
+* AI
+* Programming
+* Coding
+* Cloud
+* Robotics
+* Cybersecurity
+* Blockchain
+
+Education
+
+* Books
+* Graduation
+* Science
+* Schools
+* Mathematics
+
+Medical
+
+* Doctors
+* Hospitals
+* Pharmacy
+* Dentistry
+* Mental Health
+
+People
+
+* Students
+* Professionals
+* Families
+* Children
+* Seniors
+* Diversity
+
+Animals
+
+* Pets
+* Wildlife
+* Birds
+* Marine Life
+* Farm Animals
+
+Nature
+
+* Trees
+* Mountains
+* Rivers
+* Forest
+* Flowers
+* Sky
+
+Food
+
+* Fruits
+* Vegetables
+* Drinks
+* Coffee
+* Desserts
+* Fast Food
+
+Sports
+
+* Football
+* Basketball
+* Tennis
+* Running
+* Gym
+* Swimming
+
+Travel
+
+* Hotels
+* Beaches
+* Airplanes
+* Cars
+* Maps
+* Adventure
+
+Holidays
+
+* Christmas
+* Easter
+* Halloween
+* Valentine's
+* New Year
+
+Abstract
+
+* Patterns
+* Waves
+* Shapes
+* Mesh
+* Geometry
+
+UI & UX
+
+* Buttons
+* Cards
+* Dashboards
+* Charts
+* Wireframes
+
+Logos
+
+* Brand Marks
+* Monograms
+* Emblems
+* Badges
+
+Social Media
+
+* Instagram
+* TikTok
+* Facebook
+* YouTube
+* LinkedIn
+* X
+
+Marketing
+
+* Flyers
+* Posters
+* Banners
+* Brochures
+* Presentations
+
+---
+
+# Filters
+
+Implement professional filtering by:
+
+File Format
+
+* SVG
+* EPS
+* AI
+* PDF
+* CDR
+* DXF
+* PNG
+
+License
+
+* Free
+* Premium
+* Commercial
+* Editorial
+* Public Domain
+
+Orientation
+
+* Portrait
+* Landscape
+* Square
+
+Style
+
+* Flat
+* Outline
+* Filled
+* Cartoon
+* Minimal
+* Isometric
+* Hand Drawn
+* Watercolor
+* Clay
+* Glassmorphism
+* Neumorphism
+* Gradient
+* 3D
+
+Complexity
+
+* Beginner
+* Medium
+* Advanced
+
+Color
+
+* Single Color
+* Multi Color
+* Gradient
+* Black
+* White
+* Custom Palette
+
+Creator
+
+Upload Date
+
+Popularity
+
+Downloads
+
+Rating
+
+Views
+
+File Size
+
+Dimensions
+
+---
+
+# Asset Cards
+
+Every vector card should include:
+
+* Large Preview
+* Hover Preview
+* Live Animation
+* Quick Preview
+* Name
+* Creator
+* Verified Badge
+* Free Badge
+* Premium Badge
+* AI Badge
+* Rating
+* Views
+* Downloads
+* Likes
+* File Formats
+* Dominant Colors
+* Category
+* Tags
+
+Quick Actions
+
+* Download
+* Favorite
+* Save
+* Share
+* Copy Link
+* Add to Collection
+* Open in Editor
+* Report
+* Follow Creator
+
+---
+
+# Asset Details Page
+
+Display:
+
+* Large Preview
+* Zoom
+* Full Screen
+* Creator Information
+* Description
+* Tags
+* Related Tags
+* Category
+* License
+* Formats
+* Dimensions
+* File Size
+* Upload Date
+* Last Updated
+* Color Palette
+* Downloads
+* Views
+* Likes
+* Comments
+* Ratings
+
+Show
+
+* Similar Vectors
+* Same Creator
+* Related Collections
+* Matching Icons
+* Matching PNGs
+* Matching Templates
+
+---
+
+# Built-in Vector Editor
+
+Allow editing directly inside the platform.
+
+Basic Editing
+
+* Resize
+* Rotate
+* Flip
+* Duplicate
+* Crop
+* Mask
+* Lock
+* Unlock
+* Group
+* Ungroup
+* Align
+* Distribute
+
+Appearance
+
+* Fill Color
+* Stroke Color
+* Stroke Width
+* Stroke Style
+* Gradient Fill
+* Mesh Gradient
+* Opacity
+* Shadow
+* Glow
+* Blur
+* Blend Modes
+
+Path Editing
+
+* Node Editing
+* Anchor Editing
+* Bezier Curves
+* Pen Tool
+* Pencil Tool
+* Path Split
+* Path Join
+* Convert Curve
+* Convert Corner
+* Offset Path
+* Simplify Path
+* Outline Stroke
+* Expand Stroke
+
+Boolean Operations
+
+* Union
+* Subtract
+* Intersect
+* Exclude
+* Divide
+
+Shape Tools
+
+* Rectangle
+* Circle
+* Polygon
+* Star
+* Line
+* Arrow
+* Spiral
+* Custom Shapes
+
+Typography
+
+* Convert Text to Vector
+* Text on Path
+* Warp Text
+* Curved Text
+
+---
+
+# AI Features
+
+Implement AI-powered tools:
+
+* Generate SVG from Text Prompt
+* Generate Icons
+* Generate Logos
+* Generate Illustrations
+* Generate Characters
+* Generate Stickers
+* Generate Patterns
+* Generate Backgrounds
+* AI Recolor
+* AI Vector Cleanup
+* AI Background Removal
+* AI Expand Illustration
+* AI Object Replacement
+* AI Style Transfer
+* AI Upscaling
+* Raster to Vector Conversion
+* Smart Auto Trace
+* AI Auto Layout
+* AI Suggestions
+* AI Similar Assets
+* AI Color Palette Generator
+
+---
+
+# Collections
+
+Users should be able to:
+
+* Create Collections
+* Edit Collections
+* Rename Collections
+* Delete Collections
+* Public Collections
+* Private Collections
+* Shared Collections
+* Team Collections
+* Smart Collections
+* Favorites
+
+---
+
+# Creator Dashboard
+
+Creators should have:
+
+* Portfolio
+* Upload Assets
+* Earnings Dashboard
+* Analytics
+* Followers
+* Following
+* Portfolio Statistics
+* Asset Management
+* Licensing
+* Verification
+* Payout Settings
+* Sales Reports
+* Download Statistics
+
+---
+
+# Marketplace
+
+Allow creators to sell:
+
+* Icons
+* Illustrations
+* Logos
+* Stickers
+* Backgrounds
+* Templates
+* UI Kits
+* Design Systems
+* Patterns
+
+Include:
+
+* Royalties
+* Pricing
+* Promotions
+* Coupons
+* Discounts
+* Featured Listings
+* Reviews
+* Creator Levels
+
+---
+
+# Downloads
+
+Support downloading in:
+
+* SVG
+* EPS
+* AI
+* PDF
+* PNG
+* JPG
+* WebP
+
+Download Options
+
+* Original
+* Optimized
+* Small
+* Medium
+* Large
+* Transparent PNG
+* Web Optimized
+* Print Quality
+
+---
+
+# Collaboration
+
+Implement:
+
+* Live Collaboration
+* Comments
+* Mentions
+* Version History
+* Approval Workflow
+* Shared Libraries
+* Team Editing
+* Presence Indicators
+* Activity Feed
+
+---
+
+# User Features
+
+Users should be able to:
+
+* Like Assets
+* Rate Assets
+* Bookmark Assets
+* Share Assets
+* Follow Creators
+* Comment
+* Report Assets
+* Save History
+* Recently Viewed
+* Recently Downloaded
+* Recommended Assets
+
+---
+
+# Admin Panel
+
+Develop a complete administrator dashboard for:
+
+* Approve Uploads
+* Reject Uploads
+* Copyright Management
+* DMCA Requests
+* User Management
+* Creator Verification
+* Category Management
+* License Management
+* Featured Assets
+* Moderation
+* Analytics
+* Revenue Dashboard
+* Reports
+* Asset Review Queue
+
+---
+
+# Performance
+
+Implement:
+
+* Infinite Scrolling
+* Lazy Loading
+* Virtualized Lists
+* Fast Search
+* CDN Asset Delivery
+* Optimized SVG Rendering
+* Image Compression
+* Smart Caching
+* Offline Support
+* Autosave
+* Background Sync
+
+---
+
+# Integrations
+
+Allow vectors to be used instantly inside:
+
+* Poster Editor
+* Flyer Editor
+* Logo Maker
+* Presentation Builder
+* Social Media Designer
+* Brand Kit
+* Whiteboard
+* Document Editor
+* Animation Studio
+
+---
+
+# User Experience
+
+The interface should feel premium and polished with:
+
+* Beautiful masonry grid layouts
+* Smooth hover animations
+* Glassmorphism and modern UI elements where appropriate
+* Responsive design for desktop, tablet, and mobile
+* Dark and light themes
+* Keyboard shortcuts
+* Drag-and-drop interactions
+* Context menus
+* Breadcrumb navigation
+* Powerful filtering and sorting
+* Accessible design (WCAG compliant)
+* Fast page transitions
+* Rich previews and micro-interactions
+
+The final experience should combine the best ideas from Canva, Freepik, Vecteezy, SVG Repo, Adobe Stock, Storyset, Icons8, and modern AI-powered creative tools, while remaining seamless, scalable, and deeply integrated with every other module in the AMARAPIX ecosystem.
