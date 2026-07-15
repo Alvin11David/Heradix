@@ -299,19 +299,47 @@ export class VectorsService {
     }
   });
 
+  // ── Followed creators ─────────────────────────────────────────────────────
+  readonly followedCreators = signal<Set<string>>(this._loadFollowed());
+
   // ── Derived sections ──────────────────────────────────────────────────────
-  readonly featuredVectors = computed(() => ALL_VECTORS.filter(a => a.isEditorsChoice || a.isStaffPick).slice(0, 12));
-  readonly trendingToday   = computed(() => [...ALL_VECTORS].sort((a, b) => b.views - a.views).slice(0, 20));
-  readonly newArrivals     = computed(() => [...ALL_VECTORS].sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()).slice(0, 20));
-  readonly mostDownloaded  = computed(() => [...ALL_VECTORS].sort((a, b) => b.downloads - a.downloads).slice(0, 20));
-  readonly mostLiked       = computed(() => [...ALL_VECTORS].sort((a, b) => b.likes - a.likes).slice(0, 20));
-  readonly staffPicks      = computed(() => ALL_VECTORS.filter(a => a.isStaffPick).slice(0, 12));
-  readonly aiGenerated     = computed(() => ALL_VECTORS.filter(a => a.isAiGenerated).slice(0, 16));
-  readonly freeVectors     = computed(() => ALL_VECTORS.filter(a => a.isFree).slice(0, 16));
-  readonly premiumVectors  = computed(() => ALL_VECTORS.filter(a => a.isPremium).slice(0, 16));
+  readonly featuredVectors  = computed(() => ALL_VECTORS.filter(a => a.isEditorsChoice || a.isStaffPick).slice(0, 12));
+  readonly trendingToday    = computed(() => [...ALL_VECTORS].sort((a, b) => b.views - a.views).slice(0, 20));
+  readonly trendingWeek     = computed(() => {
+    const weekAgo = Date.now() - 7 * 86400000;
+    return [...ALL_VECTORS]
+      .filter(a => new Date(a.uploadedAt).getTime() > weekAgo || a.downloads > 5000)
+      .sort((a, b) => (b.downloads + b.views) - (a.downloads + a.views))
+      .slice(0, 20);
+  });
+  readonly trendingMonth    = computed(() => [...ALL_VECTORS].sort((a, b) => (b.downloads + b.likes) - (a.downloads + a.likes)).slice(0, 20));
+  readonly mostViewed       = computed(() => [...ALL_VECTORS].sort((a, b) => b.views - a.views).slice(0, 20));
+  readonly mostLiked        = computed(() => [...ALL_VECTORS].sort((a, b) => b.likes - a.likes).slice(0, 20));
+  readonly editorChoice     = computed(() => ALL_VECTORS.filter(a => a.isEditorsChoice).slice(0, 16));
+  readonly newArrivals      = computed(() => [...ALL_VECTORS].sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()).slice(0, 20));
+  readonly mostDownloaded   = computed(() => [...ALL_VECTORS].sort((a, b) => b.downloads - a.downloads).slice(0, 20));
+  readonly staffPicks       = computed(() => ALL_VECTORS.filter(a => a.isStaffPick).slice(0, 12));
+  readonly aiGenerated      = computed(() => ALL_VECTORS.filter(a => a.isAiGenerated).slice(0, 16));
+  readonly freeVectors      = computed(() => ALL_VECTORS.filter(a => a.isFree).slice(0, 16));
+  readonly premiumVectors   = computed(() => ALL_VECTORS.filter(a => a.isPremium).slice(0, 16));
   readonly recentlyViewedAssets = computed(() => {
     const ids = this.recentlyViewed();
     return ids.map(id => ALL_VECTORS.find(a => a.id === id)).filter(Boolean) as VectorAsset[];
+  });
+  readonly popularCreators  = computed(() => {
+    return CREATORS.map(creator => ({
+      ...creator,
+      topAssets: ALL_VECTORS.filter(a => a.creator.id === creator.id)
+        .sort((a, b) => b.downloads - a.downloads).slice(0, 3),
+      totalDownloads: ALL_VECTORS.filter(a => a.creator.id === creator.id)
+        .reduce((sum, a) => sum + a.downloads, 0),
+    })).sort((a, b) => b.totalDownloads - a.totalDownloads);
+  });
+  readonly featuredCollections = computed(() => {
+    return SEASONAL_COLLECTIONS.map(col => ({
+      ...col,
+      assets: ALL_VECTORS.filter(a => a.category === col.id || a.tags.some(t => col.label.toLowerCase().includes(t))).slice(0, 4),
+    }));
   });
 
   // ── Categories ────────────────────────────────────────────────────────────
@@ -375,6 +403,19 @@ export class VectorsService {
     });
   }
 
+  toggleFollowCreator(creatorId: string): void {
+    this.followedCreators.update(s => {
+      const next = new Set(s);
+      next.has(creatorId) ? next.delete(creatorId) : next.add(creatorId);
+      try { localStorage.setItem('amx_vec_followed', JSON.stringify([...next])); } catch {}
+      return next;
+    });
+  }
+
+  isFollowing(creatorId: string): boolean {
+    return this.followedCreators().has(creatorId);
+  }
+
   createCollection(name: string): void {
     const col: VectorCollection = {
       id: `col-${Date.now()}`, name, assetIds: [], isPublic: false,
@@ -384,6 +425,27 @@ export class VectorsService {
       const next = [...cols, col];
       this._saveCollections(next);
       return next;
+    });
+  }
+
+  renameCollection(colId: string, name: string): void {
+    this.collections.update(cols => {
+      const next = cols.map(c => c.id === colId ? { ...c, name } : c);
+      this._saveCollections(next); return next;
+    });
+  }
+
+  deleteCollection(colId: string): void {
+    this.collections.update(cols => {
+      const next = cols.filter(c => c.id !== colId);
+      this._saveCollections(next); return next;
+    });
+  }
+
+  toggleCollectionPublic(colId: string): void {
+    this.collections.update(cols => {
+      const next = cols.map(c => c.id === colId ? { ...c, isPublic: !c.isPublic } : c);
+      this._saveCollections(next); return next;
     });
   }
 
@@ -411,6 +473,10 @@ export class VectorsService {
   }
 
   // ── Private helpers ───────────────────────────────────────────────────────
+
+  private _loadFollowed(): Set<string> {
+    try { return new Set(JSON.parse(localStorage.getItem('amx_vec_followed') || '[]')); } catch { return new Set(); }
+  }
 
   private _loadFavorites(): Set<string> {
     try { return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]')); } catch { return new Set(); }

@@ -146,18 +146,51 @@ export class VectorsComponent implements OnInit, OnDestroy {
   readonly categories         = this.svc.categories;
 
   // ── Home sections ─────────────────────────────────────────────────────────
-  readonly featuredVectors  = this.svc.featuredVectors;
-  readonly trendingToday    = this.svc.trendingToday;
-  readonly newArrivals      = this.svc.newArrivals;
-  readonly mostDownloaded   = this.svc.mostDownloaded;
-  readonly mostLiked        = this.svc.mostLiked;
-  readonly staffPicks       = this.svc.staffPicks;
-  readonly aiGenerated      = this.svc.aiGenerated;
-  readonly freeVectors      = this.svc.freeVectors;
-  readonly premiumVectors   = this.svc.premiumVectors;
-  readonly recentlyViewed   = this.svc.recentlyViewedAssets;
-  readonly relatedTags      = this.svc.relatedTags;
-  readonly recentSearches   = this.svc.recentSearches;
+  readonly featuredVectors     = this.svc.featuredVectors;
+  readonly trendingToday       = this.svc.trendingToday;
+  readonly trendingWeek        = this.svc.trendingWeek;
+  readonly trendingMonth       = this.svc.trendingMonth;
+  readonly mostViewed          = this.svc.mostViewed;
+  readonly mostLiked           = this.svc.mostLiked;
+  readonly editorChoice        = this.svc.editorChoice;
+  readonly newArrivals         = this.svc.newArrivals;
+  readonly mostDownloaded      = this.svc.mostDownloaded;
+  readonly staffPicks          = this.svc.staffPicks;
+  readonly aiGenerated         = this.svc.aiGenerated;
+  readonly freeVectors         = this.svc.freeVectors;
+  readonly premiumVectors      = this.svc.premiumVectors;
+  readonly recentlyViewed      = this.svc.recentlyViewedAssets;
+  readonly popularCreators     = this.svc.popularCreators;
+  readonly featuredCollections = this.svc.featuredCollections;
+  readonly relatedTags         = this.svc.relatedTags;
+  readonly recentSearches      = this.svc.recentSearches;
+
+  // ── Detail panel extras ───────────────────────────────────────────────────
+  readonly zoomOpen        = signal(false);
+  readonly downloadSizeFor = signal<string | null>(null);
+  readonly commentText     = signal('');
+  readonly mockComments    = [
+    { user: 'StudioPix', avatar: 'https://i.pravatar.cc/32?img=1', text: 'Amazing quality! Used this for a client project.', time: '2d ago' },
+    { user: 'FlatCraft',  avatar: 'https://i.pravatar.cc/32?img=4', text: 'Clean lines, great color palette. 5 stars!', time: '5d ago' },
+    { user: 'VectoArt',  avatar: 'https://i.pravatar.cc/32?img=2', text: 'Love the style. Perfectly editable in the AMX editor.', time: '1w ago' },
+  ];
+
+  // ── Collection management ─────────────────────────────────────────────────
+  readonly editColId   = signal<string | null>(null);
+  readonly editColName = signal('');
+
+  // ── Voice / image search ──────────────────────────────────────────────────
+  readonly voiceActive      = signal(false);
+  readonly imageSearchOpen  = signal(false);
+
+  // ── Color mode options ────────────────────────────────────────────────────
+  readonly colorModeOptions: { key: string; label: string; icon: string }[] = [
+    { key: 'single',   label: 'Single Color',  icon: '◉' },
+    { key: 'multi',    label: 'Multi Color',   icon: '◈' },
+    { key: 'gradient', label: 'Gradient',       icon: '◑' },
+    { key: 'black',    label: 'Black',          icon: '⬛' },
+    { key: 'white',    label: 'White',          icon: '⬜' },
+  ];
 
   // ── Derived ───────────────────────────────────────────────────────────────
   readonly currentSort = computed(() => {
@@ -375,6 +408,111 @@ export class VectorsComponent implements OnInit, OnDestroy {
   openInEditor(asset: VectorAsset, e?: Event): void {
     e?.stopPropagation();
     this.router.navigate(['/editor'], { queryParams: { vectorId: asset.id } });
+  }
+
+  // ── Share / Copy link ─────────────────────────────────────────────────────
+  shareAsset(asset: VectorAsset, e?: Event): void {
+    e?.stopPropagation();
+    this.copyLinkFor(asset);
+  }
+
+  copyLinkFor(asset: VectorAsset): void {
+    const url = `${window.location.origin}/vectors/${asset.slug}`;
+    navigator.clipboard?.writeText(url).catch(() => {});
+  }
+
+  // ── Follow creator ────────────────────────────────────────────────────────
+  followCreator(creatorId: string, e?: Event): void {
+    e?.stopPropagation();
+    this.svc.toggleFollowCreator(creatorId);
+  }
+
+  isFollowing(creatorId: string): boolean {
+    return this.svc.isFollowing(creatorId);
+  }
+
+  // ── Voice search ──────────────────────────────────────────────────────────
+  startVoiceSearch(): void {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) { alert('Voice search is not supported in this browser.'); return; }
+    this.voiceActive.set(true);
+    const rec = new SpeechRecognition();
+    rec.lang = 'en-US';
+    rec.onresult = (ev: any) => {
+      const transcript = ev.results[0][0].transcript;
+      this.searchQuery.set(transcript);
+      this.onSearchSubmit();
+      this.voiceActive.set(false);
+    };
+    rec.onerror = () => this.voiceActive.set(false);
+    rec.onend   = () => this.voiceActive.set(false);
+    rec.start();
+  }
+
+  // ── Image search (file picker) ────────────────────────────────────────────
+  triggerImageSearch(): void {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (file) {
+        this.searchQuery.set(`[Image: ${file.name}]`);
+        this.svc.addRecentSearch(`Image search: ${file.name}`);
+        this.section.set('browse');
+        this.visibleCount.set(PAGE_SIZE);
+      }
+    };
+    input.click();
+  }
+
+  // ── Zoom / fullscreen preview ─────────────────────────────────────────────
+  openZoom(): void  { this.zoomOpen.set(true); }
+  closeZoom(): void { this.zoomOpen.set(false); }
+
+  // ── Comments ──────────────────────────────────────────────────────────────
+  submitComment(): void {
+    if (!this.commentText().trim()) return;
+    // Mock: in a real app, post to API
+    this.commentText.set('');
+  }
+
+  // ── Collection management ─────────────────────────────────────────────────
+  startEditCol(col: { id: string; name: string }): void {
+    this.editColId.set(col.id);
+    this.editColName.set(col.name);
+  }
+
+  saveEditCol(): void {
+    const id = this.editColId();
+    const name = this.editColName().trim();
+    if (id && name) { this.svc.renameCollection(id, name); }
+    this.editColId.set(null);
+    this.editColName.set('');
+  }
+
+  deleteCol(colId: string): void {
+    this.svc.deleteCollection(colId);
+  }
+
+  // ── Color mode filter ─────────────────────────────────────────────────────
+  setColorMode(mode: string | null): void {
+    this.svc.setFilter('colorMode', mode as any);
+  }
+
+  // ── Creator search ────────────────────────────────────────────────────────
+  readonly creatorQuery = signal('');
+
+  setCreatorQuery(val: string): void {
+    this.creatorQuery.set(val);
+    // Filter by matching creator name
+    const match = this.svc.allAssets()
+      .find(a => a.creator.name.toLowerCase().includes(val.toLowerCase()));
+    if (match && val.length > 1) {
+      this.svc.setFilter('creatorId', match.creator.id);
+    } else if (!val) {
+      this.svc.setFilter('creatorId', null);
+    }
   }
 
   // ── Bulk select ───────────────────────────────────────────────────────────

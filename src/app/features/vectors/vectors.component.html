@@ -136,9 +136,15 @@
                    (focus)="searchFocused.set(true)"
                    (blur)="searchFocused.set(false)"
                    aria-label="Search vectors" />
-            <button class="vec-hero__ai-toggle" [class.vec-hero__ai-toggle--active]="aiSearch()" (click)="aiSearch.set(!aiSearch())" type="button">
+            <button class="vec-hero__ai-toggle" [class.vec-hero__ai-toggle--active]="aiSearch()" (click)="aiSearch.set(!aiSearch())" type="button" title="AI Semantic Search">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"/></svg>
               AI
+            </button>
+            <button class="vec-hero__icon-btn" type="button" (click)="triggerImageSearch()" title="Search by image">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </button>
+            <button class="vec-hero__icon-btn" [class.vec-hero__icon-btn--active]="voiceActive()" type="button" (click)="startVoiceSearch()" title="Voice search">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
             </button>
             <button class="vec-hero__search-btn" type="button" (click)="onSearchSubmit()">
               Search
@@ -354,6 +360,160 @@
       </div>
     </div>
 
+    <!-- Trending This Week -->
+    <div class="vec-home-section">
+      <div class="vec-home-section__header">
+        <h2 class="vec-home-section__title">📈 Trending This Week</h2>
+        <button class="vec-home-section__more" (click)="setSort('popular'); section.set('browse')">View all</button>
+      </div>
+      <div class="vec-scroll-row">
+        <div *ngFor="let a of trendingWeek(); trackBy: trackById" class="vec-scroll-card" (click)="openDetail(a)">
+          <ng-container *ngTemplateOutlet="miniCard; context: { $implicit: a }"></ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trending This Month -->
+    <div class="vec-home-section">
+      <div class="vec-home-section__header">
+        <h2 class="vec-home-section__title">🏆 Trending This Month</h2>
+        <button class="vec-home-section__more" (click)="setSort('downloads'); section.set('browse')">View all</button>
+      </div>
+      <div class="vec-scroll-row">
+        <div *ngFor="let a of trendingMonth(); trackBy: trackById" class="vec-scroll-card" (click)="openDetail(a)">
+          <ng-container *ngTemplateOutlet="miniCard; context: { $implicit: a }"></ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Most Viewed -->
+    <div class="vec-home-section">
+      <div class="vec-home-section__header">
+        <h2 class="vec-home-section__title">👁️ Most Viewed</h2>
+        <button class="vec-home-section__more" (click)="setSort('views'); section.set('browse')">View all</button>
+      </div>
+      <div class="vec-scroll-row">
+        <div *ngFor="let a of mostViewed(); trackBy: trackById" class="vec-scroll-card" (click)="openDetail(a)">
+          <ng-container *ngTemplateOutlet="miniCard; context: { $implicit: a }"></ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Most Liked -->
+    <div class="vec-home-section">
+      <div class="vec-home-section__header">
+        <h2 class="vec-home-section__title">❤️ Most Liked</h2>
+        <button class="vec-home-section__more" (click)="setSort('likes'); section.set('browse')">View all</button>
+      </div>
+      <div class="vec-scroll-row">
+        <div *ngFor="let a of mostLiked(); trackBy: trackById" class="vec-scroll-card" (click)="openDetail(a)">
+          <ng-container *ngTemplateOutlet="miniCard; context: { $implicit: a }"></ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Editor's Choice -->
+    <div class="vec-home-section">
+      <div class="vec-home-section__header">
+        <h2 class="vec-home-section__title">
+          <span class="vec-badge vec-badge--editors">✦</span>
+          Editor's Choice
+        </h2>
+        <button class="vec-home-section__more" (click)="setSort('rating'); section.set('browse')">View all</button>
+      </div>
+      <div class="vec-scroll-row">
+        <div *ngFor="let a of editorChoice(); trackBy: trackById" class="vec-scroll-card" (click)="openDetail(a)">
+          <ng-container *ngTemplateOutlet="miniCard; context: { $implicit: a }"></ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommended For You -->
+    <div class="vec-home-section">
+      <div class="vec-home-section__header">
+        <h2 class="vec-home-section__title">💡 Recommended For You</h2>
+        <button class="vec-home-section__more" (click)="section.set('browse')">Browse more</button>
+      </div>
+      <div class="vec-scroll-row">
+        <div *ngFor="let a of freeVectors().slice(0, 12); trackBy: trackById" class="vec-scroll-card" (click)="openDetail(a)">
+          <ng-container *ngTemplateOutlet="miniCard; context: { $implicit: a }"></ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Continue Editing -->
+    <div class="vec-home-section" *ngIf="recentlyViewed().length > 0">
+      <div class="vec-home-section__header">
+        <h2 class="vec-home-section__title">✏️ Continue Editing</h2>
+      </div>
+      <div class="vec-continue-grid">
+        <button *ngFor="let a of recentlyViewed().slice(0, 4); trackBy: trackById"
+                class="vec-continue-card" (click)="openInEditor(a)">
+          <img [src]="a.thumbUrl" [alt]="a.name" class="vec-continue-card__img" />
+          <div class="vec-continue-card__body">
+            <span class="vec-continue-card__name">{{ a.name }}</span>
+            <span class="vec-continue-card__action">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Open in Editor
+            </span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Popular Creators -->
+    <div class="vec-home-section">
+      <div class="vec-home-section__header">
+        <h2 class="vec-home-section__title">🌟 Popular Creators</h2>
+        <button class="vec-home-section__more" (click)="section.set('browse')">See all creators</button>
+      </div>
+      <div class="vec-creators-row">
+        <div *ngFor="let creator of popularCreators()" class="vec-creator-card">
+          <div class="vec-creator-card__header">
+            <img [src]="creator.avatar" [alt]="creator.name" class="vec-creator-card__av" />
+            <div class="vec-creator-card__info">
+              <div class="vec-creator-card__name">
+                {{ creator.name }}
+                <svg *ngIf="creator.isVerified" width="13" height="13" viewBox="0 0 24 24" fill="#3B82F6"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01" stroke="white" stroke-width="2" fill="none"/></svg>
+              </div>
+              <div class="vec-creator-card__meta">
+                {{ formatNumber(creator.followers) }} followers · {{ creator.totalAssets }} assets
+              </div>
+            </div>
+            <button class="vec-creator-card__follow"
+                    [class.vec-creator-card__follow--following]="isFollowing(creator.id)"
+                    (click)="followCreator(creator.id)">
+              {{ isFollowing(creator.id) ? 'Following' : 'Follow' }}
+            </button>
+          </div>
+          <div class="vec-creator-card__thumbs">
+            <img *ngFor="let a of creator.topAssets" [src]="a.thumbUrl" [alt]="a.name"
+                 class="vec-creator-card__thumb" (click)="openDetail(a)" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured Collections -->
+    <div class="vec-home-section">
+      <div class="vec-home-section__header">
+        <h2 class="vec-home-section__title">🗂️ Featured Collections</h2>
+        <button class="vec-home-section__more" (click)="section.set('browse')">Browse all</button>
+      </div>
+      <div class="vec-feat-collections">
+        <button *ngFor="let col of featuredCollections()" class="vec-feat-col-card" (click)="browseSeasonal(col.id)">
+          <div class="vec-feat-col-card__thumbs">
+            <img *ngFor="let a of col.assets.slice(0, 4)" [src]="a.thumbUrl" [alt]="a.name" class="vec-feat-col-card__img" />
+          </div>
+          <div class="vec-feat-col-card__overlay">
+            <span class="vec-feat-col-card__emoji">{{ col.emoji }}</span>
+            <strong>{{ col.label }}</strong>
+            <span>{{ formatNumber(col.count) }} vectors</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
     <!-- Trending Styles -->
     <div class="vec-home-section">
       <div class="vec-home-section__header">
@@ -492,6 +652,59 @@
                   (click)="setComplexity(svc.filters().complexity === c ? null : $any(c))">
             {{ c | titlecase }}
           </button>
+        </div>
+      </div>
+
+      <!-- Color Mode -->
+      <div class="vec-filter-group">
+        <button class="vec-filter-group__head" (click)="toggleSection('colormode')">
+          Color Mode
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('colormode')"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="vec-filter-group__body" *ngIf="isSectionOpen('colormode')">
+          <button *ngFor="let cm of colorModeOptions"
+                  class="vec-filter-pill"
+                  [class.vec-filter-pill--active]="svc.filters().colorMode === cm.key"
+                  (click)="setColorMode(svc.filters().colorMode === cm.key ? null : cm.key)">
+            {{ cm.icon }} {{ cm.label }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Color -->
+      <div class="vec-filter-group">
+        <button class="vec-filter-group__head" (click)="toggleSection('color')">
+          Color
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('color')"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="vec-filter-group__body" *ngIf="isSectionOpen('color')">
+          <div class="vec-swatch-grid">
+            <button *ngFor="let sw of colorSwatches"
+                    class="vec-swatch-btn"
+                    [class.vec-swatch-btn--active]="svc.filters().color === sw.hex"
+                    [style.background]="sw.hex"
+                    [attr.title]="sw.label"
+                    (click)="svc.setFilter('color', svc.filters().color === sw.hex ? null : sw.hex)">
+              <svg *ngIf="svc.filters().color === sw.hex" width="12" height="12" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Creator -->
+      <div class="vec-filter-group">
+        <button class="vec-filter-group__head" (click)="toggleSection('creator')">
+          Creator
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('creator')"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="vec-filter-group__body" *ngIf="isSectionOpen('creator')">
+          <div class="vec-creator-search-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="vec-creator-search-input"
+                   placeholder="Search creator…"
+                   [value]="creatorQuery()"
+                   (input)="setCreatorQuery($any($event.target).value)" />
+          </div>
         </div>
       </div>
 
@@ -635,6 +848,15 @@
                 <button class="vec-card__quick" (click)="$event.stopPropagation(); collectionOpen.set(true); selectedAsset.set(a)" aria-label="Save to collection">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                 </button>
+                <button class="vec-card__quick" (click)="shareAsset(a, $event)" aria-label="Copy link">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                </button>
+                <button class="vec-card__quick"
+                        [class.vec-card__quick--following]="isFollowing(a.creator.id)"
+                        (click)="followCreator(a.creator.id, $event)"
+                        [attr.aria-label]="isFollowing(a.creator.id) ? 'Unfollow' : 'Follow creator'">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                </button>
               </div>
             </div>
 
@@ -710,6 +932,9 @@
           <span class="vec-badge vec-badge--ai"      *ngIf="asset.isAiGenerated">AI Generated</span>
           <span class="vec-badge vec-badge--new"     *ngIf="asset.isNew">NEW</span>
         </div>
+        <button class="vec-detail__zoom-btn" (click)="openZoom()" aria-label="Fullscreen preview">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        </button>
       </div>
 
       <!-- Tabs -->
