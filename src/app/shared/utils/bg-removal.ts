@@ -1,17 +1,45 @@
 import { removeBackground as aiRemoveBg } from '@imgly/background-removal';
 
 export async function removeBackgroundFromImage(
-  image: HTMLImageElement | string,
+  image: Blob | HTMLImageElement | string,
   onProgress?: (progress: number) => void
 ): Promise<string> {
-  const source = typeof image === 'string' ? image : image.src || image;
+  const source = image instanceof Blob ? image
+    : typeof image === 'string' ? image
+    : image.src || image;
 
-  const blob = await aiRemoveBg(source, {
-    progress: (key, current, total) => {
-      const pct = total > 0 ? Math.round((current / total) * 100) : 50;
-      onProgress?.(pct);
-    },
-  });
+  let highestPct = 0;
+
+  let blob: Blob;
+  try {
+    blob = await aiRemoveBg(source, {
+      progress: (key, current, total) => {
+        const pct = total > 0 ? Math.round((current / total) * 100) : 50;
+        if (pct > highestPct) highestPct = pct;
+        onProgress?.(highestPct);
+      },
+      device: 'cpu',
+      proxyToWorker: false,
+      debug: true,
+    });
+  } catch (e: any) {
+    const details = e?.message ?? String(e);
+    if (details.toLowerCase().includes('onnxruntime') || details.toLowerCase().includes('session') || details.toLowerCase().includes('wasm')) {
+      throw new Error(
+        `The AI model could not start. ` +
+        `For local dev, add COOP/COEP headers or use a browser that supports SharedArrayBuffer. ` +
+        `Details: ${details}`
+      );
+    }
+    if (details.toLowerCase().includes('fetch') || details.toLowerCase().includes('network') || details.toLowerCase().includes('cors')) {
+      throw new Error(
+        `The AI model (~88MB) could not be downloaded. ` +
+        `Check your internet connection or firewall. ` +
+        `Details: ${details}`
+      );
+    }
+    throw e;
+  }
 
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();

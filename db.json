@@ -512,5 +512,278 @@
       "monthlyTotal": 142,
       "resetDate": "2026-04-01T00:00:00Z"
     }
+  ],
+
+  "vector-creators": [
+    {
+      "id": "c1",
+      "name": "StudioPix",
+      "avatar": "https://i.pravatar.cc/40?img=1",
+      "isVerified": true,
+      "followers": 12400,
+      "totalAssets": 348
+    },
+    {
+      "id": "c2",
+      "name": "VectoArt",
+      "avatar": "https://i.pravatar.cc/40?img=2",
+      "isVerified": true,
+      "followers": 8900,
+      "totalAssets": 215
+    },
+    {
+      "id": "c3",
+      "name": "DesignNova",
+      "avatar": "https://i.pravatar.cc/40?img=3",
+      "isVerified": false,
+      "followers": 3200,
+      "totalAssets": 87
+    },
+    {
+      "id": "c4",
+      "name": "FlatCraft",
+      "avatar": "https://i.pravatar.cc/40?img=4",
+      "isVerified": true,
+      "followers": 22100,
+      "totalAssets": 512
+    }
+  ],
+
+  "vector-categories": [
+    { "id": "business", "label": "Business", "icon": "💼", "count": 10, "subcategories": [{"id":"office","label":"Office"},{"id":"marketing","label":"Marketing"}] },
+    { "id": "technology", "label": "Technology", "icon": "💻", "count": 10, "subcategories": [{"id":"ai","label":"AI"},{"id":"coding","label":"Coding"}] },
+    { "id": "education", "label": "Education", "icon": "📚", "count": 10, "subcategories": [{"id":"books","label":"Books"}] },
+    { "id": "medical", "label": "Medical", "icon": "🏥", "count": 10 },
+    { "id": "people", "label": "People", "icon": "👥", "count": 10 },
+    { "id": "animals", "label": "Animals", "icon": "🐾", "count": 10 },
+    { "id": "nature", "label": "Nature", "icon": "🌿", "count": 10 },
+    { "id": "food", "label": "Food", "icon": "🍕", "count": 10 },
+    { "id": "sports", "label": "Sports", "icon": "⚽", "count": 10 },
+    { "id": "travel", "label": "Travel", "icon": "✈️", "count": 10 },
+    { "id": "holidays", "label": "Holidays", "icon": "🎄", "count": 10 },
+    { "id": "abstract", "label": "Abstract", "icon": "🔷", "count": 10 },
+    { "id": "ui-ux", "label": "UI & UX", "icon": "🖥️", "count": 10 },
+    { "id": "logos", "label": "Logos", "icon": "🔑", "count": 10 },
+    { "id": "social", "label": "Social Media", "icon": "📱", "count": 10 },
+    { "id": "marketing", "label": "Marketing", "icon": "📣", "count": 10 }
+  ],
+
+  "vectors": [
+    {
+      "id": "vec-business-0", "slug": "business-corporate-report-cover", "name": "Corporate Report Cover", "description": "A professional corporate report cover designed for business projects.",
+      "category": "business", "categoryLabel": "Business", "subcategory": "office",
+      "previewUrl": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&q=80",
+      "dominantColors": ["#3B82F6","#6366F1","#8B5CF6"], "formats": ["svg","png"], "style": "flat", "license": "commercial",
+      "orientation": "landscape", "complexity": "medium", "colorMode": "multi",
+      "isPremium": false, "isFree": true, "isAiGenerated": false, "isAnimated": false, "isNew": true, "isStaffPick": true, "isEditorsChoice": false,
+      "downloads": 12400, "likes": 843, "views": 45200, "rating": 4.7, "ratingCount": 312, "comments": 28,
+      "tags": ["office","marketing","startup","finance"], "width": 1200, "height": 800, "fileSize": 256,
+      "creator": {"id":"c1","name":"StudioPix","avatar":"https://i.pravatar.cc/40?img=1","isVerified":true,"followers":12400,"totalAssets":348},
+      "uploadedAt": "2026-07-01T00:00:00Z", "updatedAt": "2026-07-10T00:00:00Z"
+    },
+    {
+      "id": "vec-business-1", "slug": "business-analytics-dashboard-ui", "name": "Analytics Dashboard UI", "description": "A modern analytics dashboard UI illustration for finance and startup projects.",
+      "category": "business", "categoryLabel": "Business", "subcategory": "finance",
+      "previewUrl": "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=400&q=80",
+      "dominantColors": ["#10B981","#14B8A6","#06B6D4"], "formats": ["svg","eps","png"], "style": "minimal", "license": "premium",
+      "orientation": "landscape", "complexity": "advanced", "colorMode": "multi",
+      "isPremium": true, "isFree": false, "isAiGenerated": false, "isAnimated": true, "isNew": false, "isStaffPick": false, "isEditorsChoice": true,
+      "downloads": 8700, "likes": 654, "views": 32100, "rating": 4.5, "ratingCount": 198, "comments": 15,
+      "tags": ["analytics","banking","startup","data"], "width": 2400, "height": 1800, "fileSize": 512,
+      "creator": {"id":"c2","name":"VectoArt","avatar":"https://i.pravatar.cc/40?img=2","isVerified":true,"followers":8900,"totalAssets":215},
+      "uploadedAt": "2026-06-15T00:00:00Z", "updatedAt": "2026-07-05T00:00:00Z"
+    },
+    {
+      "id": "vec-technology-0", "slug": "technology-ai-robot-character", "name": "AI Robot Character", "description": "A friendly AI robot character illustration for tech and coding projects.",
+      "category": "technology", "categoryLabel": "Technology", "subcategory": "ai",
+      "previewUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80",
+      "dominantColors": ["#3B82F6","#6366F1","#8B5CF6"], "formats": ["svg","eps","ai","pdf","png"], "style": "cartoon", "license": "free",
+      "orientation": "square", "complexity": "beginner", "colorMode": "multi",
+      "isPremium": false, "isFree": true, "isAiGenerated": false, "isAnimated": false, "isNew": true, "isStaffPick": true, "isEditorsChoice": true,
+      "downloads": 22300, "likes": 1520, "views": 89200, "rating": 4.9, "ratingCount": 567, "comments": 42,
+      "tags": ["ai","coding","cloud","robotics"], "width": 800, "height": 800, "fileSize": 128,
+      "creator": {"id":"c4","name":"FlatCraft","avatar":"https://i.pravatar.cc/40?img=4","isVerified":true,"followers":22100,"totalAssets":512},
+      "uploadedAt": "2026-07-08T00:00:00Z", "updatedAt": "2026-07-12T00:00:00Z"
+    },
+    {
+      "id": "vec-technology-1", "slug": "technology-cloud-network-infographic", "name": "Cloud Network Infographic", "description": "A detailed cloud computing network infographic for tech presentations.",
+      "category": "technology", "categoryLabel": "Technology", "subcategory": "cloud",
+      "previewUrl": "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=400&q=80",
+      "dominantColors": ["#F97316","#EF4444","#F59E0B"], "formats": ["svg","png"], "style": "isometric", "license": "premium",
+      "orientation": "landscape", "complexity": "advanced", "colorMode": "multi",
+      "isPremium": true, "isFree": false, "isAiGenerated": false, "isAnimated": false, "isNew": false, "isStaffPick": false, "isEditorsChoice": false,
+      "downloads": 5600, "likes": 432, "views": 19800, "rating": 4.3, "ratingCount": 145, "comments": 11,
+      "tags": ["cloud","cybersecurity","blockchain","infrastructure"], "width": 1200, "height": 900, "fileSize": 384,
+      "creator": {"id":"c1","name":"StudioPix","avatar":"https://i.pravatar.cc/40?img=1","isVerified":true,"followers":12400,"totalAssets":348},
+      "uploadedAt": "2026-05-20T00:00:00Z", "updatedAt": "2026-06-18T00:00:00Z"
+    },
+    {
+      "id": "vec-education-0", "slug": "education-online-learning-platform", "name": "Online Learning Platform", "description": "An illustration of an online learning platform with virtual classrooms.",
+      "category": "education", "categoryLabel": "Education", "subcategory": "books",
+      "previewUrl": "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=400&q=80",
+      "dominantColors": ["#EC4899","#F43F5E","#A855F7"], "formats": ["svg","eps","ai","pdf","png"], "style": "flat", "license": "commercial",
+      "orientation": "landscape", "complexity": "medium", "colorMode": "multi",
+      "isPremium": false, "isFree": true, "isAiGenerated": false, "isAnimated": false, "isNew": false, "isStaffPick": false, "isEditorsChoice": false,
+      "downloads": 15200, "likes": 1100, "views": 67400, "rating": 4.6, "ratingCount": 423, "comments": 35,
+      "tags": ["books","graduation","science","school"], "width": 1200, "height": 800, "fileSize": 210,
+      "creator": {"id":"c3","name":"DesignNova","avatar":"https://i.pravatar.cc/40?img=3","isVerified":false,"followers":3200,"totalAssets":87},
+      "uploadedAt": "2026-06-28T00:00:00Z", "updatedAt": "2026-07-08T00:00:00Z"
+    },
+    {
+      "id": "vec-medical-0", "slug": "medical-doctor-character-pack", "name": "Doctor Character Pack", "description": "A set of friendly doctor characters for medical and healthcare projects.",
+      "category": "medical", "categoryLabel": "Medical",
+      "previewUrl": "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=400&q=80",
+      "dominantColors": ["#34D399","#10B981","#059669"], "formats": ["svg","eps","png"], "style": "outline", "license": "free",
+      "orientation": "portrait", "complexity": "beginner", "colorMode": "multi",
+      "isPremium": false, "isFree": true, "isAiGenerated": false, "isAnimated": false, "isNew": false, "isStaffPick": false, "isEditorsChoice": false,
+      "downloads": 9800, "likes": 720, "views": 38900, "rating": 4.4, "ratingCount": 256, "comments": 19,
+      "tags": ["doctors","hospital","pharmacy","dentistry"], "width": 600, "height": 800, "fileSize": 96,
+      "creator": {"id":"c2","name":"VectoArt","avatar":"https://i.pravatar.cc/40?img=2","isVerified":true,"followers":8900,"totalAssets":215},
+      "uploadedAt": "2026-04-12T00:00:00Z", "updatedAt": "2026-05-30T00:00:00Z"
+    },
+    {
+      "id": "vec-people-0", "slug": "people-diverse-team-illustration", "name": "Diverse Team Illustration", "description": "A diverse group of professionals collaborating in a modern office setting.",
+      "category": "people", "categoryLabel": "People",
+      "previewUrl": "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=400&q=80",
+      "dominantColors": ["#FBBF24","#F59E0B","#D97706"], "formats": ["svg","png"], "style": "flat", "license": "commercial",
+      "orientation": "landscape", "complexity": "medium", "colorMode": "multi",
+      "isPremium": false, "isFree": true, "isAiGenerated": false, "isAnimated": false, "isNew": false, "isStaffPick": true, "isEditorsChoice": false,
+      "downloads": 18500, "likes": 1340, "views": 78200, "rating": 4.8, "ratingCount": 489, "comments": 52,
+      "tags": ["students","professionals","families","diversity"], "width": 1200, "height": 800, "fileSize": 178,
+      "creator": {"id":"c4","name":"FlatCraft","avatar":"https://i.pravatar.cc/40?img=4","isVerified":true,"followers":22100,"totalAssets":512},
+      "uploadedAt": "2026-07-02T00:00:00Z", "updatedAt": "2026-07-11T00:00:00Z"
+    },
+    {
+      "id": "vec-animals-0", "slug": "animals-cute-pet-characters", "name": "Cute Pet Characters", "description": "Adorable pet character illustrations including cats, dogs, and bunnies.",
+      "category": "animals", "categoryLabel": "Animals",
+      "previewUrl": "https://images.unsplash.com/photo-1540350394557-8d14678e7f91?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1540350394557-8d14678e7f91?w=400&q=80",
+      "dominantColors": ["#F97316","#EF4444","#F59E0B"], "formats": ["svg","eps","ai","pdf","cdr","dxf","png"], "style": "cartoon", "license": "free",
+      "orientation": "square", "complexity": "beginner", "colorMode": "multi",
+      "isPremium": false, "isFree": true, "isAiGenerated": true, "isAnimated": false, "isNew": true, "isStaffPick": false, "isEditorsChoice": false,
+      "downloads": 31200, "likes": 2450, "views": 125000, "rating": 4.9, "ratingCount": 890, "comments": 78,
+      "tags": ["pets","wildlife","birds","marine","farm"], "width": 800, "height": 800, "fileSize": 64,
+      "creator": {"id":"c1","name":"StudioPix","avatar":"https://i.pravatar.cc/40?img=1","isVerified":true,"followers":12400,"totalAssets":348},
+      "uploadedAt": "2026-07-10T00:00:00Z", "updatedAt": "2026-07-12T00:00:00Z"
+    },
+    {
+      "id": "vec-nature-0", "slug": "nature-mountain-landscape", "name": "Mountain Landscape", "description": "A scenic mountain landscape vector with trees, sky, and flowing rivers.",
+      "category": "nature", "categoryLabel": "Nature",
+      "previewUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
+      "dominantColors": ["#10B981","#14B8A6","#06B6D4"], "formats": ["svg","eps","ai","pdf","png"], "style": "gradient", "license": "commercial",
+      "orientation": "landscape", "complexity": "advanced", "colorMode": "gradient",
+      "isPremium": false, "isFree": false, "isAiGenerated": false, "isAnimated": false, "isNew": false, "isStaffPick": false, "isEditorsChoice": true,
+      "downloads": 6700, "likes": 523, "views": 28700, "rating": 4.5, "ratingCount": 167, "comments": 14,
+      "tags": ["trees","mountains","rivers","forest","sky"], "width": 2400, "height": 1200, "fileSize": 1024,
+      "creator": {"id":"c3","name":"DesignNova","avatar":"https://i.pravatar.cc/40?img=3","isVerified":false,"followers":3200,"totalAssets":87},
+      "uploadedAt": "2026-05-05T00:00:00Z", "updatedAt": "2026-06-20T00:00:00Z"
+    },
+    {
+      "id": "vec-food-0", "slug": "food-fresh-fruit-collection", "name": "Fresh Fruit Collection", "description": "A colorful collection of fresh fruit illustrations for food and nutrition projects.",
+      "category": "food", "categoryLabel": "Food",
+      "previewUrl": "https://images.unsplash.com/photo-1493421419110-74f4e85ba126?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1493421419110-74f4e85ba126?w=400&q=80",
+      "dominantColors": ["#EC4899","#F43F5E","#A855F7"], "formats": ["svg","eps","png"], "style": "flat", "license": "free",
+      "orientation": "square", "complexity": "beginner", "colorMode": "multi",
+      "isPremium": false, "isFree": true, "isAiGenerated": false, "isAnimated": false, "isNew": false, "isStaffPick": false, "isEditorsChoice": false,
+      "downloads": 20400, "likes": 1680, "views": 85600, "rating": 4.7, "ratingCount": 534, "comments": 41,
+      "tags": ["fruits","vegetables","drinks","coffee"], "width": 800, "height": 800, "fileSize": 144,
+      "creator": {"id":"c2","name":"VectoArt","avatar":"https://i.pravatar.cc/40?img=2","isVerified":true,"followers":8900,"totalAssets":215},
+      "uploadedAt": "2026-06-10T00:00:00Z", "updatedAt": "2026-07-01T00:00:00Z"
+    },
+    {
+      "id": "vec-sports-0", "slug": "sports-football-stadium", "name": "Football Stadium", "description": "A dynamic football stadium illustration with players and cheering crowd.",
+      "category": "sports", "categoryLabel": "Sports",
+      "previewUrl": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80",
+      "dominantColors": ["#3B82F6","#6366F1","#8B5CF6"], "formats": ["svg","eps","ai","pdf","png"], "style": "filled", "license": "premium",
+      "orientation": "landscape", "complexity": "advanced", "colorMode": "multi",
+      "isPremium": true, "isFree": false, "isAiGenerated": false, "isAnimated": false, "isNew": false, "isStaffPick": false, "isEditorsChoice": false,
+      "downloads": 4300, "likes": 340, "views": 15400, "rating": 4.2, "ratingCount": 98, "comments": 8,
+      "tags": ["football","basketball","tennis","running"], "width": 1200, "height": 800, "fileSize": 450,
+      "creator": {"id":"c4","name":"FlatCraft","avatar":"https://i.pravatar.cc/40?img=4","isVerified":true,"followers":22100,"totalAssets":512},
+      "uploadedAt": "2026-04-28T00:00:00Z", "updatedAt": "2026-05-15T00:00:00Z"
+    },
+    {
+      "id": "vec-travel-0", "slug": "travel-beach-vacation-set", "name": "Beach Vacation Set", "description": "A tropical beach vacation illustration set with palm trees, ocean, and sun.",
+      "category": "travel", "categoryLabel": "Travel",
+      "previewUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&q=80",
+      "dominantColors": ["#34D399","#10B981","#059669"], "formats": ["svg","eps","png"], "style": "flat", "license": "commercial",
+      "orientation": "landscape", "complexity": "medium", "colorMode": "multi",
+      "isPremium": false, "isFree": true, "isAiGenerated": false, "isAnimated": false, "isNew": false, "isStaffPick": true, "isEditorsChoice": false,
+      "downloads": 16200, "likes": 1280, "views": 71200, "rating": 4.6, "ratingCount": 378, "comments": 33,
+      "tags": ["hotels","beaches","airplanes","cars","adventure"], "width": 1200, "height": 900, "fileSize": 290,
+      "creator": {"id":"c1","name":"StudioPix","avatar":"https://i.pravatar.cc/40?img=1","isVerified":true,"followers":12400,"totalAssets":348},
+      "uploadedAt": "2026-06-22T00:00:00Z", "updatedAt": "2026-07-09T00:00:00Z"
+    },
+    {
+      "id": "vec-holidays-0", "slug": "holidays-christmas-decoration-set", "name": "Christmas Decoration Set", "description": "Festive Christmas decoration vectors with ornaments, lights, and snowflakes.",
+      "category": "holidays", "categoryLabel": "Holidays",
+      "previewUrl": "https://images.unsplash.com/photo-1614854262318-831574f15f1f?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1614854262318-831574f15f1f?w=400&q=80",
+      "dominantColors": ["#F97316","#EF4444","#F59E0B"], "formats": ["svg","eps","ai","pdf","png"], "style": "flat", "license": "free",
+      "orientation": "square", "complexity": "beginner", "colorMode": "multi",
+      "isPremium": false, "isFree": true, "isAiGenerated": false, "isAnimated": false, "isNew": false, "isStaffPick": false, "isEditorsChoice": false,
+      "downloads": 25600, "likes": 2100, "views": 98000, "rating": 4.8, "ratingCount": 712, "comments": 65,
+      "tags": ["christmas","easter","halloween","new year"], "width": 800, "height": 800, "fileSize": 180,
+      "creator": {"id":"c2","name":"VectoArt","avatar":"https://i.pravatar.cc/40?img=2","isVerified":true,"followers":8900,"totalAssets":215},
+      "uploadedAt": "2026-07-05T00:00:00Z", "updatedAt": "2026-07-12T00:00:00Z"
+    },
+    {
+      "id": "vec-abstract-0", "slug": "abstract-geometric-wave-pattern", "name": "Geometric Wave Pattern", "description": "An abstract geometric wave pattern for modern backgrounds and wallpapers.",
+      "category": "abstract", "categoryLabel": "Abstract",
+      "previewUrl": "https://images.unsplash.com/photo-1607274492818-d46c97cf9ebe?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1607274492818-d46c97cf9ebe?w=400&q=80",
+      "dominantColors": ["#FBBF24","#F59E0B","#D97706"], "formats": ["svg","png"], "style": "minimal", "license": "commercial",
+      "orientation": "landscape", "complexity": "medium", "colorMode": "single",
+      "isPremium": false, "isFree": false, "isAiGenerated": true, "isAnimated": false, "isNew": true, "isStaffPick": false, "isEditorsChoice": false,
+      "downloads": 7800, "likes": 610, "views": 34500, "rating": 4.4, "ratingCount": 189, "comments": 22,
+      "tags": ["patterns","waves","shapes","mesh","geometry"], "width": 2400, "height": 1600, "fileSize": 340,
+      "creator": {"id":"c3","name":"DesignNova","avatar":"https://i.pravatar.cc/40?img=3","isVerified":false,"followers":3200,"totalAssets":87},
+      "uploadedAt": "2026-07-09T00:00:00Z", "updatedAt": "2026-07-12T00:00:00Z"
+    },
+    {
+      "id": "vec-uiux-0", "slug": "uiux-dashboard-ui-kit", "name": "Dashboard UI Kit", "description": "A complete dashboard UI kit with charts, cards, and navigation components.",
+      "category": "ui-ux", "categoryLabel": "UI & UX",
+      "previewUrl": "https://images.unsplash.com/photo-1579547945413-497e1b99dac0?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1579547945413-497e1b99dac0?w=400&q=80",
+      "dominantColors": ["#111827","#374151","#6B7280"], "formats": ["svg","eps","ai","pdf","png"], "style": "flat", "license": "premium",
+      "orientation": "landscape", "complexity": "advanced", "colorMode": "multi",
+      "isPremium": true, "isFree": false, "isAiGenerated": false, "isAnimated": false, "isNew": false, "isStaffPick": false, "isEditorsChoice": false,
+      "downloads": 3400, "likes": 280, "views": 12300, "rating": 4.1, "ratingCount": 76, "comments": 6,
+      "tags": ["buttons","cards","dashboards","charts","wireframes"], "width": 1200, "height": 800, "fileSize": 620,
+      "creator": {"id":"c4","name":"FlatCraft","avatar":"https://i.pravatar.cc/40?img=4","isVerified":true,"followers":22100,"totalAssets":512},
+      "uploadedAt": "2026-03-15T00:00:00Z", "updatedAt": "2026-04-20T00:00:00Z"
+    },
+    {
+      "id": "vec-logos-0", "slug": "logos-minimal-logo-pack", "name": "Minimal Logo Pack", "description": "A pack of minimal modern logo templates for startups and brands.",
+      "category": "logos", "categoryLabel": "Logos",
+      "previewUrl": "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=400&q=80",
+      "dominantColors": ["#111827","#374151","#6B7280"], "formats": ["svg","eps","ai","pdf","cdr","dxf","png"], "style": "minimal", "license": "premium",
+      "orientation": "square", "complexity": "medium", "colorMode": "single",
+      "isPremium": true, "isFree": false, "isAiGenerated": false, "isAnimated": false, "isNew": false, "isStaffPick": false, "isEditorsChoice": true,
+      "downloads": 9200, "likes": 780, "views": 41200, "rating": 4.6, "ratingCount": 245, "comments": 18,
+      "tags": ["brand marks","monograms","emblems","badges"], "width": 800, "height": 800, "fileSize": 96,
+      "creator": {"id":"c1","name":"StudioPix","avatar":"https://i.pravatar.cc/40?img=1","isVerified":true,"followers":12400,"totalAssets":348},
+      "uploadedAt": "2026-06-05T00:00:00Z", "updatedAt": "2026-06-28T00:00:00Z"
+    },
+    {
+      "id": "vec-social-0", "slug": "social-instagram-story-templates", "name": "Instagram Story Templates", "description": "Trendy Instagram story templates for social media content creators.",
+      "category": "social", "categoryLabel": "Social Media",
+      "previewUrl": "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&q=80",
+      "dominantColors": ["#EC4899","#F43F5E","#A855F7"], "formats": ["svg","eps","png"], "style": "gradient", "license": "free",
+      "orientation": "portrait", "complexity": "beginner", "colorMode": "gradient",
+      "isPremium": false, "isFree": true, "isAiGenerated": false, "isAnimated": true, "isNew": true, "isStaffPick": true, "isEditorsChoice": false,
+      "downloads": 28400, "likes": 2300, "views": 110200, "rating": 4.8, "ratingCount": 645, "comments": 55,
+      "tags": ["instagram","tiktok","facebook","youtube"], "width": 600, "height": 1067, "fileSize": 112,
+      "creator": {"id":"c2","name":"VectoArt","avatar":"https://i.pravatar.cc/40?img=2","isVerified":true,"followers":8900,"totalAssets":215},
+      "uploadedAt": "2026-07-11T00:00:00Z", "updatedAt": "2026-07-12T00:00:00Z"
+    },
+    {
+      "id": "vec-marketing-0", "slug": "marketing-event-flyer-templates", "name": "Event Flyer Templates", "description": "Professional event flyer templates for concerts, conferences, and parties.",
+      "category": "marketing", "categoryLabel": "Marketing",
+      "previewUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&q=80", "thumbUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&q=80",
+      "dominantColors": ["#F97316","#EF4444","#F59E0B"], "formats": ["svg","eps","ai","pdf","png"], "style": "flat", "license": "commercial",
+      "orientation": "portrait", "complexity": "medium", "colorMode": "multi",
+      "isPremium": false, "isFree": true, "isAiGenerated": false, "isAnimated": false, "isNew": false, "isStaffPick": false, "isEditorsChoice": false,
+      "downloads": 13400, "likes": 980, "views": 56700, "rating": 4.5, "ratingCount": 312, "comments": 27,
+      "tags": ["flyers","posters","banners","brochures","presentations"], "width": 800, "height": 1200, "fileSize": 230,
+      "creator": {"id":"c3","name":"DesignNova","avatar":"https://i.pravatar.cc/40?img=3","isVerified":false,"followers":3200,"totalAssets":87},
+      "uploadedAt": "2026-06-18T00:00:00Z", "updatedAt": "2026-07-02T00:00:00Z"
+    }
   ]
 }

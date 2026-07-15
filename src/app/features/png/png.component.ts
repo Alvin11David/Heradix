@@ -171,6 +171,7 @@ export class PngComponent implements OnInit {
   readonly createDragOver = signal(false);
   readonly createProgress = signal(0);
   private cancelRemoval = false;
+  private uploadedFile: File | null = null;
 
 
   readonly collectionsOpen       = signal(false);
@@ -703,6 +704,7 @@ export class PngComponent implements OnInit {
     this.createDragOver.set(false);
     this.createProgress.set(0);
     this.cancelRemoval = false;
+    this.uploadedFile = null;
   }
   closeCreateTool(): void { this.createOpen.set(false); this.cancelRemoval = true; }
 
@@ -726,6 +728,7 @@ export class PngComponent implements OnInit {
       this.createStage.set('error');
       return;
     }
+    this.uploadedFile = file;
     const reader = new FileReader();
     reader.onload = () => {
       this.createOriginal.set(reader.result as string);
@@ -739,7 +742,7 @@ export class PngComponent implements OnInit {
   }
 
   private async runBackgroundRemoval(): Promise<void> {
-    const src = this.createOriginal();
+    const src = this.uploadedFile;
     if (!src) return;
     this.createStage.set('processing');
     this.createProgress.set(0);
