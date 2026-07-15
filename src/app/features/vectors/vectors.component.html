@@ -94,9 +94,13 @@
   ══════════════════════════════════════════════════════════ -->
   <div class="vec-bulk-bar" *ngIf="bulkMode() && bulkSelected().size > 0">
     <span>{{ bulkSelected().size }} selected</span>
-    <button class="vec-btn vec-btn--orange" (click)="bulkDownload()">
+    <button class="vec-btn vec-btn--orange" (click)="bulkDownloadZip()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Download {{ bulkSelected().size }}
+      Download ZIP ({{ bulkSelected().size }})
+    </button>
+    <button class="vec-btn vec-btn--ghost" (click)="bulkDownload()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Individual
     </button>
     <button class="vec-btn vec-btn--ghost" (click)="clearBulkSelected()">Clear</button>
   </div>
@@ -564,10 +568,24 @@
           <button *ngFor="let cat of categories()"
                   class="vec-filter-pill"
                   [class.vec-filter-pill--active]="svc.filters().categoryId === cat.id"
-                  (click)="svc.setFilter('categoryId', svc.filters().categoryId === cat.id ? null : cat.id)">
+                  (click)="svc.setFilter('categoryId', svc.filters().categoryId === cat.id ? null : cat.id); svc.setFilter('subcategoryId', null)">
             {{ cat.icon }} {{ cat.label }}
             <span class="vec-filter-pill__count">{{ cat.count }}</span>
           </button>
+          <!-- Subcategories for selected category -->
+          <ng-container *ngIf="svc.filters().categoryId as selCat">
+            <div class="vec-subcategory-section" *ngIf="getSubcategories(selCat).length > 0">
+              <div class="vec-subcategory-label">Subcategories</div>
+              <div class="vec-subcategory-pills">
+                <button *ngFor="let sub of getSubcategories(selCat)"
+                        class="vec-subcategory-pill"
+                        [class.vec-subcategory-pill--active]="svc.filters().subcategoryId === sub.id"
+                        (click)="svc.setFilter('subcategoryId', svc.filters().subcategoryId === sub.id ? null : sub.id)">
+                  {{ sub.label }}
+                </button>
+              </div>
+            </div>
+          </ng-container>
         </div>
       </div>
 
@@ -760,7 +778,11 @@
         </span>
         <span class="vec-chip" *ngIf="svc.filters().categoryId as cat">
           {{ getCategoryLabel(cat) }}
-          <button (click)="svc.setFilter('categoryId', null)" aria-label="Remove">×</button>
+          <button (click)="svc.setFilter('categoryId', null); svc.setFilter('subcategoryId', null)" aria-label="Remove">×</button>
+        </span>
+        <span class="vec-chip" *ngIf="svc.filters().subcategoryId as sub">
+          {{ getSubcategoryLabel(sub) }}
+          <button (click)="svc.setFilter('subcategoryId', null)" aria-label="Remove">×</button>
         </span>
         <span class="vec-chip" *ngFor="let fmt of svc.filters().formats">
           {{ fmt.toUpperCase() }}
@@ -778,9 +800,29 @@
           {{ o }}
           <button (click)="setOrientation(null)" aria-label="Remove">×</button>
         </span>
+        <span class="vec-chip" *ngIf="svc.filters().complexity as c">
+          {{ c }}
+          <button (click)="setComplexity(null)" aria-label="Remove">×</button>
+        </span>
+        <span class="vec-chip" *ngIf="svc.filters().colorMode as cm">
+          {{ cm }}
+          <button (click)="setColorMode(null)" aria-label="Remove">×</button>
+        </span>
+        <span class="vec-chip vec-chip--color" *ngIf="svc.filters().color as col">
+          <span class="vec-chip__swatch" [style.background]="col"></span> Color
+          <button (click)="svc.setFilter('color', null)" aria-label="Remove">×</button>
+        </span>
+        <span class="vec-chip" *ngIf="svc.filters().dateAdded !== 'all'">
+          {{ svc.filters().dateAdded === 'today' ? 'Today' : svc.filters().dateAdded === 'week' ? 'This week' : 'This month' }}
+          <button (click)="setDateAdded('all')" aria-label="Remove">×</button>
+        </span>
         <span class="vec-chip" *ngIf="svc.filters().isAiGenerated === true">
           AI Generated
           <button (click)="svc.setFilter('isAiGenerated', null)" aria-label="Remove">×</button>
+        </span>
+        <span class="vec-chip" *ngIf="svc.filters().isAnimated === true">
+          Animated
+          <button (click)="svc.setFilter('isAnimated', null)" aria-label="Remove">×</button>
         </span>
         <span class="vec-chip" *ngIf="svc.filters().favoritesOnly">
           Favorites
@@ -904,6 +946,26 @@
   ══════════════════════════════════════════════════════════ -->
   <div class="vec-overlay" *ngIf="selectedAsset()" (click)="closeDetail()" aria-hidden="true"></div>
 
+  <!-- Zoom / Fullscreen Lightbox -->
+  <div class="vec-zoom-overlay" *ngIf="zoomOpen() && selectedAsset() as asset" (click)="closeZoom()" role="dialog" aria-label="Fullscreen preview">
+    <button class="vec-zoom-overlay__close" (click)="closeZoom()" aria-label="Close fullscreen">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="vec-zoom-overlay__img-wrap" (click)="$event.stopPropagation()">
+      <img [src]="asset.previewUrl" [alt]="asset.name" class="vec-zoom-overlay__img" />
+      <div class="vec-zoom-overlay__caption">
+        <span class="vec-zoom-overlay__name">{{ asset.name }}</span>
+        <span class="vec-zoom-overlay__dim">{{ asset.width }} × {{ asset.height }}px</span>
+      </div>
+    </div>
+    <button class="vec-zoom-overlay__nav vec-zoom-overlay__nav--prev" (click)="$event.stopPropagation(); navigateDetail(-1)" aria-label="Previous">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="vec-zoom-overlay__nav vec-zoom-overlay__nav--next" (click)="$event.stopPropagation(); navigateDetail(1)" aria-label="Next">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
   <aside class="vec-detail" *ngIf="selectedAsset() as asset" role="dialog" [attr.aria-label]="asset.name">
 
     <div class="vec-detail__inner">
@@ -974,10 +1036,24 @@
           </div>
         </div>
 
-        <!-- Rating stars -->
-        <div class="vec-detail__stars">
-          <span *ngFor="let filled of stars(asset.rating)" class="vec-star" [class.vec-star--filled]="filled">★</span>
-          <small>({{ asset.ratingCount }} ratings)</small>
+        <!-- Interactive Rating stars -->
+        <div class="vec-detail__rate-block">
+          <div class="vec-detail__stars">
+            <button *ngFor="let n of starRange"
+                    class="vec-star-btn"
+                    [class.vec-star-btn--filled]="n <= (hoverRating() || getUserRating(asset.id) || asset.rating)"
+                    [class.vec-star-btn--user]="n <= getUserRating(asset.id)"
+                    (mouseenter)="hoverRating.set(n)"
+                    (mouseleave)="hoverRating.set(0)"
+                    (click)="rateAsset(asset.id, n)"
+                    [attr.aria-label]="'Rate ' + n + ' stars'">★</button>
+            <small class="vec-detail__rating-label">
+              <ng-container *ngIf="getUserRating(asset.id) > 0; else avgRating">
+                Your rating: {{ getUserRating(asset.id) }}/5
+              </ng-container>
+              <ng-template #avgRating>({{ asset.ratingCount }} ratings · avg {{ asset.rating }})</ng-template>
+            </small>
+          </div>
         </div>
 
         <!-- Download section -->
@@ -1051,6 +1127,43 @@
           <div>
             <strong>{{ asset.license === 'free' || asset.isFree ? 'Free License' : asset.license === 'premium' ? 'Premium License' : 'Commercial License' }}</strong>
             <p>{{ asset.isFree ? 'Free for personal and commercial use. Attribution appreciated.' : asset.isPremium ? 'Requires premium subscription. For commercial and personal use without attribution.' : 'Allowed for commercial use. No attribution required.' }}</p>
+          </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="vec-detail__comments">
+          <h3 class="vec-detail__section-label">Comments <span class="vec-detail__comments-count">{{ allComments().length }}</span></h3>
+
+          <!-- Comment input -->
+          <div class="vec-comment-input-row">
+            <img src="https://i.pravatar.cc/32?img=20" alt="You" class="vec-comment-avatar" />
+            <div class="vec-comment-input-wrap">
+              <textarea
+                class="vec-comment-input"
+                placeholder="Add a comment…"
+                rows="2"
+                [value]="commentText()"
+                (input)="commentText.set($any($event.target).value)"
+                (keydown.enter)="onCommentEnter($event)"
+              ></textarea>
+              <button class="vec-comment-submit vec-btn vec-btn--orange"
+                      [disabled]="!commentText().trim()"
+                      (click)="submitComment()">Post</button>
+            </div>
+          </div>
+
+          <!-- Comment list -->
+          <div class="vec-comment-list">
+            <div *ngFor="let c of allComments(); trackBy: trackByIdx" class="vec-comment-item">
+              <img [src]="c.avatar" [alt]="c.user" class="vec-comment-avatar" />
+              <div class="vec-comment-body">
+                <div class="vec-comment-meta">
+                  <strong>{{ c.user }}</strong>
+                  <span class="vec-comment-time">{{ c.time }}</span>
+                </div>
+                <p class="vec-comment-text">{{ c.text }}</p>
+              </div>
+            </div>
           </div>
         </div>
 

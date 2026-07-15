@@ -87,6 +87,7 @@ export interface VectorCollection {
 export interface VectorFilterState {
   query: string;
   categoryId: string | null;
+  subcategoryId: string | null;
   formats: VectorFormat[];
   style: VectorStyle | null;
   license: VectorLicense | null;

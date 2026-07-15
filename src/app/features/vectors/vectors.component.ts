@@ -169,11 +169,15 @@ export class VectorsComponent implements OnInit, OnDestroy {
   readonly zoomOpen        = signal(false);
   readonly downloadSizeFor = signal<string | null>(null);
   readonly commentText     = signal('');
+  readonly submittedComments = signal<{ user: string; avatar: string; text: string; time: string }[]>([]);
   readonly mockComments    = [
     { user: 'StudioPix', avatar: 'https://i.pravatar.cc/32?img=1', text: 'Amazing quality! Used this for a client project.', time: '2d ago' },
     { user: 'FlatCraft',  avatar: 'https://i.pravatar.cc/32?img=4', text: 'Clean lines, great color palette. 5 stars!', time: '5d ago' },
     { user: 'VectoArt',  avatar: 'https://i.pravatar.cc/32?img=2', text: 'Love the style. Perfectly editable in the AMX editor.', time: '1w ago' },
   ];
+
+  // ── Star hover state (for interactive rating) ─────────────────────────────
+  readonly hoverRating = signal(0);
 
   // ── Collection management ─────────────────────────────────────────────────
   readonly editColId   = signal<string | null>(null);
@@ -191,6 +195,11 @@ export class VectorsComponent implements OnInit, OnDestroy {
     { key: 'black',    label: 'Black',          icon: '⬛' },
     { key: 'white',    label: 'White',          icon: '⬜' },
   ];
+
+  // ── Toast notification ────────────────────────────────────────────────────
+  readonly toastMsg  = signal('');
+  readonly toastShow = signal(false);
+  private toastTimer: any;
 
   // ── Derived ───────────────────────────────────────────────────────────────
   readonly currentSort = computed(() => {
@@ -211,6 +220,7 @@ export class VectorsComponent implements OnInit, OnDestroy {
     if (f.isAiGenerated !== null) n++;
     if (f.isAnimated !== null) n++;
     if (f.dateAdded !== 'all') n++;
+    if (f.subcategoryId) n++;
     return n;
   });
 
@@ -224,11 +234,18 @@ export class VectorsComponent implements OnInit, OnDestroy {
     return a ? this.svc.getByCreator(a.creator.id, a.id) : [];
   });
 
+  readonly allComments = computed(() => [
+    ...this.submittedComments(),
+    ...this.mockComments,
+  ]);
+
+  readonly starRange = [1, 2, 3, 4, 5];
+
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {}
   ngOnDestroy(): void {
-    // Always restore body scroll on route change, even if panel was open
     document.body.style.overflow = '';
+    if (this.toastTimer) clearTimeout(this.toastTimer);
   }
 
   // ── Search ────────────────────────────────────────────────────────────────
@@ -268,6 +285,15 @@ export class VectorsComponent implements OnInit, OnDestroy {
   browseCategory(catId: string): void {
     this.svc.resetFilters();
     this.svc.setFilter('categoryId', catId);
+    this.section.set('browse');
+    this.visibleCount.set(PAGE_SIZE);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  browseSubcategory(catId: string, subId: string): void {
+    this.svc.resetFilters();
+    this.svc.setFilter('categoryId', catId);
+    this.svc.setFilter('subcategoryId', subId);
     this.section.set('browse');
     this.visibleCount.set(PAGE_SIZE);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -369,6 +395,8 @@ export class VectorsComponent implements OnInit, OnDestroy {
   openDetail(asset: VectorAsset): void {
     this.selectedAsset.set(asset);
     this.detailTab.set('info');
+    this.submittedComments.set([]);
+    this.hoverRating.set(0);
     this.svc.trackView(asset.id);
     document.body.style.overflow = 'hidden';
   }
@@ -403,6 +431,7 @@ export class VectorsComponent implements OnInit, OnDestroy {
     a.href = url; a.download = `${asset.slug}.${fmt}`; a.click();
     URL.revokeObjectURL(url);
     this.downloadPickerFor.set(null);
+    this.showToast(`Downloaded "${asset.name}" as ${fmt.toUpperCase()}`);
   }
 
   openInEditor(asset: VectorAsset, e?: Event): void {
@@ -419,22 +448,41 @@ export class VectorsComponent implements OnInit, OnDestroy {
   copyLinkFor(asset: VectorAsset): void {
     const url = `${window.location.origin}/vectors/${asset.slug}`;
     navigator.clipboard?.writeText(url).catch(() => {});
+    this.showToast('Link copied to clipboard!');
   }
 
   // ── Follow creator ────────────────────────────────────────────────────────
   followCreator(creatorId: string, e?: Event): void {
     e?.stopPropagation();
+    const wasFollowing = this.svc.isFollowing(creatorId);
     this.svc.toggleFollowCreator(creatorId);
+    this.showToast(wasFollowing ? 'Unfollowed creator' : 'Now following creator!');
   }
 
   isFollowing(creatorId: string): boolean {
     return this.svc.isFollowing(creatorId);
   }
 
+  // ── Rating ────────────────────────────────────────────────────────────────
+  rateAsset(assetId: string, rating: number): void {
+    this.svc.rateAsset(assetId, rating);
+    this.hoverRating.set(0);
+    this.showToast(`Rated ${rating} star${rating !== 1 ? 's' : ''}!`);
+  }
+
+  getUserRating(assetId: string): number {
+    return this.svc.getUserRating(assetId);
+  }
+
+  getDisplayRating(asset: VectorAsset): number {
+    const user = this.getUserRating(asset.id);
+    return user > 0 ? user : this.hoverRating() > 0 ? this.hoverRating() : asset.rating;
+  }
+
   // ── Voice search ──────────────────────────────────────────────────────────
   startVoiceSearch(): void {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) { alert('Voice search is not supported in this browser.'); return; }
+    if (!SpeechRecognition) { this.showToast('Voice search not supported in this browser.'); return; }
     this.voiceActive.set(true);
     const rec = new SpeechRecognition();
     rec.lang = 'en-US';
@@ -461,6 +509,7 @@ export class VectorsComponent implements OnInit, OnDestroy {
         this.svc.addRecentSearch(`Image search: ${file.name}`);
         this.section.set('browse');
         this.visibleCount.set(PAGE_SIZE);
+        this.showToast('Image search: showing visually similar results');
       }
     };
     input.click();
@@ -471,10 +520,23 @@ export class VectorsComponent implements OnInit, OnDestroy {
   closeZoom(): void { this.zoomOpen.set(false); }
 
   // ── Comments ──────────────────────────────────────────────────────────────
+  onCommentEnter(e: Event): void {
+    const ke = e as KeyboardEvent;
+    if (!ke.shiftKey) {
+      ke.preventDefault();
+      this.submitComment();
+    }
+  }
+
   submitComment(): void {
-    if (!this.commentText().trim()) return;
-    // Mock: in a real app, post to API
+    const text = this.commentText().trim();
+    if (!text) return;
+    this.submittedComments.update(prev => [
+      { user: 'You', avatar: 'https://i.pravatar.cc/32?img=20', text, time: 'Just now' },
+      ...prev,
+    ]);
     this.commentText.set('');
+    this.showToast('Comment posted!');
   }
 
   // ── Collection management ─────────────────────────────────────────────────
@@ -505,7 +567,6 @@ export class VectorsComponent implements OnInit, OnDestroy {
 
   setCreatorQuery(val: string): void {
     this.creatorQuery.set(val);
-    // Filter by matching creator name
     const match = this.svc.allAssets()
       .find(a => a.creator.name.toLowerCase().includes(val.toLowerCase()));
     if (match && val.length > 1) {
@@ -535,6 +596,66 @@ export class VectorsComponent implements OnInit, OnDestroy {
     this.bulkMode.set(false);
   }
 
+  async bulkDownloadZip(): Promise<void> {
+    const ids = [...this.bulkSelected()];
+    if (!ids.length) return;
+
+    const isPremiumUser = this.auth.isPremium();
+    const allAssets = this.svc.allAssets();
+
+    // Separate free vs. premium assets based on user entitlement
+    const eligible: typeof allAssets = [];
+    const blocked: typeof allAssets = [];
+    for (const id of ids) {
+      const asset = allAssets.find(x => x.id === id);
+      if (!asset) continue;
+      if (asset.isPremium && !isPremiumUser) {
+        blocked.push(asset);
+      } else {
+        eligible.push(asset);
+      }
+    }
+
+    if (blocked.length > 0 && eligible.length === 0) {
+      // All selected are premium — redirect to pricing
+      this.showToast(`${blocked.length} asset${blocked.length !== 1 ? 's' : ''} require a Premium subscription.`);
+      this.router.navigate(['/pricing']);
+      return;
+    }
+
+    if (blocked.length > 0) {
+      this.showToast(`${blocked.length} premium asset${blocked.length !== 1 ? 's' : ''} skipped — upgrade to include them.`);
+    }
+
+    if (!eligible.length) return;
+
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      const folder = zip.folder('amarapix-vectors')!;
+
+      eligible.forEach(asset => {
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${asset.width} ${asset.height}"><rect width="100%" height="100%" fill="${asset.dominantColors[0] || '#3B82F6'}" rx="12"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="32" fill="white">${asset.name}</text></svg>`;
+        folder.file(`${asset.slug}.svg`, svg);
+      });
+
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `amarapix-vectors-${eligible.length}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+      this.showToast(`Downloaded ${eligible.length} vector${eligible.length !== 1 ? 's' : ''} as ZIP`);
+    } catch {
+      // Fallback: individual downloads for eligible assets only
+      eligible.forEach(asset => this.downloadAsset(asset));
+    }
+
+    this.bulkSelected.set(new Set());
+    this.bulkMode.set(false);
+  }
+
   // ── Load more ─────────────────────────────────────────────────────────────
   loadMore(): void {
     this.visibleCount.update(n => n + PAGE_SIZE);
@@ -544,6 +665,7 @@ export class VectorsComponent implements OnInit, OnDestroy {
   addToCollection(colId: string, assetId: string): void {
     this.svc.addToCollection(colId, assetId);
     this.collectionOpen.set(false);
+    this.showToast('Added to collection!');
   }
 
   createAndAddCollection(): void {
@@ -555,23 +677,34 @@ export class VectorsComponent implements OnInit, OnDestroy {
     if (col && asset) this.svc.addToCollection(col.id, asset.id);
     this.newColName.set('');
     this.collectionOpen.set(false);
+    this.showToast(`Created collection "${name}"`);
   }
 
   // ── Report ────────────────────────────────────────────────────────────────
   submitReport(): void {
     this.reportOpen.set(false);
     this.reportReason.set('');
+    this.showToast('Report submitted. Thank you for helping keep Amarapix safe.');
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  showToast(msg: string): void {
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastMsg.set(msg);
+    this.toastShow.set(true);
+    this.toastTimer = setTimeout(() => this.toastShow.set(false), 3000);
   }
 
   // ── Keyboard ─────────────────────────────────────────────────────────────
   @HostListener('document:keydown', ['$event'])
   onKey(e: KeyboardEvent): void {
     if (e.key === 'Escape') {
-      if (this.selectedAsset()) { this.closeDetail(); return; }
-      if (this.sortOpen()) { this.sortOpen.set(false); return; }
+      if (this.zoomOpen())       { this.closeZoom(); return; }
+      if (this.selectedAsset())  { this.closeDetail(); return; }
+      if (this.sortOpen())       { this.sortOpen.set(false); return; }
     }
-    if (e.key === 'ArrowRight' && this.selectedAsset()) this.navigateDetail(1);
-    if (e.key === 'ArrowLeft'  && this.selectedAsset()) this.navigateDetail(-1);
+    if (e.key === 'ArrowRight' && this.selectedAsset() && !this.zoomOpen()) this.navigateDetail(1);
+    if (e.key === 'ArrowLeft'  && this.selectedAsset() && !this.zoomOpen()) this.navigateDetail(-1);
   }
 
   navigateDetail(dir: 1 | -1): void {
@@ -604,9 +737,23 @@ export class VectorsComponent implements OnInit, OnDestroy {
   }
 
   trackById(_: number, a: VectorAsset): string { return a.id; }
+  trackByIdx(i: number): number { return i; }
 
   getCategoryLabel(catId: string): string {
     return this.categories().find(c => c.id === catId)?.label ?? catId;
+  }
+
+  getSubcategories(catId: string): { id: string; label: string }[] {
+    return this.categories().find(c => c.id === catId)?.subcategories ?? [];
+  }
+
+  getSubcategoryLabel(subId: string): string {
+    const catId = this.svc.filters().categoryId;
+    if (!catId) return subId;
+    const sub = this.categories()
+      .find(c => c.id === catId)?.subcategories
+      ?.find(s => s.id === subId);
+    return sub?.label ?? subId;
   }
 
   clearBulkSelected(): void {
