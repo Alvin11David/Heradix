@@ -1034,6 +1034,11 @@ export class VectorsService {
     });
   }
 
+  clearRecentSearches(): void {
+    this.recentSearches.set([]);
+    try { localStorage.removeItem(RECENT_SEARCHES_KEY); } catch {}
+  }
+
   toggleFollowCreator(creatorId: string): void {
     this.followedCreators.update(s => {
       const next = new Set(s);

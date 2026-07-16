@@ -3,6 +3,7 @@ import {
   HostListener, OnInit, OnDestroy, ElementRef, ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { VectorsService, TRENDING_TAGS, TRENDING_COLORS, SEASONAL_COLLECTIONS } from './vectors.service';
 import {
@@ -140,9 +141,14 @@ type HomepageSection = 'home' | 'browse';
   styleUrl: './vectors.component.scss',
 })
 export class VectorsComponent implements OnInit, OnDestroy {
-  readonly svc  = inject(VectorsService);
-  private router = inject(Router);
-  readonly auth  = inject(AuthService);
+  readonly svc       = inject(VectorsService);
+  private router     = inject(Router);
+  readonly auth      = inject(AuthService);
+  private sanitizer  = inject(DomSanitizer);
+
+  // ── Service proxies (avoids direct signal mutation from templates) ──────────
+  readonly collections    = this.svc.collections;
+  readonly recentSearches = this.svc.recentSearches;
 
   // ── View mode ─────────────────────────────────────────────────────────────
   readonly section = signal<HomepageSection>('home');
