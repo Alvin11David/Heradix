@@ -1263,6 +1263,10 @@ export class VectorsComponent implements OnInit, OnDestroy {
   onKey(e: KeyboardEvent): void {
     if (e.key === 'Escape') {
       if (this.zoomOpen())       { this.closeZoom(); return; }
+      if (this.aiGenOpen())      { this.closeAiGen(); return; }
+      if (this.creatorOpen())    { this.closeCreatorStudio(); return; }
+      if (this.collectionOpen()) { this.collectionOpen.set(false); return; }
+      if (this.reportOpen())     { this.reportOpen.set(false); return; }
       if (this.selectedAsset())  { this.closeDetail(); return; }
       if (this.sortOpen())       { this.sortOpen.set(false); return; }
     }

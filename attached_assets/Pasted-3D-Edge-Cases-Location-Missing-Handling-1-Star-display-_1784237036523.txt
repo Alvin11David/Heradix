@@ -1,0 +1,35 @@
+3D. Edge Cases
+#	Location	Missing Handling
+1	Star display (line 1088)	The class logic `n <= (hoverRating()
+2	Collection modal (line 1381)	Uses selectedAsset()!.id with non-null assertion. If selectedAsset() were null (shouldn't happen given *ngIf guard), it would throw a runtime error.
+3	Download quality selector	The downloadQuality signal is set but the downloadWithQuality() method ignores it. Different quality levels produce identical downloads.
+4. ACCESSIBILITY ISSUES
+4A. Focus Management
+#	Location	Issue
+1	All modals/dialogs (zoom, detail, AI gen, creator studio, collection, report)	Focus is NOT moved into the dialog on open and NOT returned to the triggering element on close. Only document.body.style.overflow is managed (line 272, 397, 400, 497).
+2	All modals/dialogs	No focus trapping — users can Tab outside the open dialog, breaking the modal pattern.
+3	ESC key not handled (line 638)	The onKey handler only covers zoom, detail panel, and sort dropdown. The AI gen modal, creator studio, collection modal, and report modal cannot be dismissed by pressing Escape.
+4B. ARIA Roles & Attributes Missing
+#	Location	Issue
+1	All dialogs (lines 990, 1009, 1372, 1403, 1427, 1645)	All have role="dialog" but none have aria-modal="true". Screen readers may not understand these are modal dialogs.
+2	Sort dropdown (line 51)	Has role="listbox" but items use role="option" without aria-selected.
+3	Detail tab panel (lines 1054, 1241, 1251, 1269)	No role="tabpanel" or aria-labelledby linking the tab button to the panel.
+4	AI modal tab panel (lines 1452, 1588, 1609)	Same issue — no role="tabpanel".
+5	Collab subtabs (lines 1273–1276)	No role="tab" or aria-selected on the subtab buttons.
+6	Filter group toggles (lines 605, 636, etc.)	No aria-expanded attribute — only the sidebar toggle (line 81) has it.
+7	Toast (line 631)	No role="alert" or aria-live="polite" — toast messages are invisible to screen readers.
+4C. Missing aria-hidden on Decorative SVGs
+#	Location	Issue
+1	Most inline SVG icons used purely for decoration (e.g., lines 22, 46–49, 64–71, 106, 109, 113, 153, 156, 177, 567, 582, 919–936, 961–963, etc.)	Only 5 aria-hidden="true" attributes exist in the entire template (lines 11, 14, 122, 552, 987). Hundreds of decorative SVG icons are exposed to screen readers as meaningless elements.
+4D. Missing/Insufficient Labels
+#	Location	Issue
+1	Creator search input (line 763)	Missing aria-label.
+2	Creator search icon (line 762)	No aria-hidden="true".
+3	AI prompt textarea (line 1456)	Missing aria-label.
+4	Comment textarea (lines 1210, 1328)	Missing aria-label.
+5	Color swatch filter buttons (lines 742–749)	Use [title] but no aria-label — title attributes are not reliably read by all screen readers.
+6	Hero color swatches (line 210)	Same issue — [attr.title] but no aria-label.
+7	Upload form (lines 1766–1820)	Labels exist but none have for attributes linking to input ids. Screen readers may not associate labels with their controls.
+8	Format download buttons (lines 1132–1139)	Just show the format name. No aria-label like "Download as SVG".
+9	Bulk action buttons (line 109, 113, 110, 106)	Labels like "Individual", "Clear" lack context via aria-label.
+10	Comment submit (line 1217)	Button text is "Post" — no aria-label for context.

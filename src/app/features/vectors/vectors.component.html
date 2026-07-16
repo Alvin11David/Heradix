@@ -54,6 +54,7 @@
             <li *ngFor="let s of sortOptions"
                 class="vec-sort-dropdown__item"
                 [class.vec-sort-dropdown__item--active]="s.key === svc.filters().sort"
+                [attr.aria-selected]="s.key === svc.filters().sort"
                 (click)="setSort(s.key)" role="option">
               {{ s.label }}
             </li>
@@ -104,17 +105,17 @@
   <!-- ══════════════════════════════════════════════════════════
        BULK DOWNLOAD BAR
   ══════════════════════════════════════════════════════════ -->
-  <div class="vec-bulk-bar" *ngIf="bulkMode() && bulkSelected().size > 0">
+  <div class="vec-bulk-bar" *ngIf="bulkMode() && bulkSelected().size > 0" role="toolbar" aria-label="Bulk actions">
     <span>{{ bulkSelected().size }} selected</span>
-    <button class="vec-btn vec-btn--orange" (click)="bulkDownloadZip()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    <button class="vec-btn vec-btn--orange" (click)="bulkDownloadZip()" [attr.aria-label]="'Download ' + bulkSelected().size + ' selected items as a single ZIP file'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Download ZIP ({{ bulkSelected().size }})
     </button>
-    <button class="vec-btn vec-btn--ghost" (click)="bulkDownload()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    <button class="vec-btn vec-btn--ghost" (click)="bulkDownload()" [attr.aria-label]="'Download ' + bulkSelected().size + ' selected items as individual files'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Individual
     </button>
-    <button class="vec-btn vec-btn--ghost" (click)="clearBulkSelected()">Clear</button>
+    <button class="vec-btn vec-btn--ghost" (click)="clearBulkSelected()" aria-label="Clear selection">Clear</button>
   </div>
 
 
@@ -216,8 +217,8 @@
         <button class="vec-home-section__more" (click)="section.set('browse')">Browse all</button>
       </div>
       <div class="vec-color-strip">
-        <button *ngFor="let c of trendingColors" class="vec-color-swatch" [style.background]="c.hex" [attr.title]="c.name" (click)="browseColor(c.hex)">
-          <span class="vec-color-swatch__label">{{ c.name }}</span>
+        <button *ngFor="let c of trendingColors" class="vec-color-swatch" [style.background]="c.hex" [attr.title]="c.name" [attr.aria-label]="c.name + ' color'" (click)="browseColor(c.hex)">
+          <span class="vec-color-swatch__label" aria-hidden="true">{{ c.name }}</span>
         </button>
       </div>
     </div>
@@ -613,7 +614,7 @@
 
       <!-- Category -->
       <div class="vec-filter-group">
-        <button class="vec-filter-group__head" (click)="toggleSection('category')">
+        <button class="vec-filter-group__head" (click)="toggleSection('category')" [attr.aria-expanded]="isSectionOpen('category')">
           Category
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('category')"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -644,7 +645,7 @@
 
       <!-- Format -->
       <div class="vec-filter-group">
-        <button class="vec-filter-group__head" (click)="toggleSection('format')">
+        <button class="vec-filter-group__head" (click)="toggleSection('format')" [attr.aria-expanded]="isSectionOpen('format')">
           File Format
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('format')"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -662,7 +663,7 @@
 
       <!-- Style -->
       <div class="vec-filter-group">
-        <button class="vec-filter-group__head" (click)="toggleSection('style')">
+        <button class="vec-filter-group__head" (click)="toggleSection('style')" [attr.aria-expanded]="isSectionOpen('style')">
           Style
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('style')"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -678,7 +679,7 @@
 
       <!-- License -->
       <div class="vec-filter-group">
-        <button class="vec-filter-group__head" (click)="toggleSection('license')">
+        <button class="vec-filter-group__head" (click)="toggleSection('license')" [attr.aria-expanded]="isSectionOpen('license')">
           License
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('license')"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -694,7 +695,7 @@
 
       <!-- Orientation -->
       <div class="vec-filter-group">
-        <button class="vec-filter-group__head" (click)="toggleSection('orientation')">
+        <button class="vec-filter-group__head" (click)="toggleSection('orientation')" [attr.aria-expanded]="isSectionOpen('orientation')">
           Orientation
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('orientation')"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -712,7 +713,7 @@
 
       <!-- Complexity -->
       <div class="vec-filter-group">
-        <button class="vec-filter-group__head" (click)="toggleSection('complexity')">
+        <button class="vec-filter-group__head" (click)="toggleSection('complexity')" [attr.aria-expanded]="isSectionOpen('complexity')">
           Complexity
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('complexity')"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -728,7 +729,7 @@
 
       <!-- Color Mode -->
       <div class="vec-filter-group">
-        <button class="vec-filter-group__head" (click)="toggleSection('colormode')">
+        <button class="vec-filter-group__head" (click)="toggleSection('colormode')" [attr.aria-expanded]="isSectionOpen('colormode')">
           Color Mode
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('colormode')"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -744,7 +745,7 @@
 
       <!-- Color -->
       <div class="vec-filter-group">
-        <button class="vec-filter-group__head" (click)="toggleSection('color')">
+        <button class="vec-filter-group__head" (click)="toggleSection('color')" [attr.aria-expanded]="isSectionOpen('color')">
           Color
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('color')"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -755,8 +756,10 @@
                     [class.vec-swatch-btn--active]="svc.filters().color === sw.hex"
                     [style.background]="sw.hex"
                     [attr.title]="sw.label"
+                    [attr.aria-label]="sw.label + ' color' + (svc.filters().color === sw.hex ? ' (active)' : '')"
+                    [attr.aria-pressed]="svc.filters().color === sw.hex"
                     (click)="svc.setFilter('color', svc.filters().color === sw.hex ? null : sw.hex)">
-              <svg *ngIf="svc.filters().color === sw.hex" width="12" height="12" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              <svg *ngIf="svc.filters().color === sw.hex" width="12" height="12" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
             </button>
           </div>
         </div>
@@ -764,14 +767,15 @@
 
       <!-- Creator -->
       <div class="vec-filter-group">
-        <button class="vec-filter-group__head" (click)="toggleSection('creator')">
+        <button class="vec-filter-group__head" (click)="toggleSection('creator')" [attr.aria-expanded]="isSectionOpen('creator')">
           Creator
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('creator')"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="vec-filter-group__body" *ngIf="isSectionOpen('creator')">
           <div class="vec-creator-search-wrap">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" class="vec-creator-search-input"
+                   aria-label="Search by creator"
                    placeholder="Search creator…"
                    [value]="creatorQuery()"
                    (input)="setCreatorQuery($any($event.target).value)" />
@@ -781,7 +785,7 @@
 
       <!-- Special filters -->
       <div class="vec-filter-group">
-        <button class="vec-filter-group__head" (click)="toggleSection('special')">
+        <button class="vec-filter-group__head" (click)="toggleSection('special')" [attr.aria-expanded]="isSectionOpen('special')">
           Special
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('special')"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -803,7 +807,7 @@
 
       <!-- Date added -->
       <div class="vec-filter-group">
-        <button class="vec-filter-group__head" (click)="toggleSection('date')">
+        <button class="vec-filter-group__head" (click)="toggleSection('date')" [attr.aria-expanded]="isSectionOpen('date')">
           Upload Date
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [class.rotated]="isSectionOpen('date')"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -1016,7 +1020,7 @@
   <div class="vec-overlay" *ngIf="selectedAsset()" (click)="closeDetail()" aria-hidden="true"></div>
 
   <!-- Zoom / Fullscreen Lightbox -->
-  <div class="vec-zoom-overlay" *ngIf="zoomOpen() && selectedAsset() as asset" (click)="closeZoom()" role="dialog" aria-label="Fullscreen preview">
+  <div class="vec-zoom-overlay" *ngIf="zoomOpen() && selectedAsset() as asset" (click)="closeZoom()" role="dialog" aria-modal="true" aria-label="Fullscreen preview">
     <button class="vec-zoom-overlay__close" (click)="closeZoom()" aria-label="Close fullscreen">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
@@ -1035,7 +1039,7 @@
     </button>
   </div>
 
-  <aside class="vec-detail" *ngIf="selectedAsset() as asset" role="dialog" [attr.aria-label]="asset.name">
+  <aside class="vec-detail" *ngIf="selectedAsset() as asset" role="dialog" aria-modal="true" [attr.aria-label]="asset.name">
 
     <div class="vec-detail__inner">
 
@@ -1069,18 +1073,18 @@
       </div>
 
       <!-- Tabs -->
-      <div class="vec-detail__tabs">
-        <button class="vec-detail__tab" [class.vec-detail__tab--active]="detailTab() === 'info'"    (click)="detailTab.set('info')">Info</button>
-        <button class="vec-detail__tab" [class.vec-detail__tab--active]="detailTab() === 'similar'" (click)="detailTab.set('similar')">Similar</button>
-        <button class="vec-detail__tab" [class.vec-detail__tab--active]="detailTab() === 'creator'" (click)="detailTab.set('creator')">Creator</button>
-        <button class="vec-detail__tab" [class.vec-detail__tab--active]="detailTab() === 'collab'"  (click)="detailTab.set('collab')">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <div class="vec-detail__tabs" role="tablist">
+        <button class="vec-detail__tab" role="tab" id="tab-info"    [class.vec-detail__tab--active]="detailTab() === 'info'"    [attr.aria-selected]="detailTab() === 'info'"    (click)="detailTab.set('info')">Info</button>
+        <button class="vec-detail__tab" role="tab" id="tab-similar" [class.vec-detail__tab--active]="detailTab() === 'similar'" [attr.aria-selected]="detailTab() === 'similar'" (click)="detailTab.set('similar')">Similar</button>
+        <button class="vec-detail__tab" role="tab" id="tab-creator" [class.vec-detail__tab--active]="detailTab() === 'creator'" [attr.aria-selected]="detailTab() === 'creator'" (click)="detailTab.set('creator')">Creator</button>
+        <button class="vec-detail__tab" role="tab" id="tab-collab"  [class.vec-detail__tab--active]="detailTab() === 'collab'"  [attr.aria-selected]="detailTab() === 'collab'"  (click)="detailTab.set('collab')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Collab
         </button>
       </div>
 
       <!-- TAB: Info -->
-      <div class="vec-detail__tab-content" *ngIf="detailTab() === 'info'">
+      <div class="vec-detail__tab-content" *ngIf="detailTab() === 'info'" role="tabpanel" id="panel-info" aria-labelledby="tab-info">
 
         <h2 class="vec-detail__name">{{ asset.name }}</h2>
         <p class="vec-detail__desc">{{ asset.description }}</p>
@@ -1114,7 +1118,7 @@
           <div class="vec-detail__stars">
             <button *ngFor="let n of starRange"
                     class="vec-star-btn"
-                    [class.vec-star-btn--filled]="n <= (hoverRating() || getUserRating(asset.id) || asset.rating)"
+                    [class.vec-star-btn--filled]="n <= getDisplayRating(asset)"
                     [class.vec-star-btn--user]="n <= getUserRating(asset.id)"
                     (mouseenter)="hoverRating.set(n)"
                     (mouseleave)="hoverRating.set(0)"
@@ -1158,9 +1162,10 @@
             <button *ngFor="let fmt of asset.formats"
                     class="vec-format-dl-btn"
                     [class.vec-format-dl-btn--locked]="asset.isPremium"
+                    [attr.aria-label]="(asset.isPremium ? 'Premium — ' : '') + 'Download ' + fmt.toUpperCase() + ' (' + getQualityLabel(downloadQuality()) + ')'"
                     (click)="downloadWithQuality(asset, fmt, downloadQuality())">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="!asset.isPremium"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="asset.isPremium"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" *ngIf="!asset.isPremium"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" *ngIf="asset.isPremium"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               {{ fmt.toUpperCase() }}
             </button>
           </div>
@@ -1234,6 +1239,7 @@
             <div class="vec-comment-input-wrap">
               <textarea
                 class="vec-comment-input"
+                aria-label="Add a comment"
                 placeholder="Add a comment…"
                 rows="2"
                 [value]="commentText()"
@@ -1242,6 +1248,7 @@
               ></textarea>
               <button class="vec-comment-submit vec-btn vec-btn--orange"
                       [disabled]="!commentText().trim()"
+                      aria-label="Post comment"
                       (click)="submitComment()">Post</button>
             </div>
           </div>
@@ -1268,7 +1275,7 @@
       </div>
 
       <!-- TAB: Similar -->
-      <div class="vec-detail__tab-content" *ngIf="detailTab() === 'similar'">
+      <div class="vec-detail__tab-content" *ngIf="detailTab() === 'similar'" role="tabpanel" id="panel-similar" aria-labelledby="tab-similar">
         <div class="vec-empty vec-empty--inline" *ngIf="similar().length === 0">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <p>No similar vectors found.</p>
@@ -1282,7 +1289,7 @@
       </div>
 
       <!-- TAB: Creator -->
-      <div class="vec-detail__tab-content" *ngIf="detailTab() === 'creator'">
+      <div class="vec-detail__tab-content" *ngIf="detailTab() === 'creator'" role="tabpanel" id="panel-creator" aria-labelledby="tab-creator">
         <div class="vec-detail__creator-profile">
           <img [src]="asset.creator.avatar" [alt]="asset.creator.name" class="vec-detail__creator-av" />
           <div>
@@ -1304,14 +1311,14 @@
       </div>
 
       <!-- TAB: Collaboration -->
-      <div class="vec-detail__tab-content" *ngIf="detailTab() === 'collab'">
+      <div class="vec-detail__tab-content" *ngIf="detailTab() === 'collab'" role="tabpanel" id="panel-collab" aria-labelledby="tab-collab">
 
         <!-- Sub-tabs -->
-        <div class="vec-collab__subtabs">
-          <button class="vec-collab__subtab" [class.vec-collab__subtab--active]="collabTab() === 'team'"     (click)="collabTab.set('team')">Team</button>
-          <button class="vec-collab__subtab" [class.vec-collab__subtab--active]="collabTab() === 'comments'" (click)="collabTab.set('comments')">Comments</button>
-          <button class="vec-collab__subtab" [class.vec-collab__subtab--active]="collabTab() === 'history'"  (click)="collabTab.set('history')">Activity</button>
-          <button class="vec-collab__subtab" [class.vec-collab__subtab--active]="collabTab() === 'versions'" (click)="collabTab.set('versions')">Versions</button>
+        <div class="vec-collab__subtabs" role="tablist">
+          <button class="vec-collab__subtab" role="tab" [class.vec-collab__subtab--active]="collabTab() === 'team'"     [attr.aria-selected]="collabTab() === 'team'"     (click)="collabTab.set('team')">Team</button>
+          <button class="vec-collab__subtab" role="tab" [class.vec-collab__subtab--active]="collabTab() === 'comments'" [attr.aria-selected]="collabTab() === 'comments'" (click)="collabTab.set('comments')">Comments</button>
+          <button class="vec-collab__subtab" role="tab" [class.vec-collab__subtab--active]="collabTab() === 'history'"  [attr.aria-selected]="collabTab() === 'history'"  (click)="collabTab.set('history')">Activity</button>
+          <button class="vec-collab__subtab" role="tab" [class.vec-collab__subtab--active]="collabTab() === 'versions'" [attr.aria-selected]="collabTab() === 'versions'" (click)="collabTab.set('versions')">Versions</button>
         </div>
 
         <!-- Team -->
@@ -1409,7 +1416,7 @@
        COLLECTION MODAL
   ══════════════════════════════════════════════════════════ -->
   <div class="vec-modal-overlay" *ngIf="collectionOpen()" (click)="collectionOpen.set(false)">
-    <div class="vec-modal" (click)="$event.stopPropagation()" role="dialog" aria-label="Save to collection">
+    <div class="vec-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Save to collection">
       <div class="vec-modal__header">
         <h3>Save to Collection</h3>
         <button (click)="collectionOpen.set(false)" aria-label="Close">×</button>
@@ -1418,7 +1425,7 @@
         <ng-container *ngIf="collections().length > 0; else noCollections">
           <button *ngFor="let col of collections()"
                   class="vec-modal__col-row"
-                  (click)="addToCollection(col.id, selectedAsset()!.id)">
+                  (click)="addToCollection(col.id, selectedAsset()?.id ?? '')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
             {{ col.name }}
             <span class="vec-modal__col-count">{{ col.assetIds.length }}</span>
@@ -1442,7 +1449,7 @@
        REPORT MODAL
   ══════════════════════════════════════════════════════════ -->
   <div class="vec-modal-overlay" *ngIf="reportOpen()" (click)="reportOpen.set(false)">
-    <div class="vec-modal" (click)="$event.stopPropagation()" role="dialog" aria-label="Report content">
+    <div class="vec-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Report content">
       <div class="vec-modal__header">
         <h3>Report Content</h3>
         <button (click)="reportOpen.set(false)" aria-label="Close">×</button>
@@ -1468,7 +1475,7 @@
      AI GENERATION MODAL
 ══════════════════════════════════════════════════════════ -->
 <div class="vec-modal-overlay vec-modal-overlay--full" *ngIf="aiGenOpen()" (click)="closeAiGen()">
-  <div class="vec-ai-modal" (click)="$event.stopPropagation()" role="dialog" aria-label="AI Vector Generator">
+  <div class="vec-ai-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="AI Vector Generator">
 
     <!-- Header -->
     <div class="vec-ai-modal__header">
@@ -1486,18 +1493,19 @@
     </div>
 
     <!-- Tabs -->
-    <div class="vec-ai-modal__tabs">
-      <button class="vec-ai-modal__tab" [class.vec-ai-modal__tab--active]="aiGenTab() === 'generate'" (click)="aiGenTab.set('generate')">Generate</button>
-      <button class="vec-ai-modal__tab" [class.vec-ai-modal__tab--active]="aiGenTab() === 'history'"  (click)="aiGenTab.set('history')">History</button>
-      <button class="vec-ai-modal__tab" [class.vec-ai-modal__tab--active]="aiGenTab() === 'settings'" (click)="aiGenTab.set('settings')">Settings</button>
+    <div class="vec-ai-modal__tabs" role="tablist">
+      <button class="vec-ai-modal__tab" role="tab" id="ai-tab-generate" [class.vec-ai-modal__tab--active]="aiGenTab() === 'generate'" [attr.aria-selected]="aiGenTab() === 'generate'" (click)="aiGenTab.set('generate')">Generate</button>
+      <button class="vec-ai-modal__tab" role="tab" id="ai-tab-history"  [class.vec-ai-modal__tab--active]="aiGenTab() === 'history'"  [attr.aria-selected]="aiGenTab() === 'history'"  (click)="aiGenTab.set('history')">History</button>
+      <button class="vec-ai-modal__tab" role="tab" id="ai-tab-settings" [class.vec-ai-modal__tab--active]="aiGenTab() === 'settings'" [attr.aria-selected]="aiGenTab() === 'settings'" (click)="aiGenTab.set('settings')">Settings</button>
     </div>
 
     <!-- Generate tab -->
-    <div class="vec-ai-modal__body" *ngIf="aiGenTab() === 'generate'">
+    <div class="vec-ai-modal__body" *ngIf="aiGenTab() === 'generate'" role="tabpanel" aria-labelledby="ai-tab-generate">
 
       <!-- Prompt input -->
       <div class="vec-ai-modal__prompt-wrap" [class.vec-ai-modal__prompt-wrap--active]="aiPrompt().length > 0">
         <textarea class="vec-ai-modal__prompt"
+                  aria-label="Describe the vector to generate"
                   placeholder="Describe the vector you want to generate…&#10;e.g. 'Flat icons for a fitness mobile app with orange accents'"
                   rows="3"
                   [value]="aiPrompt()"
@@ -1629,7 +1637,7 @@
     </div>
 
     <!-- History tab -->
-    <div class="vec-ai-modal__body" *ngIf="aiGenTab() === 'history'">
+    <div class="vec-ai-modal__body" *ngIf="aiGenTab() === 'history'" role="tabpanel" aria-labelledby="ai-tab-history">
       <div class="vec-ai-modal__history-empty" *ngIf="aiGenResults().length === 0">
         <div class="vec-empty__icon">🎨</div>
         <p>No generations yet. Create your first vector!</p>
@@ -1650,7 +1658,7 @@
     </div>
 
     <!-- Settings tab -->
-    <div class="vec-ai-modal__body" *ngIf="aiGenTab() === 'settings'">
+    <div class="vec-ai-modal__body" *ngIf="aiGenTab() === 'settings'" role="tabpanel" aria-labelledby="ai-tab-settings">
       <div class="vec-ai-modal__settings">
         <div class="vec-ai-modal__setting-row">
           <span>Default style</span>
@@ -1688,7 +1696,7 @@
      CREATOR STUDIO MODAL
 ══════════════════════════════════════════════════════════ -->
 <div class="vec-modal-overlay vec-modal-overlay--full" *ngIf="creatorOpen()" (click)="closeCreatorStudio()">
-  <div class="vec-creator-modal" (click)="$event.stopPropagation()" role="dialog" aria-label="Creator Studio">
+  <div class="vec-creator-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Creator Studio">
 
     <!-- Sidebar nav -->
     <nav class="vec-creator-modal__nav">
@@ -1810,20 +1818,20 @@
           </div>
           <div class="vec-upload-form__fields">
             <div class="vec-upload-form__row">
-              <label>Name *</label>
-              <input type="text" class="vec-creator-modal__input" placeholder="e.g. Business Icons Pack"
+              <label for="upload-name">Name *</label>
+              <input id="upload-name" type="text" class="vec-creator-modal__input" placeholder="e.g. Business Icons Pack"
                      [value]="uploadForm().name"
                      (input)="updateUploadForm('name', $any($event.target).value)" />
             </div>
             <div class="vec-upload-form__row">
-              <label>Description</label>
-              <textarea class="vec-creator-modal__textarea" rows="3" placeholder="Describe your vector…"
+              <label for="upload-desc">Description</label>
+              <textarea id="upload-desc" class="vec-creator-modal__textarea" rows="3" placeholder="Describe your vector…"
                         [value]="uploadForm().description"
                         (input)="updateUploadForm('description', $any($event.target).value)"></textarea>
             </div>
             <div class="vec-upload-form__row">
-              <label>Category *</label>
-              <select class="vec-creator-modal__select" (change)="updateUploadForm('category', $any($event.target).value)">
+              <label for="upload-category">Category *</label>
+              <select id="upload-category" class="vec-creator-modal__select" (change)="updateUploadForm('category', $any($event.target).value)">
                 <option value="">Select category…</option>
                 <option *ngFor="let cat of categories()" [value]="cat.id">{{ cat.label }}</option>
               </select>
@@ -1992,6 +2000,17 @@
 
     </div>
   </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TOAST NOTIFICATION
+══════════════════════════════════════════════════════════ -->
+<div class="vec-toast"
+     [class.vec-toast--visible]="toastShow()"
+     role="alert"
+     aria-live="polite"
+     aria-atomic="true">
+  {{ toastMsg() }}
 </div>
 
 <!-- ══════════════════════════════════════════════════════════

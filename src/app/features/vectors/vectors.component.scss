@@ -3333,3 +3333,28 @@
   .vec-creators-row { grid-template-columns: 1fr; }
   .vec-feat-collections { grid-template-columns: repeat(2, 1fr); }
 }
+
+// ── Toast Notification ───────────────────────────────────────────────────────
+.vec-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.35);
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .22s ease, transform .22s ease;
+  white-space: nowrap;
+
+  &--visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
