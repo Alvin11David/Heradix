@@ -85,6 +85,18 @@
           Filters
           <span class="vec-filter-badge" *ngIf="activeFilterCount() > 0">{{ activeFilterCount() }}</span>
         </button>
+
+        <!-- AI Generate button -->
+        <button class="vec-ai-gen-btn" (click)="openAiGen()" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"/></svg>
+          AI Generate
+        </button>
+
+        <!-- Creator Studio button -->
+        <button class="vec-creator-studio-btn" (click)="openCreatorStudio()" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Upload
+        </button>
       </div>
     </div>
   </div>
@@ -538,6 +550,44 @@
       </div>
       <div class="vec-tag-cloud">
         <button *ngFor="let tag of trendingTags" class="vec-tag-cloud__tag" (click)="browseTag(tag)">{{ tag }}</button>
+      </div>
+    </div>
+
+    <!-- AI Studio CTA -->
+    <div class="vec-ai-studio-banner">
+      <div class="vec-ai-studio-banner__bg" aria-hidden="true">
+        <div class="vec-ai-studio-banner__orb vec-ai-studio-banner__orb--1"></div>
+        <div class="vec-ai-studio-banner__orb vec-ai-studio-banner__orb--2"></div>
+      </div>
+      <div class="vec-ai-studio-banner__content">
+        <div class="vec-ai-studio-banner__badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"/></svg>
+          Powered by AMARAPIX AI
+        </div>
+        <h2 class="vec-ai-studio-banner__title">Generate any vector with AI</h2>
+        <p class="vec-ai-studio-banner__sub">Describe what you need and get 4 unique vector variations in seconds. SVG, fully editable, instantly usable in the editor.</p>
+        <div class="vec-ai-studio-banner__examples">
+          <button *ngFor="let s of aiPromptSuggestions.slice(0,4)" class="vec-ai-studio-banner__chip" (click)="aiPrompt.set(s); openAiGen()">{{ s }}</button>
+        </div>
+        <button class="vec-ai-studio-banner__btn" (click)="openAiGen()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"/></svg>
+          Open AI Studio
+        </button>
+      </div>
+    </div>
+
+    <!-- Creator CTA -->
+    <div class="vec-creator-cta">
+      <div class="vec-creator-cta__text">
+        <h3>Are you a designer?</h3>
+        <p>Join 98K+ creators — upload your vectors, reach millions, and earn royalties from every download.</p>
+      </div>
+      <div class="vec-creator-cta__actions">
+        <button class="vec-btn vec-btn--orange" (click)="openCreatorStudio()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Start Uploading
+        </button>
+        <button class="vec-btn vec-btn--ghost" (click)="openCreatorStudio(); setCreatorView('earnings')">View Earnings</button>
       </div>
     </div>
 
@@ -1004,6 +1054,10 @@
         <button class="vec-detail__tab" [class.vec-detail__tab--active]="detailTab() === 'info'"    (click)="detailTab.set('info')">Info</button>
         <button class="vec-detail__tab" [class.vec-detail__tab--active]="detailTab() === 'similar'" (click)="detailTab.set('similar')">Similar</button>
         <button class="vec-detail__tab" [class.vec-detail__tab--active]="detailTab() === 'creator'" (click)="detailTab.set('creator')">Creator</button>
+        <button class="vec-detail__tab" [class.vec-detail__tab--active]="detailTab() === 'collab'"  (click)="detailTab.set('collab')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Collab
+        </button>
       </div>
 
       <!-- TAB: Info -->
@@ -1060,11 +1114,35 @@
         <div class="vec-detail__download-section">
           <h3 class="vec-detail__section-label">Download</h3>
 
+          <!-- Download quality selector -->
+          <div class="vec-dl-quality-wrap">
+            <button class="vec-dl-quality-btn" (click)="downloadQualityOpen.set(!downloadQualityOpen())">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              {{ (downloadQualityOptions | slice:0:1)[0]?.label || 'Original' }}
+              <ng-container *ngFor="let q of downloadQualityOptions">
+                <ng-container *ngIf="q.key === downloadQuality()">{{ q.label }}</ng-container>
+              </ng-container>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="vec-dl-quality-menu" *ngIf="downloadQualityOpen()">
+              <button *ngFor="let q of downloadQualityOptions"
+                      class="vec-dl-quality-item"
+                      [class.vec-dl-quality-item--active]="downloadQuality() === q.key"
+                      (click)="downloadQuality.set(q.key); downloadQualityOpen.set(false)">
+                <div class="vec-dl-quality-item__main">
+                  <span class="vec-dl-quality-item__label">{{ q.label }}</span>
+                  <svg *ngIf="downloadQuality() === q.key" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f5820a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="vec-dl-quality-item__desc">{{ q.desc }}</span>
+              </button>
+            </div>
+          </div>
+
           <div class="vec-detail__formats">
             <button *ngFor="let fmt of asset.formats"
                     class="vec-format-dl-btn"
                     [class.vec-format-dl-btn--locked]="asset.isPremium"
-                    (click)="downloadAsset(asset, fmt)">
+                    (click)="downloadWithQuality(asset, fmt, downloadQuality())">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="!asset.isPremium"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="asset.isPremium"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               {{ fmt.toUpperCase() }}
@@ -1197,6 +1275,105 @@
         </div>
       </div>
 
+      <!-- TAB: Collaboration -->
+      <div class="vec-detail__tab-content" *ngIf="detailTab() === 'collab'">
+
+        <!-- Sub-tabs -->
+        <div class="vec-collab__subtabs">
+          <button class="vec-collab__subtab" [class.vec-collab__subtab--active]="collabTab() === 'team'"     (click)="collabTab.set('team')">Team</button>
+          <button class="vec-collab__subtab" [class.vec-collab__subtab--active]="collabTab() === 'comments'" (click)="collabTab.set('comments')">Comments</button>
+          <button class="vec-collab__subtab" [class.vec-collab__subtab--active]="collabTab() === 'history'"  (click)="collabTab.set('history')">Activity</button>
+          <button class="vec-collab__subtab" [class.vec-collab__subtab--active]="collabTab() === 'versions'" (click)="collabTab.set('versions')">Versions</button>
+        </div>
+
+        <!-- Team -->
+        <div *ngIf="collabTab() === 'team'">
+          <div class="vec-collab__members">
+            <div *ngFor="let m of mockCollabMembers()" class="vec-collab__member">
+              <div class="vec-collab__member-av-wrap" [style.border-color]="m.color">
+                <img [src]="m.avatar" [alt]="m.name" class="vec-collab__member-av" />
+              </div>
+              <div class="vec-collab__member-info">
+                <span class="vec-collab__member-name">{{ m.name }}</span>
+                <span class="vec-collab__member-role vec-collab__member-role--{{ m.role }}">{{ m.role }}</span>
+              </div>
+              <button *ngIf="m.role !== 'owner'" class="vec-collab__remove-btn" (click)="showToast('Member removed')" aria-label="Remove">×</button>
+            </div>
+          </div>
+          <div class="vec-collab__invite-row">
+            <input class="vec-collab__invite-input" type="email" placeholder="Invite by email…"
+                   [value]="collabInvite()"
+                   (input)="collabInvite.set($any($event.target).value)"
+                   (keydown.enter)="inviteCollaborator()" />
+            <button class="vec-btn vec-btn--orange" (click)="inviteCollaborator()">Invite</button>
+          </div>
+          <div class="vec-collab__link-row">
+            <span class="vec-collab__link-label">Share link</span>
+            <button class="vec-collab__link-btn" (click)="copyLinkFor(selectedAsset()!)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              Copy link
+            </button>
+          </div>
+        </div>
+
+        <!-- Comments -->
+        <div *ngIf="collabTab() === 'comments'">
+          <div class="vec-collab__comments-list">
+            <div *ngFor="let c of mockCollabComments(); trackBy: trackByIdx" class="vec-collab__comment" [class.vec-collab__comment--resolved]="c.resolved">
+              <img [src]="c.avatar" [alt]="c.user" class="vec-comment-avatar" />
+              <div class="vec-collab__comment-body">
+                <div class="vec-comment-meta">
+                  <strong>{{ c.user }}</strong>
+                  <span class="vec-comment-time">{{ c.timestamp }}</span>
+                  <span class="vec-collab__resolved-badge" *ngIf="c.resolved">Resolved</span>
+                </div>
+                <p class="vec-comment-text">{{ c.text }}</p>
+                <button *ngIf="!c.resolved" class="vec-collab__resolve-btn" (click)="resolveCollabComment(c.id)">✓ Resolve</button>
+              </div>
+            </div>
+          </div>
+          <div class="vec-comment-input-row">
+            <img src="https://i.pravatar.cc/32?img=20" alt="You" class="vec-comment-avatar" />
+            <div class="vec-comment-input-wrap">
+              <textarea class="vec-comment-input" placeholder="Add a collaboration comment…" rows="2"
+                        [value]="collabComment()"
+                        (input)="collabComment.set($any($event.target).value)"
+                        (keydown.enter)="$event.preventDefault(); submitCollabComment()"></textarea>
+              <button class="vec-comment-submit vec-btn vec-btn--orange" [disabled]="!collabComment().trim()" (click)="submitCollabComment()">Send</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity history -->
+        <div *ngIf="collabTab() === 'history'">
+          <div class="vec-collab__history">
+            <div *ngFor="let h of mockCollabHistory(); trackBy: trackByIdx" class="vec-collab__history-item">
+              <img [src]="h.avatar" [alt]="h.user" class="vec-comment-avatar" />
+              <div>
+                <span class="vec-collab__history-action"><strong>{{ h.user }}</strong> {{ h.action }}</span>
+                <span class="vec-comment-time">{{ h.timestamp }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Versions -->
+        <div *ngIf="collabTab() === 'versions'">
+          <div class="vec-collab__versions">
+            <div *ngFor="let v of mockVersions; trackBy: trackByIdx" class="vec-collab__version" [class.vec-collab__version--current]="v.isCurrent">
+              <div class="vec-collab__version-dot"></div>
+              <div class="vec-collab__version-info">
+                <span class="vec-collab__version-label">{{ v.label }}</span>
+                <span class="vec-collab__version-meta">{{ v.user }} · {{ v.timestamp }}</span>
+              </div>
+              <button *ngIf="!v.isCurrent" class="vec-collab__restore-btn" (click)="restoreVersion(v.id)">Restore</button>
+              <span *ngIf="v.isCurrent" class="vec-collab__current-badge">Current</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   </aside>
 
@@ -1257,6 +1434,526 @@
     </div>
   </div>
 
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     AI GENERATION MODAL
+══════════════════════════════════════════════════════════ -->
+<div class="vec-modal-overlay vec-modal-overlay--full" *ngIf="aiGenOpen()" (click)="closeAiGen()">
+  <div class="vec-ai-modal" (click)="$event.stopPropagation()" role="dialog" aria-label="AI Vector Generator">
+
+    <!-- Header -->
+    <div class="vec-ai-modal__header">
+      <div class="vec-ai-modal__title-row">
+        <div class="vec-ai-modal__badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"/></svg>
+          AMARAPIX AI Studio
+        </div>
+        <h2 class="vec-ai-modal__title">Generate SVG Vectors with AI</h2>
+        <p class="vec-ai-modal__sub">Describe what you need — get 4 unique, fully editable vector variations</p>
+      </div>
+      <button class="vec-detail__close" (click)="closeAiGen()" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="vec-ai-modal__tabs">
+      <button class="vec-ai-modal__tab" [class.vec-ai-modal__tab--active]="aiGenTab() === 'generate'" (click)="aiGenTab.set('generate')">Generate</button>
+      <button class="vec-ai-modal__tab" [class.vec-ai-modal__tab--active]="aiGenTab() === 'history'"  (click)="aiGenTab.set('history')">History</button>
+      <button class="vec-ai-modal__tab" [class.vec-ai-modal__tab--active]="aiGenTab() === 'settings'" (click)="aiGenTab.set('settings')">Settings</button>
+    </div>
+
+    <!-- Generate tab -->
+    <div class="vec-ai-modal__body" *ngIf="aiGenTab() === 'generate'">
+
+      <!-- Prompt input -->
+      <div class="vec-ai-modal__prompt-wrap" [class.vec-ai-modal__prompt-wrap--active]="aiPrompt().length > 0">
+        <textarea class="vec-ai-modal__prompt"
+                  placeholder="Describe the vector you want to generate…&#10;e.g. 'Flat icons for a fitness mobile app with orange accents'"
+                  rows="3"
+                  [value]="aiPrompt()"
+                  (input)="aiPrompt.set($any($event.target).value)"></textarea>
+        <div class="vec-ai-modal__prompt-meta">
+          <span class="vec-ai-modal__char-count">{{ aiPrompt().length }}/500</span>
+          <button class="vec-ai-modal__clear-btn" *ngIf="aiPrompt()" (click)="aiPrompt.set('')">Clear</button>
+        </div>
+      </div>
+
+      <!-- Suggestions -->
+      <div class="vec-ai-modal__suggestions">
+        <span class="vec-ai-modal__suggest-label">Try:</span>
+        <button *ngFor="let s of aiPromptSuggestions.slice(0,4)" class="vec-ai-modal__suggest-chip" (click)="setAiPromptSuggestion(s)">{{ s }}</button>
+      </div>
+
+      <!-- Controls row -->
+      <div class="vec-ai-modal__controls">
+
+        <!-- Style -->
+        <div class="vec-ai-modal__control-group">
+          <label class="vec-ai-modal__control-label">Style</label>
+          <div class="vec-ai-modal__style-grid">
+            <button *ngFor="let s of aiStyleOptions"
+                    class="vec-ai-modal__style-btn"
+                    [class.vec-ai-modal__style-btn--active]="aiGenStyle() === s.key"
+                    (click)="aiGenStyle.set(s.key)">
+              <span class="vec-ai-modal__style-icon">{{ s.icon }}</span>
+              <span>{{ s.label }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Aspect ratio -->
+        <div class="vec-ai-modal__control-group">
+          <label class="vec-ai-modal__control-label">Aspect Ratio</label>
+          <div class="vec-ai-modal__aspect-row">
+            <button *ngFor="let a of [
+              { key: 'landscape', label: 'Landscape', icon: '⬛' },
+              { key: 'portrait',  label: 'Portrait',  icon: '▬' },
+              { key: 'square',    label: 'Square',    icon: '■' }
+            ]"
+                class="vec-ai-modal__aspect-btn"
+                [class.vec-ai-modal__aspect-btn--active]="aiGenAspect() === a.key"
+                (click)="aiGenAspect.set($any(a.key))">
+              {{ a.icon }} {{ a.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Model -->
+        <div class="vec-ai-modal__control-group">
+          <label class="vec-ai-modal__control-label">Model</label>
+          <div class="vec-ai-modal__model-row">
+            <button *ngFor="let m of [
+              { key: 'fast',     label: '⚡ Fast',    desc: '~3s' },
+              { key: 'quality',  label: '✨ Quality',  desc: '~8s' },
+              { key: 'creative', label: '🎨 Creative', desc: '~12s' }
+            ]"
+                class="vec-ai-modal__model-btn"
+                [class.vec-ai-modal__model-btn--active]="aiModel() === m.key"
+                (click)="aiModel.set($any(m.key))">
+              <span>{{ m.label }}</span>
+              <small>{{ m.desc }}</small>
+            </button>
+          </div>
+        </div>
+
+        <!-- Color theme -->
+        <div class="vec-ai-modal__control-group">
+          <label class="vec-ai-modal__control-label">Color Theme</label>
+          <div class="vec-ai-modal__color-row">
+            <input type="color" class="vec-ai-modal__color-picker"
+                   [value]="aiColorTheme()"
+                   (input)="aiColorTheme.set($any($event.target).value)" />
+            <span class="vec-ai-modal__color-val">{{ aiColorTheme() }}</span>
+            <button class="vec-ai-modal__color-reset" *ngIf="aiColorTheme() !== '#3B82F6'" (click)="aiColorTheme.set('#3B82F6')">Reset</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Generate button -->
+      <button class="vec-ai-modal__gen-btn" (click)="generateAiVector()" [disabled]="!aiPrompt().trim() || aiGenerating()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" *ngIf="!aiGenerating()"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"/></svg>
+        <div class="vec-ai-modal__spinner" *ngIf="aiGenerating()"></div>
+        {{ aiGenerating() ? 'Generating vectors…' : 'Generate 4 Variations' }}
+      </button>
+
+      <!-- Results -->
+      <div class="vec-ai-modal__results" *ngIf="aiGenResults().length > 0 && !aiGenerating()">
+        <div class="vec-ai-modal__results-header">
+          <h3>Generated Variations</h3>
+          <span class="vec-ai-modal__results-prompt">"{{ aiGenResults()[0].prompt }}"</span>
+        </div>
+        <div class="vec-ai-modal__results-grid">
+          <div *ngFor="let v of aiGenResults(); let i = index"
+               class="vec-ai-modal__result-card"
+               [class.vec-ai-modal__result-card--selected]="aiSelectedResult()?.id === v.id"
+               (click)="selectAiResult(v)">
+            <div class="vec-ai-modal__result-preview" [innerHTML]="v.svgContent"></div>
+            <div class="vec-ai-modal__result-footer">
+              <span class="vec-ai-modal__result-num">Variation {{ i + 1 }}</span>
+              <div class="vec-ai-modal__result-colors">
+                <span *ngFor="let c of v.colors" class="vec-ai-modal__result-dot" [style.background]="c"></span>
+              </div>
+            </div>
+            <div class="vec-ai-modal__result-actions" *ngIf="aiSelectedResult()?.id === v.id">
+              <button class="vec-btn vec-btn--orange" (click)="openAiResultInEditor(v); $event.stopPropagation()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </button>
+              <button class="vec-btn vec-btn--ghost" (click)="downloadAiVector(v); $event.stopPropagation()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                SVG
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generating placeholder -->
+      <div class="vec-ai-modal__generating" *ngIf="aiGenerating()">
+        <div class="vec-ai-modal__gen-orb"></div>
+        <p>AI is generating your vectors…</p>
+        <small>Analyzing prompt · Building shapes · Applying style · Optimizing SVG</small>
+      </div>
+
+    </div>
+
+    <!-- History tab -->
+    <div class="vec-ai-modal__body" *ngIf="aiGenTab() === 'history'">
+      <div class="vec-ai-modal__history-empty" *ngIf="aiGenResults().length === 0">
+        <div class="vec-empty__icon">🎨</div>
+        <p>No generations yet. Create your first vector!</p>
+        <button class="vec-btn vec-btn--orange" (click)="aiGenTab.set('generate')">Start Generating</button>
+      </div>
+      <div class="vec-ai-modal__history-list" *ngIf="aiGenResults().length > 0">
+        <div *ngFor="let v of aiGenResults(); trackBy: trackByIdx" class="vec-ai-modal__history-item">
+          <div class="vec-ai-modal__history-preview" [innerHTML]="v.svgContent"></div>
+          <div class="vec-ai-modal__history-info">
+            <p class="vec-ai-modal__history-prompt">"{{ v.prompt }}"</p>
+            <span class="vec-ai-modal__history-meta">{{ v.style | titlecase }} · {{ v.aspect }}</span>
+          </div>
+          <div class="vec-ai-modal__history-actions">
+            <button class="vec-btn vec-btn--ghost" (click)="downloadAiVector(v)">Download</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings tab -->
+    <div class="vec-ai-modal__body" *ngIf="aiGenTab() === 'settings'">
+      <div class="vec-ai-modal__settings">
+        <div class="vec-ai-modal__setting-row">
+          <span>Default style</span>
+          <select class="vec-ai-modal__select" (change)="aiGenStyle.set($any($event.target).value)">
+            <option *ngFor="let s of aiStyleOptions" [value]="s.key" [selected]="aiGenStyle() === s.key">{{ s.label }}</option>
+          </select>
+        </div>
+        <div class="vec-ai-modal__setting-row">
+          <span>Default aspect ratio</span>
+          <select class="vec-ai-modal__select" (change)="aiGenAspect.set($any($event.target).value)">
+            <option value="landscape">Landscape</option>
+            <option value="portrait">Portrait</option>
+            <option value="square">Square</option>
+          </select>
+        </div>
+        <div class="vec-ai-modal__setting-row">
+          <span>AI Model</span>
+          <select class="vec-ai-modal__select" (change)="aiModel.set($any($event.target).value)">
+            <option value="fast">Fast (~3s)</option>
+            <option value="quality">Quality (~8s)</option>
+            <option value="creative">Creative (~12s)</option>
+          </select>
+        </div>
+        <div class="vec-ai-modal__setting-info">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          AI generation uses AMARAPIX AI Credits. Premium users get unlimited generations.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     CREATOR STUDIO MODAL
+══════════════════════════════════════════════════════════ -->
+<div class="vec-modal-overlay vec-modal-overlay--full" *ngIf="creatorOpen()" (click)="closeCreatorStudio()">
+  <div class="vec-creator-modal" (click)="$event.stopPropagation()" role="dialog" aria-label="Creator Studio">
+
+    <!-- Sidebar nav -->
+    <nav class="vec-creator-modal__nav">
+      <div class="vec-creator-modal__nav-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f5820a" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        <span>Creator Studio</span>
+      </div>
+      <button class="vec-creator-modal__nav-btn" [class.vec-creator-modal__nav-btn--active]="creatorView() === 'portfolio'" (click)="setCreatorView('portfolio')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Portfolio
+      </button>
+      <button class="vec-creator-modal__nav-btn" [class.vec-creator-modal__nav-btn--active]="creatorView() === 'upload'" (click)="setCreatorView('upload')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload Asset
+      </button>
+      <button class="vec-creator-modal__nav-btn" [class.vec-creator-modal__nav-btn--active]="creatorView() === 'analytics'" (click)="setCreatorView('analytics')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+      </button>
+      <button class="vec-creator-modal__nav-btn" [class.vec-creator-modal__nav-btn--active]="creatorView() === 'earnings'" (click)="setCreatorView('earnings')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Earnings
+      </button>
+      <button class="vec-creator-modal__nav-btn" [class.vec-creator-modal__nav-btn--active]="creatorView() === 'settings'" (click)="setCreatorView('settings')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+      <button class="vec-creator-modal__close-btn" (click)="closeCreatorStudio()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Close
+      </button>
+    </nav>
+
+    <!-- Content area -->
+    <div class="vec-creator-modal__content">
+
+      <!-- Portfolio view -->
+      <div *ngIf="creatorView() === 'portfolio'">
+        <div class="vec-creator-modal__section-header">
+          <h2>My Portfolio</h2>
+          <button class="vec-btn vec-btn--orange" (click)="setCreatorView('upload')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Upload New
+          </button>
+        </div>
+        <div class="vec-creator-modal__stats-row">
+          <div class="vec-creator-modal__stat"><strong>{{ myUploads().length }}</strong><span>Uploads</span></div>
+          <div class="vec-creator-modal__stat"><strong>0</strong><span>Downloads</span></div>
+          <div class="vec-creator-modal__stat"><strong>0</strong><span>Followers</span></div>
+          <div class="vec-creator-modal__stat"><strong>${{ totalEarnings().toFixed(2) }}</strong><span>Earned</span></div>
+        </div>
+        <div class="vec-creator-modal__uploads-empty" *ngIf="myUploads().length === 0">
+          <div class="vec-empty__icon">📁</div>
+          <p>No uploads yet. Start sharing your work!</p>
+          <button class="vec-btn vec-btn--orange" (click)="setCreatorView('upload')">Upload Your First Asset</button>
+        </div>
+        <div class="vec-creator-modal__uploads-grid" *ngIf="myUploads().length > 0">
+          <div *ngFor="let a of myUploads(); trackBy: trackById" class="vec-creator-modal__upload-card">
+            <div class="vec-creator-modal__upload-img-wrap">
+              <img [src]="a.previewUrl" [alt]="a.name" class="vec-creator-modal__upload-img" />
+              <div class="vec-creator-modal__upload-overlay">
+                <span class="vec-badge vec-badge--new">Under Review</span>
+              </div>
+            </div>
+            <div class="vec-creator-modal__upload-body">
+              <p class="vec-creator-modal__upload-name">{{ a.name }}</p>
+              <div class="vec-creator-modal__upload-meta">
+                <span class="vec-badge" [class.vec-badge--premium]="a.isPremium" [class.vec-badge--free]="!a.isPremium">{{ a.isPremium ? 'PRO' : 'FREE' }}</span>
+                <span>{{ a.formats.join(' · ').toUpperCase() }}</span>
+              </div>
+              <div class="vec-creator-modal__upload-actions">
+                <button class="vec-card__quick" (click)="openInEditor(a)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="vec-card__quick" (click)="deleteMyUpload(a.id)" style="color:#ef4444">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload view -->
+      <div *ngIf="creatorView() === 'upload'">
+        <div class="vec-creator-modal__section-header">
+          <h2>Upload Asset</h2>
+          <div class="vec-upload-steps">
+            <span class="vec-upload-step" [class.vec-upload-step--active]="uploadStep() >= 1" [class.vec-upload-step--done]="uploadStep() > 1">1 File</span>
+            <span class="vec-upload-step__sep"></span>
+            <span class="vec-upload-step" [class.vec-upload-step--active]="uploadStep() >= 2" [class.vec-upload-step--done]="uploadStep() > 2">2 Details</span>
+            <span class="vec-upload-step__sep"></span>
+            <span class="vec-upload-step" [class.vec-upload-step--active]="uploadStep() >= 3">3 Done</span>
+          </div>
+        </div>
+
+        <!-- Step 1: File upload -->
+        <div *ngIf="uploadStep() === 1">
+          <div class="vec-upload-dropzone"
+               [class.vec-upload-dropzone--over]="uploadDragOver()"
+               (dragover)="$event.preventDefault(); uploadDragOver.set(true)"
+               (dragleave)="uploadDragOver.set(false)"
+               (drop)="onUploadDrop($event)">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <p>Drag &amp; drop your vector file here</p>
+            <small>Supports SVG, EPS, AI, PDF, CDR, DXF, PNG</small>
+            <label class="vec-btn vec-btn--orange" style="cursor:pointer;margin-top:12px">
+              Browse Files
+              <input type="file" style="display:none" accept=".svg,.eps,.ai,.pdf,.cdr,.dxf,.png" (change)="onUploadFilePick($event)" />
+            </label>
+          </div>
+        </div>
+
+        <!-- Step 2: Details -->
+        <div *ngIf="uploadStep() === 2" class="vec-upload-form">
+          <div class="vec-upload-form__preview-wrap" *ngIf="uploadPreview()">
+            <img [src]="uploadPreview()" alt="Preview" class="vec-upload-form__preview" />
+            <span class="vec-upload-form__file-name">{{ uploadForm().fileName }}</span>
+          </div>
+          <div class="vec-upload-form__fields">
+            <div class="vec-upload-form__row">
+              <label>Name *</label>
+              <input type="text" class="vec-creator-modal__input" placeholder="e.g. Business Icons Pack"
+                     [value]="uploadForm().name"
+                     (input)="updateUploadForm('name', $any($event.target).value)" />
+            </div>
+            <div class="vec-upload-form__row">
+              <label>Description</label>
+              <textarea class="vec-creator-modal__textarea" rows="3" placeholder="Describe your vector…"
+                        [value]="uploadForm().description"
+                        (input)="updateUploadForm('description', $any($event.target).value)"></textarea>
+            </div>
+            <div class="vec-upload-form__row">
+              <label>Category *</label>
+              <select class="vec-creator-modal__select" (change)="updateUploadForm('category', $any($event.target).value)">
+                <option value="">Select category…</option>
+                <option *ngFor="let cat of categories()" [value]="cat.id">{{ cat.label }}</option>
+              </select>
+            </div>
+            <div class="vec-upload-form__row">
+              <label>Style</label>
+              <select class="vec-creator-modal__select" (change)="updateUploadForm('style', $any($event.target).value)">
+                <option *ngFor="let s of styleOptions" [value]="s.key">{{ s.label }}</option>
+              </select>
+            </div>
+            <div class="vec-upload-form__row">
+              <label>License</label>
+              <div class="vec-upload-form__license-row">
+                <button *ngFor="let l of licenseOptions"
+                        class="vec-filter-pill"
+                        [class.vec-filter-pill--active]="uploadForm().license === l.key"
+                        (click)="updateUploadForm('license', l.key)">
+                  {{ l.label }}
+                </button>
+              </div>
+            </div>
+            <div class="vec-upload-form__row">
+              <label>Tags <small>(comma-separated)</small></label>
+              <input type="text" class="vec-creator-modal__input" placeholder="e.g. business, icons, flat, minimal"
+                     [value]="uploadForm().tags"
+                     (input)="updateUploadForm('tags', $any($event.target).value)" />
+            </div>
+            <div class="vec-upload-form__row">
+              <label class="vec-check-row">
+                <input type="checkbox" [checked]="uploadForm().isPremium" (change)="updateUploadForm('isPremium', $any($event.target).checked)" />
+                <span>Premium asset (requires subscription to download)</span>
+              </label>
+            </div>
+            <ng-container *ngIf="uploadForm().isPremium">
+              <div class="vec-upload-form__row">
+                <label>Price (USD)</label>
+                <input type="number" class="vec-creator-modal__input" min="1" max="500" step="1" placeholder="e.g. 12"
+                       [value]="uploadForm().price"
+                       (input)="updateUploadForm('price', +$any($event.target).value)" />
+              </div>
+            </ng-container>
+          </div>
+          <div class="vec-upload-form__actions">
+            <button class="vec-btn vec-btn--ghost" (click)="resetUpload()">Back</button>
+            <button class="vec-btn vec-btn--orange" (click)="submitUpload()" [disabled]="!uploadForm().name.trim() || !uploadForm().category">
+              Submit for Review
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Done -->
+        <div *ngIf="uploadStep() === 3" class="vec-upload-success">
+          <div class="vec-upload-success__icon">🎉</div>
+          <h3>Submitted for Review!</h3>
+          <p>Your asset has been submitted and will be reviewed within 24–48 hours. You'll be notified once it's approved.</p>
+          <div class="vec-upload-success__actions">
+            <button class="vec-btn vec-btn--orange" (click)="resetUpload()">Upload Another</button>
+            <button class="vec-btn vec-btn--ghost" (click)="setCreatorView('portfolio')">View Portfolio</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics view -->
+      <div *ngIf="creatorView() === 'analytics'">
+        <div class="vec-creator-modal__section-header"><h2>Analytics</h2></div>
+        <div class="vec-creator-modal__analytics-grid">
+          <div class="vec-creator-modal__analytics-card">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f5820a" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <strong>0</strong><span>Total Views</span>
+          </div>
+          <div class="vec-creator-modal__analytics-card">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <strong>0</strong><span>Downloads</span>
+          </div>
+          <div class="vec-creator-modal__analytics-card">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <strong>0</strong><span>Likes</span>
+          </div>
+          <div class="vec-creator-modal__analytics-card">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <strong>0</strong><span>Followers</span>
+          </div>
+        </div>
+        <div class="vec-creator-modal__analytics-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Upload your first asset to start seeing analytics here.
+        </div>
+      </div>
+
+      <!-- Earnings view -->
+      <div *ngIf="creatorView() === 'earnings'">
+        <div class="vec-creator-modal__section-header"><h2>Earnings</h2></div>
+        <div class="vec-creator-modal__earnings-summary">
+          <div class="vec-creator-modal__earnings-total">
+            <span>Total Earned</span>
+            <strong>${{ totalEarnings().toFixed(2) }}</strong>
+          </div>
+          <div class="vec-creator-modal__earnings-pending">
+            <span>Pending Payout</span>
+            <strong>$0.00</strong>
+          </div>
+          <button class="vec-btn vec-btn--orange" (click)="showToast('Payout setup — coming soon!')">Setup Payouts</button>
+        </div>
+        <div class="vec-creator-modal__earnings-chart">
+          <h3>Monthly Earnings</h3>
+          <div class="vec-earnings-bar-chart">
+            <div *ngFor="let e of mockEarnings" class="vec-earnings-bar-wrap">
+              <div class="vec-earnings-bar" [style.height.px]="earningsBarHeight(e.amount)"></div>
+              <span class="vec-earnings-bar__label">{{ e.month }}</span>
+              <span class="vec-earnings-bar__val" *ngIf="e.amount > 0">${{ e.amount }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="vec-creator-modal__royalty-info">
+          <h3>Royalty Structure</h3>
+          <div class="vec-royalty-row"><span>Free downloads</span><strong>$0.01 per download</strong></div>
+          <div class="vec-royalty-row"><span>Premium downloads</span><strong>70% of sale price</strong></div>
+          <div class="vec-royalty-row"><span>AI-generated vectors</span><strong>50% of sale price</strong></div>
+          <div class="vec-royalty-row"><span>Minimum payout</span><strong>$25.00</strong></div>
+        </div>
+      </div>
+
+      <!-- Settings view -->
+      <div *ngIf="creatorView() === 'settings'">
+        <div class="vec-creator-modal__section-header"><h2>Creator Settings</h2></div>
+        <div class="vec-upload-form__fields">
+          <div class="vec-upload-form__row">
+            <label>Display Name</label>
+            <input type="text" class="vec-creator-modal__input" placeholder="Your creator name" value="You" />
+          </div>
+          <div class="vec-upload-form__row">
+            <label>Bio</label>
+            <textarea class="vec-creator-modal__textarea" rows="3" placeholder="Tell the community about yourself…"></textarea>
+          </div>
+          <div class="vec-upload-form__row">
+            <label>Website</label>
+            <input type="url" class="vec-creator-modal__input" placeholder="https://yourwebsite.com" />
+          </div>
+          <div class="vec-upload-form__row">
+            <label class="vec-check-row">
+              <input type="checkbox" checked />
+              <span>Notify me when someone downloads my assets</span>
+            </label>
+          </div>
+          <div class="vec-upload-form__row">
+            <label class="vec-check-row">
+              <input type="checkbox" checked />
+              <span>Notify me when I earn a payout</span>
+            </label>
+          </div>
+          <div class="vec-upload-form__actions">
+            <button class="vec-btn vec-btn--orange" (click)="showToast('Settings saved!')">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════

@@ -107,6 +107,12 @@ export const routes: Routes = [
     path: 'admin',
     canActivate: [adminGuard],
     loadComponent: () => import('./features/admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+    children: [
+      { path: '',         redirectTo: 'submissions', pathMatch: 'full' },
+      { path: 'submissions', loadComponent: () => import('./features/admin/vector-queue/vector-queue.component').then(m => m.VectorQueueComponent) },
+      { path: 'assets',      loadComponent: () => import('./features/admin/vector-queue/vector-queue.component').then(m => m.VectorQueueComponent) },
+      { path: 'analytics',   loadComponent: () => import('./features/admin/vector-queue/vector-queue.component').then(m => m.VectorQueueComponent) },
+    ],
   },
 
   { path: 'unauthorized', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) },

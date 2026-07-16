@@ -1135,6 +1135,11 @@ export class VectorsService {
     });
   }
 
+  // ── Creator upload ────────────────────────────────────────────────────────
+  addUploadedAsset(asset: VectorAsset): void {
+    this.allAssets.update((all: VectorAsset[]) => [asset, ...all]);
+  }
+
   getSimilar(asset: VectorAsset, limit = 8): VectorAsset[] {
     return this.allAssets()
       .filter(a => a.id !== asset.id && (a.category === asset.category || a.style === asset.style))

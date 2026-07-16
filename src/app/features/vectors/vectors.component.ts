@@ -12,6 +12,57 @@ import {
 } from '../../core/models/vector.model';
 import { AuthService } from '../../core/auth/auth.service';
 
+// ── AI Generation types ────────────────────────────────────────────────────────
+export interface AiGeneratedVector {
+  id: string;
+  prompt: string;
+  svgContent: string;
+  style: VectorStyle;
+  aspect: 'landscape' | 'portrait' | 'square';
+  colors: string[];
+  createdAt: string;
+}
+
+// ── Creator Upload form ───────────────────────────────────────────────────────
+export interface UploadFormData {
+  name: string;
+  description: string;
+  category: string;
+  subcategory: string;
+  tags: string;
+  style: VectorStyle;
+  license: VectorLicense;
+  formats: VectorFormat[];
+  isPremium: boolean;
+  price: number;
+  fileDataUrl: string;
+  fileName: string;
+}
+
+// ── Download quality ──────────────────────────────────────────────────────────
+export type DownloadQuality = 'original' | 'small' | 'medium' | 'large' | 'web' | 'print' | 'transparent';
+
+export const DOWNLOAD_QUALITY_OPTIONS: { key: DownloadQuality; label: string; desc: string; suffix: string }[] = [
+  { key: 'original',    label: 'Original',       desc: 'Full resolution, uncompressed',   suffix: '' },
+  { key: 'small',       label: 'Small',          desc: '72 DPI · web thumbnails',          suffix: '_72' },
+  { key: 'medium',      label: 'Medium',         desc: '150 DPI · presentations',          suffix: '_150' },
+  { key: 'large',       label: 'Large',          desc: '300 DPI · high-res output',        suffix: '_300' },
+  { key: 'web',         label: 'Web Optimized',  desc: 'Compressed, fast loading',         suffix: '_web' },
+  { key: 'print',       label: 'Print Quality',  desc: '600 DPI · press-ready',            suffix: '_print' },
+  { key: 'transparent', label: 'Transparent PNG', desc: 'No background, .png only',       suffix: '_transparent' },
+];
+
+// ── Collaboration types ───────────────────────────────────────────────────────
+export interface CollabMember {
+  id: string; name: string; avatar: string; role: 'owner' | 'editor' | 'viewer'; color: string;
+}
+export interface CollabHistoryEntry {
+  id: string; user: string; avatar: string; action: string; timestamp: string;
+}
+export interface CollabComment {
+  id: string; user: string; avatar: string; text: string; resolved: boolean; timestamp: string;
+}
+
 const PAGE_SIZE = 32;
 
 export const FORMAT_OPTIONS: { key: VectorFormat; label: string }[] = [
@@ -108,7 +159,7 @@ export class VectorsComponent implements OnInit, OnDestroy {
 
   // ── Asset detail panel ────────────────────────────────────────────────────
   readonly selectedAsset   = signal<VectorAsset | null>(null);
-  readonly detailTab       = signal<'info' | 'similar' | 'creator'>('info');
+  readonly detailTab       = signal<'info' | 'similar' | 'creator' | 'collab'>('info');
   readonly reportOpen      = signal(false);
   readonly reportReason    = signal('');
   readonly collectionOpen  = signal(false);
@@ -200,6 +251,86 @@ export class VectorsComponent implements OnInit, OnDestroy {
   readonly toastMsg  = signal('');
   readonly toastShow = signal(false);
   private toastTimer: any;
+
+  // ── AI Generation ─────────────────────────────────────────────────────────
+  readonly aiGenOpen       = signal(false);
+  readonly aiPrompt        = signal('');
+  readonly aiGenStyle      = signal<VectorStyle>('flat');
+  readonly aiGenAspect     = signal<'landscape' | 'portrait' | 'square'>('landscape');
+  readonly aiColorTheme    = signal('#3B82F6');
+  readonly aiGenerating    = signal(false);
+  readonly aiGenResults    = signal<AiGeneratedVector[]>([]);
+  readonly aiGenTab        = signal<'generate' | 'history' | 'settings'>('generate');
+  readonly aiSelectedResult = signal<AiGeneratedVector | null>(null);
+  readonly aiModel         = signal<'fast' | 'quality' | 'creative'>('quality');
+  readonly aiStyleOptions: { key: VectorStyle; label: string; icon: string }[] = [
+    { key: 'flat',        label: 'Flat',       icon: '◼' },
+    { key: 'outline',     label: 'Outline',    icon: '◻' },
+    { key: 'isometric',   label: 'Isometric',  icon: '⬡' },
+    { key: 'minimal',     label: 'Minimal',    icon: '▫' },
+    { key: 'cartoon',     label: 'Cartoon',    icon: '😊' },
+    { key: 'gradient',    label: 'Gradient',   icon: '🌈' },
+    { key: 'hand-drawn',  label: 'Hand Drawn', icon: '✏️' },
+    { key: '3d',          label: '3D Render',  icon: '🎲' },
+  ];
+  readonly aiPromptSuggestions = [
+    'A vibrant abstract wave pattern with blue and purple gradients',
+    'Flat icons set for mobile app navigation',
+    'Isometric office workspace illustration',
+    'Minimal geometric logo mark',
+    'Hand-drawn botanical flowers',
+    'Futuristic tech circuit board',
+    'Cute cartoon animals for kids app',
+    'Clean business infographic elements',
+  ];
+
+  // ── Creator Studio ────────────────────────────────────────────────────────
+  readonly creatorOpen   = signal(false);
+  readonly creatorView   = signal<'portfolio' | 'upload' | 'analytics' | 'earnings' | 'settings'>('portfolio');
+  readonly myUploads     = signal<VectorAsset[]>([]);
+  readonly uploadOpen    = signal(false);
+  readonly uploadStep    = signal<1 | 2 | 3>(1);
+  readonly uploadPreview = signal<string>('');
+  readonly uploadForm    = signal<UploadFormData>({
+    name: '', description: '', category: '', subcategory: '',
+    tags: '', style: 'flat', license: 'free',
+    formats: ['svg'], isPremium: false, price: 0,
+    fileDataUrl: '', fileName: '',
+  });
+  readonly uploadDragOver = signal(false);
+
+  // ── Download quality ──────────────────────────────────────────────────────
+  readonly downloadQuality      = signal<DownloadQuality>('original');
+  readonly downloadQualityOpen  = signal(false);
+  readonly downloadQualityOptions = DOWNLOAD_QUALITY_OPTIONS;
+
+  // ── Collaboration ─────────────────────────────────────────────────────────
+  readonly collabOpen    = signal(false);
+  readonly collabTab     = signal<'team' | 'history' | 'comments' | 'versions'>('team');
+  readonly collabInvite  = signal('');
+  readonly collabComment = signal('');
+  readonly mockCollabMembers = signal<CollabMember[]>([
+    { id: 'm1', name: 'You',       avatar: 'https://i.pravatar.cc/32?img=20', role: 'owner',  color: '#f5820a' },
+    { id: 'm2', name: 'StudioPix', avatar: 'https://i.pravatar.cc/32?img=1',  role: 'editor', color: '#3B82F6' },
+    { id: 'm3', name: 'FlatCraft', avatar: 'https://i.pravatar.cc/32?img=4',  role: 'viewer', color: '#10B981' },
+  ]);
+  readonly mockCollabHistory = signal<CollabHistoryEntry[]>([
+    { id: 'h1', user: 'You',       avatar: 'https://i.pravatar.cc/32?img=20', action: 'Created this vector',              timestamp: '2 hours ago' },
+    { id: 'h2', user: 'StudioPix', avatar: 'https://i.pravatar.cc/32?img=1',  action: 'Changed fill color to #3B82F6',    timestamp: '1 hour ago' },
+    { id: 'h3', user: 'FlatCraft', avatar: 'https://i.pravatar.cc/32?img=4',  action: 'Added comment on the background',  timestamp: '45 min ago' },
+    { id: 'h4', user: 'You',       avatar: 'https://i.pravatar.cc/32?img=20', action: 'Resized to 1400×900px',            timestamp: '30 min ago' },
+    { id: 'h5', user: 'StudioPix', avatar: 'https://i.pravatar.cc/32?img=1',  action: 'Approved changes',                 timestamp: '15 min ago' },
+  ]);
+  readonly mockCollabComments = signal<CollabComment[]>([
+    { id: 'cc1', user: 'StudioPix', avatar: 'https://i.pravatar.cc/32?img=1',  text: 'The gradient transition looks great here!', resolved: false, timestamp: '1 hour ago' },
+    { id: 'cc2', user: 'FlatCraft', avatar: 'https://i.pravatar.cc/32?img=4',  text: 'Can we try a darker shade for the background?', resolved: false, timestamp: '50 min ago' },
+    { id: 'cc3', user: 'You',       avatar: 'https://i.pravatar.cc/32?img=20', text: 'Updated — let me know if this works.', resolved: true, timestamp: '20 min ago' },
+  ]);
+  readonly mockVersions = [
+    { id: 'v3', label: 'v3 — Latest', user: 'You', timestamp: '30 min ago', isCurrent: true },
+    { id: 'v2', label: 'v2 — After color update', user: 'StudioPix', timestamp: '1 hour ago', isCurrent: false },
+    { id: 'v1', label: 'v1 — Initial upload', user: 'You', timestamp: '2 hours ago', isCurrent: false },
+  ];
 
   // ── Derived ───────────────────────────────────────────────────────────────
   readonly currentSort = computed(() => {
@@ -685,6 +816,290 @@ export class VectorsComponent implements OnInit, OnDestroy {
     this.reportOpen.set(false);
     this.reportReason.set('');
     this.showToast('Report submitted. Thank you for helping keep Amarapix safe.');
+  }
+
+  // ── AI Generation ─────────────────────────────────────────────────────────
+  openAiGen(): void { this.aiGenOpen.set(true); document.body.style.overflow = 'hidden'; }
+  closeAiGen(): void { this.aiGenOpen.set(false); document.body.style.overflow = ''; }
+
+  setAiPromptSuggestion(s: string): void { this.aiPrompt.set(s); }
+
+  generateAiVector(): void {
+    const prompt = this.aiPrompt().trim();
+    if (!prompt) return;
+    this.aiGenerating.set(true);
+    // Simulate AI generation with client-side SVG
+    setTimeout(() => {
+      const colors = this._pickAiColors();
+      const results: AiGeneratedVector[] = Array.from({ length: 4 }, (_, i) => ({
+        id: `ai-${Date.now()}-${i}`,
+        prompt,
+        svgContent: this._buildAiSvg(prompt, this.aiGenStyle(), colors, i),
+        style: this.aiGenStyle(),
+        aspect: this.aiGenAspect(),
+        colors,
+        createdAt: new Date().toISOString(),
+      }));
+      this.aiGenResults.set(results);
+      this.aiGenerating.set(false);
+      this.showToast('Generated 4 vector variations!');
+    }, 2200);
+  }
+
+  private _pickAiColors(): string[] {
+    const theme = this.aiColorTheme();
+    const palettes: string[][] = [
+      ['#3B82F6','#6366F1','#8B5CF6'],
+      ['#F97316','#EF4444','#FBBF24'],
+      ['#10B981','#059669','#34D399'],
+      ['#EC4899','#F43F5E','#FB7185'],
+      ['#8B5CF6','#A855F7','#C084FC'],
+      ['#14B8A6','#0EA5E9','#38BDF8'],
+    ];
+    if (theme) return [theme, this._lighten(theme), this._darken(theme)];
+    return palettes[Math.floor(Math.random() * palettes.length)];
+  }
+
+  private _lighten(hex: string): string {
+    try {
+      const n = parseInt(hex.replace('#',''), 16);
+      const r = Math.min(255, ((n >> 16) & 0xff) + 60);
+      const g = Math.min(255, ((n >> 8) & 0xff) + 60);
+      const b = Math.min(255, (n & 0xff) + 60);
+      return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+    } catch { return '#6366F1'; }
+  }
+
+  private _darken(hex: string): string {
+    try {
+      const n = parseInt(hex.replace('#',''), 16);
+      const r = Math.max(0, ((n >> 16) & 0xff) - 60);
+      const g = Math.max(0, ((n >> 8) & 0xff) - 60);
+      const b = Math.max(0, (n & 0xff) - 60);
+      return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+    } catch { return '#1D4ED8'; }
+  }
+
+  private _buildAiSvg(prompt: string, style: VectorStyle, colors: string[], variant: number): string {
+    const [c1, c2, c3] = colors;
+    const shapes: string[] = [];
+    const seed = prompt.length + variant * 37;
+
+    if (style === 'gradient' || variant === 0) {
+      shapes.push(`<defs><linearGradient id="g${variant}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:${c1}"/><stop offset="100%" style="stop-color:${c2}"/></linearGradient></defs>`);
+      shapes.push(`<rect width="400" height="300" fill="url(#g${variant})" rx="16"/>`);
+    } else {
+      shapes.push(`<rect width="400" height="300" fill="${c3 || '#f0f4ff'}" rx="16"/>`);
+    }
+
+    const count = 5 + (seed % 8);
+    for (let i = 0; i < count; i++) {
+      const x = (seed * (i+1) * 43) % 360;
+      const y = (seed * (i+1) * 17) % 260;
+      const r = 20 + (seed * (i+1)) % 60;
+      const opacity = 0.15 + (i % 5) * 0.1;
+      const fill = i % 2 === 0 ? c1 : c2;
+      if (style === 'outline') {
+        shapes.push(`<circle cx="${x + 20}" cy="${y + 20}" r="${r}" fill="none" stroke="${fill}" stroke-width="2.5" opacity="${opacity + 0.3}"/>`);
+      } else if (style === 'isometric') {
+        const sx = x + 20, sy = y + 20;
+        shapes.push(`<polygon points="${sx},${sy - r} ${sx + r * 0.866},${sy + r * 0.5} ${sx - r * 0.866},${sy + r * 0.5}" fill="${fill}" opacity="${opacity + 0.3}"/>`);
+      } else {
+        shapes.push(`<circle cx="${x + 20}" cy="${y + 20}" r="${r}" fill="${fill}" opacity="${opacity}"/>`);
+      }
+    }
+
+    const label = prompt.length > 22 ? prompt.slice(0, 22) + '…' : prompt;
+    shapes.push(`<text x="200" y="270" text-anchor="middle" font-family="sans-serif" font-size="11" fill="${c1}" opacity="0.7">${label}</text>`);
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">${shapes.join('')}</svg>`;
+  }
+
+  selectAiResult(v: AiGeneratedVector): void { this.aiSelectedResult.set(v); }
+
+  downloadAiVector(v: AiGeneratedVector): void {
+    const blob = new Blob([v.svgContent], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `amx-ai-${v.id}.svg`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.showToast('AI vector downloaded!');
+  }
+
+  openAiResultInEditor(v: AiGeneratedVector): void {
+    this.closeAiGen();
+    const params: Record<string, string> = { aiPrompt: v.prompt, aiStyle: v.style };
+    this.router.navigate(['/editor'], { queryParams: params });
+  }
+
+  // ── Creator Studio ────────────────────────────────────────────────────────
+  openCreatorStudio(): void {
+    if (!this.auth.isLoggedIn()) { this.router.navigate(['/auth/login']); return; }
+    this.creatorOpen.set(true);
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeCreatorStudio(): void {
+    this.creatorOpen.set(false);
+    document.body.style.overflow = '';
+  }
+
+  setCreatorView(view: 'portfolio' | 'upload' | 'analytics' | 'earnings' | 'settings'): void {
+    this.creatorView.set(view);
+    if (view === 'upload') this.uploadStep.set(1);
+  }
+
+  onUploadDrop(e: DragEvent): void {
+    e.preventDefault();
+    this.uploadDragOver.set(false);
+    const file = e.dataTransfer?.files[0];
+    if (file) this._readUploadFile(file);
+  }
+
+  onUploadFilePick(e: Event): void {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file) this._readUploadFile(file);
+  }
+
+  private _readUploadFile(file: File): void {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const data = reader.result as string;
+      this.uploadPreview.set(data);
+      this.uploadForm.update(f => ({
+        ...f,
+        fileDataUrl: data,
+        fileName: file.name,
+        formats: this._formatsFromName(file.name),
+      }));
+      this.uploadStep.set(2);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  private _formatsFromName(name: string): VectorFormat[] {
+    const ext = name.split('.').pop()?.toLowerCase() as VectorFormat;
+    const valid: VectorFormat[] = ['svg','eps','ai','pdf','cdr','dxf','png'];
+    return valid.includes(ext) ? [ext, 'png'] : ['svg','png'];
+  }
+
+  updateUploadForm(key: keyof UploadFormData, value: any): void {
+    this.uploadForm.update(f => ({ ...f, [key]: value }));
+  }
+
+  submitUpload(): void {
+    const form = this.uploadForm();
+    if (!form.name.trim() || !form.category) { this.showToast('Please fill in required fields'); return; }
+    const newAsset: VectorAsset = {
+      id: `upload-${Date.now()}`,
+      slug: form.name.toLowerCase().replace(/\s+/g, '-'),
+      name: form.name,
+      description: form.description,
+      category: form.category,
+      categoryLabel: form.category.charAt(0).toUpperCase() + form.category.slice(1),
+      subcategory: form.subcategory || undefined,
+      previewUrl: form.fileDataUrl || 'https://picsum.photos/seed/upload1/400/300',
+      thumbUrl: form.fileDataUrl || 'https://picsum.photos/seed/upload1/200/150',
+      dominantColors: ['#3B82F6','#6366F1'],
+      formats: form.formats.length ? form.formats : ['svg'],
+      style: form.style,
+      license: form.license,
+      orientation: 'landscape',
+      complexity: 'medium',
+      colorMode: 'multi',
+      isPremium: form.isPremium,
+      isFree: !form.isPremium,
+      isAiGenerated: false,
+      isAnimated: false,
+      isNew: true,
+      isStaffPick: false,
+      isEditorsChoice: false,
+      downloads: 0, likes: 0, views: 0, rating: 0, ratingCount: 0, comments: 0,
+      tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
+      width: 1200, height: 800, fileSize: 256,
+      creator: { id: 'me', name: 'You', avatar: 'https://i.pravatar.cc/40?img=20', isVerified: false, followers: 0, totalAssets: 0 },
+      uploadedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.myUploads.update(u => [newAsset, ...u]);
+    this.svc.addUploadedAsset(newAsset);
+    this.uploadStep.set(3);
+    this.showToast('Asset submitted for review!');
+  }
+
+  resetUpload(): void {
+    this.uploadForm.set({ name:'', description:'', category:'', subcategory:'', tags:'', style:'flat', license:'free', formats:['svg'], isPremium:false, price:0, fileDataUrl:'', fileName:'' });
+    this.uploadPreview.set('');
+    this.uploadStep.set(1);
+  }
+
+  deleteMyUpload(id: string): void {
+    this.myUploads.update(u => u.filter(x => x.id !== id));
+    this.showToast('Upload removed.');
+  }
+
+  // Earnings mock data
+  readonly mockEarnings = [
+    { month: 'Jan', amount: 0 }, { month: 'Feb', amount: 0 }, { month: 'Mar', amount: 12.50 },
+    { month: 'Apr', amount: 34.00 }, { month: 'May', amount: 58.25 }, { month: 'Jun', amount: 89.75 },
+    { month: 'Jul', amount: 112.00 },
+  ];
+  readonly totalEarnings = computed(() => this.mockEarnings.reduce((s, e) => s + e.amount, 0));
+  readonly barMax = Math.max(...[0, 12.50, 34, 58.25, 89.75, 112]);
+
+  earningsBarHeight(amount: number): number {
+    return this.barMax > 0 ? Math.round((amount / this.barMax) * 120) : 0;
+  }
+
+  // ── Download quality ──────────────────────────────────────────────────────
+  downloadWithQuality(asset: VectorAsset, fmt: VectorFormat, quality: DownloadQuality): void {
+    if (asset.isPremium && !this.auth.isPremium()) {
+      this.router.navigate(['/pricing']); return;
+    }
+    const suffix = DOWNLOAD_QUALITY_OPTIONS.find(q => q.key === quality)?.suffix ?? '';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${asset.width} ${asset.height}"><rect width="100%" height="100%" fill="${quality === 'transparent' ? 'none' : (asset.dominantColors[0] || '#3B82F6')}" rx="12"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="32" fill="white">${asset.name}</text></svg>`;
+    const blob = new Blob([svg], { type: fmt === 'png' ? 'image/png' : 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${asset.slug}${suffix}.${fmt === 'png' || quality === 'transparent' ? 'png' : fmt}`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.downloadQualityOpen.set(false);
+    this.showToast(`Downloaded "${asset.name}" — ${DOWNLOAD_QUALITY_OPTIONS.find(q => q.key === quality)?.label}`);
+  }
+
+  // ── Collaboration ─────────────────────────────────────────────────────────
+  openCollab(): void { this.collabOpen.set(true); this.collabTab.set('team'); }
+  closeCollab(): void { this.collabOpen.set(false); }
+
+  inviteCollaborator(): void {
+    const email = this.collabInvite().trim();
+    if (!email) return;
+    this.showToast(`Invitation sent to ${email}`);
+    this.collabInvite.set('');
+  }
+
+  submitCollabComment(): void {
+    const text = this.collabComment().trim();
+    if (!text) return;
+    this.mockCollabComments.update(c => [
+      { id: `cc-${Date.now()}`, user: 'You', avatar: 'https://i.pravatar.cc/32?img=20',
+        text, resolved: false, timestamp: 'Just now' },
+      ...c,
+    ]);
+    this.collabComment.set('');
+    this.showToast('Comment added!');
+  }
+
+  resolveCollabComment(id: string): void {
+    this.mockCollabComments.update(c => c.map(x => x.id === id ? { ...x, resolved: true } : x));
+  }
+
+  restoreVersion(id: string): void {
+    this.showToast(`Restored to ${this.mockVersions.find(v => v.id === id)?.label ?? 'version'}`);
   }
 
   // ── Toast ─────────────────────────────────────────────────────────────────
