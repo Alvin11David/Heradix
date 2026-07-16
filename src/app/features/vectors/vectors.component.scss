@@ -3000,6 +3000,287 @@
   strong { font-size: 13px; font-weight: 700; color: var(--amx-text); }
 }
 
+// ── Continue Editing ──────────────────────────────────────────────────────────
+
+.vec-continue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.vec-continue-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--amx-surface);
+  border: 1.5px solid var(--amx-border);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s, box-shadow .15s;
+  padding: 0;
+  &:hover {
+    border-color: #f5820a;
+    box-shadow: 0 4px 16px rgba(245, 130, 10, .12);
+  }
+}
+
+.vec-continue-card__img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  display: block;
+}
+
+.vec-continue-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+}
+
+.vec-continue-card__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--amx-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vec-continue-card__action {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #f5820a;
+  svg { flex-shrink: 0; }
+}
+
+// ── Popular Creators ──────────────────────────────────────────────────────────
+
+.vec-creators-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.vec-creator-card {
+  background: var(--amx-surface);
+  border: 1.5px solid var(--amx-border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color .15s, box-shadow .15s;
+  &:hover { border-color: #f5820a; box-shadow: 0 4px 16px rgba(245,130,10,.1); }
+}
+
+.vec-creator-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-bottom: 1px solid var(--amx-border);
+}
+
+.vec-creator-card__av {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--amx-border);
+}
+
+.vec-creator-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.vec-creator-card__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--amx-text);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vec-creator-card__meta {
+  font-size: 11px;
+  color: var(--amx-text-muted);
+  margin-top: 2px;
+}
+
+.vec-creator-card__follow {
+  flex-shrink: 0;
+  background: #f5820a;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: background .15s;
+  &:hover { background: #e0720a; }
+
+  &.vec-creator-card__follow--following {
+    background: var(--amx-bg);
+    border: 1.5px solid var(--amx-border);
+    color: var(--amx-text-muted);
+    &:hover { border-color: #f5820a; color: #f5820a; }
+  }
+}
+
+.vec-creator-card__thumbs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.vec-creator-card__thumb {
+  aspect-ratio: 1;
+  width: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: opacity .15s;
+  display: block;
+  &:hover { opacity: .8; }
+}
+
+// ── Featured Collections ──────────────────────────────────────────────────────
+
+.vec-feat-collections {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.vec-feat-col-card {
+  position: relative;
+  background: var(--amx-surface);
+  border: 1.5px solid var(--amx-border);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: border-color .15s, box-shadow .15s, transform .15s;
+  &:hover {
+    border-color: #f5820a;
+    box-shadow: 0 6px 20px rgba(245,130,10,.15);
+    transform: translateY(-2px);
+  }
+}
+
+.vec-feat-col-card__thumbs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  aspect-ratio: 4/3;
+}
+
+.vec-feat-col-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.vec-feat-col-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.65) 0%, transparent 55%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 14px;
+  gap: 2px;
+  strong { font-size: 14px; font-weight: 800; color: #fff; }
+  span { font-size: 11px; color: rgba(255,255,255,.75); }
+}
+
+.vec-feat-col-card__emoji {
+  font-size: 24px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+// ── Color swatch filter ───────────────────────────────────────────────────────
+
+.vec-swatch-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.vec-swatch-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform .15s, border-color .15s;
+  &:hover { transform: scale(1.15); }
+
+  &.vec-swatch-btn--active {
+    border-color: #f5820a;
+    box-shadow: 0 0 0 2px var(--amx-bg), 0 0 0 4px #f5820a;
+  }
+}
+
+// ── Creator search (filter sidebar) ──────────────────────────────────────────
+
+.vec-creator-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--amx-bg);
+  border: 1.5px solid var(--amx-border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  transition: border-color .15s;
+  &:focus-within { border-color: #f5820a; }
+  svg { flex-shrink: 0; color: var(--amx-text-muted); }
+}
+
+.vec-creator-search-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 12px;
+  color: var(--amx-text);
+  &::placeholder { color: var(--amx-text-muted); }
+}
+
+// ── Detail panel zoom button ──────────────────────────────────────────────────
+
+.vec-detail__zoom-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  background: rgba(0,0,0,.45);
+  border: none;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  transition: background .15s;
+  &:hover { background: rgba(0,0,0,.7); }
+}
+
 @media (max-width: 768px) {
   .vec-ai-modal__controls { grid-template-columns: 1fr; }
   .vec-ai-modal__results-grid { grid-template-columns: 1fr; }
@@ -3009,4 +3290,7 @@
   .vec-creator-modal__analytics-grid { grid-template-columns: 1fr; }
   .vec-creator-modal__stats-row { grid-template-columns: repeat(2, 1fr); }
   .vec-ai-studio-banner__content { padding: 28px 24px; }
+  .vec-continue-grid { grid-template-columns: repeat(2, 1fr); }
+  .vec-creators-row { grid-template-columns: 1fr; }
+  .vec-feat-collections { grid-template-columns: repeat(2, 1fr); }
 }
