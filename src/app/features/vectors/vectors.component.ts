@@ -373,7 +373,21 @@ export class VectorsComponent implements OnInit, OnDestroy {
   readonly starRange = [1, 2, 3, 4, 5];
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
-  ngOnInit(): void {}
+  private static readonly UPLOADS_KEY = 'amx_vec_my_uploads';
+
+  ngOnInit(): void {
+    try {
+      const saved = JSON.parse(localStorage.getItem(VectorsComponent.UPLOADS_KEY) || '[]');
+      if (Array.isArray(saved) && saved.length) {
+        this.myUploads.set(saved);
+        saved.forEach((a: VectorAsset) => this.svc.addUploadedAsset(a));
+      }
+    } catch {}
+  }
+
+  private _saveUploads(): void {
+    try { localStorage.setItem(VectorsComponent.UPLOADS_KEY, JSON.stringify(this.myUploads())); } catch {}
+  }
   ngOnDestroy(): void {
     document.body.style.overflow = '';
     if (this.toastTimer) clearTimeout(this.toastTimer);
@@ -554,15 +568,26 @@ export class VectorsComponent implements OnInit, OnDestroy {
       this.router.navigate(['/pricing']);
       return;
     }
-    // Client-side: create a placeholder SVG download
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${asset.width} ${asset.height}"><rect width="100%" height="100%" fill="${asset.dominantColors[0] || '#3B82F6'}" rx="12"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="32" fill="white">${asset.name}</text></svg>`;
-    const blob = new Blob([svg], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `${asset.slug}.${fmt}`; a.click();
-    URL.revokeObjectURL(url);
     this.downloadPickerFor.set(null);
-    this.showToast(`Downloaded "${asset.name}" as ${fmt.toUpperCase()}`);
+    void this._fetchAndDownload(asset.previewUrl, `${asset.slug}.${fmt}`,
+      `Downloaded "${asset.name}" as ${fmt.toUpperCase()}`);
+  }
+
+  private async _fetchAndDownload(src: string, filename: string, toastMsg: string): Promise<void> {
+    try {
+      const res = await fetch(src, { mode: 'cors' });
+      if (!res.ok) throw new Error('fetch failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch {
+      // Cross-origin fallback: open in a new tab so the browser's save-as dialog takes over
+      const a = document.createElement('a');
+      a.href = src; a.target = '_blank'; a.rel = 'noopener'; a.click();
+    }
+    this.showToast(toastMsg);
   }
 
   openInEditor(asset: VectorAsset, e?: Event): void {
@@ -635,13 +660,30 @@ export class VectorsComponent implements OnInit, OnDestroy {
     input.accept = 'image/*';
     input.onchange = () => {
       const file = input.files?.[0];
-      if (file) {
-        this.searchQuery.set(`[Image: ${file.name}]`);
-        this.svc.addRecentSearch(`Image search: ${file.name}`);
-        this.section.set('browse');
-        this.visibleCount.set(PAGE_SIZE);
-        this.showToast('Image search: showing visually similar results');
-      }
+      if (!file) return;
+      // Extract dominant color from the uploaded image and use it as a color filter
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 50; canvas.height = 50;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, 50, 50);
+          const data = ctx.getImageData(25, 25, 1, 1).data;
+          const hex = `#${data[0].toString(16).padStart(2,'0')}${data[1].toString(16).padStart(2,'0')}${data[2].toString(16).padStart(2,'0')}`;
+          this.svc.setFilter('color', hex);
+          this.section.set('browse');
+          this.visibleCount.set(PAGE_SIZE);
+          this.showToast('Filtering by dominant color extracted from your image');
+        }
+        URL.revokeObjectURL(objectUrl);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        this.showToast('Could not read the image file');
+      };
+      img.src = objectUrl;
     };
     input.click();
   }
@@ -765,10 +807,17 @@ export class VectorsComponent implements OnInit, OnDestroy {
       const zip = new JSZip();
       const folder = zip.folder('amarapix-vectors')!;
 
-      eligible.forEach(asset => {
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${asset.width} ${asset.height}"><rect width="100%" height="100%" fill="${asset.dominantColors[0] || '#3B82F6'}" rx="12"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="32" fill="white">${asset.name}</text></svg>`;
-        folder.file(`${asset.slug}.svg`, svg);
-      });
+      await Promise.all(eligible.map(async asset => {
+        try {
+          const res = await fetch(asset.previewUrl);
+          if (!res.ok) throw new Error();
+          const blob = await res.blob();
+          const ext = blob.type.includes('svg') ? 'svg' : blob.type.includes('png') ? 'png' : 'jpg';
+          folder.file(`${asset.slug}.${ext}`, blob);
+        } catch {
+          // If the preview URL fails, skip this asset silently
+        }
+      }));
 
       const blob = await zip.generateAsync({ type: 'blob' });
       const url = URL.createObjectURL(blob);
@@ -828,22 +877,20 @@ export class VectorsComponent implements OnInit, OnDestroy {
     const prompt = this.aiPrompt().trim();
     if (!prompt) return;
     this.aiGenerating.set(true);
-    // Simulate AI generation with client-side SVG
-    setTimeout(() => {
-      const colors = this._pickAiColors();
-      const results: AiGeneratedVector[] = Array.from({ length: 4 }, (_, i) => ({
-        id: `ai-${Date.now()}-${i}`,
-        prompt,
-        svgContent: this._buildAiSvg(prompt, this.aiGenStyle(), colors, i),
-        style: this.aiGenStyle(),
-        aspect: this.aiGenAspect(),
-        colors,
-        createdAt: new Date().toISOString(),
-      }));
-      this.aiGenResults.set(results);
-      this.aiGenerating.set(false);
-      this.showToast('Generated 4 vector variations!');
-    }, 2200);
+    // Client-side SVG generation based on prompt parameters
+    const colors = this._pickAiColors();
+    const results: AiGeneratedVector[] = Array.from({ length: 4 }, (_, i) => ({
+      id: `ai-${Date.now()}-${i}`,
+      prompt,
+      svgContent: this._buildAiSvg(prompt, this.aiGenStyle(), colors, i),
+      style: this.aiGenStyle(),
+      aspect: this.aiGenAspect(),
+      colors,
+      createdAt: new Date().toISOString(),
+    }));
+    this.aiGenResults.set(results);
+    this.aiGenerating.set(false);
+    this.showToast('Generated 4 SVG variations from your prompt');
   }
 
   private _pickAiColors(): string[] {
@@ -1025,6 +1072,7 @@ export class VectorsComponent implements OnInit, OnDestroy {
     };
     this.myUploads.update(u => [newAsset, ...u]);
     this.svc.addUploadedAsset(newAsset);
+    this._saveUploads();
     this.uploadStep.set(3);
     this.showToast('Asset submitted for review!');
   }
@@ -1037,6 +1085,7 @@ export class VectorsComponent implements OnInit, OnDestroy {
 
   deleteMyUpload(id: string): void {
     this.myUploads.update(u => u.filter(x => x.id !== id));
+    this._saveUploads();
     this.showToast('Upload removed.');
   }
 
@@ -1059,16 +1108,11 @@ export class VectorsComponent implements OnInit, OnDestroy {
       this.router.navigate(['/pricing']); return;
     }
     const suffix = DOWNLOAD_QUALITY_OPTIONS.find(q => q.key === quality)?.suffix ?? '';
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${asset.width} ${asset.height}"><rect width="100%" height="100%" fill="${quality === 'transparent' ? 'none' : (asset.dominantColors[0] || '#3B82F6')}" rx="12"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="32" fill="white">${asset.name}</text></svg>`;
-    const blob = new Blob([svg], { type: fmt === 'png' ? 'image/png' : 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${asset.slug}${suffix}.${fmt === 'png' || quality === 'transparent' ? 'png' : fmt}`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const ext = fmt === 'png' || quality === 'transparent' ? 'png' : fmt;
+    const label = DOWNLOAD_QUALITY_OPTIONS.find(q => q.key === quality)?.label ?? quality;
     this.downloadQualityOpen.set(false);
-    this.showToast(`Downloaded "${asset.name}" — ${DOWNLOAD_QUALITY_OPTIONS.find(q => q.key === quality)?.label}`);
+    void this._fetchAndDownload(asset.previewUrl, `${asset.slug}${suffix}.${ext}`,
+      `Downloaded "${asset.name}" — ${label}`);
   }
 
   // ── Collaboration ─────────────────────────────────────────────────────────
