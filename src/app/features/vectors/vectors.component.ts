@@ -288,6 +288,14 @@ export class VectorsComponent implements OnInit, OnDestroy {
   readonly creatorOpen   = signal(false);
   readonly creatorView   = signal<'portfolio' | 'upload' | 'analytics' | 'earnings' | 'settings'>('portfolio');
   readonly myUploads     = signal<VectorAsset[]>([]);
+
+  // ── Creator settings (persisted to localStorage) ──────────────────────────
+  private static readonly CREATOR_SETTINGS_KEY = 'amx_vec_creator_settings';
+  readonly creatorSettingsName    = signal('You');
+  readonly creatorSettingsBio     = signal('');
+  readonly creatorSettingsWebsite = signal('');
+  readonly notifyDownloads        = signal(true);
+  readonly notifyPayouts          = signal(true);
   readonly uploadOpen    = signal(false);
   readonly uploadStep    = signal<1 | 2 | 3>(1);
   readonly uploadPreview = signal<string>('');
@@ -383,6 +391,29 @@ export class VectorsComponent implements OnInit, OnDestroy {
         saved.forEach((a: VectorAsset) => this.svc.addUploadedAsset(a));
       }
     } catch {}
+    try {
+      const cs = JSON.parse(localStorage.getItem(VectorsComponent.CREATOR_SETTINGS_KEY) || 'null');
+      if (cs) {
+        if (cs.name     != null) this.creatorSettingsName.set(cs.name);
+        if (cs.bio      != null) this.creatorSettingsBio.set(cs.bio);
+        if (cs.website  != null) this.creatorSettingsWebsite.set(cs.website);
+        if (cs.notifyDownloads != null) this.notifyDownloads.set(cs.notifyDownloads);
+        if (cs.notifyPayouts   != null) this.notifyPayouts.set(cs.notifyPayouts);
+      }
+    } catch {}
+  }
+
+  saveCreatorSettings(): void {
+    try {
+      localStorage.setItem(VectorsComponent.CREATOR_SETTINGS_KEY, JSON.stringify({
+        name:            this.creatorSettingsName(),
+        bio:             this.creatorSettingsBio(),
+        website:         this.creatorSettingsWebsite(),
+        notifyDownloads: this.notifyDownloads(),
+        notifyPayouts:   this.notifyPayouts(),
+      }));
+    } catch {}
+    this.showToast('Settings saved!');
   }
 
   private _saveUploads(): void {
@@ -401,12 +432,18 @@ export class VectorsComponent implements OnInit, OnDestroy {
 
   onSearchSubmit(): void {
     const q = this.searchQuery().trim();
-    if (q) {
-      this.svc.addRecentSearch(q);
-      this.svc.setFilter('query', q);
-      this.section.set('browse');
-      this.visibleCount.set(PAGE_SIZE);
+    if (!q) return;
+    this.svc.addRecentSearch(q);
+    this.svc.setFilter('query', q);
+    if (this.aiSearch()) {
+      // AI search: broaden by clearing active category/format restrictions so
+      // token matching across all categories is possible
+      this.svc.setFilter('categoryId', null);
+      this.svc.setFilter('formats', []);
     }
+    this.section.set('browse');
+    this.searchFocused.set(false);
+    this.visibleCount.set(PAGE_SIZE);
   }
 
   onSearchKeydown(e: KeyboardEvent): void {
@@ -477,45 +514,55 @@ export class VectorsComponent implements OnInit, OnDestroy {
       ? f.formats.filter(x => x !== fmt)
       : [...f.formats, fmt];
     this.svc.setFilter('formats', next);
+    this.visibleCount.set(PAGE_SIZE);
   }
 
   setStyle(style: VectorStyle | null): void {
     this.svc.setFilter('style', style);
+    this.visibleCount.set(PAGE_SIZE);
   }
 
   setLicense(lic: VectorLicense | null): void {
     this.svc.setFilter('license', lic);
+    this.visibleCount.set(PAGE_SIZE);
   }
 
   setOrientation(o: VectorOrientation | null): void {
     this.svc.setFilter('orientation', o);
+    this.visibleCount.set(PAGE_SIZE);
   }
 
   setSort(s: VectorSortMode): void {
     this.svc.setFilter('sort', s);
     this.sortOpen.set(false);
+    this.visibleCount.set(PAGE_SIZE);
   }
 
   setComplexity(c: 'beginner' | 'medium' | 'advanced' | null): void {
     this.svc.setFilter('complexity', c);
+    this.visibleCount.set(PAGE_SIZE);
   }
 
   toggleAiFilter(): void {
     const cur = this.svc.filters().isAiGenerated;
     this.svc.setFilter('isAiGenerated', cur === true ? null : true);
+    this.visibleCount.set(PAGE_SIZE);
   }
 
   toggleAnimatedFilter(): void {
     const cur = this.svc.filters().isAnimated;
     this.svc.setFilter('isAnimated', cur === true ? null : true);
+    this.visibleCount.set(PAGE_SIZE);
   }
 
   toggleFavoritesOnly(): void {
     this.svc.setFilter('favoritesOnly', !this.svc.filters().favoritesOnly);
+    this.visibleCount.set(PAGE_SIZE);
   }
 
   setDateAdded(d: 'all' | 'today' | 'week' | 'month'): void {
     this.svc.setFilter('dateAdded', d);
+    this.visibleCount.set(PAGE_SIZE);
   }
 
   resetFilters(): void {
@@ -733,6 +780,7 @@ export class VectorsComponent implements OnInit, OnDestroy {
   // ── Color mode filter ─────────────────────────────────────────────────────
   setColorMode(mode: string | null): void {
     this.svc.setFilter('colorMode', mode as any);
+    this.visibleCount.set(PAGE_SIZE);
   }
 
   // ── Creator search ────────────────────────────────────────────────────────
@@ -862,6 +910,18 @@ export class VectorsComponent implements OnInit, OnDestroy {
 
   // ── Report ────────────────────────────────────────────────────────────────
   submitReport(): void {
+    const asset = this.selectedAsset();
+    const entry = {
+      assetId:    asset?.id   ?? 'unknown',
+      assetName:  asset?.name ?? 'unknown',
+      reason:     this.reportReason(),
+      reportedAt: new Date().toISOString(),
+    };
+    try {
+      const stored: typeof entry[] = JSON.parse(localStorage.getItem('amx_vec_reports') || '[]');
+      stored.push(entry);
+      localStorage.setItem('amx_vec_reports', JSON.stringify(stored));
+    } catch {}
     this.reportOpen.set(false);
     this.reportReason.set('');
     this.showToast('Report submitted. Thank you for helping keep Amarapix safe.');
@@ -1103,6 +1163,10 @@ export class VectorsComponent implements OnInit, OnDestroy {
   }
 
   // ── Download quality ──────────────────────────────────────────────────────
+  getQualityLabel(key: DownloadQuality): string {
+    return DOWNLOAD_QUALITY_OPTIONS.find(q => q.key === key)?.label ?? key;
+  }
+
   downloadWithQuality(asset: VectorAsset, fmt: VectorFormat, quality: DownloadQuality): void {
     if (asset.isPremium && !this.auth.isPremium()) {
       this.router.navigate(['/pricing']); return;

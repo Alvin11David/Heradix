@@ -881,8 +881,22 @@
         <button class="vec-chip vec-chip--reset" (click)="resetFilters()">Clear all</button>
       </div>
 
+      <!-- Loading state -->
+      <div class="vec-empty" *ngIf="svc.loading()">
+        <div class="vec-empty__icon">⏳</div>
+        <h3 class="vec-empty__title">Loading vectors…</h3>
+      </div>
+
+      <!-- Error state -->
+      <div class="vec-empty" *ngIf="svc.error() && !svc.loading()">
+        <div class="vec-empty__icon">⚠️</div>
+        <h3 class="vec-empty__title">Failed to load vectors</h3>
+        <p class="vec-empty__sub">{{ svc.error() }}</p>
+        <button class="vec-btn vec-btn--orange" (click)="svc.reload()">Try again</button>
+      </div>
+
       <!-- Empty state -->
-      <div class="vec-empty" *ngIf="results().length === 0">
+      <div class="vec-empty" *ngIf="!svc.loading() && !svc.error() && results().length === 0">
         <div class="vec-empty__icon">🔍</div>
         <h3 class="vec-empty__title">No vectors found</h3>
         <p class="vec-empty__sub">Try adjusting your filters or searching for something else</p>
@@ -1118,10 +1132,7 @@
           <div class="vec-dl-quality-wrap">
             <button class="vec-dl-quality-btn" (click)="downloadQualityOpen.set(!downloadQualityOpen())">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              {{ (downloadQualityOptions | slice:0:1)[0]?.label || 'Original' }}
-              <ng-container *ngFor="let q of downloadQualityOptions">
-                <ng-container *ngIf="q.key === downloadQuality()">{{ q.label }}</ng-container>
-              </ng-container>
+              {{ getQualityLabel(downloadQuality()) }}
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="vec-dl-quality-menu" *ngIf="downloadQualityOpen()">
@@ -1924,30 +1935,40 @@
         <div class="vec-upload-form__fields">
           <div class="vec-upload-form__row">
             <label>Display Name</label>
-            <input type="text" class="vec-creator-modal__input" placeholder="Your creator name" value="You" />
+            <input type="text" class="vec-creator-modal__input" placeholder="Your creator name"
+                   [value]="creatorSettingsName()"
+                   (input)="creatorSettingsName.set($any($event.target).value)" />
           </div>
           <div class="vec-upload-form__row">
             <label>Bio</label>
-            <textarea class="vec-creator-modal__textarea" rows="3" placeholder="Tell the community about yourself…"></textarea>
+            <textarea class="vec-creator-modal__textarea" rows="3" placeholder="Tell the community about yourself…"
+                      [value]="creatorSettingsBio()"
+                      (input)="creatorSettingsBio.set($any($event.target).value)"></textarea>
           </div>
           <div class="vec-upload-form__row">
             <label>Website</label>
-            <input type="url" class="vec-creator-modal__input" placeholder="https://yourwebsite.com" />
+            <input type="url" class="vec-creator-modal__input" placeholder="https://yourwebsite.com"
+                   [value]="creatorSettingsWebsite()"
+                   (input)="creatorSettingsWebsite.set($any($event.target).value)" />
           </div>
           <div class="vec-upload-form__row">
             <label class="vec-check-row">
-              <input type="checkbox" checked />
+              <input type="checkbox"
+                     [checked]="notifyDownloads()"
+                     (change)="notifyDownloads.set($any($event.target).checked)" />
               <span>Notify me when someone downloads my assets</span>
             </label>
           </div>
           <div class="vec-upload-form__row">
             <label class="vec-check-row">
-              <input type="checkbox" checked />
+              <input type="checkbox"
+                     [checked]="notifyPayouts()"
+                     (change)="notifyPayouts.set($any($event.target).checked)" />
               <span>Notify me when I earn a payout</span>
             </label>
           </div>
           <div class="vec-upload-form__actions">
-            <button class="vec-btn vec-btn--orange" (click)="showToast('Settings saved!')">Save Changes</button>
+            <button class="vec-btn vec-btn--orange" (click)="saveCreatorSettings()">Save Changes</button>
           </div>
         </div>
       </div>
