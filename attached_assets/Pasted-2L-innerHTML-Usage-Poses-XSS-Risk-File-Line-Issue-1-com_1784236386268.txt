@@ -1,0 +1,28 @@
+2L. innerHTML Usage Poses XSS Risk
+#	File:Line	Issue
+1	comp.html:1557, 1596	[innerHTML]="v.svgContent" renders raw SVG HTML. Although generated client-side here, if this were ever fed user-controlled data it would be a cross-site scripting vector.
+2M. Signal Encapsulation Bypass
+#	File:Line	Issue
+1	comp.html:168	svc.recentSearches.set([]) directly mutates a service signal from the template. This bypasses the service's removeRecentSearch() method and breaks encapsulation.
+2	comp.html:1378–1384	svc.collections() accessed directly from the template rather than through a component property.
+3. MISSING UX STATES
+3A. Loading States
+#	Location	Missing State
+1	Browse page / Home sections	No loading spinner or skeleton while svc.loading is true. The page renders empty sections until mock data is "loaded".
+2	Load More button (line 970)	No loading indicator/spinner when loading more results.
+3	Image search	No "processing image..." state between file selection and result display.
+4	Follow / Unfollow	No loading state while follow action processes.
+5	Rate action	No loading state while rating submits.
+6	Favorite toggle	No loading state while favorite saves.
+7	Bulk download	No progress indicator for ZIP generation or individual downloads.
+3B. Error States
+#	Location	Missing State
+1	Main data fetch	No error banner/message if the API call fails. The svc.error signal is never displayed.
+2	Voice search	No error state beyond silently setting voiceActive.set(false). The rejection toast ("not supported") works but rec.onerror provides no feedback to the user about what went wrong.
+3	Upload	No error handling for invalid file types, oversized files, or upload failures.
+3C. Empty States
+#	Location	Missing State
+1	Comments section (line 1202)	No "No comments yet. Be the first!" message when allComments().length === 0.
+2	Similar tab (line 1241)	No "No similar vectors found" when similar().length === 0.
+3	Creator tab (line 1260)	No "No other assets by this creator" when creatorOther().length === 0.
+4	Search dropdown (line 164)	If both recentSearches() and trendingTags are empty, the dropdown still renders "Trending Searches" with nothing.

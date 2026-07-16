@@ -220,7 +220,6 @@ export class VectorsComponent implements OnInit, OnDestroy {
   readonly popularCreators     = this.svc.popularCreators;
   readonly featuredCollections = this.svc.featuredCollections;
   readonly relatedTags         = this.svc.relatedTags;
-  readonly recentSearches      = this.svc.recentSearches;
 
   // ── Detail panel extras ───────────────────────────────────────────────────
   readonly zoomOpen        = signal(false);
@@ -243,6 +242,8 @@ export class VectorsComponent implements OnInit, OnDestroy {
   // ── Voice / image search ──────────────────────────────────────────────────
   readonly voiceActive      = signal(false);
   readonly imageSearchOpen  = signal(false);
+  readonly imageSearching   = signal(false);
+  readonly loadMoreLoading  = signal(false);
 
   // ── Color mode options ────────────────────────────────────────────────────
   readonly colorModeOptions: { key: string; label: string; icon: string }[] = [
@@ -701,19 +702,45 @@ export class VectorsComponent implements OnInit, OnDestroy {
       this.onSearchSubmit();
       this.voiceActive.set(false);
     };
-    rec.onerror = () => this.voiceActive.set(false);
-    rec.onend   = () => this.voiceActive.set(false);
+    rec.onerror = (ev: any) => {
+      this.voiceActive.set(false);
+      const errorMap: Record<string, string> = {
+        'no-speech':          'No speech detected — please try again.',
+        'audio-capture':      'Microphone not available. Check your permissions.',
+        'not-allowed':        'Microphone access denied. Allow it in browser settings.',
+        'network':            'Network error during voice recognition.',
+        'service-not-allowed':'Voice search service is not allowed.',
+      };
+      const msg = errorMap[ev.error] ?? `Voice search error: ${ev.error ?? 'unknown'}`;
+      this.showToast(msg);
+    };
+    rec.onend = () => this.voiceActive.set(false);
     rec.start();
   }
 
   // ── Image search (file picker) ────────────────────────────────────────────
   triggerImageSearch(): void {
+    if (this.imageSearching()) return;
+    const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
     input.onchange = () => {
       const file = input.files?.[0];
       if (!file) return;
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        this.showToast('Unsupported file type. Please upload an image.');
+        return;
+      }
+      // Validate file size
+      if (file.size > MAX_SIZE_BYTES) {
+        this.showToast('Image is too large. Please upload a file under 10 MB.');
+        return;
+      }
+
+      this.imageSearching.set(true);
       // Extract dominant color from the uploaded image and use it as a color filter
       const img = new Image();
       const objectUrl = URL.createObjectURL(file);
@@ -731,10 +758,12 @@ export class VectorsComponent implements OnInit, OnDestroy {
           this.showToast('Filtering by dominant color extracted from your image');
         }
         URL.revokeObjectURL(objectUrl);
+        this.imageSearching.set(false);
       };
       img.onerror = () => {
         URL.revokeObjectURL(objectUrl);
-        this.showToast('Could not read the image file');
+        this.imageSearching.set(false);
+        this.showToast('Could not read the image file. Please try a different image.');
       };
       img.src = objectUrl;
     };
@@ -892,7 +921,12 @@ export class VectorsComponent implements OnInit, OnDestroy {
 
   // ── Load more ─────────────────────────────────────────────────────────────
   loadMore(): void {
-    this.visibleCount.update(n => n + PAGE_SIZE);
+    if (this.loadMoreLoading()) return;
+    this.loadMoreLoading.set(true);
+    setTimeout(() => {
+      this.visibleCount.update(n => n + PAGE_SIZE);
+      this.loadMoreLoading.set(false);
+    }, 400);
   }
 
   // ── Collections ───────────────────────────────────────────────────────────
