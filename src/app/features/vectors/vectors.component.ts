@@ -1147,10 +1147,6 @@ export class VectorsComponent implements OnInit, OnDestroy {
     return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
-  stars(rating: number): boolean[] {
-    return Array.from({ length: 5 }, (_, i) => i < Math.round(rating));
-  }
-
   trackById(_: number, a: VectorAsset): string { return a.id; }
   trackByIdx(i: number): number { return i; }
 

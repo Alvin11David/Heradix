@@ -1,7 +1,4 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { ApiService } from '../../core/api/api.service';
+import { Injectable, signal, computed } from '@angular/core';
 import {
   VectorAsset, VectorCategory, VectorCollection, VectorFilterState,
   VectorFormat, VectorStyle, VectorLicense, VectorOrientation,
@@ -836,7 +833,7 @@ const USER_RATINGS_KEY    = 'amx_vector_ratings';
 
 @Injectable({ providedIn: 'root' })
 export class VectorsService {
-  private readonly api = inject(ApiService);
+ 
 
   // ── State ─────────────────────────────────────────────────────────────────
   readonly loading = signal(true);
@@ -976,34 +973,11 @@ export class VectorsService {
   // ── Data loading ──────────────────────────────────────────────────────────
 
   private _loadData(): void {
-    // Try API first; fall back to inline mock data if unavailable
-    forkJoin({
-      vectors:    this.api.get<VectorAsset[]>('/vectors'),
-      creators:   this.api.get<VectorCreator[]>('/vector-creators'),
-      categories: this.api.get<VectorCategory[]>('/vector-categories'),
-    }).pipe(
-      catchError(() => {
-        // API unavailable – use rich inline mock data
-        return [{ vectors: buildMockVectors(), creators: MOCK_CREATORS, categories: MOCK_CATEGORIES }];
-      })
-    ).subscribe({
-      next: (result: any) => {
-        const data = Array.isArray(result) ? result[0] : result;
-        this.allAssets.set(data.vectors?.length ? data.vectors : buildMockVectors());
-        this.creators.set(data.creators?.length ? data.creators : MOCK_CREATORS);
-        this.categories.set(data.categories?.length ? data.categories : MOCK_CATEGORIES);
-        this.loading.set(false);
-        this.loaded.set(true);
-      },
-      error: () => {
-        // Final fallback
-        this.allAssets.set(buildMockVectors());
-        this.creators.set(MOCK_CREATORS);
-        this.categories.set(MOCK_CATEGORIES);
-        this.loading.set(false);
-        this.loaded.set(true);
-      },
-    });
+    this.allAssets.set(buildMockVectors());
+    this.creators.set(MOCK_CREATORS);
+    this.categories.set(MOCK_CATEGORIES);
+    this.loading.set(false);
+    this.loaded.set(true);
   }
 
   reload(): void {
@@ -1112,13 +1086,6 @@ export class VectorsService {
   deleteCollection(colId: string): void {
     this.collections.update(cols => {
       const next = cols.filter(c => c.id !== colId);
-      this._saveCollections(next); return next;
-    });
-  }
-
-  toggleCollectionPublic(colId: string): void {
-    this.collections.update(cols => {
-      const next = cols.map(c => c.id === colId ? { ...c, isPublic: !c.isPublic } : c);
       this._saveCollections(next); return next;
     });
   }
