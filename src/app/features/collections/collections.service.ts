@@ -5,6 +5,9 @@ import { ApiService } from '../../core/api/api.service';
 import { Collection, CreateCollectionPayload } from '../../core/models/collection.model';
 import { Asset } from '../../core/models/asset.model';
 
+const LS_COLLECTIONS  = 'amx_collections_v2';
+const LS_ASSET_COLS   = 'amx_asset_collections_v2';
+
 const MOCK_COLLECTIONS: Collection[] = [
   { id: 'safe-birth', userId: 'u1', name: 'Safe Birth Campaign', description: 'Campaign materials for safe birth awareness', isPublic: false, assetCount: 5, coverThumbnailUrl: '/assets/images/thumbnails/safebirth-1080.jpg', createdAt: '2025-01-15T10:00:00Z', updatedAt: '2025-06-20T14:30:00Z' },
   { id: 'easter-resources', userId: 'u1', name: 'Easter Resources', description: 'Easter-themed designs and resources', isPublic: true, assetCount: 8, coverThumbnailUrl: '/assets/images/thumbnails/5bab3098d48598d96d159989a821062d.jpg', createdAt: '2025-03-01T08:00:00Z', updatedAt: '2025-06-18T11:00:00Z' },
@@ -101,14 +104,51 @@ export class CollectionsService {
   readonly error = signal<string | null>(null);
 
   private _nextCollectionId = 100;
-  private _assetCollections = buildAssetToCollections();
+  private _assetCollections = this._loadAssetCollections();
   private _collectionItems = new Map<string, { id: string; name: string; thumbnail: string; slug: string }[]>(
     Object.entries(MOCK_ITEMS).map(([k, v]) => [k, [...v]])
   );
 
+  // ── Persistence ────────────────────────────────────────────────────────────
+
+  private _loadCollections(): Collection[] {
+    try {
+      const raw = localStorage.getItem(LS_COLLECTIONS);
+      if (raw) return JSON.parse(raw) as Collection[];
+    } catch {}
+    return MOCK_COLLECTIONS;
+  }
+
+  private _loadAssetCollections(): Map<string, string[]> {
+    try {
+      const raw = localStorage.getItem(LS_ASSET_COLS);
+      if (raw) {
+        const obj = JSON.parse(raw) as Record<string, string[]>;
+        return new Map(Object.entries(obj));
+      }
+    } catch {}
+    return buildAssetToCollections();
+  }
+
+  private _persist(): void {
+    try {
+      localStorage.setItem(LS_COLLECTIONS, JSON.stringify(this.collections()));
+      const obj: Record<string, string[]> = {};
+      this._assetCollections.forEach((v, k) => { obj[k] = v; });
+      localStorage.setItem(LS_ASSET_COLS, JSON.stringify(obj));
+    } catch {}
+  }
+
   loadCollections(): void {
     this.loading.set(true);
     this.error.set(null);
+    // Use localStorage-persisted state if available; fall back to mock
+    const local = this._loadCollections();
+    if (local !== MOCK_COLLECTIONS) {
+      this.collections.set(local);
+      this.loading.set(false);
+      return;
+    }
     this.api.get<Collection[]>('/collections').pipe(
       catchError(() => {
         this.collections.set(MOCK_COLLECTIONS);
@@ -136,6 +176,7 @@ export class CollectionsService {
       catchError(() => {
         this.collections.update(list => [newCol, ...list]);
         this._collectionItems.set(newCol.id, []);
+        this._persist();
         return of(newCol);
       })
     );
@@ -150,6 +191,7 @@ export class CollectionsService {
           this.collections.update(list =>
             list.map(c => c.id === collectionId ? { ...c, assetCount: c.assetCount + 1 } : c)
           );
+          this._persist();
         }
         return of(void 0);
       })
@@ -164,6 +206,7 @@ export class CollectionsService {
         this.collections.update(list =>
           list.map(c => c.id === collectionId ? { ...c, assetCount: Math.max(0, c.assetCount - 1) } : c)
         );
+        this._persist();
         return of(void 0);
       })
     );
@@ -192,6 +235,7 @@ export class CollectionsService {
       catchError(() => {
         this.collections.update(list => list.filter(c => c.id !== id));
         this._collectionItems.delete(id);
+        this._persist();
         return of(void 0);
       })
     );
