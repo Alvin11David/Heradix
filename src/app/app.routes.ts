@@ -48,6 +48,11 @@ export const routes: Routes = [
   },
 
   {
+    path: 'mockups',
+    loadComponent: () => import('./features/mockups/mockups.component').then(m => m.MockupsComponent),
+  },
+
+  {
     path: 'vectors',
     loadComponent: () => import('./features/vectors/vectors.component').then(m => m.VectorsComponent),
   },

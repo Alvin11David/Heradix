@@ -38,6 +38,23 @@ Angular 20 client application for Amarapix — a design-asset marketplace with a
   - **File size estimates in the size picker**: each Small/Medium/Large option in the detail panel now shows an approximate KB/MB download size (heuristic based on target pixel dimensions), matching PNGWing/CleanPNG's "know before you download" pattern — see `src/app/shared/utils/file-size-estimate.ts`.
   - **ZIP bundle downloads**: "Download as ZIP" for bulk-selected assets, and a per-board zip button in the Collections modal — CleanPNG "resource pack"/Freepik pack-style single-file download instead of N separate browser downloads. Uses the `jszip` dependency; fetches each asset, zips client-side, and triggers one download.
 
+## Mockups Module (`/mockups`)
+- Full mockups marketplace and creation tool, modeled on Canva, Placeit, Smartmockups, Freepik, and Envato Elements
+- Route: `/mockups` → `src/app/features/mockups/mockups.component.ts`
+- Header "Mockups" nav link updated to point to `/mockups`
+- Data model: `src/app/core/models/mockup.model.ts`
+- Service: `src/app/features/mockups/mockups.service.ts` — 40+ mock assets across 9 categories, computed signals for all homepage sections and browse/filter state, localStorage persistence for favorites/collections/recent searches
+- **Homepage**: hero with gradient + AI search toggle, color swatches, trending tags; 12+ curated sections (Featured, Trending, AI-Generated, Devices, Apparel, Packaging, Branding, Editor's Picks, Free, Most Downloaded, Creators, Recently Viewed); seasonal collections strip; trending tags cloud
+- **Browse mode**: sticky toolbar with sort, view-mode (masonry/grid/list), bulk select + download; collapsible sidebar with full filter set (category, subcategory, scene type, orientation, license, format, AI, favorites, date, background color); infinite-scroll load-more; active filter chips; related tags cloud
+- **Detail panel** (slide-over): full preview + thumbnail strip + lightbox zoom; Info / Smart Editor / Similar tabs; stats, specs, license disclosure, creator, color palette, tags, format download buttons
+- **Smart Mockup Editor tab**: drag-and-drop / file-upload design zone; placement sliders (scale, rotation, position); background color picker; lighting controls (brightness, contrast, opacity); effects toggles (shadow, reflection, gloss, finish type); 6 AI tool buttons (Auto Fit, Remove BG, Add Shadow, Perspective, Color Match, Lighting)
+- **AI panel**: text prompt → simulated generation with toast feedback
+- **Collections modal**: add-to-collection, create new collection, persisted in localStorage
+- **Report modal**: content flagging for copyright/inappropriate/spam/quality
+- **Lightbox**: full-screen preview with prev/next navigation (keyboard + buttons)
+- **Favorites & bulk select**: persistent favorites, multi-select mode with batch download, premium paywall gating
+- All state managed via Angular Signals (ChangeDetectionStrategy.OnPush)
+
 ## Vectors Module (`/vectors`)
 - Full vector library and marketplace: homepage with 10+ curated sections (Featured, Trending, Staff Picks, AI Generated, Free, Premium, New Arrivals, etc.), category grid, seasonal collections, trending colors/tags/styles
 - Browse mode: sidebar filters (category, format SVG/EPS/AI/PDF/CDR/DXF/PNG, style, license, orientation, complexity, date, special toggles), masonry/grid/list views, sort by popular/newest/downloads/views/likes/rating, active filter chips, related tag cloud

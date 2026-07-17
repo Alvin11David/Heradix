@@ -1,0 +1,655 @@
+# AMARAPIX Mockups Module Prompt
+
+Design and implement a **world-class Mockups module** for AMARAPIX that rivals or surpasses Canva, Placeit, Smartmockups, Freepik Mockups, Envato Elements, Adobe Express, and Artboard Studio.
+
+The Mockups section should allow users to instantly preview their designs on realistic products, devices, apparel, packaging, signage, print materials, and digital screens using smart object technology and AI-powered placement.
+
+---
+
+# General Requirements
+
+Create a dedicated **Mockups** section where users can:
+
+* Browse thousands of professional mockups
+* Search mockups instantly
+* Preview mockups
+* Replace designs using Smart Objects
+* Edit backgrounds
+* Edit shadows
+* Customize scenes
+* Generate AI mockups
+* Download high-quality renders
+* Save mockups to collections
+* Use mockups directly inside the AMARAPIX editor
+
+The experience should be modern, premium, and extremely easy to use.
+
+---
+
+# Homepage
+
+Display sections including:
+
+* Featured Mockups
+* Trending Mockups
+* Editor's Picks
+* New Mockups
+* Recently Added
+* Most Downloaded
+* Most Used
+* AI Generated Mockups
+* Free Mockups
+* Premium Mockups
+* Seasonal Mockups
+* Business Mockups
+* Brand Identity Mockups
+* Packaging Mockups
+* Apparel Mockups
+* Device Mockups
+* Print Mockups
+* Social Media Mockups
+* Outdoor Advertising
+* Recommended For You
+* Continue Editing
+* Popular Categories
+* Popular Collections
+* Popular Creators
+
+---
+
+# Search
+
+Implement an intelligent search system supporting:
+
+* Keyword Search
+* AI Semantic Search
+* Voice Search
+* Image Search
+* Search by Uploading Design
+* Similar Mockups
+* Search Suggestions
+* Auto Complete
+* Recent Searches
+* Trending Searches
+* Search by Tags
+* Search by Creator
+* Search by Category
+* Search by Product
+* Search by Color
+* Search by Style
+
+---
+
+# Categories
+
+## Devices
+
+* iPhone
+* Android
+* MacBook
+* Windows Laptop
+* iMac
+* Monitor
+* Smart Watch
+* Tablet
+* Foldable Phones
+* Desktop Screens
+* TV
+* Digital Displays
+
+---
+
+## Apparel
+
+* T-Shirts
+* Hoodies
+* Polo Shirts
+* Jerseys
+* Sweatshirts
+* Jackets
+* Caps
+* Beanies
+* Shoes
+* Socks
+* Tote Bags
+* Aprons
+
+---
+
+## Branding
+
+* Business Cards
+* Letterheads
+* Envelopes
+* Notebooks
+* ID Cards
+* Company Profiles
+* Presentation Folders
+
+---
+
+## Packaging
+
+* Boxes
+* Bottles
+* Cans
+* Coffee Cups
+* Plastic Containers
+* Cosmetic Bottles
+* Food Packaging
+* Shopping Bags
+* Labels
+* Pouches
+* Tubes
+
+---
+
+## Print
+
+* Flyers
+* Posters
+* Brochures
+* Magazines
+* Books
+* Newspapers
+* Calendars
+* Certificates
+* Invitations
+* Menus
+
+---
+
+## Outdoor
+
+* Billboards
+* Street Signs
+* Bus Stops
+* Vehicle Wraps
+* Storefronts
+* Building Banners
+* Roll-Up Banners
+* Flags
+
+---
+
+## Home & Office
+
+* Picture Frames
+* Wall Art
+* Canvas Prints
+* Coffee Mugs
+* Mouse Pads
+* Pillows
+* Furniture Branding
+* Office Signs
+
+---
+
+## Digital
+
+* Social Media Posts
+* Instagram Stories
+* Facebook Covers
+* YouTube Thumbnails
+* Website Screens
+* Mobile Apps
+* Dashboards
+* UI Mockups
+
+---
+
+## Merchandise
+
+* Stickers
+* Key Holders
+* Pens
+* Water Bottles
+* USB Drives
+* Phone Cases
+* Gift Boxes
+
+---
+
+# Filters
+
+Allow filtering by:
+
+* Free
+* Premium
+* AI Generated
+* Orientation
+* Product Type
+* Device Type
+* Clothing Type
+* Industry
+* Background Color
+* Scene Type
+* Indoor
+* Outdoor
+* Studio
+* Lifestyle
+* Minimal
+* Flat Lay
+* Perspective
+* Top View
+* Front View
+* Side View
+* Isometric
+* Resolution
+* Creator
+* Date Added
+* Popularity
+* Most Downloaded
+* Highest Rated
+
+---
+
+# Asset Cards
+
+Each mockup card should display:
+
+* Large Preview
+* Hover Animation
+* Live Preview
+* Product Name
+* Creator
+* Category
+* Resolution
+* File Type
+* Free Badge
+* Premium Badge
+* AI Badge
+* Downloads
+* Views
+* Likes
+* Rating
+
+Quick Actions
+
+* Preview
+* Open Editor
+* Favorite
+* Share
+* Add to Collection
+* Download Sample
+* Report
+
+---
+
+# Mockup Details Page
+
+Display:
+
+* Full Preview
+* Multiple Preview Images
+* 360° Preview
+* Product Information
+* Description
+* Tags
+* Dimensions
+* Resolution
+* Smart Object Size
+* Editable Areas
+* License
+* Creator
+* Upload Date
+* Downloads
+* Likes
+* Views
+* Comments
+
+Also show:
+
+* Similar Mockups
+* Related Products
+* Matching Templates
+* Matching Fonts
+* Matching Colors
+* Related Collections
+
+---
+
+# Smart Mockup Editor
+
+Users should be able to:
+
+* Upload Design
+* Drag and Drop Design
+* Replace Artwork
+* Resize Design
+* Rotate Design
+* Scale Design
+* Move Design
+* Warp Design
+* Perspective Transform
+* Distort Design
+* Auto Fit
+* Manual Fit
+* Snap to Printable Area
+
+---
+
+# Mockup Customization
+
+Allow users to customize:
+
+* Background Color
+* Background Image
+* Background Blur
+* Background Gradient
+* Background Texture
+
+Lighting
+
+* Brightness
+* Contrast
+* Exposure
+* Highlights
+* Shadows
+
+Effects
+
+* Reflection
+* Gloss
+* Matte Finish
+* Metallic Finish
+* Emboss
+* Deboss
+* Transparency
+* Opacity
+
+Scene
+
+* Add Props
+* Remove Props
+* Change Surface
+* Change Table
+* Change Wall
+* Change Environment
+
+---
+
+# AI Features
+
+Implement AI-powered tools:
+
+* Generate Mockup from Prompt
+* AI Product Placement
+* AI Scene Generation
+* AI Background Replacement
+* AI Shadow Generation
+* AI Reflection Generation
+* AI Perspective Matching
+* AI Smart Cropping
+* AI Auto Fit
+* AI Material Detection
+* AI Lighting Adjustment
+* AI Color Matching
+* AI Remove Wrinkles
+* AI Fabric Simulation
+* AI Packaging Simulation
+* AI Object Removal
+* AI Environment Replacement
+
+---
+
+# Device Mockups
+
+Support:
+
+* Phones
+* Tablets
+* Smart Watches
+* Laptops
+* Desktop Monitors
+* TVs
+* Gaming Consoles
+
+Allow:
+
+* Screen Replacement
+* Multiple Screens
+* Device Rotation
+* Device Color Selection
+
+---
+
+# Apparel Mockups
+
+Allow editing:
+
+* Shirt Color
+* Fabric Texture
+* Sleeve Color
+* Collar Color
+* Hoodie Strings
+* Pocket Design
+
+Simulation
+
+* Fabric Wrinkles
+* Fabric Stretch
+* Fabric Shadows
+* Fabric Folds
+
+---
+
+# Packaging Mockups
+
+Support:
+
+* Bottle Labels
+* Can Labels
+* Box Packaging
+* Coffee Cups
+* Cosmetic Containers
+* Shopping Bags
+* Food Boxes
+* Stickers
+
+Allow:
+
+* Wrap Around Designs
+* Multiple Label Areas
+* Lid Designs
+* Front
+* Back
+* Side Views
+
+---
+
+# Branding Mockups
+
+Support:
+
+* Business Cards
+* Letterheads
+* Envelopes
+* Company Folders
+* Stamps
+* Rubber Seals
+* Corporate Identity
+
+---
+
+# Collections
+
+Users should create:
+
+* Favorites
+* Brand Mockups
+* Packaging
+* Apparel
+* Social Media
+* Devices
+* Marketing
+
+Support:
+
+* Private Collections
+* Public Collections
+* Shared Collections
+
+---
+
+# Creator Dashboard
+
+Creators should have:
+
+* Upload Mockups
+* Portfolio
+* Downloads
+* Analytics
+* Earnings
+* Followers
+* Reviews
+* Sales Reports
+* Licensing
+* Verification
+
+---
+
+# Marketplace
+
+Allow creators to sell:
+
+* Device Mockups
+* Apparel Mockups
+* Packaging Mockups
+* Branding Mockups
+* Print Mockups
+* Social Media Mockups
+
+Support:
+
+* Pricing
+* Royalties
+* Discounts
+* Coupons
+* Featured Listings
+
+---
+
+# Downloads
+
+Allow exporting in:
+
+* PNG
+* JPG
+* PDF
+* PSD
+* SVG (where applicable)
+* WebP
+
+Quality
+
+* Low
+* Medium
+* High
+* Ultra HD
+* Print Quality
+
+Support:
+
+* Transparent Background
+* CMYK Export
+* RGB Export
+
+---
+
+# Collaboration
+
+Implement:
+
+* Live Editing
+* Team Workspaces
+* Shared Projects
+* Comments
+* Mentions
+* Version History
+* Approval Workflow
+
+---
+
+# User Features
+
+Allow users to:
+
+* Like
+* Favorite
+* Share
+* Bookmark
+* Rate
+* Comment
+* Follow Creators
+* Report Content
+* Recently Viewed
+* Recently Used
+* Recently Downloaded
+
+---
+
+# Admin Panel
+
+Develop tools for:
+
+* Mockup Approval
+* Copyright Review
+* Creator Verification
+* Category Management
+* Marketplace Management
+* Revenue Dashboard
+* Reports
+* Analytics
+* Featured Mockups
+* User Management
+
+---
+
+# Performance
+
+Implement:
+
+* Lazy Loading
+* Infinite Scroll
+* Smart Caching
+* CDN Delivery
+* High-Speed Image Rendering
+* Responsive Images
+* Offline Drafts
+* Autosave
+
+---
+
+# Integration with the AMARAPIX Editor
+
+Allow users to:
+
+* Open mockups directly from the editor
+* Replace designs with one click
+* Save mockups back into projects
+* Drag and drop designs onto products
+* Convert finished mockups into templates
+* Reuse mockups across multiple projects
+
+---
+
+# User Experience
+
+The interface should feature:
+
+* Beautiful masonry grid layouts
+* Smooth hover animations
+* Modern glassmorphism where appropriate
+* Dark and light themes
+* Responsive layouts for desktop, tablet, and mobile
+* Drag-and-drop interactions
+* Context menus
+* Keyboard shortcuts
+* Accessible design (WCAG compliant)
+* Fast transitions
+* Rich previews
+* Micro-interactions
+* Professional product photography
+
+The final Mockups module should provide a premium experience that combines the best ideas from Canva, Smartmockups, Placeit, Freepik, Adobe Express, Envato Elements, and Artboard Studio while integrating seamlessly with every other AMARAPIX design tool.
