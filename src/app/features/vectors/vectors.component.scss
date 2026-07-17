@@ -1294,6 +1294,52 @@
   }
 }
 
+// ── Format picker (hover overlay) ────────────────────────────────────────────
+
+.vec-card__dl-wrap {
+  position: relative;
+}
+
+.vec-card__format-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  background: #1e293b;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 90px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.45);
+  z-index: 20;
+  animation: fmt-in .12s ease;
+}
+
+@keyframes fmt-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.vec-card__format-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 7px;
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  transition: background .12s;
+
+  &:hover { background: rgba(245,130,10,.85); color: #fff; }
+}
+
 .vec-card__quick-actions {
   position: absolute;
   top: 8px;

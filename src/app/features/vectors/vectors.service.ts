@@ -950,10 +950,31 @@ export class VectorsService {
     })).sort((a, b) => b.totalDownloads - a.totalDownloads);
   });
   readonly featuredCollections = computed(() => {
-    return SEASONAL_COLLECTIONS.map(col => ({
-      ...col,
-      assets: this.allAssets().filter(a => a.category === col.id || a.tags.some(t => col.label.toLowerCase().includes(t))).slice(0, 4),
-    }));
+    // Keyword / style / category map so every seasonal collection finds assets
+    const COLLECTION_MATCH: Record<string, { keywords: string[]; styles?: string[]; categories?: string[] }> = {
+      'summer':     { keywords: ['summer','beach','sun','tropical','vacation','sea','ocean','travel','surf'], categories: ['travel','nature'] },
+      'christmas':  { keywords: ['christmas','holiday','winter','festive','halloween','valentine','new year','thanksgiving','celebration'], categories: ['holidays'] },
+      'business':   { keywords: ['business','office','corporate','finance','marketing','startup','professional'], categories: ['business'] },
+      'nature':     { keywords: ['nature','plant','flower','tree','leaf','earth','animal','botanical','garden','forest','eco'], categories: ['nature','food'] },
+      'gradient':   { keywords: ['gradient','neon','colorful','vibrant','abstract'], styles: ['gradient'] },
+      'minimalist': { keywords: ['minimal','minimalist','simple','clean','outline','geometric'], styles: ['minimal','outline'] },
+    };
+
+    return SEASONAL_COLLECTIONS.map(col => {
+      const match = COLLECTION_MATCH[col.id] ?? { keywords: [col.id] };
+      const { keywords, styles = [], categories = [] } = match;
+
+      const assets = this.allAssets()
+        .filter(a =>
+          categories.includes(a.category) ||
+          (styles.length > 0 && styles.includes(a.style)) ||
+          a.tags.some(t => keywords.some(kw => t.toLowerCase().includes(kw)))
+        )
+        .sort((a, b) => b.downloads - a.downloads)
+        .slice(0, 4);
+
+      return { ...col, assets };
+    });
   });
 
   // ── Related tags (from current results) ──────────────────────────────────
