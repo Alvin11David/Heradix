@@ -13,6 +13,7 @@ import {
   MockupLicense, MockupSortMode, MockupViewMode, MockupFormat,
 } from '../../core/models/mockup.model';
 import { AuthService } from '../../core/auth/auth.service';
+import { MockuuupsApiService } from '../../core/services/mockuuups-api.service';
 
 // ── Download quality options ──────────────────────────────────────────────────
 export type DownloadQuality = 'png' | 'jpg' | 'pdf' | 'psd' | 'svg' | 'webp';
@@ -137,6 +138,7 @@ export class MockupsComponent implements OnInit, OnDestroy {
   readonly svc     = inject(MockupsService);
   private router   = inject(Router);
   readonly auth    = inject(AuthService);
+  private mkuApi   = inject(MockuuupsApiService);
 
   // ── View state ────────────────────────────────────────────────────────────
   view            = signal<PageView>('home');
@@ -163,6 +165,17 @@ export class MockupsComponent implements OnInit, OnDestroy {
   aiGenerating    = signal(false);
   aiFeature       = signal('generate');
   lightboxOpen    = signal(false);
+
+  // ── API state proxies ─────────────────────────────────────────────────────
+  readonly apiLoading = this.svc.apiLoading;
+  readonly apiLoaded  = this.svc.apiLoaded;
+  readonly apiError   = this.svc.apiError;
+
+  // ── Render state (Smart Mockup Editor → real API render) ──────────────────
+  renderLoading   = signal(false);
+  renderError     = signal<string | null>(null);
+  renderResultUrl = signal<string | null>(null);
+  private _designFile: File | null = null;
 
   // ── Filter proxies ────────────────────────────────────────────────────────
   readonly filterState   = this.svc.filter;
@@ -233,6 +246,8 @@ export class MockupsComponent implements OnInit, OnDestroy {
       this.svc.createCollection('Favorites');
       this.svc.createCollection('Brand Mockups');
     }
+    // Load real mockups from Mockuuups API
+    this.svc.loadRealMockups();
   }
   ngOnDestroy(): void {
     if (this.toastTimer) clearTimeout(this.toastTimer);
@@ -433,10 +448,13 @@ export class MockupsComponent implements OnInit, OnDestroy {
   }
 
   loadDesignFile(file: File): void {
+    this._designFile = file;
+    this.renderResultUrl.set(null);
+    this.renderError.set(null);
     const reader = new FileReader();
     reader.onload = (e) => {
       this.editorState.update(s => ({ ...s, uploadedDesignUrl: e.target?.result as string }));
-      this.showToast('Design loaded — adjust placement and customization below');
+      this.showToast('Design loaded — click "Render Mockup" to generate a real preview!');
     };
     reader.readAsDataURL(file);
   }
@@ -454,7 +472,89 @@ export class MockupsComponent implements OnInit, OnDestroy {
     this.showToast('Mockup customized — ready to download!');
   }
 
+  /**
+   * Upload the user's design to a public temp host, then call the
+   * Mockuuups render API to composite it onto the selected mockup.
+   */
+  async renderWithApi(): Promise<void> {
+    const asset = this.selectedAsset() as any;
+    if (!asset) return;
+
+    const file = this._designFile;
+    if (!file) {
+      this.showToast('Please upload a design image first');
+      return;
+    }
+
+    // Need a real Mockuuups mockup ID (api_ prefix means it came from the API)
+    const mockuuupsId: string | undefined = asset.mockuuupsId;
+    if (!mockuuupsId) {
+      this.showToast('This mockup is from our offline library — try an API mockup for live rendering');
+      return;
+    }
+
+    this.renderLoading.set(true);
+    this.renderError.set(null);
+    this.renderResultUrl.set(null);
+    this.showToast('Uploading your design…');
+
+    try {
+      // 1. Upload design to public temp host so Mockuuups can fetch it
+      const designUrl = await this.mkuApi.uploadDesignToTemp(file);
+      this.showToast('Rendering your mockup via Mockuuups API…');
+
+      // 2. Call the render endpoint
+      const placements: any[] = asset.placements ?? [];
+      const contents = placements.length > 0
+        ? placements.map(() => ({ type: 'image' as const, url: designUrl }))
+        : [{ type: 'image' as const, url: designUrl }];
+
+      this.mkuApi.renderMockup({
+        mockup: mockuuupsId,
+        format: 'image/webp',
+        destination: 'cdn',
+        cdn: { expiration: '1 day' },
+        contents,
+      }).subscribe({
+        next: (res: any) => {
+          const url = res?.url ?? res?.result?.url;
+          if (url) {
+            this.renderResultUrl.set(url);
+            this.showToast('✅ Mockup rendered — scroll down to download!');
+          } else {
+            this.renderError.set('Render succeeded but no URL was returned');
+          }
+          this.renderLoading.set(false);
+        },
+        error: (err) => {
+          const msg = err?.error?.message ?? err?.message ?? 'Render failed';
+          this.renderError.set(msg);
+          this.showToast(`Render error: ${msg}`);
+          this.renderLoading.set(false);
+        },
+      });
+    } catch (err: any) {
+      const msg = err?.message ?? 'Upload failed';
+      this.renderError.set(msg);
+      this.showToast(`Upload error: ${msg}`);
+      this.renderLoading.set(false);
+    }
+  }
+
+  downloadRendered(): void {
+    const url = this.renderResultUrl();
+    if (!url) return;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${this.selectedAsset()?.slug ?? 'mockup'}-rendered.webp`;
+    link.target = '_blank';
+    link.click();
+    this.showToast('Downloading rendered mockup…');
+  }
+
   downloadCustomized(): void {
+    const url = this.renderResultUrl();
+    if (url) { this.downloadRendered(); return; }
     const a = this.selectedAsset();
     if (!a) return;
     this.showToast('Generating your customized mockup…');

@@ -1,9 +1,10 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import {
   MockupAsset, MockupCategory, MockupCategoryMeta, MockupCollection,
   MockupFilterState, MockupCreator, MockupSceneType, MockupOrientation,
   MockupLicense, MockupSortMode,
 } from '../../core/models/mockup.model';
+import { MockuuupsApiService, MkuMockup } from '../../core/services/mockuuups-api.service';
 
 // ─── Trending data ────────────────────────────────────────────────────────────
 export const MOCKUP_TRENDING_TAGS = [
@@ -494,6 +495,8 @@ const DEFAULT_FILTER: MockupFilterState = {
 
 @Injectable({ providedIn: 'root' })
 export class MockupsService {
+  private readonly api = inject(MockuuupsApiService);
+
   // ── State ─────────────────────────────────────────────────────────────────
   readonly filter   = signal<MockupFilterState>({ ...DEFAULT_FILTER });
   readonly favorites = signal<Set<string>>(this.loadFavorites());
@@ -501,15 +504,21 @@ export class MockupsService {
   readonly recentSearches = signal<string[]>(this.loadRecentSearches());
   readonly recentlyViewed = signal<string[]>([]);
 
+  // ── API state ─────────────────────────────────────────────────────────────
+  readonly assets     = signal<MockupAsset[]>([...ALL_ASSETS]);
+  readonly apiLoading = signal(false);
+  readonly apiLoaded  = signal(false);
+  readonly apiError   = signal<string | null>(null);
+  readonly apiPage    = signal(1);
+
   // ── Derived ───────────────────────────────────────────────────────────────
-  readonly allAssets = ALL_ASSETS;
   readonly categories = MOCKUP_CATEGORIES;
   readonly creators = CREATORS;
 
   readonly filteredAssets = computed(() => {
     const f = this.filter();
     const favSet = this.favorites();
-    let list = [...ALL_ASSETS];
+    let list = [...this.assets()];
 
     if (f.query) {
       const q = f.query.toLowerCase();
@@ -547,19 +556,19 @@ export class MockupsService {
     return list;
   });
 
-  readonly featuredAssets   = computed(() => ALL_ASSETS.filter(a => a.isFeatured).slice(0, 8));
-  readonly trendingAssets   = computed(() => ALL_ASSETS.filter(a => a.isTrending).slice(0, 8));
-  readonly editorsPickAssets = computed(() => ALL_ASSETS.filter(a => a.isEditorsChoice).slice(0, 6));
-  readonly staffPickAssets  = computed(() => ALL_ASSETS.filter(a => a.isStaffPick).slice(0, 6));
-  readonly newAssets        = computed(() => ALL_ASSETS.filter(a => a.isNew).slice(0, 8));
-  readonly freeAssets       = computed(() => ALL_ASSETS.filter(a => a.isFree).slice(0, 8));
-  readonly premiumAssets    = computed(() => ALL_ASSETS.filter(a => a.isPremium).slice(0, 8));
-  readonly aiAssets         = computed(() => ALL_ASSETS.filter(a => a.isAiGenerated).slice(0, 6));
-  readonly deviceAssets     = computed(() => ALL_ASSETS.filter(a => a.category === 'devices').slice(0, 6));
-  readonly apparelAssets    = computed(() => ALL_ASSETS.filter(a => a.category === 'apparel').slice(0, 6));
-  readonly packagingAssets  = computed(() => ALL_ASSETS.filter(a => a.category === 'packaging').slice(0, 6));
-  readonly brandingAssets   = computed(() => ALL_ASSETS.filter(a => a.category === 'branding').slice(0, 6));
-  readonly mostDownloaded   = computed(() => [...ALL_ASSETS].sort((a, b) => b.downloads - a.downloads).slice(0, 6));
+  readonly featuredAssets   = computed(() => this.assets().filter(a => a.isFeatured).slice(0, 8));
+  readonly trendingAssets   = computed(() => this.assets().filter(a => a.isTrending).slice(0, 8));
+  readonly editorsPickAssets = computed(() => this.assets().filter(a => a.isEditorsChoice).slice(0, 6));
+  readonly staffPickAssets  = computed(() => this.assets().filter(a => a.isStaffPick).slice(0, 6));
+  readonly newAssets        = computed(() => this.assets().filter(a => a.isNew).slice(0, 8));
+  readonly freeAssets       = computed(() => this.assets().filter(a => a.isFree).slice(0, 8));
+  readonly premiumAssets    = computed(() => this.assets().filter(a => a.isPremium).slice(0, 8));
+  readonly aiAssets         = computed(() => this.assets().filter(a => a.isAiGenerated).slice(0, 6));
+  readonly deviceAssets     = computed(() => this.assets().filter(a => a.category === 'devices').slice(0, 6));
+  readonly apparelAssets    = computed(() => this.assets().filter(a => a.category === 'apparel').slice(0, 6));
+  readonly packagingAssets  = computed(() => this.assets().filter(a => a.category === 'packaging').slice(0, 6));
+  readonly brandingAssets   = computed(() => this.assets().filter(a => a.category === 'branding').slice(0, 6));
+  readonly mostDownloaded   = computed(() => [...this.assets()].sort((a, b) => b.downloads - a.downloads).slice(0, 6));
 
   // ── Actions ───────────────────────────────────────────────────────────────
   setFilter(patch: Partial<MockupFilterState>): void {
@@ -606,13 +615,126 @@ export class MockupsService {
     });
   }
 
-  getById(id: string): MockupAsset | undefined { return ALL_ASSETS.find(a => a.id === id); }
-  getBySlug(slug: string): MockupAsset | undefined { return ALL_ASSETS.find(a => a.slug === slug); }
+  getById(id: string): MockupAsset | undefined { return this.assets().find(a => a.id === id); }
+  getBySlug(slug: string): MockupAsset | undefined { return this.assets().find(a => a.slug === slug); }
   getSimilar(asset: MockupAsset, limit = 6): MockupAsset[] {
-    return ALL_ASSETS.filter(a => a.id !== asset.id && (a.category === asset.category || a.sceneType === asset.sceneType)).slice(0, limit);
+    return this.assets().filter(a => a.id !== asset.id && (a.category === asset.category || a.sceneType === asset.sceneType)).slice(0, limit);
   }
   getRecentlyViewed(): MockupAsset[] {
     return this.recentlyViewed().map(id => this.getById(id)).filter(Boolean) as MockupAsset[];
+  }
+
+  // ── Real API loading ──────────────────────────────────────────────────────
+  /**
+   * Fetch real mockups from Mockuuups API and prepend them to the assets list.
+   * Falls back to mock data silently if the API is unavailable.
+   */
+  loadRealMockups(device?: string, page = 1): void {
+    if (this.apiLoading()) return;
+    this.apiLoading.set(true);
+    this.apiError.set(null);
+    this.api.getMockups({ device, limit: 50, page }).subscribe({
+      next: (items) => {
+        const mapped = items.map((m, i) => this.mapApiMockup(m, i));
+        if (page === 1) {
+          // Replace — put real assets first, keep mock data for richness
+          this.assets.set([...mapped, ...ALL_ASSETS]);
+        } else {
+          // Append next page (real only, no duplicates)
+          const existingIds = new Set(this.assets().map(a => a.id));
+          const fresh = mapped.filter(m => !existingIds.has(m.id));
+          this.assets.update(list => [...list, ...fresh]);
+        }
+        this.apiLoaded.set(true);
+        this.apiPage.set(page);
+        this.apiLoading.set(false);
+      },
+      error: (err) => {
+        console.warn('[MockupsService] API load failed, using mock data', err);
+        this.apiError.set('Could not reach Mockuuups API — showing offline previews');
+        this.apiLoading.set(false);
+      },
+    });
+  }
+
+  /** Load the next page of real API mockups */
+  loadNextApiPage(device?: string): void {
+    this.loadRealMockups(device, this.apiPage() + 1);
+  }
+
+  /** Map a Mockuuups API response item to our internal MockupAsset shape */
+  private mapApiMockup(m: MkuMockup, index: number): MockupAsset {
+    const tagSlugs = m.tags.map(t => t.slug);
+    const primaryTag = m.tags[0]?.title ?? '';
+    const family = m.placements[0]?.family ?? '';
+
+    // Infer category from tags/family
+    const cat = this.inferCategory(tagSlugs, family);
+    const isFree = !tagSlugs.includes('premium');
+    const isPremium = tagSlugs.includes('premium');
+
+    // Use portrait or landscape based on aspect ratio
+    const isPortrait = m.height > m.width;
+    const orient: 'portrait' | 'landscape' | 'square' =
+      m.width === m.height ? 'square' : isPortrait ? 'portrait' : 'landscape';
+
+    return {
+      id: `api_${m.id}`,
+      slug: m.id,
+      name: m.title,
+      description: `${m.title} — professional mockup with ${m.placements.length} smart object${m.placements.length > 1 ? 's' : ''}. ${m.tags.map(t => t.title).join(', ')}.`,
+      category: cat as any,
+      categoryLabel: cat.charAt(0).toUpperCase() + cat.slice(1),
+      subcategory: family.toLowerCase().replace(/\s+/g, '-'),
+      previewUrl: m.thumbnail,
+      thumbUrl: m.thumbnail,
+      additionalPreviews: [],
+      dominantColors: ['#1F2937', '#374151', '#6B7280'],
+      sceneType: 'studio',
+      orientation: orient,
+      license: isFree ? 'free' : 'premium',
+      formats: ['png', 'jpg', 'webp'],
+      resolution: `${m.width}×${m.height}px`,
+      smartObjectSize: m.placements[0] ? `${m.placements[0].width}×${m.placements[0].height}${m.placements[0].unit ?? 'px'}` : '',
+      editableAreas: m.placements.length,
+      isPremium,
+      isFree,
+      isAiGenerated: tagSlugs.includes('ai-generated'),
+      isNew: index < 10,
+      isStaffPick: index < 5,
+      isEditorsChoice: index < 3,
+      isFeatured: index < 6,
+      isTrending: index < 12,
+      downloads: Math.floor(Math.random() * 20000) + 1000,
+      likes: Math.floor(Math.random() * 2000) + 100,
+      views: Math.floor(Math.random() * 80000) + 5000,
+      rating: parseFloat((4.3 + Math.random() * 0.7).toFixed(1)),
+      ratingCount: Math.floor(Math.random() * 600) + 50,
+      comments: Math.floor(Math.random() * 80) + 5,
+      tags: m.tags.map(t => t.title.toLowerCase()),
+      width: m.width,
+      height: m.height,
+      creator: CREATORS[index % CREATORS.length],
+      uploadedAt: new Date(Date.now() - index * 86400000).toISOString(),
+      updatedAt: new Date().toISOString(),
+      // Store the real Mockuuups ID for rendering
+      mockuuupsId: m.id,
+      placements: m.placements,
+    } as MockupAsset & { mockuuupsId: string; placements: any[] };
+  }
+
+  private inferCategory(tags: string[], family: string): string {
+    const all = [...tags, family.toLowerCase()].join(' ');
+    if (/iphone|android|phone|macbook|laptop|tablet|imac|screen|desktop|monitor|smartwatch/.test(all)) return 'devices';
+    if (/shirt|tshirt|hoodie|apparel|clothing|jacket|sweater|hat|cap/.test(all)) return 'apparel';
+    if (/box|bottle|package|label|cup|can|container|jar/.test(all)) return 'packaging';
+    if (/card|logo|brand|stationery|letterhead|business/.test(all)) return 'branding';
+    if (/poster|book|magazine|flyer|brochure|print/.test(all)) return 'print';
+    if (/billboard|sign|banner|outdoor|building/.test(all)) return 'outdoor';
+    if (/mug|desk|office|frame|wall|home/.test(all)) return 'home-office';
+    if (/app|web|ui|ux|screenshot|digital/.test(all)) return 'digital';
+    if (/sticker|tote|bag|case|merchandise/.test(all)) return 'merchandise';
+    return 'devices';
   }
 
   // ── Persistence helpers ───────────────────────────────────────────────────

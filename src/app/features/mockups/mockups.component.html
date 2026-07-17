@@ -3,6 +3,22 @@
 <!-- ╚══════════════════════════════════════════════════════════════╝ -->
 <div class="amx-mk" [class.amx-mk--browsing]="view() === 'browse'">
 
+  <!-- ── API status banner ─────────────────────────────────────── -->
+  <div class="amx-mk-api-banner amx-mk-api-banner--loading" *ngIf="apiLoading()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="amx-mk-api-banner__spin"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>
+    Loading real mockups from Mockuuups API…
+  </div>
+  <div class="amx-mk-api-banner amx-mk-api-banner--loaded" *ngIf="apiLoaded() && !apiLoading()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    Live mockups loaded — {{ svc.assets().length }} templates available
+    <button class="amx-mk-api-banner__close" (click)="svc.apiLoaded.set(false)">✕</button>
+  </div>
+  <div class="amx-mk-api-banner amx-mk-api-banner--error" *ngIf="apiError() && !apiLoading()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    {{ apiError() }}
+    <button class="amx-mk-api-banner__close" (click)="svc.apiError.set(null)">✕</button>
+  </div>
+
   <!-- ── Top search / hero bar ─────────────────────────────────── -->
   <div class="amx-mk-hero" [class.amx-mk-hero--compact]="view() === 'browse'">
     <div class="amx-mk-hero__inner">
@@ -846,6 +862,50 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
                 Lighting
               </button>
+            </div>
+          </div>
+
+          <!-- ─── Live API Render ─────────────────────────────── -->
+          <div class="amx-mk-editor__section amx-mk-editor__render-section">
+            <div class="amx-mk-editor__section-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Render via Mockuuups API
+            </div>
+
+            <!-- Hint for offline (non-API) mockups -->
+            <p class="amx-mk-editor__render-hint" *ngIf="!$any(selectedAsset())?.mockuuupsId">
+              💡 Select a mockup loaded from the API to enable live rendering. Offline mockups show a local preview only.
+            </p>
+
+            <div *ngIf="$any(selectedAsset())?.mockuuupsId">
+              <p class="amx-mk-editor__render-hint">
+                Upload your design above, then click <strong>Render Mockup</strong> to composite it onto the real template using Mockuuups servers.
+              </p>
+
+              <!-- Render button -->
+              <button class="amx-mk-editor__render-btn"
+                [disabled]="renderLoading() || !editorState().uploadedDesignUrl"
+                (click)="renderWithApi()">
+                <svg *ngIf="!renderLoading()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <svg *ngIf="renderLoading()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="amx-mk-api-banner__spin"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>
+                {{ renderLoading() ? 'Rendering…' : 'Render Mockup' }}
+              </button>
+
+              <!-- Error -->
+              <div class="amx-mk-editor__render-error" *ngIf="renderError()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+                {{ renderError() }}
+              </div>
+
+              <!-- Result -->
+              <div class="amx-mk-editor__render-result" *ngIf="renderResultUrl()">
+                <p class="amx-mk-editor__render-result-label">✅ Rendered result</p>
+                <img [src]="renderResultUrl()!" alt="Rendered mockup" class="amx-mk-editor__render-img">
+                <button class="amx-mk-editor__download" (click)="downloadRendered()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Download Rendered
+                </button>
+              </div>
             </div>
           </div>
 
