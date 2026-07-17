@@ -1,0 +1,171 @@
+ 
+ Pricing 
+My Mockups
+Mockuuups
+Endpoints
+powered by Stoplight
+Get Render Details
+get
+https://api.mockuuups.studio/v1/renders/{id}
+Get details about a render.
+
+Request
+Path Parameters
+id
+string
+required
+Render Task ID
+
+Responses
+200
+401
+404
+Render Details
+
+Body
+
+application/json
+
+application/json
+responses
+/
+200
+id
+string
+required
+state
+string
+required
+Allowed values:
+pending
+success
+error
+cost
+number
+required
+Cost in credits for this render.
+
+>= 1
+features
+array[string]
+required
+List of features this render uses.
+
+createdAt
+string<date-time>
+required
+cdn
+CDN File
+Our Mockup Delivery CDN is a fast and secure way to deliver mockups to you and your customers. Apart from serving original mockups in their full resolution and quality, it also offers several optimized variants to fit your use.Show all...
+
+id
+string
+required
+ID of the file
+
+>= 1 characters
+page
+string<uri>
+required
+Link to a download page that shows a thumbnail of the image and a download button.
+
+download
+string<uri>
+required
+Direct link to the rendered mockup. This will be a PNG or JPEG file based on the template used.Show all...
+
+optimized
+string<uri>
+required
+This URL returns the image in its original resolution and optimized for use on websites (for example in <img> tag).Show all...
+
+thumbnail
+string<uri>
+required
+If the rendered mockup is larger than 500px in width or height, this URL will return a scaled-down image where the larger side of the image will be 500px.Show all...
+
+expiration
+string<date-time>
+If set, this is the date when the file will be deleted from the CDN.
+
+Token
+:
+123
+id*
+:
+string
+Send API Request
+
+Production Server
+curl --request GET \
+  --url https://api.mockuuups.studio/v1/renders/{id} \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer 123'
+{
+  "id": "string",
+  "state": "pending",
+  "cost": 1,
+  "features": [
+    "string"
+  ],
+  "createdAt": "2019-08-24T14:15:22Z",
+  "cdn": {
+    "id": "string",
+    "page": "http://example.com",
+    "download": "http://example.com",
+    "optimized": "http://example.com",
+    "thumbnail": "http://example.com",
+    "expiration": "2019-08-24T14:15:22Z"
+  }
+}
+Latest Blogposts
+20+ iPhone Air Mockups for Case Studies and Landing Pages
+20+ iPhone Air Mockups for Case Studies and Landing Pages
+30+ Best Smartwatch Mockups for App and Brand Designers
+30+ Best Smartwatch Mockups for App and Brand Designers
+The Sketch mockup plugin, refreshed
+The Sketch mockup plugin, refreshed
+20+ B1 Poster Mockups for Designers Who Don't Use Photoshop
+20+ B1 Poster Mockups for Designers Who Don't Use Photoshop
+Product
+Pricing
+Download
+Mockup Generator API
+Custom Photoshoot
+Use Cases
+About Us
+Affiliate Program
+Changelog
+Blog
+Plugins & Tools
+Figma Mockup Plugin
+Sketch Mockup Plugin
+Penpot Mockup Plugin
+Adobe Express Add-On
+Adobe XD Mockup Plugin
+Frontify Mockups App
+Mockup.new
+Browse Mockups
+All Device Mockups
+Figma Mockups
+Free Device Mockups
+Smartphone Mockups
+Computer Mockups
+Tablet Mockups
+Laptop Mockups
+Resources
+PSD Packages
+Free PSD Mockups
+Hollywood Mockups
+Mockuuups Alternatives
+Bots UI Kit
+Help
+Help Center
+Learn
+License
+Contact Us
+Manage Account
+Mockuuups Logotype
+Privacy Policy
+Terms & Conditions
+Cookie settings

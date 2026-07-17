@@ -1,0 +1,377 @@
+ 
+ Pricing 
+My Mockups
+Mockuuups
+Endpoints
+powered by Stoplight
+Render Mockup
+post
+https://api.mockuuups.studio/v1/renders
+Render Mockup
+
+Request
+Body
+
+application/json
+
+application/json
+Parameters for rendering a single mockup.
+
+mockup
+string
+required
+Mockup ID. Use the ID received from the Mockup Listing endpoint, or find your desired mockup and copy its ID from the website.
+
+Example:
+YXpoZdyRLAKQHgQA
+size
+integerobject
+
+one of: integer
+If you provide a number, it will scale the mockup by its longer edge to match the size.Show all...
+
+format
+string
+Use to override the export file format. We recommend using image/webp if your application is ready to handle this format, as it has the best compression ratio. If you don't specify any format, we automatically select PNG for transparent mockups, and JPEG for the rest.
+
+Allowed values:
+image/png
+image/jpeg
+image/webp
+Default:
+null
+trim
+boolean
+Transparent pixels in the rendered mockup will be automatically trimmed. Set to false to prevent this behavior. This option has no effect on mockups without transparency.
+
+Default:
+true
+contents
+array[Content]
+required
+Content to be placed in placements. The order of the array and its length must match the array of placement definitions from the Mockup object.
+
+>= 1 items
+type
+string
+required
+Allowed values:
+image
+screenshot
+Default:
+image
+url
+string<uri>
+required
+URL of the content which must match the selected type.
+
+Example:
+https://assets.mockuuups.com/mo/image/upload/sample-media.jpg
+crop
+object
+Optionally adjust which part of the content image will be placed into the mockup.Show all...
+
+destination
+string
+Destination controls how you receive your mockup.Show all...
+
+Allowed values:
+response
+cdn
+custom
+Default:
+response
+mode
+string
+Mode controls whether the POST request waits with its response until the mockup has fully finished rendering.Show all...
+
+Allowed values:
+sync
+async
+Default:
+sync
+storage
+object
+If your destination is custom, you need to include this in order to specify which storage to use.
+
+id
+string
+External storages need to be configured in the Developer Dashboard first, which will give you a storage connection ID that can be used here. Required if the destination is custom.
+
+Default:
+folder
+string
+Optional folder name (used with Cloudinary).
+
+Default:
+cdn
+object
+If your destination is cdn, you can configure it here.
+
+expiration
+string
+Automatically delete the file from the CDN. You can set this to a date in the future, or pass a relative time like "1 day" or "2 weeks" (using syntax of systemd.time). If not specified, defaults to "1 day". Use "never" for permanent storage (requires paid plan).
+
+Default:
+1 day
+Example:
+1 day
+webhook
+string<uri>
+Optionally add a URL which we will call when the render is completed, whether it's a success or an error. We will POST to this URL with a JSON body with details of the render.
+
+Default:
+meta
+string
+You can store any short arbitrary string in this field. It will be saved and sent in any subsequest requests for this render, and in the webhook after it finishes processing.Show all...
+
+Default:
+xmp
+boolean
+If true, the rendered mockup will include XMP metadata with license information confirming the image is allowed to be used commercially.
+
+Default:
+true
+Responses
+200
+201
+401
+402
+404
+500
+Sync Render Completed. Depending on your destination parameter, the response will be either a JSON object or a binary image file.
+
+Body
+application/jsonimage/*
+
+application/json
+responses
+/
+200
+id
+string
+required
+state
+string
+required
+Allowed values:
+pending
+success
+error
+cost
+number
+required
+Cost in credits for this render.
+
+>= 1
+features
+array[string]
+required
+List of features this render uses.
+
+createdAt
+string<date-time>
+required
+cdn
+CDN File
+Our Mockup Delivery CDN is a fast and secure way to deliver mockups to you and your customers. Apart from serving original mockups in their full resolution and quality, it also offers several optimized variants to fit your use.Show all...
+
+id
+string
+required
+ID of the file
+
+>= 1 characters
+page
+string<uri>
+required
+Link to a download page that shows a thumbnail of the image and a download button.
+
+download
+string<uri>
+required
+Direct link to the rendered mockup. This will be a PNG or JPEG file based on the template used.Show all...
+
+optimized
+string<uri>
+required
+This URL returns the image in its original resolution and optimized for use on websites (for example in <img> tag).Show all...
+
+thumbnail
+string<uri>
+required
+If the rendered mockup is larger than 500px in width or height, this URL will return a scaled-down image where the larger side of the image will be 500px.Show all...
+
+expiration
+string<date-time>
+If set, this is the date when the file will be deleted from the CDN.
+
+Token
+:
+123
+{
+  "mockup": "YXpoZdyRLAKQHgQA",
+  "size": 1000,
+  "format": null,
+  "trim": true,
+  "contents": [
+    {
+      "type": "image",
+      "url": "https://assets.mockuuups.com/mo/image/upload/sample-media.jpg",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      }
+    }
+  ],
+  "destination": "response",
+  "mode": "sync",
+  "storage": {
+    "id": "",
+    "folder": ""
+  },
+  "cdn": {
+    "expiration": "1 day"
+  },
+  "webhook": "",
+  "meta": "",
+  "xmp": true
+}
+{
+  "mockup": "YXpoZdyRLAKQHgQA",
+  "size": 1000,
+  "format": null,
+  "trim": true,
+  "contents": [
+    {
+      "type": "image",
+      "url": "https://assets.mockuuups.com/mo/image/upload/sample-media.jpg",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      }
+    }
+  ],
+  "destination": "response",
+  "mode": "sync",
+  "storage": {
+    "id": "",
+    "folder": ""
+  },
+  "cdn": {
+    "expiration": "1 day"
+  },
+  "webhook": "",
+  "meta": "",
+  "xmp": true
+}
+Send API Request
+
+Production Server
+curl --request POST \
+  --url https://api.mockuuups.studio/v1/renders \
+  --header 'Accept: application/json, image/*' \
+  --header 'Authorization: Bearer 123' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "mockup": "YXpoZdyRLAKQHgQA",
+  "size": 1000,
+  "format": null,
+  "trim": true,
+  "contents": [
+    {
+      "type": "image",
+      "url": "https://assets.mockuuups.com/mo/image/upload/sample-media.jpg",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      }
+    }
+  ],
+  "destination": "response",
+  "mode": "sync",
+  "storage": {
+    "id": "",
+    "folder": ""
+  },
+  "cdn": {
+    "expiration": "1 day"
+  },
+  "webhook": "",
+  "meta": "",
+  "xmp": true
+}'
+{
+  "id": "string",
+  "state": "pending",
+  "cost": 1,
+  "features": [
+    "string"
+  ],
+  "createdAt": "2019-08-24T14:15:22Z",
+  "cdn": {
+    "id": "string",
+    "page": "http://example.com",
+    "download": "http://example.com",
+    "optimized": "http://example.com",
+    "thumbnail": "http://example.com",
+    "expiration": "2019-08-24T14:15:22Z"
+  }
+}
+Latest Blogposts
+20+ iPhone Air Mockups for Case Studies and Landing Pages
+20+ iPhone Air Mockups for Case Studies and Landing Pages
+30+ Best Smartwatch Mockups for App and Brand Designers
+30+ Best Smartwatch Mockups for App and Brand Designers
+The Sketch mockup plugin, refreshed
+The Sketch mockup plugin, refreshed
+20+ B1 Poster Mockups for Designers Who Don't Use Photoshop
+20+ B1 Poster Mockups for Designers Who Don't Use Photoshop
+Product
+Pricing
+Download
+Mockup Generator API
+Custom Photoshoot
+Use Cases
+About Us
+Affiliate Program
+Changelog
+Blog
+Plugins & Tools
+Figma Mockup Plugin
+Sketch Mockup Plugin
+Penpot Mockup Plugin
+Adobe Express Add-On
+Adobe XD Mockup Plugin
+Frontify Mockups App
+Mockup.new
+Browse Mockups
+All Device Mockups
+Figma Mockups
+Free Device Mockups
+Smartphone Mockups
+Computer Mockups
+Tablet Mockups
+Laptop Mockups
+Resources
+PSD Packages
+Free PSD Mockups
+Hollywood Mockups
+Mockuuups Alternatives
+Bots UI Kit
+Help
+Help Center
+Learn
+License
+Contact Us
+Manage Account
+Mockuuups Logotype
+Privacy Policy
+Terms & Conditions
+Cookie settings

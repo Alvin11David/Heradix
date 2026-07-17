@@ -1,0 +1,204 @@
+ 
+ Pricing 
+My Mockups
+Mockuuups
+Endpoints
+powered by Stoplight
+Get Mockup
+get
+https://api.mockuuups.studio/v1/mockups/{id}
+Get info about a mockup. Apart from metadata like the title and tags, the object will mainly describe parameters of images to be placed into the mockup.
+
+Request
+Path Parameters
+id
+any
+required
+Mockup ID
+
+Example:
+5ed583c7abf3a0021c1177d2
+Responses
+200
+401
+404
+Mockup
+
+Body
+
+application/json
+
+application/json
+responses
+/
+200
+id
+string
+required
+title
+string
+required
+Descriptive title of mockup contents
+
+thumbnail
+string<uri>
+required
+URL of 500×320 thumbnail
+
+width
+number
+required
+Maximum width
+
+height
+number
+required
+Maximum height
+
+tags
+array[Tag]
+required
+At least one tag is always be present — the tag of the main subject in the mockup, like "iPhone 13". Other tags can describe the environment of the scene, or its features like being transparent.
+
+>= 1 items
+slug
+string
+required
+title
+string
+required
+placements
+array[Placement Format]
+required
+Placements are the areas of image where user content can be placed. Typical example is a screen of a smartphone.
+
+>= 1 items
+id
+string
+required
+slug
+string
+URL-friendly identifier of the placement format
+
+Example:
+iphone-13-pro
+title
+string
+required
+Human readable title of the placement
+
+Example:
+iPhone 13 Pro
+family
+string
+required
+Name of the family of products
+
+Example:
+iPhone
+width
+number
+required
+Physical width in units
+
+height
+number
+required
+Physical height in units
+
+unit
+string
+Allowed values:
+px
+mm
+in
+cm
+Default:
+px
+widthPoints
+number
+Screen width in points. If not present, the size is equal to the physical width.
+
+heightPoints
+number
+Screen height in points. If not present, the size is equal to the physical height.
+
+type
+string
+required
+Type of placement. Digital is the only supported in v1.
+
+Allowed value:
+digital
+Default:
+digital
+Token
+:
+123
+id*
+:
+Send API Request
+
+Production Server
+curl --request GET \
+  --url https://api.mockuuups.studio/v1/mockups/{id} \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer 123'
+{
+  "id": "5ed583c7abf3a0021c1177d2",
+  "title": "Holding iPhone 6s mockup on a Sofa with Pillows",
+  "thumbnail": "https://mockuuups.studio/render/mockup/1/5/holding-iphone-6s-mockup-on-a-sofa-with-pillows-thumbnail.jpg",
+  "width": 2600,
+  "height": 1733
+}
+Latest Blogposts
+20+ iPhone Air Mockups for Case Studies and Landing Pages
+20+ iPhone Air Mockups for Case Studies and Landing Pages
+30+ Best Smartwatch Mockups for App and Brand Designers
+30+ Best Smartwatch Mockups for App and Brand Designers
+The Sketch mockup plugin, refreshed
+The Sketch mockup plugin, refreshed
+20+ B1 Poster Mockups for Designers Who Don't Use Photoshop
+20+ B1 Poster Mockups for Designers Who Don't Use Photoshop
+Product
+Pricing
+Download
+Mockup Generator API
+Custom Photoshoot
+Use Cases
+About Us
+Affiliate Program
+Changelog
+Blog
+Plugins & Tools
+Figma Mockup Plugin
+Sketch Mockup Plugin
+Penpot Mockup Plugin
+Adobe Express Add-On
+Adobe XD Mockup Plugin
+Frontify Mockups App
+Mockup.new
+Browse Mockups
+All Device Mockups
+Figma Mockups
+Free Device Mockups
+Smartphone Mockups
+Computer Mockups
+Tablet Mockups
+Laptop Mockups
+Resources
+PSD Packages
+Free PSD Mockups
+Hollywood Mockups
+Mockuuups Alternatives
+Bots UI Kit
+Help
+Help Center
+Learn
+License
+Contact Us
+Manage Account
+Mockuuups Logotype
+Privacy Policy
+Terms & Conditions
+Cookie settings
