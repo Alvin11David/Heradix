@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -18,6 +18,33 @@ interface SavedMethod {
 
 type PaymentProvider = 'visa' | 'mastercard' | 'paypal' | 'mtn' | 'airtel';
 
+const PAYMENT_STORAGE_KEY = 'amx_payment_methods';
+
+const DEFAULT_METHODS: SavedMethod[] = [
+  {
+    id: 'card_1', type: 'card', network: 'visa', last4: '4242',
+    expiryMonth: 8, expiryYear: 2027, holderName: 'Kafuluma P.', isDefault: true,
+  },
+  {
+    id: 'card_2', type: 'card', network: 'mastercard', last4: '8888',
+    expiryMonth: 12, expiryYear: 2026, holderName: 'Kafuluma P.', isDefault: false,
+  },
+  {
+    id: 'pp_1', type: 'paypal', last4: '', email: 'kafulumap@gmail.com', isDefault: false,
+  },
+  {
+    id: 'mobile_1', type: 'mtn', last4: '1234',
+    phoneNumber: '+256 77 123 4567', holderName: 'Kafuluma P.', isDefault: false,
+  },
+];
+
+function loadSavedMethods(): SavedMethod[] {
+  try {
+    const raw = localStorage.getItem(PAYMENT_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as SavedMethod[]) : DEFAULT_METHODS;
+  } catch { return DEFAULT_METHODS; }
+}
+
 @Component({
   selector: 'amx-payment-methods',
   standalone: true,
@@ -32,23 +59,16 @@ export class PaymentMethodsComponent {
   readonly billingCountry = signal<'UG' | 'OTHER'>('UG');
   readonly showMobileMoney = computed(() => this.billingCountry() === 'UG');
 
-  readonly savedMethods = signal<SavedMethod[]>([
-    {
-      id: 'card_1', type: 'card', network: 'visa', last4: '4242',
-      expiryMonth: 8, expiryYear: 2027, holderName: 'Kafuluma P.', isDefault: true,
-    },
-    {
-      id: 'card_2', type: 'card', network: 'mastercard', last4: '8888',
-      expiryMonth: 12, expiryYear: 2026, holderName: 'Kafuluma P.', isDefault: false,
-    },
-    {
-      id: 'pp_1', type: 'paypal', last4: '', email: 'kafulumap@gmail.com', isDefault: false,
-    },
-    {
-      id: 'mobile_1', type: 'mtn', last4: '1234',
-      phoneNumber: '+256 77 123 4567', holderName: 'Kafuluma P.', isDefault: false,
-    },
-  ]);
+  readonly savedMethods = signal<SavedMethod[]>(loadSavedMethods());
+
+  constructor() {
+    // Persist any change to savedMethods immediately
+    effect(() => {
+      try {
+        localStorage.setItem(PAYMENT_STORAGE_KEY, JSON.stringify(this.savedMethods()));
+      } catch {}
+    });
+  }
 
   readonly showAddModal = signal(false);
   readonly newMethodType = signal<PaymentProvider>('visa');

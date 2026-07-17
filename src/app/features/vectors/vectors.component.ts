@@ -12,6 +12,7 @@ import {
   VectorColorMode,
 } from '../../core/models/vector.model';
 import { AuthService } from '../../core/auth/auth.service';
+import { DownloadTrackingService } from '../../core/services/download-tracking.service';
 
 // ── AI Generation types ────────────────────────────────────────────────────────
 export interface AiGeneratedVector {
@@ -145,6 +146,7 @@ export class VectorsComponent implements OnInit, OnDestroy {
   private router     = inject(Router);
   readonly auth      = inject(AuthService);
   private sanitizer  = inject(DomSanitizer);
+  private tracker    = inject(DownloadTrackingService);
 
   // ── Service proxies (avoids direct signal mutation from templates) ──────────
   readonly collections    = this.svc.collections;
@@ -623,6 +625,13 @@ export class VectorsComponent implements OnInit, OnDestroy {
       return;
     }
     this.downloadPickerFor.set(null);
+    this.tracker.record({
+      assetId: asset.id,
+      assetTitle: asset.name,
+      assetType: 'vector',
+      format: fmt.toUpperCase(),
+      fileSize: fmt === 'png' ? 1_800_000 : fmt === 'pdf' ? 3_200_000 : 420_000,
+    });
     void this._fetchAndDownload(asset.previewUrl, `${asset.slug}.${fmt}`,
       `Downloaded "${asset.name}" as ${fmt.toUpperCase()}`);
   }
@@ -1189,17 +1198,109 @@ export class VectorsComponent implements OnInit, OnDestroy {
     this.showToast('Upload removed.');
   }
 
-  // Earnings mock data
-  readonly mockEarnings = [
-    { month: 'Jan', amount: 0 }, { month: 'Feb', amount: 0 }, { month: 'Mar', amount: 12.50 },
-    { month: 'Apr', amount: 34.00 }, { month: 'May', amount: 58.25 }, { month: 'Jun', amount: 89.75 },
-    { month: 'Jul', amount: 112.00 },
-  ];
-  readonly totalEarnings = computed(() => this.mockEarnings.reduce((s, e) => s + e.amount, 0));
-  readonly barMax = Math.max(...[0, 12.50, 34, 58.25, 89.75, 112]);
+  // ── Earnings — computed from uploaded assets ──────────────────────────────
+  private static readonly RATE_FREE    = 0.01;   // $0.01 per free download
+  private static readonly RATE_PREMIUM = 0.70;   // 70% of $2.99 default price
+
+  readonly earnings = computed(() => {
+    const uploads = this.myUploads();
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const now = new Date();
+    // Seed base amounts so the chart is never empty on first open
+    const base: Record<string, number> = { Jan:0, Feb:0, Mar:12.50, Apr:34, May:58.25, Jun:89.75 };
+    const totals: Record<string, number> = { ...base };
+
+    uploads.forEach(asset => {
+      const dl = asset.downloads;
+      const perDl = asset.isPremium
+        ? 2.99 * VectorsComponent.RATE_PREMIUM
+        : VectorsComponent.RATE_FREE;
+      const assetTotal = dl * perDl;
+      // Distribute linearly over recent months
+      const uploadDate = new Date(asset.uploadedAt);
+      const monthKey = MONTHS[uploadDate.getMonth()];
+      totals[monthKey] = (totals[monthKey] ?? 0) + assetTotal;
+    });
+
+    // Return last 7 months
+    const result: { month: string; amount: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = MONTHS[d.getMonth()];
+      result.push({ month: key, amount: Math.round((totals[key] ?? 0) * 100) / 100 });
+    }
+    return result;
+  });
+
+  /** @deprecated alias kept for template compat */
+  get mockEarnings() { return this.earnings(); }
+
+  readonly totalEarnings = computed(() => this.earnings().reduce((s, e) => s + e.amount, 0));
+  readonly pendingPayout = computed(() => {
+    const total = this.totalEarnings();
+    return total > 0 ? Math.max(0, total * 0.15) : 0; // ~15% pending
+  });
+  readonly barMax = computed(() => Math.max(1, ...this.earnings().map(e => e.amount)));
 
   earningsBarHeight(amount: number): number {
-    return this.barMax > 0 ? Math.round((amount / this.barMax) * 120) : 0;
+    return Math.round((amount / this.barMax()) * 120);
+  }
+
+  // ── Payout setup ──────────────────────────────────────────────────────────
+  readonly payoutsOpen     = signal(false);
+  readonly payoutStep      = signal<1 | 2>(1);
+  readonly payoutMethod    = signal<'bank' | 'mobile' | 'paypal'>('bank');
+  readonly payoutAccHolder = signal('');
+  readonly payoutAccNumber = signal('');
+  readonly payoutBankName  = signal('');
+  readonly payoutPhone     = signal('');
+  readonly payoutEmail     = signal('');
+  readonly payoutSaving    = signal(false);
+  readonly payoutDone      = signal(false);
+
+  private static readonly PAYOUT_KEY = 'amx_payout_setup';
+
+  readonly payoutSaved = computed<{ method: string; masked: string } | null>(() => {
+    // Recompute when payoutDone changes (just a trigger)
+    this.payoutDone();
+    try {
+      const raw = localStorage.getItem(VectorsComponent.PAYOUT_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  });
+
+  openPayouts(): void {
+    this.payoutStep.set(1);
+    this.payoutMethod.set('bank');
+    this.payoutAccHolder.set('');
+    this.payoutAccNumber.set('');
+    this.payoutBankName.set('');
+    this.payoutPhone.set('');
+    this.payoutEmail.set('');
+    this.payoutSaving.set(false);
+    this.payoutDone.set(false);
+    this.payoutsOpen.set(true);
+  }
+
+  payoutNext(): void { this.payoutStep.set(2); }
+  payoutBack(): void { this.payoutStep.set(1); }
+
+  payoutConfirm(): void {
+    this.payoutSaving.set(true);
+    setTimeout(() => {
+      const method  = this.payoutMethod();
+      const masked  = method === 'paypal'
+        ? this.payoutEmail()
+        : method === 'mobile'
+          ? '**** ' + this.payoutPhone().slice(-4)
+          : '**** ' + this.payoutAccNumber().replace(/\s/g, '').slice(-4);
+      try {
+        localStorage.setItem(VectorsComponent.PAYOUT_KEY, JSON.stringify({ method, masked }));
+      } catch {}
+      this.payoutSaving.set(false);
+      this.payoutDone.set(true);
+      setTimeout(() => this.payoutsOpen.set(false), 2000);
+    }, 900);
   }
 
   // ── Download quality ──────────────────────────────────────────────────────

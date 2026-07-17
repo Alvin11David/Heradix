@@ -1951,9 +1951,11 @@
           </div>
           <div class="vec-creator-modal__earnings-pending">
             <span>Pending Payout</span>
-            <strong>$0.00</strong>
+            <strong>${{ pendingPayout().toFixed(2) }}</strong>
           </div>
-          <button class="vec-btn vec-btn--orange" (click)="showToast('Payout setup — coming soon!')">Setup Payouts</button>
+          <button class="vec-btn vec-btn--orange" (click)="openPayouts()">
+            {{ payoutSaved() ? '✓ Payout method saved' : 'Setup Payouts' }}
+          </button>
         </div>
         <div class="vec-creator-modal__earnings-chart">
           <h3>Monthly Earnings</h3>
@@ -2019,6 +2021,112 @@
       </div>
 
     </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PAYOUT SETUP MODAL
+══════════════════════════════════════════════════════════ -->
+<div class="vec-modal-backdrop" *ngIf="payoutsOpen()" (click)="payoutsOpen.set(false)" role="dialog" aria-modal="true" aria-label="Payout setup">
+  <div class="vec-payout-modal" (click)="$event.stopPropagation()">
+
+    <!-- Success state -->
+    <div class="vec-payout-modal__success" *ngIf="payoutDone()">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="#10b981" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01" stroke="#10b981" stroke-width="2.5" fill="none"/></svg>
+      <h3>Payout method saved!</h3>
+      <p>You'll receive payments to your {{ payoutMethod() === 'bank' ? 'bank account' : payoutMethod() === 'mobile' ? 'mobile wallet' : 'PayPal' }}.</p>
+    </div>
+
+    <ng-container *ngIf="!payoutDone()">
+      <div class="vec-payout-modal__header">
+        <h2>Setup Payouts</h2>
+        <p>Choose how you'd like to receive your earnings. Minimum payout is $25.00.</p>
+        <button class="vec-modal-close" (click)="payoutsOpen.set(false)" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Step 1: choose method -->
+      <div *ngIf="payoutStep() === 1">
+        <p class="vec-payout-modal__step-label">Step 1 of 2 — Choose payment method</p>
+        <div class="vec-payout-modal__methods">
+          <button class="vec-payout-method-btn" [class.vec-payout-method-btn--active]="payoutMethod() === 'bank'" (click)="payoutMethod.set('bank')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M3 11l9-8 9 8"/><line x1="12" y1="11" x2="12" y2="21"/><line x1="8" y1="15" x2="8" y2="21"/><line x1="16" y1="15" x2="16" y2="21"/></svg>
+            <strong>Bank Transfer</strong>
+            <span>ACH or SWIFT</span>
+          </button>
+          <button class="vec-payout-method-btn" [class.vec-payout-method-btn--active]="payoutMethod() === 'mobile'" (click)="payoutMethod.set('mobile')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
+            <strong>Mobile Money</strong>
+            <span>MTN or Airtel</span>
+          </button>
+          <button class="vec-payout-method-btn" [class.vec-payout-method-btn--active]="payoutMethod() === 'paypal'" (click)="payoutMethod.set('paypal')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.5 7H13a4 4 0 0 0-4 4c0 2.2 1.8 4 4 4h.5"/><path d="M7.5 15H12a4 4 0 0 0 4-4c0-2.2-1.8-4-4-4h-.5"/></svg>
+            <strong>PayPal</strong>
+            <span>International</span>
+          </button>
+        </div>
+        <div class="vec-payout-modal__footer">
+          <button class="vec-btn vec-btn--orange" (click)="payoutNext()">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: enter details -->
+      <div *ngIf="payoutStep() === 2">
+        <p class="vec-payout-modal__step-label">Step 2 of 2 — Enter your details</p>
+
+        <!-- Bank -->
+        <div class="vec-payout-modal__fields" *ngIf="payoutMethod() === 'bank'">
+          <div class="vec-payout-modal__field">
+            <label>Account Holder Name</label>
+            <input type="text" class="vec-creator-modal__input" placeholder="Full name on account"
+                   [value]="payoutAccHolder()" (input)="payoutAccHolder.set($any($event.target).value)" />
+          </div>
+          <div class="vec-payout-modal__field">
+            <label>Bank Name</label>
+            <input type="text" class="vec-creator-modal__input" placeholder="e.g. Stanbic Bank Uganda"
+                   [value]="payoutBankName()" (input)="payoutBankName.set($any($event.target).value)" />
+          </div>
+          <div class="vec-payout-modal__field">
+            <label>Account Number</label>
+            <input type="text" class="vec-creator-modal__input" placeholder="Account number"
+                   [value]="payoutAccNumber()" (input)="payoutAccNumber.set($any($event.target).value)" />
+          </div>
+        </div>
+
+        <!-- Mobile Money -->
+        <div class="vec-payout-modal__fields" *ngIf="payoutMethod() === 'mobile'">
+          <div class="vec-payout-modal__field">
+            <label>Account Holder Name</label>
+            <input type="text" class="vec-creator-modal__input" placeholder="Registered name"
+                   [value]="payoutAccHolder()" (input)="payoutAccHolder.set($any($event.target).value)" />
+          </div>
+          <div class="vec-payout-modal__field">
+            <label>Phone Number</label>
+            <input type="tel" class="vec-creator-modal__input" placeholder="+256 77 000 0000"
+                   [value]="payoutPhone()" (input)="payoutPhone.set($any($event.target).value)" />
+          </div>
+        </div>
+
+        <!-- PayPal -->
+        <div class="vec-payout-modal__fields" *ngIf="payoutMethod() === 'paypal'">
+          <div class="vec-payout-modal__field">
+            <label>PayPal Email</label>
+            <input type="email" class="vec-creator-modal__input" placeholder="you@example.com"
+                   [value]="payoutEmail()" (input)="payoutEmail.set($any($event.target).value)" />
+          </div>
+        </div>
+
+        <div class="vec-payout-modal__footer">
+          <button class="vec-btn vec-btn--ghost" (click)="payoutBack()">← Back</button>
+          <button class="vec-btn vec-btn--orange" (click)="payoutConfirm()" [disabled]="payoutSaving()">
+            <svg *ngIf="payoutSaving()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            {{ payoutSaving() ? 'Saving…' : 'Save Payout Method' }}
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
   </div>
 </div>
 

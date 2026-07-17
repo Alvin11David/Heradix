@@ -138,10 +138,29 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
 
   readonly Math = Math;
 
+  private courseId = 'default';
+  private readonly PROGRESS_KEY = () => `amx_course_progress_${this.courseId}`;
+
+  private loadProgress(): Set<number> {
+    try {
+      const raw = localStorage.getItem(this.PROGRESS_KEY());
+      return raw ? new Set<number>(JSON.parse(raw) as number[]) : new Set<number>();
+    } catch { return new Set<number>(); }
+  }
+
+  private saveProgress(completedIds: Set<number>): void {
+    try { localStorage.setItem(this.PROGRESS_KEY(), JSON.stringify([...completedIds])); } catch {}
+  }
+
   ngOnInit(): void {
+    this.courseId = this.route.snapshot.paramMap.get('id') ?? 'default';
+    const done = this.loadProgress();
     setTimeout(() => {
-      this.lessons.set(MOCK_LESSONS.map(l => ({ ...l })));
-      this.activeLesson.set(MOCK_LESSONS[0]);
+      const restored = MOCK_LESSONS.map(l => ({ ...l, completed: done.has(l.id) }));
+      this.lessons.set(restored);
+      // Resume from first incomplete lesson, or start at 0
+      const firstIncomplete = restored.find(l => !l.completed) ?? restored[0];
+      this.activeLesson.set(firstIncomplete);
       this.contentLoading.set(false);
     }, 1200);
   }
@@ -214,6 +233,9 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
         ls.map(l => l.id === al.id ? { ...l, completed: true } : l)
       );
       this.activeLesson.update(l => l ? { ...l, completed: true } : l);
+      // Persist progress to localStorage
+      const done = new Set<number>(this.lessons().filter(l => l.completed).map(l => l.id));
+      this.saveProgress(done);
       this.markingComplete.set(false);
       setTimeout(() => this.nextLesson(), 600);
     }, 800);
