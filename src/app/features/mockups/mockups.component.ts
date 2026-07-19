@@ -3,7 +3,7 @@ import {
   HostListener, OnInit, OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   MockupsService, MOCKUP_TRENDING_TAGS, MOCKUP_TRENDING_COLORS,
   MOCKUP_SEASONAL_COLLECTIONS, MOCKUP_CATEGORIES,
@@ -129,7 +129,7 @@ const PAGE_SIZE = 24;
 @Component({
   selector: 'amx-mockups',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './mockups.component.html',
   styleUrl: './mockups.component.scss',

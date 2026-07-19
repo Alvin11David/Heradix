@@ -38,6 +38,20 @@ Angular 20 client application for Amarapix — a design-asset marketplace with a
   - **File size estimates in the size picker**: each Small/Medium/Large option in the detail panel now shows an approximate KB/MB download size (heuristic based on target pixel dimensions), matching PNGWing/CleanPNG's "know before you download" pattern — see `src/app/shared/utils/file-size-estimate.ts`.
   - **ZIP bundle downloads**: "Download as ZIP" for bulk-selected assets, and a per-board zip button in the Collections modal — CleanPNG "resource pack"/Freepik pack-style single-file download instead of N separate browser downloads. Uses the `jszip` dependency; fetches each asset, zips client-side, and triggers one download.
 
+## AI Mockup Studio (`/mockups/studio`)
+- 5-step wizard for generating custom mockups via AI prompt
+- Route: `/mockups/studio` → `src/app/features/mockups/ai-studio/ai-studio.component.ts`
+- No auth guard — publicly accessible
+- **Step 1: Search Product** — live search against mock product catalog (BELLA+CANVAS, Next Level, Gildan, etc.) with quick-pick pills
+- **Step 2: Confirm Product** — detail card with color swatch picker and decoration type list
+- **Step 3: Choose Style** — visual style cards (Baseline, Lifestyle, Studio, Flat Lay, Artistic, Minimal)
+- **Step 4: Describe Design** — AI prompt textarea with quick-add chips and writing tips
+- **Step 5: Generate** — animated progress orb with stage labels, then result panel with 4 view variants, download/editor/regenerate actions
+- Persistent left-rail stepper with step status (active/complete/locked), product summary card
+- Dark "Forge" design language (`#0c0c0f` background, `#f5820a` accents) — contrasts with the light marketplace
+- Discovery CTA banner added to the `/mockups` hero section pointing to the Studio
+- Generation and downloads are client-side stubs; connect to a real API via `startGeneration()` and `downloadVariant()` in the component
+
 ## Mockups Module (`/mockups`)
 - Full mockups marketplace and creation tool, modeled on Canva, Placeit, Smartmockups, Freepik, and Envato Elements
 - Route: `/mockups` → `src/app/features/mockups/mockups.component.ts`

@@ -53,6 +53,11 @@ export const routes: Routes = [
   },
 
   {
+    path: 'mockups/studio',
+    loadComponent: () => import('./features/mockups/ai-studio/ai-studio.component').then(m => m.AiStudioComponent),
+  },
+
+  {
     path: 'vectors',
     loadComponent: () => import('./features/vectors/vectors.component').then(m => m.VectorsComponent),
   },

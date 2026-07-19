@@ -1,0 +1,485 @@
+<div class="ais-root">
+
+  <!-- ══ LEFT RAIL — Stepper ══════════════════════════════════════════════ -->
+  <aside class="ais-rail">
+    <div class="ais-rail__brand">
+      <div class="ais-rail__brand-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <span>AI Mockup Studio</span>
+    </div>
+
+    <nav class="ais-stepper">
+      <button
+        *ngFor="let step of steps"
+        class="ais-step"
+        [class.ais-step--active]="currentStep() === step.n"
+        [class.ais-step--done]="stepCompleted()[step.n] && currentStep() !== step.n"
+        [class.ais-step--locked]="!canGoTo(step.n) && currentStep() !== step.n && !stepCompleted()[step.n]"
+        (click)="goStep(step.n)"
+      >
+        <div class="ais-step__bubble">
+          <span *ngIf="!stepCompleted()[step.n] || currentStep() === step.n">{{ step.n }}</span>
+          <svg *ngIf="stepCompleted()[step.n] && currentStep() !== step.n" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="ais-step__info">
+          <span class="ais-step__label">{{ step.label }}</span>
+          <span class="ais-step__sub" *ngIf="currentStep() === step.n">In progress</span>
+          <span class="ais-step__sub ais-step__sub--done" *ngIf="stepCompleted()[step.n] && currentStep() !== step.n">Complete</span>
+        </div>
+      </button>
+
+      <!-- Connector lines -->
+      <div class="ais-stepper__track"></div>
+    </nav>
+
+    <!-- Summary card (shows after product selected) -->
+    <div class="ais-summary" *ngIf="selectedProduct()">
+      <p class="ais-summary__label">Selected product</p>
+      <div class="ais-summary__product">
+        <div class="ais-summary__avatar">{{ brandInitial(selectedProduct()!.brand) }}</div>
+        <div class="ais-summary__info">
+          <span class="ais-summary__brand">{{ selectedProduct()!.brand }} {{ selectedProduct()!.sku }}</span>
+          <span class="ais-summary__name">{{ selectedProduct()!.name }}</span>
+        </div>
+      </div>
+      <div class="ais-summary__style" *ngIf="selectedStyle()">
+        <span class="ais-summary__style-label">Style:</span>
+        <span class="ais-summary__style-val">{{ selectedStyle()!.label }}</span>
+      </div>
+    </div>
+
+    <a class="ais-rail__back" routerLink="/mockups">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Mockups
+    </a>
+  </aside>
+
+  <!-- ══ MAIN CONTENT ══════════════════════════════════════════════════════ -->
+  <main class="ais-main">
+
+    <!-- ── STEP 1: Search ──────────────────────────────────────────────────── -->
+    <div class="ais-panel" *ngIf="currentStep() === 1">
+      <header class="ais-panel__header">
+        <div class="ais-panel__step-badge">Step 1 of 5</div>
+        <h1 class="ais-panel__title">Search for a product</h1>
+        <p class="ais-panel__sub">Find the blank garment, accessory, or item you want to create a mockup for.</p>
+      </header>
+
+      <!-- Search bar -->
+      <div class="ais-search-wrap">
+        <div class="ais-search" [class.ais-search--loading]="isSearching()">
+          <svg class="ais-search__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input
+            class="ais-search__input"
+            type="text"
+            [value]="searchQuery()"
+            placeholder="e.g. t-shirt, hoodie, mug, poster…"
+            (input)="onSearchInput($event)"
+            (keydown)="onSearchKeydown($event)"
+            autocomplete="off"
+          />
+          <button class="ais-search__btn" (click)="doSearch()" [disabled]="isSearching()">
+            <span *ngIf="!isSearching()">Search</span>
+            <span *ngIf="isSearching()" class="ais-spinner"></span>
+          </button>
+        </div>
+
+        <!-- Quick pills -->
+        <div class="ais-search__pills">
+          <span class="ais-search__pills-label">Try:</span>
+          <button
+            *ngFor="let term of quickSearchTerms"
+            class="ais-pill"
+            [class.ais-pill--active]="searchQuery() === term"
+            (click)="quickSearch(term)"
+          >{{ term }}</button>
+        </div>
+      </div>
+
+      <!-- Empty / hint state -->
+      <div class="ais-empty" *ngIf="!searchDone() && !isSearching()">
+        <div class="ais-empty__icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <p class="ais-empty__title">Search for a product to get started</p>
+        <p class="ais-empty__sub">Type a product name above or pick a quick suggestion</p>
+      </div>
+
+      <!-- Loading skeleton -->
+      <div class="ais-grid" *ngIf="isSearching()">
+        <div class="ais-product-card ais-product-card--skeleton" *ngFor="let _ of [1,2,3,4,5,6,7,8]">
+          <div class="ais-product-card__thumb-sk"></div>
+          <div class="ais-product-card__body-sk">
+            <div class="ais-sk-line ais-sk-line--sm"></div>
+            <div class="ais-sk-line"></div>
+            <div class="ais-sk-line ais-sk-line--xs"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="ais-results-header" *ngIf="searchDone() && !isSearching()">
+        <span>{{ searchResults().length }} products found for "<strong>{{ searchQuery() }}</strong>"</span>
+      </div>
+
+      <div class="ais-grid" *ngIf="searchDone() && !isSearching()">
+        <button
+          class="ais-product-card"
+          *ngFor="let p of searchResults(); trackBy: trackByProduct"
+          [class.ais-product-card--selected]="selectedProduct()?.id === p.id"
+          (click)="pickProduct(p)"
+        >
+          <!-- Thumbnail / avatar area -->
+          <div class="ais-product-card__thumb">
+            <div class="ais-product-card__avatar">{{ brandInitial(p.brand) }}</div>
+            <div class="ais-product-card__check" *ngIf="selectedProduct()?.id === p.id">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+          <div class="ais-product-card__body">
+            <span class="ais-product-card__brand">{{ p.brand }} · {{ p.sku }}</span>
+            <span class="ais-product-card__name">{{ p.name }}</span>
+            <div class="ais-product-card__meta">
+              <span class="ais-product-card__chip">{{ p.sizes }} sizes</span>
+              <span class="ais-product-card__chip">{{ p.colors }} colors</span>
+              <span class="ais-product-card__chip">{{ p.decorations }} deco</span>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Footer nav -->
+      <footer class="ais-panel__footer" *ngIf="searchDone()">
+        <span class="ais-footer__hint" *ngIf="!selectedProduct()">Select a product above to continue</span>
+        <span class="ais-footer__hint ais-footer__hint--green" *ngIf="selectedProduct()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          {{ selectedProduct()!.name }} selected
+        </span>
+        <button class="ais-btn ais-btn--primary" [disabled]="!canProceedStep1()" (click)="next()">
+          Continue
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </footer>
+    </div>
+
+    <!-- ── STEP 2: Select Product detail ───────────────────────────────────── -->
+    <div class="ais-panel" *ngIf="currentStep() === 2">
+      <header class="ais-panel__header">
+        <div class="ais-panel__step-badge">Step 2 of 5</div>
+        <h1 class="ais-panel__title">Confirm your product</h1>
+        <p class="ais-panel__sub">Review the product details and pick a base color before styling.</p>
+      </header>
+
+      <div class="ais-product-detail" *ngIf="selectedProduct() as p">
+        <!-- Large product card -->
+        <div class="ais-pd-card">
+          <div class="ais-pd-card__visual">
+            <div class="ais-pd-card__avatar-lg">{{ brandInitial(p.brand) }}</div>
+            <div class="ais-pd-card__category-badge">{{ p.category }}</div>
+          </div>
+          <div class="ais-pd-card__info">
+            <span class="ais-pd-card__brand">{{ p.brand }}</span>
+            <h2 class="ais-pd-card__name">{{ p.name }}</h2>
+            <span class="ais-pd-card__sku">SKU: {{ p.sku }}</span>
+
+            <div class="ais-pd-stats">
+              <div class="ais-pd-stat">
+                <span class="ais-pd-stat__num">{{ p.sizes }}</span>
+                <span class="ais-pd-stat__label">Sizes</span>
+              </div>
+              <div class="ais-pd-stat">
+                <span class="ais-pd-stat__num">{{ p.colors }}</span>
+                <span class="ais-pd-stat__label">Colors</span>
+              </div>
+              <div class="ais-pd-stat">
+                <span class="ais-pd-stat__num">{{ p.decorations }}</span>
+                <span class="ais-pd-stat__label">Decorations</span>
+              </div>
+            </div>
+
+            <!-- Color picker -->
+            <div class="ais-color-pick">
+              <p class="ais-color-pick__label">Base color</p>
+              <div class="ais-color-pick__swatches">
+                <button
+                  class="ais-swatch"
+                  *ngFor="let c of productColors; let i = index"
+                  [style.background]="c"
+                  [class.ais-swatch--active]="selectedColor() === i"
+                  (click)="selectedColor.set(i)"
+                  [attr.aria-label]="'Color ' + (i + 1)"
+                ></button>
+              </div>
+            </div>
+
+            <!-- Decoration types -->
+            <div class="ais-deco-list">
+              <p class="ais-deco-list__label">Available decorations</p>
+              <div class="ais-deco-list__chips">
+                <span class="ais-deco-chip" *ngFor="let d of ['Screen Print','Embroidery','DTG','Heat Transfer','Sublimation','Embossing'].slice(0, p.decorations)">{{ d }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="ais-panel__footer">
+        <button class="ais-btn ais-btn--ghost" (click)="back()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+        <button class="ais-btn ais-btn--primary" (click)="next()">
+          Choose Style
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </footer>
+    </div>
+
+    <!-- ── STEP 3: Style ────────────────────────────────────────────────────── -->
+    <div class="ais-panel" *ngIf="currentStep() === 3">
+      <header class="ais-panel__header">
+        <div class="ais-panel__step-badge">Step 3 of 5</div>
+        <h1 class="ais-panel__title">Choose a style</h1>
+        <p class="ais-panel__sub">Pick the visual treatment for your mockup. This shapes lighting, composition, and atmosphere.</p>
+      </header>
+
+      <div class="ais-styles-grid">
+        <button
+          class="ais-style-card"
+          *ngFor="let s of allStyles; trackBy: trackByStyle"
+          [class.ais-style-card--selected]="selectedStyle()?.id === s.id"
+          (click)="selectedStyle.set(s)"
+        >
+          <div class="ais-style-card__preview" [style.background]="s.gradient">
+            <span class="ais-style-card__icon">{{ s.icon }}</span>
+            <div class="ais-style-card__check" *ngIf="selectedStyle()?.id === s.id">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+          <div class="ais-style-card__body">
+            <div class="ais-style-card__top">
+              <span class="ais-style-card__label">{{ s.label }}</span>
+              <span class="ais-style-card__tag">{{ s.tag }}</span>
+            </div>
+            <p class="ais-style-card__desc">{{ s.description }}</p>
+          </div>
+        </button>
+      </div>
+
+      <footer class="ais-panel__footer">
+        <button class="ais-btn ais-btn--ghost" (click)="back()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+        <button class="ais-btn ais-btn--primary" [disabled]="!canProceedStep3()" (click)="next()">
+          Describe Design
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </footer>
+    </div>
+
+    <!-- ── STEP 4: Prompt ───────────────────────────────────────────────────── -->
+    <div class="ais-panel" *ngIf="currentStep() === 4">
+      <header class="ais-panel__header">
+        <div class="ais-panel__step-badge">Step 4 of 5</div>
+        <h1 class="ais-panel__title">Describe your design</h1>
+        <p class="ais-panel__sub">Tell the AI what artwork or print you want on the product. Be specific — the more detail, the better the result.</p>
+      </header>
+
+      <!-- Prompt context card -->
+      <div class="ais-prompt-context" *ngIf="selectedProduct() && selectedStyle()">
+        <div class="ais-prompt-context__item">
+          <span class="ais-prompt-context__key">Product</span>
+          <span class="ais-prompt-context__val">{{ selectedProduct()!.brand }} {{ selectedProduct()!.sku }} — {{ selectedProduct()!.name }}</span>
+        </div>
+        <div class="ais-prompt-context__divider"></div>
+        <div class="ais-prompt-context__item">
+          <span class="ais-prompt-context__key">Style</span>
+          <span class="ais-prompt-context__val">{{ selectedStyle()!.label }} — {{ selectedStyle()!.description }}</span>
+        </div>
+      </div>
+
+      <!-- Textarea prompt -->
+      <div class="ais-prompt-wrap">
+        <div class="ais-prompt-box" [class.ais-prompt-box--active]="designPrompt().length > 0">
+          <textarea
+            class="ais-prompt-textarea"
+            [value]="designPrompt()"
+            (input)="designPrompt.set($any($event.target).value)"
+            placeholder="Describe your design… e.g. 'a dragon breathing fire with bold gothic lettering that says FEARLESS, centered on the chest'"
+            rows="5"
+            [attr.maxlength]="maxPromptLen"
+          ></textarea>
+          <div class="ais-prompt-footer">
+            <span class="ais-prompt-count" [class.ais-prompt-count--warn]="promptRemaining() < 50">
+              {{ promptRemaining() }} remaining
+            </span>
+          </div>
+        </div>
+
+        <!-- Quick prompt chips -->
+        <div class="ais-quick-prompts">
+          <p class="ais-quick-prompts__label">Quick additions</p>
+          <div class="ais-quick-prompts__chips">
+            <button
+              class="ais-qp-chip"
+              *ngFor="let qp of quickPrompts"
+              (click)="appendPrompt(qp)"
+            >+ {{ qp }}</button>
+          </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="ais-prompt-tips">
+          <div class="ais-prompt-tip">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Include colors, placement (chest, sleeve, back), and mood for best results</span>
+          </div>
+          <div class="ais-prompt-tip">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Reference art styles (e.g. "watercolor", "vector flat", "90s retro") to guide the AI</span>
+          </div>
+        </div>
+      </div>
+
+      <footer class="ais-panel__footer">
+        <button class="ais-btn ais-btn--ghost" (click)="back()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+        <button class="ais-btn ais-btn--primary ais-btn--generate" [disabled]="!canProceedStep4()" (click)="next()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Generate Mockup
+        </button>
+      </footer>
+    </div>
+
+    <!-- ── STEP 5: Generate + Result ────────────────────────────────────────── -->
+    <div class="ais-panel" *ngIf="currentStep() === 5">
+      <header class="ais-panel__header" *ngIf="!generationDone()">
+        <div class="ais-panel__step-badge">Step 5 of 5</div>
+        <h1 class="ais-panel__title">Generating your mockup…</h1>
+        <p class="ais-panel__sub">AI is compositing your design. This usually takes 10–30 seconds.</p>
+      </header>
+      <header class="ais-panel__header" *ngIf="generationDone()">
+        <div class="ais-panel__step-badge ais-panel__step-badge--done">Complete!</div>
+        <h1 class="ais-panel__title">Your mockup is ready 🎉</h1>
+        <p class="ais-panel__sub">Download, open in the editor, or regenerate with a different prompt.</p>
+      </header>
+
+      <!-- Generation progress -->
+      <div class="ais-gen" *ngIf="generating()">
+        <div class="ais-gen__orb">
+          <div class="ais-gen__orb-ring ais-gen__orb-ring--1"></div>
+          <div class="ais-gen__orb-ring ais-gen__orb-ring--2"></div>
+          <div class="ais-gen__orb-ring ais-gen__orb-ring--3"></div>
+          <svg class="ais-gen__orb-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+
+        <div class="ais-gen__stage">{{ generationStage() }}</div>
+
+        <div class="ais-gen__bar-wrap">
+          <div class="ais-gen__bar">
+            <div class="ais-gen__bar-fill" [style.width.%]="generationProgress()"></div>
+          </div>
+          <span class="ais-gen__pct">{{ generationProgress() }}%</span>
+        </div>
+
+        <div class="ais-gen__spec-row">
+          <span class="ais-gen__spec">{{ selectedProduct()!.brand }} {{ selectedProduct()!.sku }}</span>
+          <span class="ais-gen__dot">·</span>
+          <span class="ais-gen__spec">{{ selectedStyle()!.label }}</span>
+          <span class="ais-gen__dot">·</span>
+          <span class="ais-gen__spec">{{ designPrompt().slice(0, 40) }}{{ designPrompt().length > 40 ? '…' : '' }}</span>
+        </div>
+      </div>
+
+      <!-- Result display -->
+      <div class="ais-result" *ngIf="generationDone()">
+        <!-- Main preview -->
+        <div class="ais-result__main">
+          <div class="ais-result__preview" [style.background]="generatedVariants[activeVariant()].gradient">
+            <div class="ais-result__overlay-label">{{ generatedVariants[activeVariant()].label }}</div>
+            <!-- Simulated product shape overlay -->
+            <div class="ais-result__product-sim">
+              <div class="ais-result__product-shape">
+                <div class="ais-result__print-area">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Variant tabs -->
+          <div class="ais-result__variants">
+            <button
+              class="ais-variant-btn"
+              *ngFor="let v of generatedVariants; let i = index"
+              [class.ais-variant-btn--active]="activeVariant() === i"
+              (click)="activeVariant.set(i)"
+            >
+              <div class="ais-variant-btn__thumb" [style.background]="v.gradient"></div>
+              <span>{{ v.label }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Action panel -->
+        <div class="ais-result__actions">
+          <div class="ais-result__meta">
+            <div class="ais-result__meta-row">
+              <span class="ais-result__meta-key">Product</span>
+              <span class="ais-result__meta-val">{{ selectedProduct()!.brand }} · {{ selectedProduct()!.name }}</span>
+            </div>
+            <div class="ais-result__meta-row">
+              <span class="ais-result__meta-key">Style</span>
+              <span class="ais-result__meta-val">{{ selectedStyle()!.label }}</span>
+            </div>
+            <div class="ais-result__meta-row">
+              <span class="ais-result__meta-key">Prompt</span>
+              <span class="ais-result__meta-val">{{ designPrompt() }}</span>
+            </div>
+          </div>
+
+          <div class="ais-result__btns">
+            <button class="ais-btn ais-btn--primary ais-btn--full" (click)="downloadVariant()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download PNG (4k)
+            </button>
+            <button class="ais-btn ais-btn--secondary ais-btn--full" (click)="openInEditor()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Open in Editor
+            </button>
+            <button class="ais-btn ais-btn--outline ais-btn--full" (click)="regenerate()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Regenerate
+            </button>
+            <button class="ais-btn ais-btn--ghost ais-btn--full" (click)="startOver()">
+              Start a new mockup
+            </button>
+          </div>
+
+          <!-- Format chips -->
+          <div class="ais-result__formats">
+            <span class="ais-result__formats-label">Also available as:</span>
+            <div class="ais-result__format-row">
+              <span class="ais-fmt-chip">JPG</span>
+              <span class="ais-fmt-chip">SVG</span>
+              <span class="ais-fmt-chip">WebP</span>
+              <span class="ais-fmt-chip ais-fmt-chip--pro">PSD <span class="ais-fmt-pro">PRO</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="ais-panel__footer" *ngIf="!generating() && !generationDone()">
+        <button class="ais-btn ais-btn--ghost" (click)="back()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+      </footer>
+    </div>
+
+  </main>
+</div>
