@@ -48,7 +48,7 @@
 
       
       <div class="amx-filter-group">
-        <h4>Icon Library</h4>
+        <h4>Web Libraries</h4>
         <ul class="amx-filter-list">
           <li>
             <button type="button" class="amx-filter-chip amx-filter-chip--lib"
@@ -59,18 +59,48 @@
               <span class="amx-lib-count">{{ svc.totalLoaded() | number }}</span>
             </button>
           </li>
-          <li *ngFor="let lib of libraryMeta">
+          <li *ngFor="let lib of webLibraries">
             <button type="button" class="amx-filter-chip amx-filter-chip--lib"
                     [class.amx-filter-chip--active]="isActiveLibrary(lib.id)"
                     [class.amx-filter-chip--loading]="isLibraryLoading(lib.id)"
-                    (click)="setLibrary(lib.id)">
+                    [class.amx-filter-chip--soon]="lib.comingSoon"
+                    [attr.title]="lib.comingSoon ? 'Coming soon — ' + lib.name : null"
+                    (click)="!lib.comingSoon && setLibrary(lib.id)">
               <span class="amx-lib-dot" [attr.data-lib]="lib.id"></span>
               {{ lib.name }}
+              <span class="amx-lib-soon-badge" *ngIf="lib.comingSoon">soon</span>
               <span class="amx-lib-spinner" *ngIf="isLibraryLoading(lib.id)" aria-label="Loading"></span>
-              <span class="amx-lib-count" *ngIf="!isLibraryLoading(lib.id)">
+              <span class="amx-lib-count" *ngIf="!isLibraryLoading(lib.id) && !lib.comingSoon">
                 {{ isLibraryLoaded(lib.id) ? (svc.filteredIcons().length | number) : (lib.count | number) }}
               </span>
+              <span class="amx-lib-count" *ngIf="lib.comingSoon">{{ lib.count | number }}</span>
             </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="amx-filter-group amx-filter-group--flutter">
+        <h4>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M13.5 2L3 13.5l3.5 3.5L20 3.5z" fill="#54C5F8"/>
+            <path d="M3 13.5L13.5 24H20l-9.5-9.5z" fill="#01579B"/>
+            <path d="M10.5 14.5L13.5 17.5 20 24h-6.5z" fill="#29B6F6"/>
+          </svg>
+          Flutter Packages
+        </h4>
+        <ul class="amx-filter-list">
+          <li *ngFor="let lib of flutterLibraries">
+            <a class="amx-filter-chip amx-filter-chip--lib amx-filter-chip--flutter"
+               [href]="lib.pubUrl" target="_blank" rel="noopener noreferrer"
+               [attr.title]="lib.name + ' — open on pub.dev'">
+              <span class="amx-lib-dot amx-lib-dot--flutter" [attr.data-lib]="lib.id"></span>
+              {{ lib.name }}
+              <svg class="amx-lib-ext" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              <span class="amx-lib-count">{{ lib.count | number }}</span>
+            </a>
           </li>
         </ul>
       </div>
@@ -394,17 +424,21 @@
             <span *ngIf="filters().libraryId">{{ libraryName(filters().libraryId) }}</span>
             <span *ngIf="!filters().libraryId">Icon Libraries</span>
           </h1>
-          <p *ngIf="!filters().libraryId">Browse 20,000+ icons from 9 open-source libraries — Tabler, Lucide, MDI, Remix, Bootstrap, Phosphor, Heroicons, Ionicons &amp; Amarapix. Select a library in the sidebar to load it, recolor, then download SVG or PNG.</p>
+          <p *ngIf="!filters().libraryId">Browse 70,000+ icons from 13 open-source libraries — Tabler, Lucide, MDI, Material Symbols, Heroicons, Feather, Font Awesome, Remix, Bootstrap, Phosphor, Ionicons, React Icons &amp; Amarapix. Select a library in the sidebar to load it, recolor, then download SVG or PNG.</p>
           <p *ngIf="filters().libraryId">
             <ng-container [ngSwitch]="filters().libraryId">
               <ng-container *ngSwitchCase="'tabler'">5,090+ clean outline &amp; filled icons — MIT license.</ng-container>
               <ng-container *ngSwitchCase="'lucide'">1,995 precisely crafted icons with a consistent 24×24 grid — ISC license.</ng-container>
               <ng-container *ngSwitchCase="'mdi'">7,400+ community icons covering every scenario — Apache 2.0.</ng-container>
+              <ng-container *ngSwitchCase="'material-symbols'">2,500+ Google Material Symbols with variable axes for fill, weight, grade &amp; optical size — Apache 2.0.</ng-container>
+              <ng-container *ngSwitchCase="'heroicons'">300 hand-crafted icons from the Tailwind team — MIT license.</ng-container>
+              <ng-container *ngSwitchCase="'feather'">287 beautiful, consistent open-source icons designed on a 24×24 grid — MIT license.</ng-container>
+              <ng-container *ngSwitchCase="'fontawesome'">2,000+ free icons covering brands, solid, regular &amp; thin styles — CC BY 4.0 + MIT.</ng-container>
               <ng-container *ngSwitchCase="'remixicon'">1,500+ dual-style line icons for general UI — Apache 2.0.</ng-container>
               <ng-container *ngSwitchCase="'bootstrap'">2,000+ SVG icons from the Bootstrap team — MIT license.</ng-container>
               <ng-container *ngSwitchCase="'phosphor'">1,500+ flexible icons in 6 weights — MIT license.</ng-container>
-              <ng-container *ngSwitchCase="'heroicons'">300 hand-crafted icons from the Tailwind team — MIT license.</ng-container>
               <ng-container *ngSwitchCase="'ionicons'">420+ outline icons for web &amp; mobile — MIT license.</ng-container>
+              <ng-container *ngSwitchCase="'react-icons'">49,000+ icons from 40+ packs (FA, MD, BS, Feather, Tabler &amp; more) as React components — MIT (varies per pack).</ng-container>
               <ng-container *ngSwitchCase="'amarapix'">Amarapix originals — exclusive design-asset marketplace icons.</ng-container>
             </ng-container>
           </p>

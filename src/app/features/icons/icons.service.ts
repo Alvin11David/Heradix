@@ -101,6 +101,7 @@ export class IconsService {
 
   async loadLibrary(id: IconLibraryId): Promise<void> {
     if (id === 'amarapix') return;
+    if (id.startsWith('flutter-')) return;   // Flutter packages have no SVG JSON
     if (this._libraries().has(id)) return;
     if (this._loading().has(id)) return;
 

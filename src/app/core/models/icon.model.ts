@@ -10,7 +10,10 @@ export type IconSizeDensity = 'small' | 'medium' | 'large';
 
 export type IconLibraryId =
   'amarapix' | 'tabler' | 'lucide' | 'bootstrap' | 'heroicons' |
-  'phosphor' | 'remixicon' | 'ionicons' | 'mdi';
+  'phosphor' | 'remixicon' | 'ionicons' | 'mdi' |
+  'material-symbols' | 'feather' | 'fontawesome' | 'react-icons' |
+  'flutter-material' | 'flutter-fontawesome' | 'flutter-phosphor' |
+  'flutter-heroicons' | 'flutter-tabler' | 'flutter-remixicon' | 'flutter-boxicons';
 
 export interface IconAsset {
   id: string;

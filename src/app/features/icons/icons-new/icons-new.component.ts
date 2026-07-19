@@ -238,6 +238,8 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
   private scrollObserver?: IntersectionObserver;
   readonly categories = ICON_CATEGORIES;
   readonly libraryMeta = ICON_LIBRARIES;
+  readonly webLibraries = ICON_LIBRARIES.filter(l => (l.kind ?? 'web') === 'web');
+  readonly flutterLibraries = ICON_LIBRARIES.filter(l => l.kind === 'flutter');
   readonly pngSizes = PNG_SIZES;
   readonly stylePacks = STYLE_PACKS;
   readonly trendCards = TREND_CARDS;
