@@ -243,7 +243,14 @@ export class PngComponent implements OnInit {
   get activeFilterCount() { return this.svc.activeFilterCount; }
 
   setQuery(value: string): void { this.svc.setQuery(value); this.resetPage(); }
-  applyTag(tag: string):   void { this.setQuery(tag); this.suggestionsOpen.set(false); }
+  applyTag(tag: string): void {
+    this.setQuery(tag);
+    this.suggestionsOpen.set(false);
+    // Scroll to results so the user sees the filtered output immediately
+    setTimeout(() => {
+      document.querySelector('.amx-png__grid-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
   applySuggestion(s: string): void { this.applyTag(s); }
 
   setCategory(id: string | null): void { this.svc.setCategory(id); this.resetPage(); }
@@ -526,7 +533,15 @@ export class PngComponent implements OnInit {
     if (!size.px) { this.downloadPng(png); return; }
 
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    // Only set crossOrigin for same-origin images. External CDNs that respond
+    // with Cross-Origin-Resource-Policy: same-origin will block the request and
+    // log ERR_BLOCKED_BY_RESPONSE.NotSameOrigin. The onerror fallback below
+    // handles that case by falling back to a direct download.
+    const isSameOrigin =
+      png.url.startsWith('/') ||
+      png.url.startsWith('data:') ||
+      png.url.startsWith(window.location.origin);
+    if (isSameOrigin) img.crossOrigin = 'anonymous';
     img.onload = () => {
       try {
         const dataUrl = resizeImageToDataUrl(img, size.px);

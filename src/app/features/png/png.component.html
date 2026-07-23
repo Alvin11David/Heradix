@@ -66,20 +66,30 @@
 
       
       <div class="amx-png__hero-colors" (click)="$event.stopPropagation()">
-        <span>Search by color:</span>
-        <button *ngFor="let c of colorSwatches" class="amx-png__hero-color-swatch"
-          [class.active]="filters().colorTone === c.key"
-          [class.amx-png__hero-color-swatch--white]="c.key === 'white'"
-          [style.background]="c.hex" [attr.title]="c.label" [attr.aria-label]="'Search ' + c.label + ' PNGs'"
-          (click)="toggleColorTone(c.key)">
-          <svg *ngIf="filters().colorTone === c.key" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>
+        <span class="amx-png__hero-colors-heading">Search by color:</span>
+        <div class="amx-png__hero-colors-swatches">
+          <button *ngFor="let c of colorSwatches"
+            class="amx-png__hero-color-swatch-btn"
+            [class.active]="filters().colorTone === c.key"
+            [attr.aria-pressed]="filters().colorTone === c.key"
+            [attr.aria-label]="'Filter by ' + c.label"
+            (click)="toggleColorTone(c.key)">
+            <span class="amx-png__hero-color-swatch"
+              [class.amx-png__hero-color-swatch--white]="c.key === 'white'"
+              [style.background]="c.hex">
+              <svg *ngIf="filters().colorTone === c.key" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <span class="amx-png__hero-color-swatch-label">{{ c.label }}</span>
+          </button>
+        </div>
       </div>
 
       <div class="amx-png__hero-ctas">
-        <button class="amx-png__create-cta" (click)="openCreateTool(); $event.stopPropagation()">
+        <button class="amx-png__create-cta" (click)="openCreateTool(); $event.stopPropagation()"
+          title="Runs entirely in your browser — no sign-in or Premium account needed">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" opacity="0"/><path d="m4 16 4.5-6L12 14l3-4 5 6"/><circle cx="8.5" cy="7.5" r="1.5"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
-          Upload a photo &amp; remove the background — free
+          Upload a photo &amp; remove the background
+          <span class="amx-png__create-cta-badge">Free · No sign-in</span>
         </button>
         <button class="amx-png__contributor-cta" (click)="openContributor($event)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
@@ -96,7 +106,7 @@
 
       
       <div class="amx-png__stats">
-        <div class="amx-png__stat"><span>120+</span> PNGs</div>
+        <div class="amx-png__stat"><span>{{ svc.totalCount() }}</span> PNGs</div>
         <div class="amx-png__stat-div" aria-hidden="true"></div>
         <div class="amx-png__stat"><span>Free &amp; Premium</span></div>
         <div class="amx-png__stat-div" aria-hidden="true"></div>
