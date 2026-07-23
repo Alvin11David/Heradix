@@ -32,7 +32,11 @@ export class SplashCursorComponent implements AfterViewInit, OnDestroy {
   private isActive = false;
 
   ngAfterViewInit(): void {
-    this.init();
+    try {
+      this.init();
+    } catch {
+      // WebGL not supported in this environment — degrade silently
+    }
   }
 
   private init(): void {
@@ -96,16 +100,23 @@ export class SplashCursorComponent implements AfterViewInit, OnDestroy {
       const isWebGL2 = !!gl;
       if (!isWebGL2) gl = (canvas.getContext('webgl', params) || canvas.getContext('experimental-webgl', params)) as WebGLRenderingContext;
 
+      if (!gl) {
+        return {
+          gl: null as unknown as WebGLRenderingContext,
+          ext: { formatRGBA: null, formatRG: null, formatR: null, halfFloatTexType: null, supportLinearFiltering: false },
+        };
+      }
+
       let halfFloat: any;
       let supportLinearFiltering: any;
       if (isWebGL2) {
-        gl!.getExtension('EXT_color_buffer_float');
-        supportLinearFiltering = gl!.getExtension('OES_texture_float_linear');
+        gl.getExtension('EXT_color_buffer_float');
+        supportLinearFiltering = gl.getExtension('OES_texture_float_linear');
       } else {
-        halfFloat = gl!.getExtension('OES_texture_half_float');
-        supportLinearFiltering = gl!.getExtension('OES_texture_half_float_linear');
+        halfFloat = gl.getExtension('OES_texture_half_float');
+        supportLinearFiltering = gl.getExtension('OES_texture_half_float_linear');
       }
-      gl!.clearColor(0.0, 0.0, 0.0, 1.0);
+      gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
       const halfFloatTexType = isWebGL2 ? (gl as any).HALF_FLOAT : halfFloat && halfFloat.HALF_FLOAT_OES;
       let formatRGBA: any;

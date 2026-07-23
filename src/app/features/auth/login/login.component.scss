@@ -99,26 +99,15 @@
 .auth-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 32px;
 
-  &__img {
-    height: 34px;
-    width: auto;
+  &__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     object-fit: contain;
-  }
-
-  &__fallback {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    img {
-      width: 46px;
-      height: 46px;
-      border-radius: 12px;
-      object-fit: contain;
-    }
+    flex-shrink: 0;
   }
 
   &__text {

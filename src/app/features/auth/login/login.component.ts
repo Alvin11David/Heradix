@@ -20,15 +20,11 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
       <div class="auth-panel auth-panel--form">
 
         <div class="auth-logo">
-          <img src="https://i.postimg.cc/zD47BZ94/Asset-1-2x.png"
-               alt="Amarapix"
-               class="auth-logo__img"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-          <span class="auth-logo__fallback">
-            <img [src]="isDark() ? 'assets/logo/whitelogo.png' : 'assets/logo/blacklogo.png'"
-                 width="46" height="46" alt="" />
-            <span class="auth-logo__text">Amara<span class="auth-logo__pix">pix</span></span>
-          </span>
+          <img [src]="isDark() ? 'assets/logo/whitelogo.png' : 'assets/logo/blacklogo.png'"
+               alt=""
+               class="auth-logo__icon"
+               width="36" height="36" />
+          <span class="auth-logo__text">Amara<span class="auth-logo__pix">pix</span></span>
         </div>
 
         <h1 class="auth-title">Welcome back!</h1>
@@ -90,7 +86,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
             <label class="auth-check">
               <input type="checkbox" formControlName="remember" />
               <span class="auth-check__box"></span>
-              <span class="auth-check__label">Remembering me</span>
+              <span class="auth-check__label">Remember me</span>
             </label>
             <a routerLink="/auth/forgot-password" class="auth-link">Forgot the password?</a>
           </div>

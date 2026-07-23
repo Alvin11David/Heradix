@@ -32,7 +32,8 @@ function decodeJwt(token: string): Record<string, unknown> | null {
 function isTokenExpired(token: string | null): boolean {
   if (!token) return true;
   const payload = decodeJwt(token);
-  if (!payload) return false;
+  // Treat unparseable tokens (not real JWTs) as expired so stale mock sessions don't persist
+  if (!payload) return true;
   if (typeof payload['exp'] !== 'number') return false;
   const nowSeconds = Math.floor(Date.now() / 1000);
   return payload['exp'] < nowSeconds - 30;
@@ -41,8 +42,15 @@ function isTokenExpired(token: string | null): boolean {
 const MOCK_EMAIL    = 'kafulumap@gmail.com';
 const MOCK_PASSWORD = 'Zulukedra!7';
 
+// A well-formed JWT with exp: 9999999999 (year 2286) so it survives isTokenExpired checks.
+// Header: {"alg":"HS256","typ":"JWT"}  Payload: {"sub":"mock-user-001","role":"ADMIN","exp":9999999999}
+const MOCK_ACCESS_TOKEN =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9' +
+  '.eyJzdWIiOiJtb2NrLXVzZXItMDAxIiwicm9sZSI6IkFETUlOIiwiZXhwIjo5OTk5OTk5OTk5fQ' +
+  '.mock-sig';
+
 const MOCK_AUTH_RESPONSE: AuthResponse = {
-  accessToken:  'mock-access-token',
+  accessToken:  MOCK_ACCESS_TOKEN,
   refreshToken: 'mock-refresh-token',
   user: {
     id:              'mock-user-001',
