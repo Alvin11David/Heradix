@@ -2,29 +2,22 @@ import {
   Component, ChangeDetectionStrategy, inject, signal, computed,
   HostListener, OnInit, OnDestroy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { CommonModule, Location } from '@angular/common';
+import { Router } from '@angular/router';
 import {
-  MockupsService, MOCKUP_TRENDING_TAGS, MOCKUP_TRENDING_COLORS,
-  MOCKUP_SEASONAL_COLLECTIONS, MOCKUP_CATEGORIES,
-} from './mockups.service';
-import {
-  MockupAsset, MockupCategory, MockupSceneType, MockupOrientation,
+  MockupAsset, MockupCategory, MockupCategoryMeta, MockupSceneType, MockupOrientation,
   MockupLicense, MockupSortMode, MockupViewMode, MockupFormat,
 } from '../../core/models/mockup.model';
 import { AuthService } from '../../core/auth/auth.service';
 import { MockuuupsApiService } from '../../core/services/mockuuups-api.service';
+import { MockAnythingApiService, MockProductBrief, MockProductDetail, MockStyle } from '../../core/services/mock-anything-api.service';
+import { MockupsFacade } from './services/mockups-facade.service';
+import { EditorState as EditorStateI, DEFAULT_EDITOR } from './services/mockups-editor.service';
 
-// ── Download quality options ──────────────────────────────────────────────────
 export type DownloadQuality = 'png' | 'jpg' | 'pdf' | 'psd' | 'svg' | 'webp';
 
 export const FORMAT_LABELS: Record<DownloadQuality, string> = {
-  png: 'PNG',
-  jpg: 'JPG',
-  pdf: 'PDF',
-  psd: 'PSD',
-  svg: 'SVG',
-  webp: 'WebP',
+  png: 'PNG', jpg: 'JPG', pdf: 'PDF', psd: 'PSD', svg: 'SVG', webp: 'WebP',
 };
 
 export const SCENE_OPTIONS: { key: MockupSceneType; label: string; icon: string }[] = [
@@ -63,12 +56,9 @@ export const LICENSE_OPTIONS: { key: MockupLicense; label: string }[] = [
 ];
 
 export const FORMAT_OPTIONS: { key: MockupFormat; label: string }[] = [
-  { key: 'png', label: 'PNG' },
-  { key: 'jpg', label: 'JPG' },
-  { key: 'psd', label: 'PSD' },
-  { key: 'pdf', label: 'PDF' },
-  { key: 'svg', label: 'SVG' },
-  { key: 'webp', label: 'WebP' },
+  { key: 'png', label: 'PNG' }, { key: 'jpg', label: 'JPG' },
+  { key: 'psd', label: 'PSD' }, { key: 'pdf', label: 'PDF' },
+  { key: 'svg', label: 'SVG' }, { key: 'webp', label: 'WebP' },
 ];
 
 export const BG_COLORS = [
@@ -87,60 +77,24 @@ export const BG_COLORS = [
 type PageView = 'home' | 'browse';
 type DetailTab = 'info' | 'similar' | 'editor';
 
-// Smart mockup editor state
-export interface EditorState {
-  uploadedDesignUrl: string | null;
-  brightness: number;
-  contrast: number;
-  opacity: number;
-  bgColor: string;
-  bgGradient: boolean;
-  showShadow: boolean;
-  showReflection: boolean;
-  showGloss: boolean;
-  finishType: 'matte' | 'glossy' | 'metallic';
-  scaleX: number;
-  scaleY: number;
-  rotation: number;
-  posX: number;
-  posY: number;
-}
-
-const DEFAULT_EDITOR: EditorState = {
-  uploadedDesignUrl: null,
-  brightness: 100,
-  contrast: 100,
-  opacity: 100,
-  bgColor: '#FFFFFF',
-  bgGradient: false,
-  showShadow: true,
-  showReflection: false,
-  showGloss: false,
-  finishType: 'matte',
-  scaleX: 100,
-  scaleY: 100,
-  rotation: 0,
-  posX: 50,
-  posY: 50,
-};
-
 const PAGE_SIZE = 24;
 
 @Component({
   selector: 'amx-mockups',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './mockups.component.html',
   styleUrl: './mockups.component.scss',
 })
 export class MockupsComponent implements OnInit, OnDestroy {
-  readonly svc     = inject(MockupsService);
+  readonly facade   = inject(MockupsFacade);
   private router   = inject(Router);
+  private location = inject(Location);
   readonly auth    = inject(AuthService);
   private mkuApi   = inject(MockuuupsApiService);
+  private mockApi  = inject(MockAnythingApiService);
 
-  // ── View state ────────────────────────────────────────────────────────────
   view            = signal<PageView>('home');
   selectedAsset   = signal<MockupAsset | null>(null);
   detailTab       = signal<DetailTab>('info');
@@ -159,67 +113,62 @@ export class MockupsComponent implements OnInit, OnDestroy {
   selectedBulk    = signal<Set<string>>(new Set());
   newCollName     = signal('');
   activeSection   = signal('featured');
-  editorState     = signal<EditorState>({ ...DEFAULT_EDITOR });
+  editorState     = signal<EditorStateI>({ ...DEFAULT_EDITOR });
   dragOver        = signal(false);
   aiPrompt        = signal('');
   aiGenerating    = signal(false);
-  aiFeature       = signal('generate');
+  aiFeature       = signal<'generate' | 'products'>('generate');
   lightboxOpen    = signal(false);
 
-  // ── API state proxies ─────────────────────────────────────────────────────
-  readonly apiLoading = this.svc.apiLoading;
-  readonly apiLoaded  = this.svc.apiLoaded;
-  readonly apiError   = this.svc.apiError;
+  aiProducts      = signal<MockProductBrief[]>([]);
+  aiProductDetail = signal<MockProductDetail | null>(null);
+  aiStyles        = signal<MockStyle[]>([]);
+  aiSelectedStyle = signal<string>('baseline');
+  aiSearchQuery   = signal('');
+  aiSearching     = signal(false);
+  aiResultUrl     = signal<string | null>(null);
+  aiTaskId        = signal<string | null>(null);
+  aiPollTimer: ReturnType<typeof setInterval> | null = null;
 
-  // ── Render state (Smart Mockup Editor → real API render) ──────────────────
-  renderLoading   = signal(false);
-  renderError     = signal<string | null>(null);
-  renderResultUrl = signal<string | null>(null);
-  private _designFile: File | null = null;
+  readonly loading        = this.facade.loading;
+  readonly apiLoading     = this.facade.loading;
+  readonly apiLoaded      = this.facade.loaded;
+  readonly apiError       = this.facade.error;
+  readonly filterState    = this.facade.filterService.filter;
+  readonly favorites      = this.facade.persistence.favorites;
+  readonly collections    = this.facade.persistence.collections;
+  readonly recentSearches = this.facade.persistence.recentSearches;
+  readonly assets         = this.facade.assets;
 
-  // ── Filter proxies ────────────────────────────────────────────────────────
-  readonly filterState   = this.svc.filter;
-  readonly favorites     = this.svc.favorites;
-  readonly collections   = this.svc.collections;
-  readonly recentSearches = this.svc.recentSearches;
+  readonly allCategories  = this.facade.categories;
+  readonly trendingTags   = this.facade.trendingTags;
 
-  // ── Data proxies ──────────────────────────────────────────────────────────
-  readonly allCategories       = this.svc.categories;
-  readonly trendingTags        = MOCKUP_TRENDING_TAGS;
-  readonly trendingColors      = MOCKUP_TRENDING_COLORS;
-  readonly seasonalCollections = MOCKUP_SEASONAL_COLLECTIONS;
-  readonly creators            = this.svc.creators;
+  readonly featuredAssets    = this.facade.featuredAssets;
+  readonly trendingAssets    = this.facade.trendingAssets;
+  readonly editorsPickAssets = this.facade.editorsPickAssets;
+  readonly staffPickAssets   = this.facade.staffPickAssets;
+  readonly newAssets         = this.facade.newAssets;
+  readonly freeAssets        = this.facade.freeAssets;
+  readonly premiumAssets     = this.facade.premiumAssets;
+  readonly aiAssets          = this.facade.aiAssets;
+  readonly deviceAssets      = this.facade.deviceAssets;
+  readonly apparelAssets     = this.facade.apparelAssets;
+  readonly packagingAssets   = this.facade.packagingAssets;
+  readonly brandingAssets    = this.facade.brandingAssets;
+  readonly mostDownloaded    = this.facade.mostDownloaded;
 
-  // ── Homepage sections ─────────────────────────────────────────────────────
-  readonly featuredAssets    = this.svc.featuredAssets;
-  readonly trendingAssets    = this.svc.trendingAssets;
-  readonly editorsPickAssets = this.svc.editorsPickAssets;
-  readonly staffPickAssets   = this.svc.staffPickAssets;
-  readonly newAssets         = this.svc.newAssets;
-  readonly freeAssets        = this.svc.freeAssets;
-  readonly premiumAssets     = this.svc.premiumAssets;
-  readonly aiAssets          = this.svc.aiAssets;
-  readonly deviceAssets      = this.svc.deviceAssets;
-  readonly apparelAssets     = this.svc.apparelAssets;
-  readonly packagingAssets   = this.svc.packagingAssets;
-  readonly brandingAssets    = this.svc.brandingAssets;
-  readonly mostDownloaded    = this.svc.mostDownloaded;
-
-  // ── Browse / filter ───────────────────────────────────────────────────────
-  readonly filteredAssets = this.svc.filteredAssets;
+  readonly filteredAssets = this.facade.filteredAssets;
   readonly displayedCount = signal(PAGE_SIZE);
   readonly displayedAssets = computed(() => this.filteredAssets().slice(0, this.displayedCount()));
   readonly hasMore = computed(() => this.filteredAssets().length > this.displayedCount());
 
-  // ── Similar ───────────────────────────────────────────────────────────────
   readonly similarAssets = computed(() => {
     const a = this.selectedAsset();
-    return a ? this.svc.getSimilar(a) : [];
+    return a ? this.facade.getSimilar(a) : [];
   });
 
-  readonly recentlyViewed = computed(() => this.svc.getRecentlyViewed());
+  readonly recentlyViewed = computed(() => this.facade.getRecentlyViewed());
 
-  // ── Option lists ──────────────────────────────────────────────────────────
   readonly sceneOptions       = SCENE_OPTIONS;
   readonly orientationOptions = ORIENTATION_OPTIONS;
   readonly sortOptions        = SORT_OPTIONS;
@@ -227,7 +176,6 @@ export class MockupsComponent implements OnInit, OnDestroy {
   readonly formatOptions      = FORMAT_OPTIONS;
   readonly bgColors           = BG_COLORS;
 
-  // ── Active filter counts ──────────────────────────────────────────────────
   readonly activeFilterCount = computed(() => {
     const f = this.filterState();
     return [
@@ -237,33 +185,35 @@ export class MockupsComponent implements OnInit, OnDestroy {
     ].filter(Boolean).length;
   });
 
+  renderLoading   = signal(false);
+  renderError     = signal<string | null>(null);
+  renderResultUrl = signal<string | null>(null);
+  private _designFile: File | null = null;
+
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
   private _searchVal = '';
 
   ngOnInit(): void {
-    // initialize collections if empty
     if (this.collections().length === 0) {
-      this.svc.createCollection('Favorites');
-      this.svc.createCollection('Brand Mockups');
+      this.facade.persistence.createCollection('Favorites');
+      this.facade.persistence.createCollection('Brand Mockups');
     }
-    // Load real mockups from Mockuuups API
-    this.svc.loadRealMockups();
-  }
-  ngOnDestroy(): void {
-    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.facade.loadMockups();
   }
 
-  // ── Navigation ────────────────────────────────────────────────────────────
+  ngOnDestroy(): void {
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    if (this.aiPollTimer) clearInterval(this.aiPollTimer);
+  }
+
   goHome(): void {
     this.view.set('home');
     this.selectedAsset.set(null);
-    this.svc.resetFilter();
+    this.facade.filterService.resetFilter();
   }
 
   goBrowse(categoryId?: MockupCategory): void {
-    if (categoryId) {
-      this.svc.setFilter({ categoryId, subcategoryId: null });
-    }
+    if (categoryId) this.facade.filterService.setFilter({ categoryId, subcategoryId: null });
     this.view.set('browse');
     this.selectedAsset.set(null);
     this.displayedCount.set(PAGE_SIZE);
@@ -273,7 +223,7 @@ export class MockupsComponent implements OnInit, OnDestroy {
     this.selectedAsset.set(asset);
     this.detailTab.set('info');
     this.selectedPreview.set(0);
-    this.svc.addRecentlyViewed(asset.id);
+    this.facade.persistence.addRecentlyViewed(asset.id);
   }
 
   closeAsset(): void { this.selectedAsset.set(null); }
@@ -286,11 +236,10 @@ export class MockupsComponent implements OnInit, OnDestroy {
 
   closeEditor(): void { this.showEditor.set(false); }
 
-  // ── Search ────────────────────────────────────────────────────────────────
   onSearchInput(event: Event): void {
     const val = (event.target as HTMLInputElement).value;
     this._searchVal = val;
-    this.svc.setFilter({ query: val });
+    this.facade.filterService.setFilter({ query: val });
     if (!val) return;
     this.view.set('browse');
     this.displayedCount.set(PAGE_SIZE);
@@ -298,7 +247,7 @@ export class MockupsComponent implements OnInit, OnDestroy {
 
   onSearchKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter' && this._searchVal.trim()) {
-      this.svc.addRecentSearch(this._searchVal.trim());
+      this.facade.persistence.addRecentSearch(this._searchVal.trim());
       this.searchFocused.set(false);
       this.view.set('browse');
     }
@@ -306,8 +255,8 @@ export class MockupsComponent implements OnInit, OnDestroy {
 
   applyRecentSearch(q: string): void {
     this._searchVal = q;
-    this.svc.setFilter({ query: q });
-    this.svc.addRecentSearch(q);
+    this.facade.filterService.setFilter({ query: q });
+    this.facade.persistence.addRecentSearch(q);
     this.searchFocused.set(false);
     this.view.set('browse');
     this.displayedCount.set(PAGE_SIZE);
@@ -315,58 +264,54 @@ export class MockupsComponent implements OnInit, OnDestroy {
 
   applyTag(tag: string): void {
     this._searchVal = tag;
-    this.svc.setFilter({ query: tag });
+    this.facade.filterService.setFilter({ query: tag });
     this.view.set('browse');
     this.displayedCount.set(PAGE_SIZE);
   }
 
-  // ── Filters ───────────────────────────────────────────────────────────────
-  setSort(sort: MockupSortMode): void { this.svc.setFilter({ sort }); }
-  setCategory(id: MockupCategory | null): void { this.svc.setFilter({ categoryId: id, subcategoryId: null }); this.displayedCount.set(PAGE_SIZE); }
-  setSubcategory(id: string | null): void { this.svc.setFilter({ subcategoryId: id }); this.displayedCount.set(PAGE_SIZE); }
-  setScene(s: MockupSceneType | null): void { this.svc.setFilter({ sceneType: s }); }
-  setOrientation(o: MockupOrientation | null): void { this.svc.setFilter({ orientation: o }); }
-  setLicense(l: MockupLicense | null): void { this.svc.setFilter({ license: l }); }
-  setDateAdded(d: 'all' | 'today' | 'week' | 'month'): void { this.svc.setFilter({ dateAdded: d }); }
-  setAiFilter(v: boolean | null): void { this.svc.setFilter({ isAiGenerated: v }); }
-  setBgColor(hex: string | null): void { this.svc.setFilter({ bgColor: hex }); }
+  setSort(s: MockupSortMode): void { this.facade.filterService.setFilter({ sort: s }); }
+  setCategory(id: MockupCategory | null): void { this.facade.filterService.setFilter({ categoryId: id, subcategoryId: null }); this.displayedCount.set(PAGE_SIZE); }
+  setSubcategory(id: string | null): void { this.facade.filterService.setFilter({ subcategoryId: id }); this.displayedCount.set(PAGE_SIZE); }
+  setScene(s: MockupSceneType | null): void { this.facade.filterService.setFilter({ sceneType: s }); }
+  setOrientation(o: MockupOrientation | null): void { this.facade.filterService.setFilter({ orientation: o }); }
+  setLicense(l: MockupLicense | null): void { this.facade.filterService.setFilter({ license: l }); }
+  setDateAdded(d: 'all' | 'today' | 'week' | 'month'): void { this.facade.filterService.setFilter({ dateAdded: d }); }
+  setAiFilter(v: boolean | null): void { this.facade.filterService.setFilter({ isAiGenerated: v }); }
+  setBgColor(hex: string | null): void { this.facade.filterService.setFilter({ bgColor: hex }); }
   toggleFormat(fmt: MockupFormat): void {
     const cur = this.filterState().formats;
-    const next = cur.includes(fmt) ? cur.filter(f => f !== fmt) : [...cur, fmt];
-    this.svc.setFilter({ formats: next });
+    this.facade.filterService.setFilter({ formats: cur.includes(fmt) ? cur.filter(f => f !== fmt) : [...cur, fmt] });
   }
-  toggleFavoritesOnly(): void { this.svc.setFilter({ favoritesOnly: !this.filterState().favoritesOnly }); }
-  resetFilters(): void { this.svc.resetFilter(); this.displayedCount.set(PAGE_SIZE); }
+  toggleFavoritesOnly(): void { this.facade.filterService.setFilter({ favoritesOnly: !this.filterState().favoritesOnly }); }
+  resetFilters(): void { this.facade.filterService.resetFilter(); this.displayedCount.set(PAGE_SIZE); }
 
   loadMore(): void { this.displayedCount.update(n => n + PAGE_SIZE); }
 
-  // ── Favorites & Collections ───────────────────────────────────────────────
   toggleFav(asset: MockupAsset, event?: MouseEvent): void {
     event?.stopPropagation();
-    this.svc.toggleFavorite(asset.id);
-    this.showToast(this.svc.isFavorite(asset.id) ? 'Added to favorites' : 'Removed from favorites');
+    this.facade.persistence.toggleFavorite(asset.id);
+    this.showToast(this.facade.persistence.isFavorite(asset.id) ? 'Added to favorites' : 'Removed from favorites');
   }
-  isFav(id: string): boolean { return this.svc.isFavorite(id); }
+  isFav(id: string): boolean { return this.facade.persistence.isFavorite(id); }
 
   openCollModal(event?: MouseEvent): void { event?.stopPropagation(); this.showCollModal.set(true); }
   closeCollModal(): void { this.showCollModal.set(false); this.newCollName.set(''); }
 
   addToCollection(colId: string): void {
     const a = this.selectedAsset();
-    if (a) { this.svc.addToCollection(colId, a.id); this.showToast('Added to collection'); }
+    if (a) { this.facade.persistence.addToCollection(colId, a.id); this.showToast('Added to collection'); }
     this.closeCollModal();
   }
 
   createCollection(): void {
     const name = this.newCollName().trim();
     if (!name) return;
-    this.svc.createCollection(name);
+    this.facade.persistence.createCollection(name);
     this.newCollName.set('');
     this.showToast('Collection created');
   }
 
-  // ── Download ──────────────────────────────────────────────────────────────
-  downloadAsset(asset: MockupAsset, fmt: string = 'png', event?: MouseEvent): void {
+  downloadAsset(asset: MockupAsset, fmt = 'png', event?: MouseEvent): void {
     event?.stopPropagation();
     if (asset.isPremium && !this.auth.isPremium()) {
       this.showToast('Premium plan required for this mockup');
@@ -383,14 +328,13 @@ export class MockupsComponent implements OnInit, OnDestroy {
   downloadSelected(): void {
     const ids = [...this.selectedBulk()];
     if (!ids.length) return;
-    const assets = ids.map(id => this.svc.getById(id)).filter(Boolean) as MockupAsset[];
+    const assets = ids.map(id => this.facade.getById(id)).filter(Boolean) as MockupAsset[];
     const locked = assets.find(a => a.isPremium && !this.auth.isPremium());
     if (locked) { this.showToast('Unlock Premium to bulk download premium mockups'); return; }
     assets.forEach(a => this.downloadAsset(a));
     this.showToast(`Downloading ${assets.length} mockups…`);
   }
 
-  // ── Bulk select ───────────────────────────────────────────────────────────
   toggleBulk(): void { this.bulkMode.update(v => !v); this.selectedBulk.set(new Set()); }
   toggleBulkSelect(id: string, event: MouseEvent): void {
     event.stopPropagation();
@@ -398,7 +342,6 @@ export class MockupsComponent implements OnInit, OnDestroy {
   }
   isSelected(id: string): boolean { return this.selectedBulk().has(id); }
 
-  // ── Share & Report ────────────────────────────────────────────────────────
   shareAsset(event?: MouseEvent): void {
     event?.stopPropagation();
     const a = this.selectedAsset();
@@ -414,7 +357,6 @@ export class MockupsComponent implements OnInit, OnDestroy {
   closeReport(): void { this.showReportModal.set(false); }
   submitReport(): void { this.showToast('Report submitted — thank you!'); this.closeReport(); }
 
-  // ── Lightbox ──────────────────────────────────────────────────────────────
   openLightbox(): void { this.lightboxOpen.set(true); }
   closeLightbox(): void { this.lightboxOpen.set(false); }
   prevPreview(): void {
@@ -434,7 +376,6 @@ export class MockupsComponent implements OnInit, OnDestroy {
     return idx === 0 ? asset.previewUrl : (asset.additionalPreviews[idx - 1] ?? asset.previewUrl);
   }
 
-  // ── Smart Editor ──────────────────────────────────────────────────────────
   onDesignDrop(event: DragEvent): void {
     event.preventDefault();
     this.dragOver.set(false);
@@ -459,7 +400,7 @@ export class MockupsComponent implements OnInit, OnDestroy {
     reader.readAsDataURL(file);
   }
 
-  patchEditor(patch: Partial<EditorState>): void { this.editorState.update(s => ({ ...s, ...patch })); }
+  patchEditor(patch: Partial<EditorStateI>): void { this.editorState.update(s => ({ ...s, ...patch })); }
   resetEditor(): void { this.editorState.set({ ...DEFAULT_EDITOR }); }
 
   autoFit(): void {
@@ -467,88 +408,73 @@ export class MockupsComponent implements OnInit, OnDestroy {
     this.showToast('Design auto-fitted to smart object area');
   }
 
-  applyToEditor(): void {
-    this.showEditor.set(false);
-    this.showToast('Mockup customized — ready to download!');
-  }
+  applyToEditor(): void { this.showEditor.set(false); this.showToast('Mockup customized — ready to download!'); }
 
-  /**
-   * Upload the user's design to a public temp host, then call the
-   * Mockuuups render API to composite it onto the selected mockup.
-   */
   async renderWithApi(): Promise<void> {
     const asset = this.selectedAsset() as any;
     if (!asset) return;
-
     const file = this._designFile;
-    if (!file) {
-      this.showToast('Please upload a design image first');
-      return;
-    }
-
-    // Need a real Mockuuups mockup ID (api_ prefix means it came from the API)
+    if (!file) { this.showToast('Please upload a design image first'); return; }
     const mockuuupsId: string | undefined = asset.mockuuupsId;
     if (!mockuuupsId) {
       this.showToast('This mockup is from our offline library — try an API mockup for live rendering');
       return;
     }
-
     this.renderLoading.set(true);
     this.renderError.set(null);
     this.renderResultUrl.set(null);
     this.showToast('Uploading your design…');
-
     try {
-      // 1. Upload design to public temp host so Mockuuups can fetch it
       const designUrl = await this.mkuApi.uploadDesignToTemp(file);
       this.showToast('Rendering your mockup via Mockuuups API…');
-
-      // 2. Call the render endpoint
       const placements: any[] = asset.placements ?? [];
-      const contents = placements.length > 0
-        ? placements.map(() => ({ type: 'image' as const, url: designUrl }))
-        : [{ type: 'image' as const, url: designUrl }];
-
       this.mkuApi.renderMockup({
         mockup: mockuuupsId,
         format: 'image/webp',
         destination: 'cdn',
         cdn: { expiration: '1 day' },
-        contents,
+        contents: placements.length > 0
+          ? placements.map(() => ({ type: 'image' as const, url: designUrl }))
+          : [{ type: 'image' as const, url: designUrl }],
       }).subscribe({
         next: (res: any) => {
           const url = res?.url ?? res?.result?.url;
-          if (url) {
-            this.renderResultUrl.set(url);
-            this.showToast('✅ Mockup rendered — scroll down to download!');
-          } else {
-            this.renderError.set('Render succeeded but no URL was returned');
-          }
+          if (url) { this.renderResultUrl.set(url); this.showToast('Mockup rendered — scroll down to download!'); }
+          else { this.renderError.set('Render succeeded but no URL was returned'); }
           this.renderLoading.set(false);
         },
         error: (err) => {
           const msg = err?.error?.message ?? err?.message ?? 'Render failed';
-          this.renderError.set(msg);
-          this.showToast(`Render error: ${msg}`);
-          this.renderLoading.set(false);
+          this.renderError.set(msg); this.showToast(`Render error: ${msg}`); this.renderLoading.set(false);
         },
       });
     } catch (err: any) {
       const msg = err?.message ?? 'Upload failed';
-      this.renderError.set(msg);
-      this.showToast(`Upload error: ${msg}`);
-      this.renderLoading.set(false);
+      this.renderError.set(msg); this.showToast(`Upload error: ${msg}`); this.renderLoading.set(false);
     }
+  }
+
+  downloadAiResult(): void {
+    const url = this.aiResultUrl();
+    if (!url) return;
+    const link = document.createElement('a');
+    link.href = url; link.download = `ai-mockup-${Date.now()}.png`; link.target = '_blank'; link.click();
+  }
+
+  openAiPanel(): void { this.showAiPanel.set(true); this.loadAiStyles(); }
+
+  closeAiPanel(): void {
+    this.showAiPanel.set(false);
+    this.aiProducts.set([]); this.aiProductDetail.set(null);
+    this.aiResultUrl.set(null); this.aiTaskId.set(null);
+    if (this.aiPollTimer) { clearInterval(this.aiPollTimer); this.aiPollTimer = null; }
   }
 
   downloadRendered(): void {
     const url = this.renderResultUrl();
     if (!url) return;
     const link = document.createElement('a');
-    link.href = url;
-    link.download = `${this.selectedAsset()?.slug ?? 'mockup'}-rendered.webp`;
-    link.target = '_blank';
-    link.click();
+    link.href = url; link.download = `${this.selectedAsset()?.slug ?? 'mockup'}-rendered.webp`; link.target = '_blank'; link.click();
     this.showToast('Downloading rendered mockup…');
   }
 
@@ -561,30 +487,70 @@ export class MockupsComponent implements OnInit, OnDestroy {
     setTimeout(() => { this.downloadAsset(a, 'png'); }, 600);
   }
 
-  // ── AI ────────────────────────────────────────────────────────────────────
   generateAiMockup(): void {
-    if (!this.aiPrompt().trim()) return;
-    this.aiGenerating.set(true);
+    const prompt = this.aiPrompt().trim();
+    if (!prompt) { this.showToast('Please describe the mockup you need'); return; }
+    if (!this.aiProductDetail()) { this.showToast('Please select a product first'); return; }
+    this.aiGenerating.set(true); this.aiResultUrl.set(null); this.aiTaskId.set(null);
     this.showToast('AI is generating your mockup…');
-    setTimeout(() => {
-      this.aiGenerating.set(false);
-      this.showToast('AI mockup ready! Check your results.');
-    }, 2800);
+    this.mockApi.createMockup({
+      product_id: this.aiProductDetail()!.uuid,
+      style_id: this.aiSelectedStyle(),
+      prompt, format: 'png', width: 1024, height: 1024,
+    }).subscribe({
+      next: (res) => { this.aiTaskId.set(res.task_id); this.pollAiStatus(res.task_id); },
+      error: (err) => { this.aiGenerating.set(false); this.showToast(err?.error?.message ?? err?.message ?? 'AI generation failed'); },
+    });
   }
 
-  // ── View toggles ──────────────────────────────────────────────────────────
+  private pollAiStatus(taskId: string): void {
+    this.aiPollTimer = setInterval(() => {
+      this.mockApi.getStatus(taskId).subscribe({
+        next: (data) => {
+          if (data.state === 'SUCCESS') { this.aiResultUrl.set(data.image_url); this.aiGenerating.set(false); this.showToast('AI mockup ready!'); if (this.aiPollTimer) { clearInterval(this.aiPollTimer); this.aiPollTimer = null; } }
+          else if (data.state === 'FAILURE') { this.aiGenerating.set(false); this.showToast('AI generation failed'); if (this.aiPollTimer) { clearInterval(this.aiPollTimer); this.aiPollTimer = null; } }
+        },
+        error: () => { if (this.aiPollTimer) { clearInterval(this.aiPollTimer); this.aiPollTimer = null; } },
+      });
+    }, 3000);
+  }
+
+  searchAiProducts(): void {
+    const q = this.aiSearchQuery().trim();
+    if (!q) return;
+    this.aiSearching.set(true);
+    this.mockApi.searchProducts(q).subscribe({
+      next: (products) => { this.aiProducts.set(products); this.aiSearching.set(false); },
+      error: () => { this.aiSearching.set(false); this.showToast('Product search failed'); },
+    });
+  }
+
+  selectAiProduct(uuid: string): void {
+    this.aiProductDetail.set(null);
+    this.mockApi.getProduct(uuid).subscribe({
+      next: (detail) => { this.aiProductDetail.set(detail); this.aiResultUrl.set(null); },
+      error: () => this.showToast('Failed to load product details'),
+    });
+  }
+
+  loadAiStyles(): void {
+    if (this.aiStyles().length) return;
+    this.mockApi.getStyles().subscribe({
+      next: (styles) => this.aiStyles.set(styles),
+      error: () => {},
+    });
+  }
+
   toggleAiSearch(): void { this.aiSearchMode.update(v => !v); }
   setViewMode(m: MockupViewMode): void { this.viewMode.set(m); }
   toggleSidebar(): void { this.sidebarOpen.update(v => !v); }
 
-  // ── Toast ─────────────────────────────────────────────────────────────────
   showToast(msg: string): void {
     this.toastMsg.set(msg);
     if (this.toastTimer) clearTimeout(this.toastTimer);
     this.toastTimer = setTimeout(() => this.toastMsg.set(null), 3000);
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
   formatNumber(n: number): string {
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
     if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
@@ -596,7 +562,7 @@ export class MockupsComponent implements OnInit, OnDestroy {
     const d = Math.floor(diff / 86400000);
     if (d === 0) return 'Today';
     if (d === 1) return 'Yesterday';
-    if (d < 7)  return `${d} days ago`;
+    if (d < 7) return `${d} days ago`;
     if (d < 30) return `${Math.floor(d / 7)} weeks ago`;
     return `${Math.floor(d / 30)} months ago`;
   }
@@ -610,25 +576,21 @@ export class MockupsComponent implements OnInit, OnDestroy {
   getSubcategories(): { id: string; label: string }[] {
     const catId = this.filterState().categoryId;
     if (!catId) return [];
-    return this.allCategories.find(c => c.id === catId)?.subcategories ?? [];
+    return this.allCategories().find((c: MockupCategoryMeta) => c.id === catId)?.subcategories ?? [];
   }
 
   getCategoryCount(id: MockupCategory): number {
-    return this.allCategories.find(c => c.id === id)?.count ?? 0;
+    return this.allCategories().find((c: MockupCategoryMeta) => c.id === id)?.count ?? 0;
   }
 
   getCategoryLabel(id: MockupCategory): string {
-    return this.allCategories.find(c => c.id === id)?.label ?? id;
+    return this.allCategories().find((c: MockupCategoryMeta) => c.id === id)?.label ?? id;
   }
 
   getRelatedTags(): string[] {
-    const freq = this.filteredAssets()
-      .flatMap(a => a.tags)
-      .reduce((acc: Record<string, number>, t) => { acc[t] = (acc[t] ?? 0) + 1; return acc; }, {});
-    return Object.entries(freq)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 16)
-      .map(e => e[0]);
+    const freq: Record<string, number> = {};
+    this.filteredAssets().forEach((a: MockupAsset) => a.tags.forEach((t: string) => { freq[t] = (freq[t] ?? 0) + 1; }));
+    return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 16).map(e => e[0]);
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -652,4 +614,14 @@ export class MockupsComponent implements OnInit, OnDestroy {
     const target = e.target as HTMLElement;
     if (!target.closest('.amx-mk-search')) this.searchFocused.set(false);
   }
+
+  clearRecentSearches(): void {
+    this.facade.persistence.clearRecentSearches();
+  }
+
+  setFilter(patch: Record<string, unknown>): void {
+    this.facade.filterService.setFilter(patch as any);
+  }
+
+  goBack(): void { this.location.back(); }
 }

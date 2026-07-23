@@ -26,7 +26,7 @@
 .vec-topbar__inner {
   max-width: 1600px;
   margin: 0 auto;
-  padding: 10px 24px;
+  padding: 6px 24px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -68,6 +68,30 @@
 }
 
 .vec-breadcrumb__sep { color: var(--amx-text-muted); }
+.vec-breadcrumb__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px 5px 8px;
+  border: 1px solid var(--amx-border);
+  border-radius: 6px;
+  background: var(--amx-bg-card);
+  color: var(--amx-text-2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  font-family: inherit;
+  line-height: 1;
+  margin-right: 6px;
+  svg { transition: transform 0.15s; }
+  &:hover {
+    border-color: var(--amx-orange);
+    color: var(--amx-orange);
+    background: var(--amx-tag-bg);
+    svg { transform: translateX(-2px); }
+  }
+}
 
 // ─── Top search bar ───────────────────────────────────────────────────────────
 

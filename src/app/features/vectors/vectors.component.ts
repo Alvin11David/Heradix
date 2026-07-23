@@ -2,7 +2,7 @@ import {
   Component, ChangeDetectionStrategy, inject, signal, computed,
   HostListener, OnInit, OnDestroy, ElementRef, ViewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { VectorsService, TRENDING_TAGS, TRENDING_COLORS, SEASONAL_COLLECTIONS } from './vectors.service';
@@ -142,8 +142,9 @@ type HomepageSection = 'home' | 'browse';
   styleUrl: './vectors.component.scss',
 })
 export class VectorsComponent implements OnInit, OnDestroy {
-  readonly svc       = inject(VectorsService);
-  private router     = inject(Router);
+  readonly svc = inject(VectorsService);
+  private router = inject(Router);
+  private location = inject(Location);
   readonly auth      = inject(AuthService);
   private sanitizer  = inject(DomSanitizer);
   private tracker    = inject(DownloadTrackingService);
@@ -1430,4 +1431,5 @@ export class VectorsComponent implements OnInit, OnDestroy {
   clearBulkSelected(): void {
     this.bulkSelected.set(new Set());
   }
+  goBack(): void { this.location.back(); }
 }

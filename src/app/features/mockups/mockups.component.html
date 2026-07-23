@@ -1,25 +1,33 @@
-<!-- ╔══════════════════════════════════════════════════════════════╗ -->
-<!-- ║                  AMARAPIX MOCKUPS MODULE                    ║ -->
-<!-- ╚══════════════════════════════════════════════════════════════╝ -->
-<div class="amx-mk" [class.amx-mk--browsing]="view() === 'browse'">
 
-  <!-- ── API status banner ─────────────────────────────────────── -->
+
+
+<div class="amx-mk" [class.amx-mk--browsing]="view() === 'browse'">
+  <div class="amx-mk__top-bar">
+    <button class="amx-mk__back" type="button" (click)="goBack()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Back
+    </button>
+  </div>
+
+  
   <div class="amx-mk-api-banner amx-mk-api-banner--loading" *ngIf="apiLoading()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="amx-mk-api-banner__spin"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>
     Loading real mockups from Mockuuups API…
   </div>
   <div class="amx-mk-api-banner amx-mk-api-banner--loaded" *ngIf="apiLoaded() && !apiLoading()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-    Live mockups loaded — {{ svc.assets().length }} templates available
-    <button class="amx-mk-api-banner__close" (click)="svc.apiLoaded.set(false)">✕</button>
+    Live mockups loaded — {{ assets().length }} templates available
+    <button class="amx-mk-api-banner__close" (click)="apiLoaded.set(false)">✕</button>
   </div>
   <div class="amx-mk-api-banner amx-mk-api-banner--error" *ngIf="apiError() && !apiLoading()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     {{ apiError() }}
-    <button class="amx-mk-api-banner__close" (click)="svc.apiError.set(null)">✕</button>
+    <button class="amx-mk-api-banner__close" (click)="apiError.set(null)">✕</button>
   </div>
 
-  <!-- ── Top search / hero bar ─────────────────────────────────── -->
+  
   <div class="amx-mk-hero" [class.amx-mk-hero--compact]="view() === 'browse'">
     <div class="amx-mk-hero__inner">
       <ng-container *ngIf="view() === 'home'">
@@ -29,21 +37,9 @@
         </div>
         <h1 class="amx-mk-hero__title">Mockup Any Design <span class="amx-mk-hero__accent">Instantly</span></h1>
         <p class="amx-mk-hero__sub">Preview your artwork on 8,000+ professional mockups. Smart objects. AI placement. One click.</p>
-
-        <!-- AI Studio CTA banner -->
-        <a class="amx-mk-studio-cta" routerLink="/mockups/studio">
-          <div class="amx-mk-studio-cta__icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          </div>
-          <div class="amx-mk-studio-cta__text">
-            <span class="amx-mk-studio-cta__label">New: AI Mockup Studio</span>
-            <span class="amx-mk-studio-cta__sub">Generate custom mockups from a text prompt — step-by-step</span>
-          </div>
-          <svg class="amx-mk-studio-cta__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
-        </a>
       </ng-container>
 
-      <!-- Search bar -->
+      
       <div class="amx-mk-search" [class.amx-mk-search--focused]="searchFocused()">
         <div class="amx-mk-search__wrap">
           <svg class="amx-mk-search__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -66,11 +62,11 @@
           </button>
         </div>
 
-        <!-- Recent searches dropdown -->
+        
         <div class="amx-mk-search__dropdown" *ngIf="searchFocused() && !filterState().query && recentSearches().length">
           <div class="amx-mk-search__dd-header">
             <span>Recent Searches</span>
-            <button (click)="svc.clearRecentSearches()">Clear</button>
+            <button (click)="clearRecentSearches()">Clear</button>
           </div>
           <button class="amx-mk-search__dd-item" *ngFor="let s of recentSearches()" (click)="applyRecentSearch(s)">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 15 13"/></svg>
@@ -79,7 +75,7 @@
         </div>
       </div>
 
-      <!-- Color swatches (home only) -->
+      
       <div class="amx-mk-hero__colors" *ngIf="view() === 'home'">
         <span class="amx-mk-hero__colors-label">Browse by color:</span>
         <button class="amx-mk-hero__color-swatch"
@@ -91,25 +87,25 @@
         </button>
       </div>
 
-      <!-- Trending searches (home only) -->
+      
       <div class="amx-mk-hero__trending" *ngIf="view() === 'home'">
         <span>Trending:</span>
-        <button *ngFor="let t of trendingTags.slice(0, 8)" (click)="applyTag(t)">{{ t }}</button>
+        <button *ngFor="let t of trendingTags().slice(0, 8)" (click)="applyTag(t)">{{ t }}</button>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════ HOME VIEW ══════════════════ -->
+  
   <div class="amx-mk-home" *ngIf="view() === 'home'">
+    <ng-container *ngIf="!loading(); else homeSkeleton">
 
-    <!-- Popular Categories grid -->
     <section class="amx-mk-section">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">Browse by Category</h2>
         <button class="amx-mk-section__link" (click)="goBrowse()">View All →</button>
       </div>
       <div class="amx-mk-cats">
-        <button class="amx-mk-cat-card" *ngFor="let cat of allCategories" (click)="goBrowse(cat.id)">
+        <button class="amx-mk-cat-card" *ngFor="let cat of allCategories()" (click)="goBrowse(cat.id)">
           <span class="amx-mk-cat-card__icon">{{ cat.icon }}</span>
           <span class="amx-mk-cat-card__label">{{ cat.label }}</span>
           <span class="amx-mk-cat-card__count">{{ cat.count | number }}</span>
@@ -117,7 +113,7 @@
       </div>
     </section>
 
-    <!-- Featured Mockups -->
+    
     <section class="amx-mk-section">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">
@@ -133,7 +129,7 @@
       </div>
     </section>
 
-    <!-- Trending -->
+    
     <section class="amx-mk-section">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">
@@ -149,7 +145,7 @@
       </div>
     </section>
 
-    <!-- AI Generated -->
+    
     <section class="amx-mk-section amx-mk-section--ai">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">
@@ -164,35 +160,21 @@
         </div>
       </div>
 
-      <!-- AI Generate prompt -->
+      
       <div class="amx-mk-ai-prompt">
         <div class="amx-mk-ai-prompt__inner">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          <input class="amx-mk-ai-prompt__input" type="text" placeholder="Describe a mockup… 'iPhone on marble desk, blue background'"
-            [value]="aiPrompt()" (input)="aiPrompt.set($any($event.target).value)" (keydown.enter)="generateAiMockup()" />
-          <button class="amx-mk-ai-prompt__btn" (click)="generateAiMockup()" [disabled]="aiGenerating()">
-            <span *ngIf="!aiGenerating()">Generate</span>
-            <span *ngIf="aiGenerating()">Generating…</span>
+          <input class="amx-mk-ai-prompt__input" type="text" placeholder="Describe a mockup… 'minimalist geometric pattern on hoodie'"
+            [value]="aiPrompt()" (input)="aiPrompt.set($any($event.target).value)" (keydown.enter)="openAiPanel()" />
+          <button class="amx-mk-ai-prompt__btn" (click)="openAiPanel()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            AI Studio
           </button>
         </div>
       </div>
     </section>
 
-    <!-- Seasonal Collections -->
-    <section class="amx-mk-section">
-      <div class="amx-mk-section__header">
-        <h2 class="amx-mk-section__title">Seasonal Collections</h2>
-      </div>
-      <div class="amx-mk-seasonal">
-        <button class="amx-mk-seasonal-card" *ngFor="let col of seasonalCollections" (click)="applyTag(col.label)">
-          <span class="amx-mk-seasonal-card__emoji">{{ col.emoji }}</span>
-          <span class="amx-mk-seasonal-card__label">{{ col.label }}</span>
-          <span class="amx-mk-seasonal-card__count">{{ col.count }} mockups</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- Device Mockups -->
+    
     <section class="amx-mk-section">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">📱 Device Mockups</h2>
@@ -205,7 +187,7 @@
       </div>
     </section>
 
-    <!-- Apparel Mockups -->
+    
     <section class="amx-mk-section">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">👕 Apparel Mockups</h2>
@@ -218,7 +200,7 @@
       </div>
     </section>
 
-    <!-- Packaging Mockups -->
+    
     <section class="amx-mk-section">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">📦 Packaging Mockups</h2>
@@ -231,7 +213,7 @@
       </div>
     </section>
 
-    <!-- Branding -->
+    
     <section class="amx-mk-section">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">🏢 Branding Mockups</h2>
@@ -244,7 +226,7 @@
       </div>
     </section>
 
-    <!-- Editor's Picks -->
+    
     <section class="amx-mk-section">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">
@@ -260,7 +242,7 @@
       </div>
     </section>
 
-    <!-- Free Mockups -->
+    
     <section class="amx-mk-section">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">
@@ -276,25 +258,7 @@
       </div>
     </section>
 
-    <!-- Popular Creators -->
-    <section class="amx-mk-section">
-      <div class="amx-mk-section__header">
-        <h2 class="amx-mk-section__title">Popular Creators</h2>
-      </div>
-      <div class="amx-mk-creators">
-        <button class="amx-mk-creator-card" *ngFor="let c of creators.slice(0, 6)" (click)="svc.setFilter({ creatorId: c.id }); goBrowse()">
-          <img [src]="c.avatar" [alt]="c.name" class="amx-mk-creator-card__avatar" loading="lazy">
-          <span class="amx-mk-creator-card__name">{{ c.name }}</span>
-          <span class="amx-mk-creator-card__verified" *ngIf="c.isVerified">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="#6366f1"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </span>
-          <span class="amx-mk-creator-card__count">{{ c.totalAssets }} mockups</span>
-          <span class="amx-mk-creator-card__followers">{{ formatNumber(c.followers) }} followers</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- Most Downloaded -->
+    
     <section class="amx-mk-section">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">
@@ -310,7 +274,7 @@
       </div>
     </section>
 
-    <!-- Recently Viewed -->
+    
     <section class="amx-mk-section" *ngIf="recentlyViewed().length">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">
@@ -325,22 +289,43 @@
       </div>
     </section>
 
-    <!-- Trending Tags -->
+    
     <section class="amx-mk-section">
       <div class="amx-mk-section__header">
         <h2 class="amx-mk-section__title">Trending Tags</h2>
       </div>
       <div class="amx-mk-tags">
-        <button class="amx-mk-tag" *ngFor="let t of trendingTags" (click)="applyTag(t)">#{{ t }}</button>
+        <button class="amx-mk-tag" *ngFor="let t of trendingTags()" (click)="applyTag(t)">#{{ t }}</button>
       </div>
     </section>
 
-  </div><!-- /home -->
+    </ng-container>
 
-  <!-- ══════════════════ BROWSE VIEW ══════════════════ -->
+    <ng-template #homeSkeleton>
+      <div class="amx-skeleton-section">
+        <div class="amx-skeleton amx-skeleton-section__header amx-skeleton--w25"></div>
+        <div class="amx-skeleton-cats">
+          <div class="amx-skeleton amx-skeleton--cat" *ngFor="let _ of [].constructor(9)"></div>
+        </div>
+      </div>
+      <div class="amx-skeleton-section" *ngFor="let _ of [].constructor(6)">
+        <div class="amx-skeleton amx-skeleton-section__header amx-skeleton--w40"></div>
+        <div class="amx-skeleton-grid cols-4">
+          <div class="amx-skeleton-card" *ngFor="let _ of [].constructor(4)">
+            <div class="amx-skeleton amx-skeleton-card__img"></div>
+            <div class="amx-skeleton amx-skeleton--sm amx-skeleton--w75" style="margin-bottom:6px"></div>
+            <div class="amx-skeleton amx-skeleton--sm amx-skeleton--w40"></div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+  </div>
+
+  
   <div class="amx-mk-browse" *ngIf="view() === 'browse'">
 
-    <!-- Browse toolbar -->
+    
     <div class="amx-mk-toolbar">
       <div class="amx-mk-toolbar__left">
         <button class="amx-mk-toolbar__back" (click)="goHome()">
@@ -370,7 +355,7 @@
         </div>
       </div>
       <div class="amx-mk-toolbar__right">
-        <!-- Bulk select -->
+        
         <button class="amx-mk-toolbar__btn" [class.active]="bulkMode()" (click)="toggleBulk()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="3" y="10" width="5" height="5" rx="1"/><rect x="10" y="3" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/></svg>
           {{ bulkMode() ? 'Done' : 'Select' }}
@@ -380,12 +365,12 @@
           Download ({{ selectedBulk().size }})
         </button>
 
-        <!-- Sort -->
+        
         <select class="amx-mk-toolbar__select" [value]="filterState().sort" (change)="setSort($any($event.target).value)">
           <option *ngFor="let s of sortOptions" [value]="s.key">{{ s.label }}</option>
         </select>
 
-        <!-- View mode -->
+        
         <div class="amx-mk-view-btns">
           <button class="amx-mk-view-btn" [class.active]="viewMode() === 'masonry'" (click)="setViewMode('masonry')" aria-label="Masonry view">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="9" height="13" rx="1"/><rect x="13" y="2" width="9" height="8" rx="1"/><rect x="13" y="12" width="9" height="10" rx="1"/><rect x="2" y="17" width="9" height="5" rx="1"/></svg>
@@ -407,14 +392,14 @@
 
     <div class="amx-mk-browse__body">
 
-      <!-- ── Sidebar ─────────────────────────────────────────────── -->
+      
       <aside class="amx-mk-sidebar" [class.amx-mk-sidebar--open]="sidebarOpen()">
 
-        <!-- Category -->
+        
         <div class="amx-mk-sidebar__group">
           <div class="amx-mk-sidebar__group-title">Category</div>
           <button class="amx-mk-sidebar__item" [class.active]="!filterState().categoryId" (click)="setCategory(null)">All Categories</button>
-          <button class="amx-mk-sidebar__item" *ngFor="let cat of allCategories"
+          <button class="amx-mk-sidebar__item" *ngFor="let cat of allCategories()"
             [class.active]="filterState().categoryId === cat.id"
             (click)="setCategory(cat.id)">
             {{ cat.icon }} {{ cat.label }}
@@ -422,7 +407,7 @@
           </button>
         </div>
 
-        <!-- Subcategory (when a category is selected) -->
+        
         <div class="amx-mk-sidebar__group" *ngIf="filterState().categoryId && getSubcategories().length">
           <div class="amx-mk-sidebar__group-title">Sub-category</div>
           <button class="amx-mk-sidebar__item" [class.active]="!filterState().subcategoryId" (click)="setSubcategory(null)">All</button>
@@ -433,7 +418,7 @@
           </button>
         </div>
 
-        <!-- Scene Type -->
+        
         <div class="amx-mk-sidebar__group">
           <div class="amx-mk-sidebar__group-title">Scene Type</div>
           <div class="amx-mk-sidebar__chips">
@@ -445,7 +430,7 @@
           </div>
         </div>
 
-        <!-- Orientation -->
+        
         <div class="amx-mk-sidebar__group">
           <div class="amx-mk-sidebar__group-title">Orientation</div>
           <div class="amx-mk-sidebar__chips">
@@ -457,7 +442,7 @@
           </div>
         </div>
 
-        <!-- License -->
+        
         <div class="amx-mk-sidebar__group">
           <div class="amx-mk-sidebar__group-title">License</div>
           <button class="amx-mk-sidebar__item" *ngFor="let l of licenseOptions"
@@ -467,7 +452,7 @@
           </button>
         </div>
 
-        <!-- File Format -->
+        
         <div class="amx-mk-sidebar__group">
           <div class="amx-mk-sidebar__group-title">File Format</div>
           <div class="amx-mk-sidebar__checks">
@@ -478,7 +463,7 @@
           </div>
         </div>
 
-        <!-- Special filters -->
+        
         <div class="amx-mk-sidebar__group">
           <div class="amx-mk-sidebar__group-title">Special</div>
           <label class="amx-mk-sidebar__check">
@@ -491,7 +476,7 @@
           </label>
         </div>
 
-        <!-- Date Added -->
+        
         <div class="amx-mk-sidebar__group">
           <div class="amx-mk-sidebar__group-title">Date Added</div>
           <button class="amx-mk-sidebar__item" *ngFor="let d of [['all','All Time'],['today','Today'],['week','This Week'],['month','This Month']]"
@@ -501,7 +486,7 @@
           </button>
         </div>
 
-        <!-- Background color -->
+        
         <div class="amx-mk-sidebar__group">
           <div class="amx-mk-sidebar__group-title">Background Color</div>
           <div class="amx-mk-sidebar__colors">
@@ -520,10 +505,11 @@
         </button>
       </aside>
 
-      <!-- ── Results grid ────────────────────────────────────────── -->
+      
       <main class="amx-mk-results">
+        <ng-container *ngIf="!loading(); else browseSkeleton">
 
-        <!-- Empty state -->
+        
         <div class="amx-mk-empty" *ngIf="filteredAssets().length === 0">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <h3>No mockups found</h3>
@@ -531,7 +517,7 @@
           <button (click)="resetFilters()">Clear Filters</button>
         </div>
 
-        <!-- Masonry / Grid -->
+        
         <div class="amx-mk-results__grid"
           [class.amx-mk-results__grid--masonry]="viewMode() === 'masonry'"
           [class.amx-mk-results__grid--grid]="viewMode() === 'grid'"
@@ -542,7 +528,7 @@
             *ngFor="let a of displayedAssets(); trackBy: trackById"
             (click)="bulkMode() ? toggleBulkSelect(a.id, $event) : openAsset(a)">
             <ng-container *ngTemplateOutlet="cardTpl; context: { $implicit: a }"></ng-container>
-            <!-- Bulk checkbox -->
+            
             <div class="amx-mk-card__bulk-check" *ngIf="bulkMode()" (click)="toggleBulkSelect(a.id, $event)">
               <div class="amx-mk-card__bulk-check-inner" [class.checked]="isSelected(a.id)">
                 <svg *ngIf="isSelected(a.id)" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
@@ -551,29 +537,40 @@
           </div>
         </div>
 
-        <!-- Load more -->
+        
         <div class="amx-mk-loadmore" *ngIf="hasMore()">
           <button class="amx-mk-loadmore__btn" (click)="loadMore()">
             Load More ({{ filteredAssets().length - displayedCount() }} remaining)
           </button>
         </div>
 
-        <!-- Related tags -->
+        
         <div class="amx-mk-related-tags" *ngIf="filteredAssets().length > 0">
           <span class="amx-mk-related-tags__label">Related:</span>
           <button class="amx-mk-tag" *ngFor="let t of getRelatedTags()" (click)="applyTag(t)">#{{ t }}</button>
         </div>
 
+      </ng-container>
+
+      <ng-template #browseSkeleton>
+        <div class="amx-skeleton-grid cols-4">
+          <div class="amx-skeleton-card" *ngFor="let _ of [].constructor(8)">
+            <div class="amx-skeleton amx-skeleton-card__img"></div>
+            <div class="amx-skeleton amx-skeleton--sm amx-skeleton--w75" style="margin-bottom:6px"></div>
+            <div class="amx-skeleton amx-skeleton--sm amx-skeleton--w40"></div>
+          </div>
+        </div>
+      </ng-template>
       </main>
     </div>
   </div>
 
-  <!-- ══════════════════ DETAIL PANEL ══════════════════ -->
+  
   <div class="amx-mk-overlay" *ngIf="selectedAsset()" (click)="closeAsset()"></div>
   <div class="amx-mk-detail" *ngIf="selectedAsset()" [class.amx-mk-detail--open]="!!selectedAsset()">
     <ng-container *ngIf="selectedAsset() as a">
 
-      <!-- Detail header -->
+      
       <div class="amx-mk-detail__header">
         <button class="amx-mk-detail__close" (click)="closeAsset()" aria-label="Close">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -594,17 +591,17 @@
         </div>
       </div>
 
-      <!-- Tabs -->
+      
       <div class="amx-mk-detail__tabs">
         <button class="amx-mk-detail__tab" [class.active]="detailTab() === 'info'" (click)="detailTab.set('info')">Info</button>
         <button class="amx-mk-detail__tab" [class.active]="detailTab() === 'editor'" (click)="detailTab.set('editor')">Smart Editor</button>
         <button class="amx-mk-detail__tab" [class.active]="detailTab() === 'similar'" (click)="detailTab.set('similar')">Similar</button>
       </div>
 
-      <!-- ─── Info tab ─── -->
+      
       <div class="amx-mk-detail__body" *ngIf="detailTab() === 'info'">
 
-        <!-- Main preview -->
+        
         <div class="amx-mk-detail__preview" (click)="openLightbox()">
           <img [src]="getPreviewUrl(a, selectedPreview())" [alt]="a.name" class="amx-mk-detail__preview-img" loading="lazy">
           <div class="amx-mk-detail__preview-zoom">
@@ -612,7 +609,7 @@
           </div>
         </div>
 
-        <!-- Thumbnail strip -->
+        
         <div class="amx-mk-detail__thumbs">
           <button class="amx-mk-detail__thumb" [class.active]="selectedPreview() === 0" (click)="selectedPreview.set(0)">
             <img [src]="a.thumbUrl" [alt]="a.name" loading="lazy">
@@ -624,7 +621,7 @@
           </button>
         </div>
 
-        <!-- Badges -->
+        
         <div class="amx-mk-detail__badges">
           <span class="amx-badge amx-badge--free" *ngIf="a.isFree">FREE</span>
           <span class="amx-badge amx-badge--premium" *ngIf="a.isPremium">PRO</span>
@@ -634,7 +631,7 @@
           <span class="amx-badge amx-badge--editors" *ngIf="a.isEditorsChoice">Editor's Pick</span>
         </div>
 
-        <!-- Title & creator -->
+        
         <h2 class="amx-mk-detail__title">{{ a.name }}</h2>
         <div class="amx-mk-detail__creator">
           <img [src]="a.creator.avatar" [alt]="a.creator.name" class="amx-mk-detail__creator-avatar" loading="lazy">
@@ -642,7 +639,7 @@
           <svg *ngIf="a.creator.isVerified" width="14" height="14" viewBox="0 0 24 24" fill="#6366f1"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
 
-        <!-- Rating -->
+        
         <div class="amx-mk-detail__rating">
           <span class="amx-mk-star" *ngFor="let i of stars(a.rating)">
             <svg width="14" height="14" viewBox="0 0 24 24" [attr.fill]="isFullStar(a.rating, i) ? '#f59e0b' : isHalfStar(a.rating, i) ? 'url(#halfGrad)' : 'none'" stroke="#f59e0b" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
@@ -651,7 +648,7 @@
           <span class="amx-mk-detail__rating-count">({{ a.ratingCount | number }})</span>
         </div>
 
-        <!-- Stats -->
+        
         <div class="amx-mk-detail__stats">
           <div class="amx-mk-detail__stat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -671,7 +668,7 @@
           </div>
         </div>
 
-        <!-- Specs -->
+        
         <div class="amx-mk-detail__specs">
           <div class="amx-mk-detail__spec"><span>Category</span><span>{{ a.categoryLabel }}</span></div>
           <div class="amx-mk-detail__spec"><span>Scene</span><span>{{ a.sceneType }}</span></div>
@@ -682,21 +679,21 @@
           <div class="amx-mk-detail__spec"><span>Uploaded</span><span>{{ formatRelativeDate(a.uploadedAt) }}</span></div>
         </div>
 
-        <!-- Description -->
+        
         <p class="amx-mk-detail__desc">{{ a.description }}</p>
 
-        <!-- Tags -->
+        
         <div class="amx-mk-detail__tags">
           <button class="amx-mk-tag" *ngFor="let t of a.tags" (click)="applyTag(t); closeAsset()">{{ t }}</button>
         </div>
 
-        <!-- Dominant colors -->
+        
         <div class="amx-mk-detail__colors">
           <span>Colors:</span>
           <div class="amx-mk-detail__color-dot" *ngFor="let c of a.dominantColors" [style.background]="c" [attr.title]="c"></div>
         </div>
 
-        <!-- License -->
+        
         <div class="amx-mk-detail__license">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           <span *ngIf="a.isFree">Free for personal & commercial use · No attribution required</span>
@@ -704,7 +701,7 @@
           <span *ngIf="a.license === 'editorial'">Editorial use only · Not for commercial projects</span>
         </div>
 
-        <!-- Download buttons -->
+        
         <div class="amx-mk-detail__download-section">
           <button class="amx-mk-detail__open-editor-btn" (click)="detailTab.set('editor')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -720,11 +717,11 @@
         </div>
       </div>
 
-      <!-- ─── Smart Editor tab ─── -->
+      
       <div class="amx-mk-detail__body" *ngIf="detailTab() === 'editor'">
         <div class="amx-mk-editor">
 
-          <!-- Design upload zone -->
+          
           <div class="amx-mk-editor__upload-zone"
             [class.amx-mk-editor__upload-zone--active]="dragOver()"
             [class.amx-mk-editor__upload-zone--has-design]="editorState().uploadedDesignUrl"
@@ -747,7 +744,7 @@
             </div>
           </div>
 
-          <!-- Placement controls -->
+          
           <div class="amx-mk-editor__section">
             <div class="amx-mk-editor__section-title">Placement</div>
             <div class="amx-mk-editor__controls">
@@ -780,7 +777,7 @@
             </div>
           </div>
 
-          <!-- Background -->
+          
           <div class="amx-mk-editor__section">
             <div class="amx-mk-editor__section-title">Background</div>
             <div class="amx-mk-editor__controls">
@@ -796,7 +793,7 @@
             </div>
           </div>
 
-          <!-- Lighting -->
+          
           <div class="amx-mk-editor__section">
             <div class="amx-mk-editor__section-title">Lighting</div>
             <div class="amx-mk-editor__controls">
@@ -818,7 +815,7 @@
             </div>
           </div>
 
-          <!-- Effects -->
+          
           <div class="amx-mk-editor__section">
             <div class="amx-mk-editor__section-title">Effects</div>
             <div class="amx-mk-editor__effect-row">
@@ -846,7 +843,7 @@
             </div>
           </div>
 
-          <!-- AI Tools in editor -->
+          
           <div class="amx-mk-editor__section">
             <div class="amx-mk-editor__section-title">AI Tools</div>
             <div class="amx-mk-editor__ai-tools">
@@ -877,14 +874,14 @@
             </div>
           </div>
 
-          <!-- ─── Live API Render ─────────────────────────────── -->
+          
           <div class="amx-mk-editor__section amx-mk-editor__render-section">
             <div class="amx-mk-editor__section-title">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               Render via Mockuuups API
             </div>
 
-            <!-- Hint for offline (non-API) mockups -->
+            
             <p class="amx-mk-editor__render-hint" *ngIf="!$any(selectedAsset())?.mockuuupsId">
               💡 Select a mockup loaded from the API to enable live rendering. Offline mockups show a local preview only.
             </p>
@@ -894,7 +891,7 @@
                 Upload your design above, then click <strong>Render Mockup</strong> to composite it onto the real template using Mockuuups servers.
               </p>
 
-              <!-- Render button -->
+              
               <button class="amx-mk-editor__render-btn"
                 [disabled]="renderLoading() || !editorState().uploadedDesignUrl"
                 (click)="renderWithApi()">
@@ -903,13 +900,13 @@
                 {{ renderLoading() ? 'Rendering…' : 'Render Mockup' }}
               </button>
 
-              <!-- Error -->
+              
               <div class="amx-mk-editor__render-error" *ngIf="renderError()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
                 {{ renderError() }}
               </div>
 
-              <!-- Result -->
+              
               <div class="amx-mk-editor__render-result" *ngIf="renderResultUrl()">
                 <p class="amx-mk-editor__render-result-label">✅ Rendered result</p>
                 <img [src]="renderResultUrl()!" alt="Rendered mockup" class="amx-mk-editor__render-img">
@@ -921,7 +918,7 @@
             </div>
           </div>
 
-          <!-- Editor actions -->
+          
           <div class="amx-mk-editor__actions">
             <button class="amx-mk-editor__reset" (click)="resetEditor()">Reset All</button>
             <button class="amx-mk-editor__apply" (click)="applyToEditor()">
@@ -936,7 +933,7 @@
         </div>
       </div>
 
-      <!-- ─── Similar tab ─── -->
+      
       <div class="amx-mk-detail__body" *ngIf="detailTab() === 'similar'">
         <div class="amx-mk-detail__similar-grid">
           <div class="amx-mk-card" *ngFor="let s of similarAssets(); trackBy: trackById" (click)="openAsset(s)">
@@ -949,7 +946,75 @@
     </ng-container>
   </div>
 
-  <!-- ══════════════════ LIGHTBOX ══════════════════ -->
+  
+  <div class="amx-mk-modal-overlay" *ngIf="showAiPanel()" (click)="closeAiPanel()"></div>
+  <div class="amx-mk-modal amx-mk-modal--ai" *ngIf="showAiPanel()">
+    <div class="amx-mk-modal__header">
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        AI Mockup Studio
+      </h3>
+      <button (click)="closeAiPanel()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="amx-mk-modal__body amx-mk-ai-studio__body">
+      
+      <div class="amx-mk-ai-studio__section">
+        <label class="amx-mk-ai-studio__label">1. Search for a product</label>
+        <div class="amx-mk-ai-studio__search-row">
+          <input class="amx-mk-ai-studio__input" type="text" placeholder="e.g. t-shirt, hoodie, mug, poster…"
+            [value]="aiSearchQuery()" (input)="aiSearchQuery.set($any($event.target).value)" (keydown.enter)="searchAiProducts()" />
+          <button class="amx-mk-ai-studio__search-btn" (click)="searchAiProducts()" [disabled]="aiSearching()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Search
+          </button>
+        </div>
+        <div class="amx-mk-ai-studio__products" *ngIf="aiProducts().length">
+          <button class="amx-mk-ai-studio__product" *ngFor="let p of aiProducts()" (click)="selectAiProduct(p.uuid)" [class.selected]="aiProductDetail()?.uuid === p.uuid">
+            <span class="amx-mk-ai-studio__product-name">{{ p.name }}</span>
+            <span class="amx-mk-ai-studio__product-sizes">{{ p.sizes.length }} sizes</span>
+          </button>
+        </div>
+        <p class="amx-mk-ai-studio__hint" *ngIf="!aiProducts().length && !aiSearching()">Search for a product to get started</p>
+        <p class="amx-mk-ai-studio__hint" *ngIf="aiSearching()">Searching…</p>
+      </div>
+
+      
+      <div class="amx-mk-ai-studio__section" *ngIf="aiProductDetail() as product">
+        <label class="amx-mk-ai-studio__label">2. Product: {{ product.name }}</label>
+        <div class="amx-mk-ai-studio__detail">
+          <span class="amx-mk-ai-studio__detail-brand">{{ product.brand }} {{ product.style_code }}</span>
+          <span class="amx-mk-ai-studio__detail-colors">{{ product.colors.length }} colors, {{ product.decorations.length }} decorations</span>
+        </div>
+
+        <label class="amx-mk-ai-studio__label" style="margin-top:12px">3. Choose a style</label>
+        <select class="amx-mk-ai-studio__select" [value]="aiSelectedStyle()" (change)="aiSelectedStyle.set($any($event.target).value)">
+          <option *ngFor="let s of aiStyles()" [value]="s.id">{{ s.id }} — {{ s.description.slice(0, 60) }}…</option>
+        </select>
+
+        <label class="amx-mk-ai-studio__label" style="margin-top:12px">4. Describe your design</label>
+        <input class="amx-mk-ai-studio__input" type="text" placeholder="e.g. minimalist geometric pattern in blue and white"
+          [value]="aiPrompt()" (input)="aiPrompt.set($any($event.target).value)" (keydown.enter)="generateAiMockup()" />
+
+        <button class="amx-mk-ai-studio__generate-btn" (click)="generateAiMockup()" [disabled]="aiGenerating() || !aiPrompt().trim()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span *ngIf="!aiGenerating()">Generate Mockup</span>
+          <span *ngIf="aiGenerating()">Generating…</span>
+        </button>
+      </div>
+
+      
+      <div class="amx-mk-ai-studio__result" *ngIf="aiResultUrl()">
+        <label class="amx-mk-ai-studio__label">Result</label>
+        <img [src]="aiResultUrl()" alt="AI Generated Mockup" class="amx-mk-ai-studio__result-img" />
+        <button class="amx-mk-ai-studio__download-btn" (click)="downloadAiResult()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </button>
+      </div>
+    </div>
+  </div>
+
+  
   <div class="amx-mk-lightbox" *ngIf="lightboxOpen() && selectedAsset()" (click)="closeLightbox()">
     <ng-container *ngIf="selectedAsset() as a">
       <button class="amx-mk-lightbox__close" (click)="closeLightbox()">
@@ -965,7 +1030,7 @@
     </ng-container>
   </div>
 
-  <!-- ══════════════════ COLLECTION MODAL ══════════════════ -->
+  
   <div class="amx-mk-modal-overlay" *ngIf="showCollModal()" (click)="closeCollModal()"></div>
   <div class="amx-mk-modal" *ngIf="showCollModal()">
     <div class="amx-mk-modal__header">
@@ -986,7 +1051,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════ REPORT MODAL ══════════════════ -->
+  
   <div class="amx-mk-modal-overlay" *ngIf="showReportModal()" (click)="closeReport()"></div>
   <div class="amx-mk-modal amx-mk-modal--report" *ngIf="showReportModal()">
     <div class="amx-mk-modal__header">
@@ -1006,7 +1071,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════ TOAST ══════════════════ -->
+  
   <div class="amx-mk-toast" *ngIf="toastMsg()">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
     {{ toastMsg() }}
@@ -1014,9 +1079,9 @@
 
 </div>
 
-<!-- ════════════════════════════════════════════════════════ -->
-<!-- CARD TEMPLATE                                           -->
-<!-- ════════════════════════════════════════════════════════ -->
+
+
+
 <ng-template #cardTpl let-a>
   <div class="amx-mk-card__img-wrap">
     <img [src]="a.thumbUrl" [alt]="a.name" class="amx-mk-card__img" loading="lazy">

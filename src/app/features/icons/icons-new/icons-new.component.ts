@@ -2,7 +2,7 @@ import {
   Component, ChangeDetectionStrategy, inject, signal, computed, HostListener,
   ElementRef, ViewChild, AfterViewInit, OnDestroy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { IconsService, ICON_CATEGORIES } from '../icons.service';
 import { ICON_LIBRARIES } from '../data/index';
@@ -233,6 +233,7 @@ const AI_SYNONYMS: Record<string, string[]> = {
 })
 export class IconsNewComponent implements AfterViewInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly location = inject(Location);
   readonly svc = inject(IconsService);
   @ViewChild('scrollSentinel') scrollSentinelRef?: ElementRef<HTMLElement>;
   private scrollObserver?: IntersectionObserver;
@@ -640,9 +641,7 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     const colId = this.activeCollectionId();
     if (colId) this.svc.removeFromCollection(colId, iconId);
   }
-
   dragColIndex = -1;
-
   onDragStart(colId: string, event: DragEvent): void {
     const idx = this.svc.collections().findIndex(c => c.id === colId);
     if (idx < 0) return;
@@ -650,12 +649,10 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     (event.dataTransfer!).effectAllowed = 'move';
     (event.target as HTMLElement).closest('.amx-collection-card')?.classList.add('amx-collection-card--dragging');
   }
-
   onDragOver(event: DragEvent): void {
     event.preventDefault();
     (event.dataTransfer!).dropEffect = 'move';
   }
-
   onDrop(colId: string, event: DragEvent): void {
     event.preventDefault();
     const fromIdx = this.dragColIndex;
@@ -666,12 +663,10 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
     this.dragColIndex = -1;
     document.querySelectorAll('.amx-collection-card--dragging').forEach(el => el.classList.remove('amx-collection-card--dragging'));
   }
-
   onDragEnd(event: DragEvent): void {
     this.dragColIndex = -1;
     document.querySelectorAll('.amx-collection-card--dragging').forEach(el => el.classList.remove('amx-collection-card--dragging'));
   }
-
   resetStyle(): void { this.svc.resetStyle(); }
   setQuery(value: string): void { this.svc.updateFilters({ query: value }); this.visibleCount.set(48); }
   notifyComingSoon(libraryName: string): void {
@@ -962,4 +957,5 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
   trackById(_: number, icon: IconAsset): string { return icon.id; }
   trackByPackId(_: number, pack: StylePack): string { return pack.id; }
   trackByTrendId(_: number, card: TrendCard): string { return card.id; }
+  goBack(): void { this.location.back(); }
 }

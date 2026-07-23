@@ -8,6 +8,12 @@
 
       <!-- Breadcrumb -->
       <nav class="vec-breadcrumb" aria-label="breadcrumb">
+        <button class="vec-breadcrumb__back" type="button" (click)="goBack()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Back
+        </button>
         <button class="vec-breadcrumb__item vec-breadcrumb__item--link" (click)="goHome()">Vectors</button>
         <ng-container *ngIf="section() === 'browse'">
           <span class="vec-breadcrumb__sep" aria-hidden="true">›</span>
