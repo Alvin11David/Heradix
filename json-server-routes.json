@@ -1,3 +1,17 @@
 {
+  "/api/v1/academy/courses/:id": "/courses/:id",
+  "/api/v1/academy/courses": "/courses",
+  "/api/v1/academy/progress": "/course_progress",
+  "/api/v1/academy/progress/:id": "/course_progress/:id",
+  "/api/v1/subscriptions/me": "/subscriptions/sub_001",
+  "/api/v1/subscriptions/cancel": "/subscriptions/sub_001",
+  "/api/v1/subscriptions/reactivate": "/subscriptions/sub_001",
+  "/api/v1/subscriptions/portal": "/subscriptions/sub_001",
+  "/api/v1/subscriptions/checkout/paypal": "/subscriptions",
+  "/api/v1/subscriptions/checkout": "/subscriptions",
+  "/api/v1/downloads/history": "/download_history",
+  "/api/v1/downloads/quota": "/download_quota/dq_001",
+  "/api/v1/payments/mobile-money/initiate": "/payment_intents",
+  "/api/v1/assets/:slug": "/assets/:slug",
   "/api/v1/*": "/$1"
 }

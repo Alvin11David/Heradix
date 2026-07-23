@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -25,7 +25,7 @@ interface PlanDiff {
   templateUrl: './subscription.component.html',
   styleUrl: './subscription.component.scss',
 })
-export class SubscriptionComponent {
+export class SubscriptionComponent implements OnInit {
   private readonly authSvc = inject(AuthService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly subscriptionSvc = inject(SubscriptionService);
@@ -61,8 +61,14 @@ export class SubscriptionComponent {
   ];
 
   private readonly _planOverride = signal<PlanOption | null>(null);
+  private readonly _liveSubscription = signal<Subscription | null>(null);
 
   private readonly _defaultPlan = computed<PlanOption>(() => {
+    const livePlanId = this._liveSubscription()?.planId;
+    if (livePlanId) {
+      const match = this.plans.find(p => p.id === livePlanId);
+      if (match) return match;
+    }
     const role = this.user()?.role ?? 'FREE';
     if (role === 'ADMIN' || role === 'PREMIUM') return this.plans[1];
     return this.plans[0];
@@ -72,6 +78,8 @@ export class SubscriptionComponent {
   readonly currentPlanIndex = computed(() => this.plans.findIndex(p => p.id === this.currentPlan().id));
 
   readonly subscription = computed<Subscription>(() => {
+    const live = this._liveSubscription();
+    if (live) return live;
     const now = new Date();
     const end = new Date(now);
     end.setMonth(end.getMonth() + 1);
@@ -85,6 +93,14 @@ export class SubscriptionComponent {
       cancelAtPeriodEnd: false,
     };
   });
+
+  ngOnInit(): void {
+    // Load live subscription from API; fall back to computed mock silently if unavailable
+    this.subscriptionSvc.getMySubscription().subscribe({
+      next: (sub) => { if (sub?.id) this._liveSubscription.set(sub); },
+      error: () => { /* no-op: computed mock takes over */ },
+    });
+  }
 
   readonly renewalDate = computed(() => {
     const d = new Date(this.subscription().currentPeriodEnd);

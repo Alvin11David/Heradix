@@ -1,18 +1,29 @@
-import { Component, ChangeDetectionStrategy, signal, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { AcademyService } from '../academy.service';
+import { catchError, of } from 'rxjs';
 
+// ── UI shape used by the template ─────────────────────────────────────────────
 interface AcademyCourse {
-  id: number;
+  id: string;
   title: string;
   instructor: string;
   lessons: number;
   rating: number | null;
   reviews: number | null;
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  level: string;
   thumb: string;
 }
+
+// ── Fallback data shown when the API is unavailable ───────────────────────────
+const FALLBACK_COURSES: AcademyCourse[] = [
+  { id: 'course-1', title: 'Photoshop Essential: Complete Guide for Beginners',  instructor: 'Bruno Albin',       lessons: 30,  rating: 4.8, reviews: 5, level: 'BEGINNER',     thumb: '' },
+  { id: 'course-2', title: "Cinema 4D: The Beginner's Journey to Expert",        instructor: 'Juliano Carneiro', lessons: 128, rating: null, reviews: null, level: 'ADVANCED', thumb: '' },
+  { id: 'course-3', title: 'Carousel Creation: Advanced Techniques in Photoshop', instructor: 'Maicon Arouche',  lessons: 27,  rating: 5.0, reviews: 3, level: 'ADVANCED',     thumb: '' },
+  { id: 'course-4', title: 'Adobe Illustrator: Professional Visual Identity Creation', instructor: 'Luiz Ramos', lessons: 78,  rating: 5.0, reviews: 6, level: 'ADVANCED',     thumb: '' },
+];
 
 @Component({
   selector: 'amx-course-list',
@@ -23,12 +34,11 @@ interface AcademyCourse {
   styleUrl: './course-list.component.scss',
 })
 export class CourseListComponent implements OnInit {
+  private readonly academySvc = inject(AcademyService);
+
   carouselIndex = signal(0);
   contentLoading = signal(true);
-
-  ngOnInit(): void {
-    setTimeout(() => this.contentLoading.set(false), 900);
-  }
+  courses = signal<AcademyCourse[]>([]);
 
   readonly stats = [
     { icon: 'M14.752 11.168l-3.197-2.132A1 1 0 0 0 10 9.87v4.263a1 1 0 0 0 1.555.832l3.197-2.132a1 1 0 0 0 0-1.664z M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z', value: '4', label: 'Courses' },
@@ -42,54 +52,40 @@ export class CourseListComponent implements OnInit {
     { icon: 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z', title: 'Exclusive Content', desc: 'Only for Premium subscribers' },
   ];
 
-  readonly courses: AcademyCourse[] = [
-    {
-      id: 1,
-      title: 'Photoshop Essential: Complete Guide for Beginners',
-      instructor: 'Bruno Albin',
-      lessons: 30,
-      rating: 4.8,
-      reviews: 5,
-      level: 'Beginner',
-      thumb: 'https://i.postimg.cc/grq8S5cK/Asset-1-2x.png',
-    },
-    {
-      id: 2,
-      title: "Cinema 4D: The Beginner's Journey to Expert",
-      instructor: 'Juliano Carneiro',
-      lessons: 128,
-      rating: null,
-      reviews: null,
-      level: 'Advanced',
-      thumb: 'https://i.postimg.cc/grq8S5cK/Asset-1-2x.png',
-    },
-    {
-      id: 3,
-      title: 'Carousel Creation: Advanced Techniques in Photoshop',
-      instructor: 'Maicon Arouche',
-      lessons: 27,
-      rating: 5.0,
-      reviews: 3,
-      level: 'Advanced',
-      thumb: 'https://i.postimg.cc/grq8S5cK/Asset-1-2x.png',
-    },
-    {
-      id: 4,
-      title: 'Adobe Illustrator: Professional Visual Identity Creation',
-      instructor: 'Luiz Ramos',
-      lessons: 78,
-      rating: 5.0,
-      reviews: 6,
-      level: 'Advanced',
-      thumb: 'https://i.postimg.cc/grq8S5cK/Asset-1-2x.png',
-    },
-  ];
+  ngOnInit(): void {
+    this.academySvc.getCourses().pipe(
+      catchError(() => of(null)),
+    ).subscribe({
+      next: (data) => {
+        if (data?.length) {
+          // Map API Course → AcademyCourse UI shape
+          this.courses.set(data.map(c => ({
+            id: c.id,
+            title: c.title,
+            instructor: c.topic ?? 'Instructor',
+            lessons: c.lessonCount,
+            rating: null,
+            reviews: null,
+            level: c.level,
+            thumb: c.thumbnailUrl ?? '',
+          })));
+        } else {
+          this.courses.set(FALLBACK_COURSES);
+        }
+        this.contentLoading.set(false);
+      },
+      error: () => {
+        this.courses.set(FALLBACK_COURSES);
+        this.contentLoading.set(false);
+      },
+    });
+  }
 
   prev(): void {
     this.carouselIndex.update(i => Math.max(0, i - 1));
   }
 
   next(): void {
-    this.carouselIndex.update(i => Math.min(this.courses.length - 4, i + 1));
+    this.carouselIndex.update(i => Math.min(this.courses().length - 4, i + 1));
   }
 }

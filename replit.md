@@ -4,8 +4,8 @@
 Angular 20 client application for Amarapix — a design-asset marketplace with an in-browser Fabric.js-based canvas editor (text, shapes, images, AI tools, export to PNG/PDF/SVG/JPG). Ships with a local mock API (`db.json` + `json-server`) for development, plus some PDF/export tooling scripts.
 
 ## Running on Replit
-- Dev server: `npx ng serve` (bound via the "Start application" workflow), configured in `angular.json` under `projects.Amarapix_ClientUI.architect.serve.options` with `host: 0.0.0.0`, `port: 5000`, `allowedHosts: true` so it works behind the Replit preview proxy.
-- The mock API (`npm run mock-api`, json-server on port 3000) is not started by default — the app currently shows "Cannot reach server" network errors in the console when the mock API isn't running. Start it manually if backend-dependent features are needed.
+- **Dev server**: `npx ng serve` — "Start application" workflow, port 5000. Configured in `angular.json` with `host: 0.0.0.0`, `allowedHosts: true`.
+- **Mock API**: `npx json-server --watch db.json --routes json-server-routes.json --port 3000` — "Mock API (json-server)" workflow, port 3000. The Angular dev-server proxies `/api/v1/*` to this via `proxy.conf.js`. Both workflows must be running for API-backed features (academy, subscription, assets, etc.) to work. Routes are mapped in `json-server-routes.json`.
 
 ## Recent changes
 - Canvas editor UX: added a lightweight custom hover/focus tooltip (`data-tip` attribute + CSS) plus `aria-label` to icon-only buttons across the editor toolbar, layers panel, properties panel, status bar, and modals, so previously unlabeled icons now show a clear name on hover/keyboard focus. Undo/Redo buttons now use a real `[disabled]` binding (previously class-only, not actually disabled for keyboard/screen readers).

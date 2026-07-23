@@ -18,6 +18,10 @@ author = "agent"
 task = "workflow.run"
 args = "Start application"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Mock API (json-server)"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -29,6 +33,14 @@ outputType = "webview"
 task = "shell.exec"
 args = "npx ng serve"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Mock API (json-server)"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx json-server --watch db.json --routes json-server-routes.json --port 3000"
 
 [[ports]]
 localPort = 5000

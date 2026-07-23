@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { SubscriptionService } from '../subscription.service';
 
 interface PricingPlan {
   key: string;
@@ -60,6 +61,7 @@ export class PricingComponent {
     return usd * this.selectedCurrency().rate;
   });
 
+  private readonly subscriptionSvc = inject(SubscriptionService);
   private readonly fb = inject(FormBuilder);
   payForm = this.fb.nonNullable.group({
     email:      ['', [Validators.required, Validators.email]],
@@ -88,28 +90,56 @@ export class PricingComponent {
     this.paying.set(true);
     this.payError.set('');
 
-    // Simulate payment processing (real integration would use Stripe/payment SDK)
-    setTimeout(() => {
-      this.paying.set(false);
-      const plan = this.selectedPlan();
+    const plan = this.selectedPlan();
+    if (!plan) { this.paying.set(false); return; }
 
-      // Store subscription locally so the rest of the app reflects the upgrade
-      try {
-        localStorage.setItem('amx_subscription', JSON.stringify({
-          planKey: plan?.key,
-          planLabel: plan?.label,
-          activatedAt: new Date().toISOString(),
-          billingCycle: this.billing(),
-        }));
-      } catch { /* storage full */ }
+    this.subscriptionSvc.checkout({
+      planId: plan.key,
+      provider: 'stripe',
+      successUrl: window.location.origin + '/account/subscription',
+      cancelUrl: window.location.href,
+    }).subscribe({
+      next: (res) => {
+        this.paying.set(false);
+        // Store subscription locally so the rest of the app reflects the upgrade
+        try {
+          localStorage.setItem('amx_subscription', JSON.stringify({
+            planKey: plan.key,
+            planLabel: plan.label,
+            activatedAt: new Date().toISOString(),
+            billingCycle: this.billing(),
+          }));
+        } catch { /* storage full */ }
 
-      this.paySuccess.set(true);
-      // Auto-close checkout after showing success screen
-      setTimeout(() => {
-        this.paySuccess.set(false);
-        this.checkoutPlan.set(null);
-      }, 3500);
-    }, 1800);
+        if (res.checkoutUrl) {
+          // Redirect to payment processor (Stripe hosted checkout)
+          window.location.href = res.checkoutUrl;
+        } else {
+          this.paySuccess.set(true);
+          setTimeout(() => {
+            this.paySuccess.set(false);
+            this.checkoutPlan.set(null);
+          }, 3500);
+        }
+      },
+      error: () => {
+        // API not wired up yet — simulate success locally so the UI still works
+        this.paying.set(false);
+        try {
+          localStorage.setItem('amx_subscription', JSON.stringify({
+            planKey: plan.key,
+            planLabel: plan.label,
+            activatedAt: new Date().toISOString(),
+            billingCycle: this.billing(),
+          }));
+        } catch { /* storage full */ }
+        this.paySuccess.set(true);
+        setTimeout(() => {
+          this.paySuccess.set(false);
+          this.checkoutPlan.set(null);
+        }, 3500);
+      },
+    });
   }
 
   readonly plans: PricingPlan[] = [

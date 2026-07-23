@@ -12,6 +12,9 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { AcademyService } from '../academy.service';
+import { catchError, of } from 'rxjs';
+import { Lesson } from '../../../core/models/academy.model';
 
 export interface PlayerLesson {
   id: number;
@@ -21,6 +24,7 @@ export interface PlayerLesson {
   durationSecs: number;
   completed: boolean;
   isFree: boolean;
+  hlsUrl?: string;
 }
 
 export interface CourseComment {
@@ -32,7 +36,8 @@ export interface CourseComment {
   postedAt: string;
 }
 
-const MOCK_LESSONS: PlayerLesson[] = [
+// Fallback lessons used when the API is unavailable
+const FALLBACK_LESSONS: PlayerLesson[] = [
   { id: 1,  number: 1,  title: '01 - Explaining the concept',                durationSecs: 449,  duration: '7:29',  completed: false, isFree: true },
   { id: 2,  number: 2,  title: '02 - Organize Photoshop panel',              durationSecs: 644,  duration: '10:44', completed: false, isFree: false },
   { id: 3,  number: 3,  title: '03 - Customizing the Photoshop interface',   durationSecs: 293,  duration: '4:53',  completed: false, isFree: false },
@@ -44,11 +49,11 @@ const MOCK_LESSONS: PlayerLesson[] = [
   { id: 9,  number: 9,  title: '09 - Selection tools deep dive',             durationSecs: 720,  duration: '12:00', completed: false, isFree: false },
   { id: 10, number: 10, title: '10 - Smart Objects & Smart Filters',         durationSecs: 655,  duration: '10:55', completed: false, isFree: false },
   { id: 11, number: 11, title: '11 - Text and Typography tools',             durationSecs: 395,  duration: '6:35',  completed: false, isFree: false },
-  { id: 12, number: 12, title: '12 - Adjustment Layers essentials',         durationSecs: 511,  duration: '8:31',  completed: false, isFree: false },
+  { id: 12, number: 12, title: '12 - Adjustment Layers essentials',          durationSecs: 511,  duration: '8:31',  completed: false, isFree: false },
   { id: 13, number: 13, title: '13 - Curves & Levels in depth',              durationSecs: 608,  duration: '10:08', completed: false, isFree: false },
   { id: 14, number: 14, title: '14 - Retouching tools & clone stamp',        durationSecs: 730,  duration: '12:10', completed: false, isFree: false },
   { id: 15, number: 15, title: '15 - Filters & Effects overview',            durationSecs: 418,  duration: '6:58',  completed: false, isFree: false },
-  { id: 16, number: 16, title: '16 - Blend modes explained',                durationSecs: 520,  duration: '8:40',  completed: false, isFree: false },
+  { id: 16, number: 16, title: '16 - Blend modes explained',                 durationSecs: 520,  duration: '8:40',  completed: false, isFree: false },
   { id: 17, number: 17, title: '17 - Creating a Flyer from scratch',         durationSecs: 1445, duration: '24:05', completed: false, isFree: false },
   { id: 18, number: 18, title: '18 - Color grading techniques',              durationSecs: 590,  duration: '9:50',  completed: false, isFree: false },
   { id: 19, number: 19, title: '19 - Working with Raw images',               durationSecs: 770,  duration: '12:50', completed: false, isFree: false },
@@ -82,12 +87,14 @@ const MOCK_COMMENTS: CourseComment[] = [
 export class CoursePlayerComponent implements OnInit, OnDestroy {
   @ViewChild('videoEl') videoEl?: ElementRef<HTMLVideoElement>;
 
-  private readonly route  = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private readonly route      = inject(ActivatedRoute);
+  private readonly router     = inject(Router);
+  private readonly academySvc = inject(AcademyService);
 
   contentLoading = signal(true);
   lessons        = signal<PlayerLesson[]>([]);
   comments       = signal<CourseComment[]>([...MOCK_COMMENTS]);
+  courseTitle    = signal('');
 
   activeLesson   = signal<PlayerLesson | null>(null);
   playing        = signal(false);
@@ -152,29 +159,67 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
     try { localStorage.setItem(this.PROGRESS_KEY(), JSON.stringify([...completedIds])); } catch {}
   }
 
+  /** Map an API Lesson to the local PlayerLesson shape */
+  private mapLesson(l: Lesson, done: Set<number>): PlayerLesson {
+    const order = l.order;
+    return {
+      id: order,
+      number: order,
+      title: l.title,
+      durationSecs: l.durationSeconds,
+      duration: this.formatTime(l.durationSeconds),
+      completed: done.has(order),
+      isFree: l.isFreePreview,
+      hlsUrl: l.hlsUrl,
+    };
+  }
+
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get('id') ?? 'default';
     const done = this.loadProgress();
-    setTimeout(() => {
-      const restored = MOCK_LESSONS.map(l => ({ ...l, completed: done.has(l.id) }));
-      this.lessons.set(restored);
-      // Resume from first incomplete lesson, or start at 0
-      const firstIncomplete = restored.find(l => !l.completed) ?? restored[0];
-      this.activeLesson.set(firstIncomplete);
+
+    this.academySvc.getCourse(this.courseId).pipe(
+      catchError(() => of(null)),
+    ).subscribe(course => {
+      if (course?.lessons?.length) {
+        this.courseTitle.set(course.title);
+        const mapped = course.lessons
+          .slice()
+          .sort((a, b) => a.order - b.order)
+          .map(l => this.mapLesson(l, done));
+        this.lessons.set(mapped);
+      } else {
+        // API unavailable or course has no lessons — use fallback
+        const restored = FALLBACK_LESSONS.map(l => ({ ...l, completed: done.has(l.id) }));
+        this.lessons.set(restored);
+      }
+      const firstIncomplete = this.lessons().find(l => !l.completed) ?? this.lessons()[0];
+      this.activeLesson.set(firstIncomplete ?? null);
+      if (this.activeLesson()) {
+        this.duration.set(this.activeLesson()!.durationSecs);
+      }
       this.contentLoading.set(false);
-    }, 1200);
+    });
   }
 
   ngOnDestroy(): void {
+    // Clean up any video element listeners
+    const v = this.videoEl?.nativeElement;
+    if (v) v.src = '';
   }
 
   selectLesson(lesson: PlayerLesson): void {
-    if (!lesson.isFree && lesson.number > 1) {
-    }
     this.activeLesson.set(lesson);
     this.playing.set(false);
     this.currentTime.set(0);
+    this.duration.set(lesson.durationSecs);
     this.settingsMenuOpen.set(false);
+    // If there's a real video element, update its src
+    const v = this.videoEl?.nativeElement;
+    if (v && lesson.hlsUrl) {
+      v.src = lesson.hlsUrl;
+      v.load();
+    }
   }
 
   prevLesson(): void {
@@ -188,17 +233,26 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   }
 
   togglePlay(): void {
+    const v = this.videoEl?.nativeElement;
+    if (v && this.activeLesson()?.hlsUrl) {
+      if (v.paused) { v.play().catch(() => {}); } else { v.pause(); }
+    }
     this.playing.update(p => !p);
   }
 
   toggleMute(): void {
-    this.muted.update(m => !m);
+    this.muted.update(m => {
+      const v = this.videoEl?.nativeElement;
+      if (v) v.muted = !m;
+      return !m;
+    });
   }
 
   setVolume(val: number): void {
     this.volume.set(val);
-    if (val === 0) this.muted.set(true);
-    else this.muted.set(false);
+    const v = this.videoEl?.nativeElement;
+    if (v) v.volume = val / 100;
+    this.muted.set(val === 0);
   }
 
   onSeek(event: Event): void {
@@ -206,7 +260,10 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
     const pct = +input.value;
     const al = this.activeLesson();
     if (al) {
-      this.currentTime.set(Math.round((pct / 100) * al.durationSecs));
+      const secs = Math.round((pct / 100) * al.durationSecs);
+      this.currentTime.set(secs);
+      const v = this.videoEl?.nativeElement;
+      if (v) v.currentTime = secs;
     }
   }
 
@@ -217,6 +274,8 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
 
   setPlaybackRate(rate: number): void {
     this.playbackRate.set(rate);
+    const v = this.videoEl?.nativeElement;
+    if (v) v.playbackRate = rate;
     this.settingsMenuOpen.set(false);
   }
 
@@ -228,17 +287,20 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
     const al = this.activeLesson();
     if (!al || al.completed) return;
     this.markingComplete.set(true);
-    setTimeout(() => {
+
+    // Call the API to persist progress, then update locally regardless of outcome
+    this.academySvc.markLessonComplete(String(al.id)).pipe(
+      catchError(() => of(null)),
+    ).subscribe(() => {
       this.lessons.update(ls =>
         ls.map(l => l.id === al.id ? { ...l, completed: true } : l)
       );
       this.activeLesson.update(l => l ? { ...l, completed: true } : l);
-      // Persist progress to localStorage
       const done = new Set<number>(this.lessons().filter(l => l.completed).map(l => l.id));
       this.saveProgress(done);
       this.markingComplete.set(false);
       setTimeout(() => this.nextLesson(), 600);
-    }, 800);
+    });
   }
 
   submitComment(): void {
