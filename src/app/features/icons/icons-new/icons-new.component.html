@@ -65,7 +65,8 @@
                     [class.amx-filter-chip--loading]="isLibraryLoading(lib.id)"
                     [class.amx-filter-chip--soon]="lib.comingSoon"
                     [attr.title]="lib.comingSoon ? 'Coming soon — ' + lib.name : null"
-                    (click)="!lib.comingSoon && setLibrary(lib.id)">
+                    [attr.aria-disabled]="lib.comingSoon ? 'true' : null"
+                    (click)="lib.comingSoon ? notifyComingSoon(lib.name) : setLibrary(lib.id)">
               <span class="amx-lib-dot" [attr.data-lib]="lib.id"></span>
               {{ lib.name }}
               <span class="amx-lib-soon-badge" *ngIf="lib.comingSoon">soon</span>
@@ -279,10 +280,15 @@
         </div>
 
         <button type="button" class="amx-icons__ai-toggle" [class.amx-icons__ai-toggle--on]="aiSearchOn()"
-                (click)="aiSearchOn.set(!aiSearchOn())" [attr.aria-pressed]="aiSearchOn()">
+                (click)="aiSearchOn.set(!aiSearchOn())" [attr.aria-pressed]="aiSearchOn()"
+                aria-label="Toggle AI-assisted icon search"
+                title="AI search expands your words with related icon concepts">
           <span class="amx-icons__ai-knob"></span>
           AI
         </button>
+        <span class="amx-icons__ai-help" [class.amx-icons__ai-help--on]="aiSearchOn()">
+          {{ aiSearchOn() ? 'AI search on: try describing an idea' : 'AI search' }}
+        </span>
 
         <div class="amx-icons__recolor">
           <button type="button" class="amx-icons__recolor-btn"
@@ -349,11 +355,12 @@
                 [class.amx-icons__select-toggle--on]="multiSelectMode()"
                 (click)="toggleMultiSelectMode()"
                 [attr.aria-pressed]="multiSelectMode()"
-                aria-label="Toggle multi-select mode">
+                aria-label="Toggle multi-select mode"
+                title="Select multiple icons for bulk download or collection">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
           </svg>
-          Select
+          {{ multiSelectMode() ? 'Selecting' : 'Select' }}
         </button>
 
         <div class="amx-icons__density-toggle">
@@ -407,6 +414,12 @@
             </div>
           </button>
         </div>
+        <div class="amx-style-gallery__hint" aria-hidden="true">
+          <span>Scroll to explore {{ stylePacks.length }} styles</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </div>
       </div>
 
       
@@ -447,6 +460,12 @@
             <div><strong>{{ svc.totalLoaded() | number }}</strong><span>loaded</span></div>
             <div><strong>{{ svc.favorites().size }}</strong><span>saved</span></div>
           </div>
+          <button type="button" class="amx-icons__hero-cta" (click)="scrollToIconGrid()">
+            Browse the icon grid
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6"/>
+            </svg>
+          </button>
         </div>
         <div class="amx-icons__hero-showcase" aria-hidden="true">
           <div class="amx-icons__hero-tile" *ngFor="let icon of svc.filteredIcons().slice(0, 3); let i = index" [style.--i]="i">
@@ -605,6 +624,13 @@
           </button>
         </div>
       </ng-container>
+
+      <div class="amx-icons__toast" *ngIf="comingSoonMessage()" role="status" aria-live="polite">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+        </svg>
+        {{ comingSoonMessage() }}
+      </div>
 
       <ng-template #emptyState>
         <div class="amx-icons__empty" *ngIf="!isLibraryLoading(filters().libraryId ?? 'amarapix')">

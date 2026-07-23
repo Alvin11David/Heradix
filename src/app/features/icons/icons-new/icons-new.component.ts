@@ -248,6 +248,7 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
   readonly style = this.svc.style;
   readonly filters = this.svc.filters;
   readonly aiSearchOn = signal(false);
+  readonly comingSoonMessage = signal('');
   readonly mobileFiltersOpen = signal(false);
   readonly selected = signal<IconAsset | null>(null);
   readonly copyState = signal<'idle' | 'copied'>('idle');
@@ -274,6 +275,7 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
   readonly newCollectionName = signal('');
   readonly renamingCollectionId = signal<string | null>(null);
   readonly addFeedbackId = signal<string | null>(null);
+  private comingSoonTimer?: ReturnType<typeof setTimeout>;
   readonly openCollection = computed(() => {
     const id = this.activeCollectionId();
     return id ? (this.svc.collections().find(c => c.id === id) ?? null) : null;
@@ -672,6 +674,14 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
 
   resetStyle(): void { this.svc.resetStyle(); }
   setQuery(value: string): void { this.svc.updateFilters({ query: value }); this.visibleCount.set(48); }
+  notifyComingSoon(libraryName: string): void {
+    this.comingSoonMessage.set(`${libraryName} is coming soon. Try one of the loaded libraries instead.`);
+    if (this.comingSoonTimer) clearTimeout(this.comingSoonTimer);
+    this.comingSoonTimer = setTimeout(() => this.comingSoonMessage.set(''), 3600);
+  }
+  scrollToIconGrid(): void {
+    document.querySelector('.amx-icons__group')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
   setCategory(id: string | null): void { this.svc.updateFilters({ categoryId: id }); this.visibleCount.set(48); }
   toggleAesthetic(v: string): void { this.svc.toggleArrayFilter('aesthetic', v as IconAesthetic); this.visibleCount.set(48); }
   toggleTrend(v: string): void { this.svc.toggleArrayFilter('trend', v as IconTrend); this.visibleCount.set(48); }
@@ -947,6 +957,7 @@ export class IconsNewComponent implements AfterViewInit, OnDestroy {
   }
   ngOnDestroy(): void {
     this.scrollObserver?.disconnect();
+    if (this.comingSoonTimer) clearTimeout(this.comingSoonTimer);
   }
   trackById(_: number, icon: IconAsset): string { return icon.id; }
   trackByPackId(_: number, pack: StylePack): string { return pack.id; }
