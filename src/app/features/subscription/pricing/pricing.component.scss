@@ -9,7 +9,7 @@
 .amx-pricing__hero {
   position: relative;
   text-align: center;
-  padding: 72px 24px 52px;
+  padding: 52px 24px 36px;
   background:
     linear-gradient(180deg,
       color-mix(in srgb, var(--amx-orange) 6%, var(--amx-bg-soft)) 0%,
@@ -103,6 +103,13 @@
   font-weight: 800;
   padding: 2px 7px;
   border-radius: 50px;
+}
+
+.amx-pricing__currency-note {
+  font-size: 12px;
+  color: var(--amx-faint);
+  margin: 10px 0 0;
+  letter-spacing: 0.01em;
 }
 
 
@@ -279,12 +286,31 @@
     margin-top: 5px;
   }
 
+  &__price-main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  &__amount-was {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--amx-faint);
+    text-decoration: line-through;
+    line-height: 1;
+    letter-spacing: -0.3px;
+    margin-bottom: 1px;
+    animation: amxPricingFadeIn 0.25s ease;
+  }
+
   &__amount {
     font-size: 42px;
     font-weight: 900;
     color: var(--amx-text);
     letter-spacing: -2px;
     line-height: 1;
+    transition: color 0.25s ease;
 
     .amx-plan-card--popular & { font-size: 46px; }
   }
@@ -293,6 +319,8 @@
     font-size: 14px;
     color: var(--amx-faint);
     margin-left: 4px;
+    align-self: flex-end;
+    margin-bottom: 6px;
   }
 
   &__annual-note {
@@ -331,7 +359,7 @@
   &__features {
     list-style: none;
     padding: 0;
-    margin: 0 0 24px;
+    margin: 0 0 18px;
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -346,7 +374,7 @@
     gap: 9px;
     font-size: 13px;
     color: var(--amx-text-2);
-    padding: 6px 0;
+    padding: 4px 0;
     border-bottom: 1px solid color-mix(in srgb, var(--amx-border) 40%, transparent);
 
     &:last-child { border-bottom: none; }

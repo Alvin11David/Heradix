@@ -23,6 +23,7 @@
           <span class="amx-pricing__save-badge">Save 20%</span>
         </button>
       </div>
+      <p class="amx-pricing__currency-note">All prices in USD&nbsp;·&nbsp;Switch currency at checkout</p>
     </div>
   </section>
 
@@ -53,9 +54,14 @@
 
       <div class="amx-plan-card__price">
         <span class="amx-plan-card__currency">$</span>
-        <span class="amx-plan-card__amount">
-          {{ billing() === 'monthly' ? plan.monthlyPrice : annualPrice(plan.monthlyPrice) }}
-        </span>
+        <div class="amx-plan-card__price-main">
+          <span class="amx-plan-card__amount-was" *ngIf="billing() === 'annual'">
+            {{ plan.monthlyPrice | number:'1.2-2' }}
+          </span>
+          <span class="amx-plan-card__amount">
+            {{ (billing() === 'monthly' ? plan.monthlyPrice : annualPrice(plan.monthlyPrice)) | number:'1.2-2' }}
+          </span>
+        </div>
         <span class="amx-plan-card__period">/mo</span>
       </div>
 
@@ -161,9 +167,9 @@
           {{ checkoutPlan()!.label }}
         </div>
         <div class="amx-checkout__plan-price">
-          ${{ billing() === 'monthly'
+          ${{ (billing() === 'monthly'
               ? checkoutPlan()!.monthlyPrice
-              : annualPrice(checkoutPlan()!.monthlyPrice) }} /mo
+              : annualPrice(checkoutPlan()!.monthlyPrice)) | number:'1.2-2' }} /mo
         </div>
         <div class="amx-checkout__billing-note">
           Billed {{ billing() === 'annual' ? 'annually' : 'monthly' }}

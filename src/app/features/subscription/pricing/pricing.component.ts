@@ -123,21 +123,11 @@ export class PricingComponent {
         }
       },
       error: () => {
-        // API not wired up yet — simulate success locally so the UI still works
+        // Payment API not yet connected — show an honest notice instead of fake success
         this.paying.set(false);
-        try {
-          localStorage.setItem('amx_subscription', JSON.stringify({
-            planKey: plan.key,
-            planLabel: plan.label,
-            activatedAt: new Date().toISOString(),
-            billingCycle: this.billing(),
-          }));
-        } catch { /* storage full */ }
-        this.paySuccess.set(true);
-        setTimeout(() => {
-          this.paySuccess.set(false);
-          this.checkoutPlan.set(null);
-        }, 3500);
+        this.payError.set(
+          'Online payments are not yet active. Please contact hello@amarapix.com to subscribe.'
+        );
       },
     });
   }
