@@ -39,7 +39,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
 
           <div class="auth-field">
             <label class="auth-field__label">Full Name</label>
-            <div class="auth-field__wrap">
+            <div class="auth-field__wrap" [class.auth-field__wrap--error]="nameCtrl.invalid && nameCtrl.touched">
               <svg class="auth-field__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
               </svg>
@@ -51,12 +51,14 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
                 autocomplete="name"
               />
             </div>
+            <span class="auth-field__error" *ngIf="nameCtrl.touched && nameCtrl.hasError('required')">Full name is required.</span>
+            <span class="auth-field__error" *ngIf="nameCtrl.touched && nameCtrl.hasError('minlength')">Name must be at least 2 characters.</span>
           </div>
 
 
           <div class="auth-field">
             <label class="auth-field__label">Email</label>
-            <div class="auth-field__wrap">
+            <div class="auth-field__wrap" [class.auth-field__wrap--error]="emailCtrl.invalid && emailCtrl.touched">
               <svg class="auth-field__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
@@ -69,12 +71,14 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
                 autocomplete="email"
               />
             </div>
+            <span class="auth-field__error" *ngIf="emailCtrl.touched && emailCtrl.hasError('required')">Email is required.</span>
+            <span class="auth-field__error" *ngIf="emailCtrl.touched && emailCtrl.hasError('email')">Enter a valid email address.</span>
           </div>
 
 
           <div class="auth-field">
             <label class="auth-field__label">Password</label>
-            <div class="auth-field__wrap">
+            <div class="auth-field__wrap" [class.auth-field__wrap--error]="pwdCtrl.invalid && pwdCtrl.touched">
               <svg class="auth-field__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -96,12 +100,18 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
                 </svg>
               </button>
             </div>
+            <span class="auth-field__error" *ngIf="pwdCtrl.touched && pwdCtrl.hasError('required')">Password is required.</span>
+            <span class="auth-field__error" *ngIf="pwdCtrl.touched && pwdCtrl.hasError('minlength')">Password must be at least 8 characters.</span>
           </div>
 
           <p *ngIf="error()" class="auth-error">{{ error() }}</p>
 
           <button type="submit" class="auth-btn auth-btn--primary" [disabled]="loading()">
-            {{ loading() ? 'Creating account…' : 'Register' }}
+            <span *ngIf="loading()" style="display:inline-flex;align-items:center;gap:6px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              Creating account…
+            </span>
+            <span *ngIf="!loading()">Register</span>
           </button>
         </form>
 
@@ -191,13 +201,31 @@ export class RegisterComponent {
   ];
 
   form = this.fb.nonNullable.group({
-    fullName: ['', Validators.required],
+    fullName: ['', [Validators.required, Validators.minLength(2)]],
     email:    ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
+  get nameCtrl()  { return this.form.controls['fullName']; }
+  get emailCtrl() { return this.form.controls['email']; }
+  get pwdCtrl()   { return this.form.controls['password']; }
+
   submit(): void {
+    this.form.markAllAsTouched();
     if (this.form.invalid) return;
-    this.router.navigateByUrl('/marketplace');
+    this.loading.set(true);
+    this.error.set('');
+
+    const { fullName, email, password } = this.form.getRawValue();
+    this.authService.register({ fullName, email, password }).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.router.navigateByUrl('/marketplace');
+      },
+      error: (err: Error) => {
+        this.loading.set(false);
+        this.error.set(err.message ?? 'Registration failed. Please try again.');
+      },
+    });
   }
 }

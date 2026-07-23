@@ -246,19 +246,35 @@
         </select>
       </div>
 
-      <button class="amx-checkout__submit"
-              (click)="submitPayment()"
-              [disabled]="payForm.invalid || paying()">
-        <span *ngIf="!paying()">
-          Subscribe — {{ selectedCurrency().code }} {{ displayPrice() | number:'1.0-0' }}
-        </span>
-        <span *ngIf="paying()" class="amx-checkout__spinner"></span>
-      </button>
+      <!-- Success state -->
+      <div *ngIf="paySuccess()" class="amx-checkout__success">
+        <div class="amx-checkout__success-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" width="40" height="40">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h3 class="amx-checkout__success-title">Welcome to {{ selectedPlan()?.label }}!</h3>
+        <p class="amx-checkout__success-sub">Your subscription is now active. Enjoy unlimited access.</p>
+      </div>
 
-      <p class="amx-checkout__legal">
-        By confirming your subscription you allow Amarapix to charge you for future
-        payments in accordance with our <a href="#">terms</a>. Cancel anytime.
-      </p>
+      <!-- Payment form -->
+      <ng-container *ngIf="!paySuccess()">
+        <p *ngIf="payError()" class="amx-checkout__error">{{ payError() }}</p>
+
+        <button class="amx-checkout__submit"
+                (click)="submitPayment()"
+                [disabled]="paying()">
+          <span *ngIf="!paying()">
+            Subscribe — {{ selectedCurrency().code }} {{ displayPrice() | number:'1.0-0' }}
+          </span>
+          <span *ngIf="paying()" class="amx-checkout__spinner"></span>
+        </button>
+
+        <p class="amx-checkout__legal">
+          By confirming your subscription you allow Amarapix to charge you for future
+          payments in accordance with our <a href="#">terms</a>. Cancel anytime.
+        </p>
+      </ng-container>
 
       <div class="amx-checkout__stripe-footer">
         <svg viewBox="0 0 60 25" width="46" height="19" fill="#6772e5">

@@ -205,7 +205,9 @@ export class AiStudioComponent implements OnInit {
   }));
 
   ngOnInit() {
-    // Pre-populate with some results so the page isn't empty on load
+    // Pre-populate with featured products so the page isn't empty on load
+    this.searchResults.set(MOCK_PRODUCTS.slice(0, 8));
+    this.searchDone.set(true);
   }
 
   // ── Step 1 actions ─────────────────────────────────────────────────────────
@@ -313,8 +315,40 @@ export class AiStudioComponent implements OnInit {
   }
 
   downloadVariant() {
-    // Client-side: in real app this would fetch and download the generated image
-    alert('Download started (mockup — real generation would call API here).');
+    const variant = this.generatedVariants[this.activeVariant()];
+    const product = this.selectedProduct();
+    const style   = this.selectedStyle();
+    const label   = variant?.label ?? 'mockup';
+    const name    = product?.name ?? 'product';
+
+    // Create a canvas-rendered gradient image as a stand-in for the real generated image
+    const canvas  = document.createElement('canvas');
+    canvas.width  = 800;
+    canvas.height = 800;
+    const ctx     = canvas.getContext('2d');
+    if (ctx) {
+      const grad = ctx.createLinearGradient(0, 0, 800, 800);
+      // Parse gradient colors from the variant definition
+      const colorMatch = variant.gradient.match(/#[0-9a-fA-F]{6}/g) ?? ['#667eea', '#764ba2'];
+      grad.addColorStop(0, colorMatch[0]);
+      grad.addColorStop(1, colorMatch[1] ?? colorMatch[0]);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 800, 800);
+
+      // Label the variant
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.font = 'bold 28px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(name, 400, 370);
+      ctx.font = '20px sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.fillText(`${style?.label ?? ''} · ${label}`, 400, 410);
+
+      const link = document.createElement('a');
+      link.download = `amarapix-mockup-${label.toLowerCase().replace(/\s+/g, '-')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
   }
 
   openInEditor() {

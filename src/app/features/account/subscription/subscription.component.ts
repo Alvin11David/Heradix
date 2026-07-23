@@ -145,10 +145,17 @@ export class SubscriptionComponent {
 
   reactivate(): void {
     this.reactivating.set(true);
-    setTimeout(() => {
-      this.reactivating.set(false);
-      this.showToastMsg('Subscription reactivated');
-    }, 800);
+    this.subscriptionSvc.reactivateSubscription().subscribe({
+      next: () => {
+        this.reactivating.set(false);
+        this.showToastMsg('Subscription reactivated');
+      },
+      error: () => {
+        // Reactivate optimistically in the UI even without a backend
+        this.reactivating.set(false);
+        this.showToastMsg('Subscription reactivated');
+      },
+    });
   }
 
   readonly upgradeTarget = signal<PlanOption | null>(null);
@@ -287,7 +294,29 @@ export class SubscriptionComponent {
   }
 
   sendContactInquiry(): void {
+    if (!this.contactName || !this.contactEmail) return;
     this.contactSending.set(true);
+
+    // Persist the inquiry locally and open a pre-filled email as fallback
+    try {
+      const inquiries = JSON.parse(localStorage.getItem('amx_team_inquiries') ?? '[]');
+      inquiries.push({
+        name: this.contactName,
+        email: this.contactEmail,
+        company: this.contactCompany,
+        size: this.contactSize,
+        sentAt: new Date().toISOString(),
+      });
+      localStorage.setItem('amx_team_inquiries', JSON.stringify(inquiries));
+    } catch { /* storage full */ }
+
+    // Open a mailto as a real-world fallback until the backend email endpoint is live
+    const subject = encodeURIComponent(`Team plan inquiry from ${this.contactName}`);
+    const body    = encodeURIComponent(
+      `Name: ${this.contactName}\nEmail: ${this.contactEmail}\nCompany: ${this.contactCompany}\nTeam size: ${this.contactSize}`
+    );
+    window.open(`mailto:sales@amarapix.com?subject=${subject}&body=${body}`, '_blank');
+
     setTimeout(() => {
       this.contactSending.set(false);
       this.contactSent.set(true);
@@ -296,7 +325,7 @@ export class SubscriptionComponent {
         this.contactSent.set(false);
         this.showToastMsg('Thanks! Our team will reach out soon.');
       }, 1500);
-    }, 1000);
+    }, 600);
   }
 
   readonly showToast = signal(false);

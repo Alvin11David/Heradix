@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -159,7 +159,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
   `,
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   readonly authService = inject(AuthService);
   private readonly fb    = inject(FormBuilder);
   private readonly router = inject(Router);
@@ -201,7 +201,33 @@ export class LoginComponent {
   submit(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
-    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/marketplace';
-    this.router.navigateByUrl(returnUrl);
+    this.loading.set(true);
+    this.error.set('');
+
+    const { email, password, remember } = this.form.getRawValue();
+    if (remember) {
+      localStorage.setItem('amx_remember_email', email);
+    } else {
+      localStorage.removeItem('amx_remember_email');
+    }
+
+    this.authService.login({ email, password }).subscribe({
+      next: () => {
+        this.loading.set(false);
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/marketplace';
+        this.router.navigateByUrl(returnUrl);
+      },
+      error: (err: Error) => {
+        this.loading.set(false);
+        this.error.set(err.message ?? 'Invalid email or password.');
+      },
+    });
+  }
+
+  ngOnInit(): void {
+    const saved = localStorage.getItem('amx_remember_email');
+    if (saved) {
+      this.form.patchValue({ email: saved, remember: true });
+    }
   }
 }

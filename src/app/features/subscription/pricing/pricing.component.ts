@@ -43,6 +43,8 @@ export class PricingComponent {
   selectedPlan = signal<PricingPlan | null>(null);
   checkoutPlan = signal<PricingPlan | null>(null);
   paying       = signal(false);
+  paySuccess   = signal(false);
+  payError     = signal('');
 
   readonly currencies = CURRENCIES;
   readonly annualDiscount = ANNUAL_DISCOUNT;
@@ -81,12 +83,32 @@ export class PricingComponent {
   }
 
   submitPayment(): void {
+    this.payForm.markAllAsTouched();
     if (this.payForm.invalid) return;
     this.paying.set(true);
+    this.payError.set('');
+
+    // Simulate payment processing (real integration would use Stripe/payment SDK)
     setTimeout(() => {
       this.paying.set(false);
-      this.checkoutPlan.set(null);
-      alert('Subscription successful! Welcome to ' + this.selectedPlan()?.label);
+      const plan = this.selectedPlan();
+
+      // Store subscription locally so the rest of the app reflects the upgrade
+      try {
+        localStorage.setItem('amx_subscription', JSON.stringify({
+          planKey: plan?.key,
+          planLabel: plan?.label,
+          activatedAt: new Date().toISOString(),
+          billingCycle: this.billing(),
+        }));
+      } catch { /* storage full */ }
+
+      this.paySuccess.set(true);
+      // Auto-close checkout after showing success screen
+      setTimeout(() => {
+        this.paySuccess.set(false);
+        this.checkoutPlan.set(null);
+      }, 3500);
     }, 1800);
   }
 

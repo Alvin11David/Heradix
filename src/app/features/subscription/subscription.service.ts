@@ -26,6 +26,10 @@ export class SubscriptionService {
     return this.api.post<void>('/subscriptions/cancel');
   }
 
+  reactivateSubscription(): Observable<void> {
+    return this.api.post<void>('/subscriptions/reactivate');
+  }
+
   openCustomerPortal(): Observable<{ portalUrl: string }> {
     return this.api.post<{ portalUrl: string }>('/subscriptions/portal');
   }

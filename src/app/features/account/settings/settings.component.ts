@@ -71,6 +71,12 @@ export class SettingsComponent {
       this.displayName.set(u.fullName);
       this.email.set(u.email);
     }
+    // Restore persisted bio
+    try {
+      const extra = JSON.parse(localStorage.getItem('amx_user_extra') ?? '{}');
+      if (extra.bio) this.bio.set(extra.bio);
+    } catch { /* ignore */ }
+    this.loadPreferences();
   }
 
   readonly profileDirty = computed(() =>
@@ -78,9 +84,18 @@ export class SettingsComponent {
   );
 
   saveProfile(): void {
-    if (!this.profileDirty() || !this.displayName()?.trim()) return;
+    if (!this.displayName()?.trim()) return;
     this.saving.set(true);
     const newName = this.displayName().trim();
+    const bioVal  = this.bio().trim();
+
+    // Persist bio to localStorage alongside user record
+    try {
+      const extra = JSON.parse(localStorage.getItem('amx_user_extra') ?? '{}');
+      extra.bio = bioVal;
+      localStorage.setItem('amx_user_extra', JSON.stringify(extra));
+    } catch { /* storage full */ }
+
     this.authSvc.patchCurrentUser({ fullName: newName });
     this.userSvc.updateProfile({ fullName: newName }).subscribe({
       next: () => {
@@ -183,11 +198,39 @@ export class SettingsComponent {
   savePreferences(): void {
     this.savingPrefs.set(true);
     document.documentElement.dir = this.textDirection();
+    document.documentElement.lang = this.language();
     document.documentElement.style.setProperty('--amx-text-direction', this.textDirection());
-    setTimeout(() => {
-      this.savingPrefs.set(false);
-      this.showToast('Preferences saved', 'success');
-    }, 400);
+
+    const prefs = {
+      emailNotifs:   this.emailNotifs(),
+      pushNotifs:    this.pushNotifs(),
+      weeklyDigest:  this.weeklyDigest(),
+      language:      this.language(),
+      textDirection: this.textDirection(),
+      timezone:      this.timezone(),
+    };
+    try {
+      localStorage.setItem('amx_user_prefs', JSON.stringify(prefs));
+    } catch { /* storage full */ }
+
+    this.savingPrefs.set(false);
+    this.showToast('Preferences saved', 'success');
+  }
+
+  private loadPreferences(): void {
+    try {
+      const raw = localStorage.getItem('amx_user_prefs');
+      if (!raw) return;
+      const prefs = JSON.parse(raw);
+      if (typeof prefs.emailNotifs   === 'boolean') this.emailNotifs.set(prefs.emailNotifs);
+      if (typeof prefs.pushNotifs    === 'boolean') this.pushNotifs.set(prefs.pushNotifs);
+      if (typeof prefs.weeklyDigest  === 'boolean') this.weeklyDigest.set(prefs.weeklyDigest);
+      if (typeof prefs.language      === 'string')  this.language.set(prefs.language);
+      if (typeof prefs.textDirection === 'string')  this.textDirection.set(prefs.textDirection as 'ltr' | 'rtl');
+      if (typeof prefs.timezone      === 'string')  this.timezone.set(prefs.timezone);
+      document.documentElement.dir  = this.textDirection();
+      document.documentElement.lang = this.language();
+    } catch { /* corrupt prefs */ }
   }
 
   private showToast(msg: string, type: 'success' | 'error'): void {
