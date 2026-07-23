@@ -526,6 +526,13 @@ export class VectorsComponent implements OnInit, OnDestroy {
     this.visibleCount.set(PAGE_SIZE);
   }
 
+  /** Called from hero format chips — also switches to browse view. */
+  toggleFormatFromHero(fmt: VectorFormat): void {
+    this.toggleFormat(fmt);
+    this.section.set('browse');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   setStyle(style: VectorStyle | null): void {
     this.svc.setFilter('style', style);
     this.visibleCount.set(PAGE_SIZE);

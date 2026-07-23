@@ -916,6 +916,12 @@ export class VectorsService {
     }
   });
 
+  // ── Hero stats (derived from real data) ───────────────────────────────────
+  readonly totalVectorCount   = computed(() => this.allAssets().length);
+  readonly totalFreeCount     = computed(() => this.allAssets().filter(a => a.isFree).length);
+  readonly totalDownloadCount = computed(() => this.allAssets().reduce((sum, a) => sum + a.downloads, 0));
+  readonly totalCreatorCount  = computed(() => this.creators().length);
+
   // ── Derived sections ──────────────────────────────────────────────────────
   readonly featuredVectors  = computed(() => this.allAssets().filter(a => a.isEditorsChoice || a.isStaffPick).slice(0, 12));
   readonly trendingToday    = computed(() => [...this.allAssets()].sort((a, b) => b.views - a.views).slice(0, 20));

@@ -88,13 +88,13 @@
         </button>
 
         <!-- AI Generate button -->
-        <button class="vec-ai-gen-btn" (click)="openAiGen()" type="button">
+        <button class="vec-ai-gen-btn" (click)="openAiGen()" type="button" title="Generate vectors with AI — opens generator panel">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"/></svg>
           AI Generate
         </button>
 
         <!-- Creator Studio button -->
-        <button class="vec-creator-studio-btn" (click)="openCreatorStudio()" type="button">
+        <button class="vec-creator-studio-btn" (click)="openCreatorStudio()" type="button" title="Upload your vectors to Creator Studio">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
           Upload
         </button>
@@ -191,21 +191,32 @@
             </div>
           </div>
 
-          <!-- Quick format chips -->
+          <!-- Quick format chips — clicking filters and navigates to browse -->
           <div class="vec-hero__format-chips">
-            <button *ngFor="let f of formatOptions" class="vec-hero__format-chip" (click)="toggleFormat(f.key)">{{ f.label }}</button>
+            <button *ngFor="let f of formatOptions"
+                    class="vec-hero__format-chip"
+                    [class.vec-hero__format-chip--active]="svc.filters().formats.includes(f.key)"
+                    [attr.aria-pressed]="svc.filters().formats.includes(f.key)"
+                    (click)="toggleFormatFromHero(f.key)">{{ f.label }}</button>
           </div>
         </div>
 
-        <!-- Stats -->
+        <!-- Stats — derived from actual mock data -->
         <div class="vec-hero__stats">
-          <div class="vec-hero__stat"><strong>1M+</strong> <span>Vectors</span></div>
+          <div class="vec-hero__stat"><strong>{{ formatNumber(svc.totalVectorCount()) }}</strong> <span>Vectors</span></div>
           <div class="vec-hero__stat-sep"></div>
-          <div class="vec-hero__stat"><strong>120K+</strong> <span>Free assets</span></div>
+          <div class="vec-hero__stat"><strong>{{ formatNumber(svc.totalFreeCount()) }}</strong> <span>Free assets</span></div>
           <div class="vec-hero__stat-sep"></div>
-          <div class="vec-hero__stat"><strong>4.2M+</strong> <span>Downloads</span></div>
+          <div class="vec-hero__stat"><strong>{{ formatNumber(svc.totalDownloadCount()) }}</strong> <span>Downloads</span></div>
           <div class="vec-hero__stat-sep"></div>
-          <div class="vec-hero__stat"><strong>98K+</strong> <span>Creators</span></div>
+          <div class="vec-hero__stat"><strong>{{ svc.totalCreatorCount() }}</strong> <span>Creators</span></div>
+        </div>
+
+        <!-- Scroll hint — tells users content continues below the hero -->
+        <div class="vec-hero__scroll-hint" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
         </div>
       </div>
     </div>

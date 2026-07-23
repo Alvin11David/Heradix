@@ -534,6 +534,24 @@
   cursor: pointer;
   transition: all .15s;
   &:hover { border-color: #f5820a; color: #f5820a; background: #f5820a10; }
+  &--active { border-color: #f5820a; color: #f5820a; background: #f5820a18; }
+}
+
+// ── Hero scroll hint ──────────────────────────────────────────────────────────
+
+.vec-hero__scroll-hint {
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+  color: var(--amx-text-muted);
+  opacity: 0.45;
+  animation: vec-scroll-bounce 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes vec-scroll-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.45; }
+  50%       { transform: translateY(7px); opacity: 0.75; }
 }
 
 // ── Hero stats ────────────────────────────────────────────────────────────────
