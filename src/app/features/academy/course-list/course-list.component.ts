@@ -1,8 +1,9 @@
-import { Component, ChangeDetectionStrategy, signal, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { AcademyService } from '../academy.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import { catchError, of } from 'rxjs';
 
 // ── UI shape used by the template ─────────────────────────────────────────────
@@ -19,10 +20,46 @@ interface AcademyCourse {
 
 // ── Fallback data shown when the API is unavailable ───────────────────────────
 const FALLBACK_COURSES: AcademyCourse[] = [
-  { id: 'course-1', title: 'Photoshop Essential: Complete Guide for Beginners',  instructor: 'Bruno Albin',       lessons: 30,  rating: 4.8, reviews: 5, level: 'BEGINNER',     thumb: '' },
-  { id: 'course-2', title: "Cinema 4D: The Beginner's Journey to Expert",        instructor: 'Juliano Carneiro', lessons: 128, rating: null, reviews: null, level: 'ADVANCED', thumb: '' },
-  { id: 'course-3', title: 'Carousel Creation: Advanced Techniques in Photoshop', instructor: 'Maicon Arouche',  lessons: 27,  rating: 5.0, reviews: 3, level: 'ADVANCED',     thumb: '' },
-  { id: 'course-4', title: 'Adobe Illustrator: Professional Visual Identity Creation', instructor: 'Luiz Ramos', lessons: 78,  rating: 5.0, reviews: 6, level: 'ADVANCED',     thumb: '' },
+  {
+    id: 'course-1',
+    title: 'Photoshop Essential: Complete Guide for Beginners',
+    instructor: 'Bruno Albin',
+    lessons: 30,
+    rating: 4.8,
+    reviews: 5,
+    level: 'BEGINNER',
+    thumb: 'https://picsum.photos/seed/photoshop-design/400/225',
+  },
+  {
+    id: 'course-2',
+    title: "Cinema 4D: The Beginner's Journey to Expert",
+    instructor: 'Juliano Carneiro',
+    lessons: 128,
+    rating: null,
+    reviews: null,
+    level: 'ADVANCED',
+    thumb: 'https://picsum.photos/seed/cinema4d-3d/400/225',
+  },
+  {
+    id: 'course-3',
+    title: 'Carousel Creation: Advanced Techniques in Photoshop',
+    instructor: 'Maicon Arouche',
+    lessons: 27,
+    rating: 5.0,
+    reviews: 3,
+    level: 'ADVANCED',
+    thumb: 'https://picsum.photos/seed/carousel-ps/400/225',
+  },
+  {
+    id: 'course-4',
+    title: 'Adobe Illustrator: Professional Visual Identity Creation',
+    instructor: 'Luiz Ramos',
+    lessons: 78,
+    rating: 5.0,
+    reviews: 6,
+    level: 'ADVANCED',
+    thumb: 'https://picsum.photos/seed/illustrator-vi/400/225',
+  },
 ];
 
 @Component({
@@ -35,15 +72,23 @@ const FALLBACK_COURSES: AcademyCourse[] = [
 })
 export class CourseListComponent implements OnInit {
   private readonly academySvc = inject(AcademyService);
+  private readonly authSvc    = inject(AuthService);
 
-  carouselIndex = signal(0);
+  carouselIndex  = signal(0);
   contentLoading = signal(true);
-  courses = signal<AcademyCourse[]>([]);
+  courses        = signal<AcademyCourse[]>([]);
 
-  readonly stats = [
-    { icon: 'M14.752 11.168l-3.197-2.132A1 1 0 0 0 10 9.87v4.263a1 1 0 0 0 1.555.832l3.197-2.132a1 1 0 0 0 0-1.664z M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z', value: '4', label: 'Courses' },
-    { icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', value: '+200', label: 'Lessons' },
-    { icon: 'M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0', value: '5k+', label: 'Students' },
+  /** True when the current user has an active Premium or Admin account */
+  readonly isPremium = computed(() => this.authSvc.isPremium());
+
+  /** Stat values derived from loaded course data so they stay accurate */
+  readonly courseCount  = computed(() => this.courses().length);
+  readonly lessonCount  = computed(() => this.courses().reduce((s, c) => s + c.lessons, 0));
+
+  readonly statIcons = [
+    'M14.752 11.168l-3.197-2.132A1 1 0 0 0 10 9.87v4.263a1 1 0 0 0 1.555.832l3.197-2.132a1 1 0 0 0 0-1.664z M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z',
+    'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+    'M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0',
   ];
 
   readonly highlights = [
@@ -58,7 +103,6 @@ export class CourseListComponent implements OnInit {
     ).subscribe({
       next: (data) => {
         if (data?.length) {
-          // Map API Course → AcademyCourse UI shape
           this.courses.set(data.map(c => ({
             id: c.id,
             title: c.title,

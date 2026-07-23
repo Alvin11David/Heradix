@@ -292,9 +292,33 @@
   background: #1a3a8f;
 }
 
+.amx-academy__thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+
+  .amx-academy__course-card:hover & {
+    transform: scale(1.04);
+  }
+}
+
 .amx-academy__thumb-bg {
   width: 100%;
   height: 100%;
+}
+
+.amx-academy__lock-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  backdrop-filter: blur(1px);
+  transition: opacity 0.2s;
 }
 
 .amx-academy__level-badge {
@@ -318,6 +342,15 @@
   gap: 8px;
 }
 
+.amx-academy__course-card--locked {
+  cursor: default;
+
+  &:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
 .amx-academy__card-title {
   font-size: 14px;
   font-weight: 700;
@@ -325,9 +358,106 @@
   margin: 0;
   line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.amx-academy__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 64px 24px;
+  background: var(--amx-card);
+  border-radius: 16px;
+  border: 1.5px dashed var(--amx-border);
+  text-align: center;
+}
+
+.amx-academy__empty-icon {
+  color: var(--amx-faint);
+  margin-bottom: 4px;
+}
+
+.amx-academy__empty-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--amx-text);
+  margin: 0;
+}
+
+.amx-academy__empty-sub {
+  font-size: 14px;
+  color: var(--amx-muted);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.amx-academy__premium-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 28px;
+  padding: 32px 24px;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--amx-orange) 6%, var(--amx-card)) 0%,
+    var(--amx-card) 100%);
+  border: 1.5px solid color-mix(in srgb, var(--amx-orange) 30%, var(--amx-border));
+  border-radius: 16px;
+  text-align: center;
+}
+
+.amx-academy__gate-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--amx-orange) 10%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--amx-orange);
+  margin-bottom: 4px;
+}
+
+.amx-academy__gate-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--amx-text);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.amx-academy__gate-sub {
+  font-size: 14px;
+  color: var(--amx-muted);
+  line-height: 1.65;
+  margin: 0;
+  max-width: 460px;
+}
+
+.amx-academy__gate-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, var(--amx-orange), var(--amx-orange-dark));
+  color: #fff;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  font-family: 'Lato', sans-serif;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--amx-orange) 30%, transparent);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--amx-orange) 35%, transparent);
+  }
 }
 
 .amx-academy__card-meta {
