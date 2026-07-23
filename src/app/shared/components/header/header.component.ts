@@ -26,7 +26,7 @@ const FORMAT_ITEMS = [
       <div class="amx-topbar__inner">
 
         <a routerLink="/marketplace" class="amx-logo" aria-label="Amarapix home">
-          <img src="https://i.postimg.cc/zD47BZ94/Asset-1-2x.png"
+          <img src="/assets/logo/blacklogo.png"
                alt="Amarapix"
                class="amx-logo__img"
                onerror="this.style.display='none';this.nextElementSibling.style.display='inline'" />
