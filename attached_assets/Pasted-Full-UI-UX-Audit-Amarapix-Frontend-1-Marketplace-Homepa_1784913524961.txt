@@ -1,0 +1,204 @@
+Full UI/UX Audit — Amarapix Frontend
+1. 🏠 Marketplace (Homepage) — /marketplace
+What's there: Hero AI prompt bar, Strategic Calendar carousel, asset grid below.
+
+Problems:
+
+The logo disappears on the marketplace route. The navbar shows only "All Categories" with no logo visible in the top-left — every other page (Academy, Icons, etc.) shows the full Amarapix logo. This is inconsistent and feels broken.
+Strategic Calendar dates are all in the past. Easter 29/03/2026, World Health Day 07/04/2026 — these are already months behind. The calendar is hardcoded/mocked and not real-time, making the "Important dates for your campaigns" label misleading and untrustworthy.
+The AI "Create Your Design!" search bar does nothing — there's no loading state, no result, no feedback when you submit. It's a dead input.
+No asset grid visible on first load — the page cuts off before showing any browsable assets, so a first-time visitor has no immediate reason to scroll. There's no CTA connecting the calendar to actual assets.
+500 and 404 errors on load — resources fail silently in the background with no user-facing feedback.
+2. 🔐 Auth — /auth/login (via /mockups redirect)
+What's there: Two-panel login card with email/password, Google SSO, "Remember me", forgot password.
+
+Problems:
+
+Navigating to /auth/login directly doesn't work — it redirects back to the marketplace instead of showing the login page. The route /mockups unexpectedly renders the login page, suggesting the auth guard redirect logic is misconfigured.
+The login form is very washed out / low contrast. All text and input borders appear in a very light, faded pink/beige palette. The "Login" button is barely readable — it renders as a very pale pink. This fails WCAG contrast requirements.
+WebGL crash — the SplashCursorComponent (a decorative animated background) throws TypeError: Cannot read properties of null (reading 'getExtension') in environments without full WebGL support. This means the right panel of the auth page may be completely broken for some users, with no fallback.
+Double logo problem — the login card shows both the Amarapix wordmark and a boxed logo icon side by side. This is visually redundant and looks unpolished.
+"Remembering me" label — the checkbox says "Remembering me" instead of "Remember me." This is a grammar error visible to all users.
+3. 💰 Pricing — /pricing
+What's there: Monthly/Annual toggle, three plan cards (Lite $9.9, Pro $19.9, Plus $34.9), feature lists.
+
+Problems:
+
+Prices display without proper decimal formatting. "$9.9" should be "$9.90", "$19.9" → "$19.90", "$34.9" → "$34.90". This looks unprofessional, especially on a payments page.
+Payment checkout is fully simulated. The code has a comment "API not wired up yet" and on submit it just writes to localStorage. If a user tries to subscribe, it silently pretends to succeed — there's no real payment, no error, no honest message that this feature is coming.
+No currency indicator for international users. The prices show "$" but the app has Ugandan context (UGX referenced elsewhere). Users outside the US don't know which currency applies.
+Annual toggle shows "Save 20%" but the plan cards don't visibly update pricing when you switch — or if they do, it's not obvious. There's no strikethrough on the original price or any animation to confirm the switch happened.
+The page cuts off the bottom of the plan cards — the scroll position means "Get started" CTAs are not visible on first load, reducing conversion.
+4. 🎓 Academy — /academy
+What's there: Hero banner with stats (4 courses, +200 lessons, 5k+ students), course carousel.
+
+Problems:
+
+Course thumbnail images are broken/missing. All four course cards show a grey placeholder icon with no actual thumbnail image — the image assets are not loading (404 or missing from the mock API).
+Course titles are truncated in the card. "Photoshop Es…", "Cinema 4D: T…", "Carousel Cre…" — all three-word titles are cut. The card is too narrow for the content.
+Stats are hardcoded and inconsistent. The hero says "4 Courses" and "+200 Lessons" but only 4 courses are shown in the carousel. "+200 Lessons" for 4 courses averages 50 lessons per course, which looks inflated and fake. "5k+ Students" with no backend makes this pure marketing copy masquerading as live data.
+"Exclusive Premium" gate is shown but not enforced. The badge says "Exclusive Premium" but users can browse the course listing without being logged in or having a premium account.
+No empty state or loading skeleton — if the API fails, the course section just silently renders nothing or a broken carousel.
+5. 🖼️ Icons — /icons
+What's there: Left sidebar with icon library list (Tabler, Lucide, MDI, etc.), platform filter chips, style browser.
+
+Problems:
+
+"SOON" badges on multiple libraries (Material Symbols, Feather Icons, Font Awesome) — these appear in the sidebar but do nothing when clicked. Clicking them causes no feedback — no tooltip, no "coming soon" message, no disable state. Users who tap them are confused.
+The style cards ("Neon Glow", "Glassmorphic", "3D Fluency") are truncated on the right — the carousel is cut off with no visible scroll affordance, making it unclear there's more content.
+The "Select" button in the icon toolbar has no visible selected state and its purpose is unclear without a tooltip.
+"AI" toggle switch next to the search bar — it has no label beyond the word "AI", no explanation of what enabling AI search actually does differently. No hover tooltip or contextual help.
+The icon grid below the fold is not visible in the initial viewport — after the style browser, users need to scroll to find the actual icons, and there's no visual teaser pulling them down.
+6. 🏹 Vectors — /vectors
+What's there: Full-page hero with gradient background, large headline, search bar, format chips, stats.
+
+Problems:
+
+Stats are hardcoded and implausibly large. "1M+ Vectors", "4.2M+ Downloads", "98K+ Creators" — these don't match any real backend data and differ wildly from the actual mock data. This undermines credibility.
+"AI Generate" and "Upload" buttons in the top-right appear above the navbar fold. Clicking "AI Generate" — it's unclear if this routes somewhere or opens a modal; no feedback is shown.
+The search bar and format chips (SVG, EPS, AI, PDF, CDR, DXF, PNG) do nothing — submitting a search has no result state, loading spinner, or empty state. The page doesn't navigate or filter.
+The gradient background hero takes the full viewport — there is no visible scroll hint (no arrow, no content peeking below the fold) to tell users there is more content beneath.
+7. 🖼️ PNG — /png
+What's there: Dark checkered hero (transparent background metaphor), search bar, trending tags, color filter swatches.
+
+Problems:
+
+ERR_BLOCKED_BY_RESPONSE.NotSameOrigin console error — an iframe or resource load is being blocked by browser security policies. This likely affects the mockup preview feature.
+The color swatches for "Search by color" are very small (~20×20px circles) with no labels. Users with color vision deficiency cannot tell which swatch is which — no tooltip, no accessible label.
+Trending keyword chips ("flowers", "laptop", "confetti"…) do nothing when clicked — no search is triggered, no navigation happens. They look interactive but are not functional.
+"120+ PNGs" stat at the bottom is extremely low for a page claiming "The World's Largest Free PNG Library." This inconsistency damages trust.
+"Upload a photo & remove the background" CTA button — it's not clear if this requires a login or premium account. Clicking it may silently fail or redirect, with no pre-click warning.
+8. 📄 Asset Detail — /marketplace/asset/:slug
+What's there: Large preview image (left), title + format selector + download panel (right).
+
+Problems:
+
+The preview image is completely wrong. The asset is called "Modern Business Flyer" but the preview shows a snow-capped mountain with a cross — a completely unrelated stock photo. This is because the component uses a hardcoded SLUG_TO_ID map and buildMockAsset() method that injects random placeholder images.
+Massive GSAP animation failures. The browser console shows 20+ GSAP warnings: .amx-ad__topbar not found, .amx-ad__preview-card not found, .amx-ad__panel not found. All entry animations are failing silently — the page loads statically instead of with its intended animated entrance.
+Breadcrumb shows "Templates" regardless of asset category — "Marketplace > Templates" is hardcoded, not dynamic based on the actual asset type.
+File sizes are fake-calculated. PSD shows "7.00 MB" and JPG shows "860 KB" — these are computed with a hardcoded multiplier (fileSizeBytes * 0.12) that has no relation to real file sizes.
+The "What's Included" panel is generic for every asset. "Editable file included", "No attribution required" — the same copy regardless of whether the asset is free or premium, PSD or PNG.
+9. 🖊️ Editor — /editor
+What's there: Full canvas editor — left panel (Layers, Templates, Elements, Photos, Text), center canvas, right Properties panel, top toolbar.
+
+Problems:
+
+"EDITING" badge on the title — this is redundant. Calling the document "Untitled Design" is fine, but the blue "EDITING" pill next to it is distracting and gives no useful information in context.
+"No images found. Check the Photos tab for stock photos." — this empty state in PROJECT IMAGES is good, but "Check the Photos tab" contradicts the left panel label which shows "Photos" as a nav tab. Confusing self-referential wording.
+Right panel says "Select an element to see its properties" — this is fine as an empty state, but there's no onboarding hint or "start here" affordance for new users who don't know what to do on a blank canvas.
+Templates tab — clicking it shows no templates are loaded (API 500 error). The tab shows without any loading indicator or error state — it simply renders empty.
+Canvas toolbar icons (Select, Text, Shape, Image, Draw, Pen) have no visible labels — icon-only buttons with no tooltips in the current state (in smaller viewports this is especially bad).
+500 Internal Server Error fires on load — likely the designs API or user workspace endpoint failing, but the editor shows no error notice to the user.
+10. 📂 Workspace — /workspace
+What's there: "My Workspaces" heading, "+ New Workspace" button, then immediately the footer.
+
+Problems:
+
+The entire content area between the heading and footer is empty. There are no workspace cards, no empty state illustration, no message like "You haven't created any workspaces yet." It's just white space — users have no idea if this is a bug or if they simply have no workspaces.
+The footer renders immediately below the minimal header — the "Trusted by creators at: Nike, Spotify, Google…" trust bar is the dominant visual element on this page, making it look like the workspace feature doesn't exist.
+"+ New Workspace" button — clicking it likely opens a modal or routes somewhere, but there's no visual feedback on hover and no description of what a "workspace" is for new users.
+11. 👤 Account — Profile /account/profile
+What's there: Avatar (initials), name, email, member date, role badge, personal info form.
+
+Problems:
+
+"Upload photo" button is disconnected from any visible action. Clicking it — there's no file picker, no modal, no crop tool shown. It may be broken or the canvas avatar cropper is behind an interaction that isn't obvious.
+The "Admin" badge is rendered inside the avatar card with a red shield icon — it looks like a warning or error state rather than a role indicator. Users might think something is wrong with their account.
+No "Save" button is visible in the viewport. The personal info form starts but the Submit/Save button is below the fold with no hint that it's there.
+No form validation feedback — if a user clears their name and saves, there's no inline validation error shown.
+12. ⚙️ Account — Settings /account/settings
+What's there: Three tabs (Profile, Security, Preferences), forms for display name, email, bio.
+
+Problems:
+
+Content duplication with Profile. The Settings > Profile tab shows the exact same "Display name" and "Email address" fields as /account/profile. Users are confused about where to make changes — two places for the same data.
+"Verified" badge on the email field — it's a nice touch but the badge appears inside the input field's right edge, which makes it look like a button or an icon that should be clicked.
+Bio textarea is very tall with tiny placeholder text — the empty placeholder "A short bio about yourself…" is lost in a large empty box with no character counter.
+No visible save/submit button in the current viewport — same issue as Profile. The form extends below the fold with no hint.
+13. 💳 Account — Subscription /account/subscription
+What's there: Current plan card (Premium $19/mo, Active), plan comparison grid below.
+
+Problems:
+
+"Simulate past-due" button is visible to end users. This is a developer/testing tool that should never appear in production. It sits right next to "Cancel subscription" where real users will see it and either click it accidentally or lose trust in the platform.
+Plan comparison grid below is inconsistent with the Pricing page. Here it shows "Free / Premium / Premium Annual / Team" — the Pricing page shows "Premium Lite / Premium Pro / Premium Plus." These are completely different plan names for what appears to be the same product. Users who visited Pricing are now confused.
+"Cancel subscription" button — no confirmation dialog is hinted at, no consequences are shown. Clicking a destructive action like this should have a warning, but the button looks the same as any other action button.
+The plan the user is on ("Premium") is highlighted with "Current" but other plans show no upgrade CTA or price. Users who want to upgrade have to scroll and guess.
+14. 📥 Account — Downloads /account/downloads
+What's there: Table of download history with ASSET, TYPE, DATE, SIZE, FORMAT, STATUS columns.
+
+Problems:
+
+This is one of the cleanest pages in the app — the table is well-structured and readable.
+However: "Re-download" action is missing. Each row only shows status ("Completed") but no button to re-download the file. The most obvious action a user wants on this page is completely absent.
+"20 downloads total" — the count is shown but there's no pagination control visible. It's unclear if all 20 are on this page or if more pages exist.
+The asset icon column shows a generic file icon regardless of type — no differentiation between Photo, Vector, Mockup, etc. (the TYPE badge handles it but the icon doesn't).
+15. 📊 Account — Quota /account/quota
+What's there: Three stat cards (Today: 0, This Month: 0, All Time: 0), empty state below.
+
+Problems:
+
+All three values show 0 with "Unlimited daily/monthly downloads" label — this is contradictory. If downloads are unlimited, why show a quota tracker at all? The page exists but its purpose is unclear when everything reads zero and unlimited simultaneously.
+No progress bar or visual gauge — for users on limited plans (e.g., 5 downloads/day on Lite), there is no visual indicator of how much quota is used vs. remaining. This should be the core UI of this page.
+Empty state icon is a tiny grey heartbeat line — this looks like a medical/health icon, not a download/usage metaphor.
+16. 💳 Account — Payment Methods /account/payment-methods
+What's there: Visa, Mastercard, PayPal, MTN Mobile Money cards listed.
+
+Problems:
+
+"Remove" is shown directly on the default card (Visa, marked "Default"). If a user accidentally clicks Remove on their default payment method with no confirmation dialog, they lose their payment method. There's no "Are you sure?" gate visible.
+The card brand logos (Visa, Mastercard) appear as both a small icon in the card thumbnail AND as a text label in the header — redundant.
+"Mobile Money available" indicator is floating in the top-right of the filter area with a green dot. It looks like a status badge, not a feature announcement — its purpose is confusing at a glance.
+17. ⚠️ Account — Danger Zone /account/danger-zone
+What's there: "Export your data" card, "Delete account" card partially visible.
+
+Problems:
+
+"Download your data" button uses the same orange brand color as all primary action buttons across the app. For a destructive/sensitive action section, the visual language should signal caution (amber or red), not the same call-to-action style used for "Get Premium" or "Search."
+"Delete account" — the section is cut off at the fold. The button and any confirmation warning is not visible unless the user scrolls. The visual hierarchy doesn't signal danger at all — there's no red color, no warning icon on the section itself (only a small triangle icon).
+18. 🤝 Affiliate / Contributor — /affiliate
+What's there: "Contributor Dashboard" heading. Then the footer. That's it.
+
+Problems:
+
+The page is completely empty. Just a heading and the footer with the trusted-brands strip. No content, no stats, no upload portal, no earnings, no table, no empty state. This is an entirely unbuilt page — when users navigate here, they see a broken experience with no explanation.
+500 errors fire in the console but nothing is shown to the user.
+19. 🛡️ Admin Panel — /admin
+What's there: Left sidebar (Users, Assets, Submissions toggle, Analytics), main area shows Asset Submission Queue with action buttons.
+
+Problems:
+
+The sidebar "Submissions" toggle is a toggle switch (on/off) instead of a navigation link. Toggling it doesn't appear to do anything meaningful — it's unclear what it enables or disables.
+"Users" and "Assets" sidebar links route to the same VectorQueueComponent (they are not implemented). Clicking them shows the same submission queue, making the admin navigation misleading.
+"Analytics" link is present in the sidebar but also routes to the same page — no analytics dashboard exists.
+The action buttons (✓, ✗, flag, eye) on each row are icon-only with no tooltips or labels. Admins clicking the wrong button could approve or reject assets accidentally.
+"large-file" and "low-quality" tags on submissions are styled as red tags but have no explanation of what threshold triggered them or what action is expected.
+20. 🖨️ Print — /print
+What's there: Green hero with promo banner ("15% OFF your first order"), "Start Printing" / "Upload Print" tabs, product category grid.
+
+Problems:
+
+The promo banner says code "FIRSTPRINT15" — but the "Claim Offer" button leads to no checkout flow. Clicking it does nothing (or it scrolls, unclear). Users who copy the code and try to use it at checkout will have no place to apply it.
+"Free Delivery Over UGX 150,000" — this is specific to Uganda. If the app is used internationally, this is confusing or irrelevant. There's no currency switcher on this page.
+The image carousel on the right (5 dots) — there are no left/right arrows visible for manual navigation, only auto-scroll dots. Users on mobile or who want to control it cannot.
+The /print/configurator route redirects to the marketplace instead of opening the print configurator — the route is broken.
+21. 🎨 Collections — /collections
+What's there: Hero headline, search, All/Public/Private tabs, 8 collection cards.
+
+Problems:
+
+The animated headline "Organise your creative world" has a "COLLECTIONS" label badge floating in the top-right corner of the section — it looks like an admin tag or debug label, not a designed UI element.
+All 4 visible collection thumbnails show the same 4 images (Safe Birth Campaign, World Health Day, Worship Fufil, Day of African Child) repeated across all collection cards. Every card looks identical — the visual distinction between collections is lost.
+No hover state or preview on collection cards — users don't know what's inside until they click, and there's no "X files" preview on hover.
+"Private" badge looks the same visual weight as "Public" — both are just overlaid chips with icons. There's no clear visual hierarchy distinguishing your private collections from public ones.
+🌐 Global / Cross-Cutting Issues
+Issue	Severity
+404 + 500 errors fire on almost every page — resources fail silently, no toast or error notification	🔴 High
+MOCKUUUPS_API_KEY is missing — the Mockups page crashes with a 401 and falls back to mock data, with a WebGL crash on top	🔴 High
+Auth route redirect logic is broken — /auth/login does not render the login form; /mockups shows the login page instead	🔴 High
+Dark mode toggle (sun icon in navbar) — exists but its state and effect are not consistent across all pages	🟡 Medium
+The user avatar circle (top-right "KP" orange bubble) — no dropdown menu appears on click; it looks interactive but clicking may do nothing for non-admin users	🟡 Medium
+Footer appears on protected/authenticated pages (Workspace, Affiliate) — showing "Trusted by Nike, Spotify, Google" inside an authenticated user dashboard is off-brand and wastes vertical space	🟡 Medium
+All prices globally lack ".00" formatting ($9.9, $19, $34.9) — inconsistent number formatting throughout	🟡 Medium
+No 404 page — navigating to an unknown route shows no not-found UI, just a blank or redirect	🟠 Medium
+No mobile responsive testing — at 1280px the UI looks functional, but many layouts (Icons sidebar, Editor toolbars, Admin table) will break badly on mobile

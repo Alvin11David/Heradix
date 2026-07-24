@@ -132,25 +132,33 @@
       <div class="amx-ad__checklist-card">
         <div class="amx-ad__checklist-label">What's Included</div>
         <ul class="amx-ad__checklist">
-          <li>
+          <li *ngIf="asset()!.isEditable">
             <span class="amx-ad__check-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
-            Editable file included
+            Editable source file ({{ asset()!.format }})
+          </li>
+          <li *ngIf="!asset()!.isEditable">
+            <span class="amx-ad__check-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+            {{ asset()!.format }} file — ready to use as-is
           </li>
           <li>
             <span class="amx-ad__check-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
-            For commercial &amp; personal projects
+            {{ asset()!.isPremium ? 'Commercial use — Premium licence' : 'Free for personal &amp; commercial use' }}
           </li>
           <li>
             <span class="amx-ad__check-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
-            No attribution required
+            {{ asset()!.isPremium ? 'Attribution not required' : 'Attribution appreciated but not required' }}
           </li>
           <li>
             <span class="amx-ad__check-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
-            Quality verified
+            Quality verified by Amarapix editors
           </li>
           <li>
             <span class="amx-ad__check-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
-            Instant download
+            Instant download — no waiting
+          </li>
+          <li *ngIf="asset()!.isEditable">
+            <span class="amx-ad__check-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+            Open in canvas editor — no software needed
           </li>
         </ul>
       </div>
@@ -171,6 +179,7 @@
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
           </svg>
           Available Formats
+          <span class="amx-ad__formats-size-note">approx. sizes</span>
         </p>
         <div class="amx-ad__formats-grid">
           <button

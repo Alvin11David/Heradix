@@ -126,6 +126,9 @@ export class AssetDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loading.set(false);
       this.selectedFormat.set(a.format);
 
+      // Run entry animations after Angular renders the newly visible DOM
+      requestAnimationFrame(() => setTimeout(() => this.runEntryAnimations(), 0));
+
       this.svc.getSimilarAssets(a.id).pipe(
         timeout(5000),
         catchError(() => of(this.buildMockSimilar(slug)))
@@ -137,73 +140,55 @@ export class AssetDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
+    // Animations are deferred until asset data loads and the conditional DOM renders.
+    // See runEntryAnimations() called from ngOnInit subscribe.
+  }
+
+  private runEntryAnimations(): void {
+    // Guard: skip if elements aren't in the DOM yet (data still loading)
+    const host = this.el.nativeElement as HTMLElement;
+    if (!host.querySelector('.amx-ad__topbar')) return;
+
+    this.gsapCtx?.revert();
     this.gsapCtx = gsap.context(() => {
+      const topbar = host.querySelector('.amx-ad__topbar');
+      if (topbar) {
+        gsap.fromTo(topbar, { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' });
+      }
 
-      gsap.fromTo('.amx-ad__topbar',
-        { y: -30, opacity: 0 },
-        {
-          scrollTrigger: {
-            trigger: '.amx-ad__topbar', start: 'top 80%',
-            toggleActions: 'play none none none',
-          },
-          y: 0, opacity: 1,
-          duration: 0.5, ease: 'power3.out',
-        }
-      );
+      const previewCard = host.querySelector('.amx-ad__preview-card');
+      if (previewCard) {
+        gsap.fromTo(previewCard, { x: -50, opacity: 0, scale: 0.97 }, { x: 0, opacity: 1, scale: 1, duration: 0.85, ease: 'power4.out' });
+      }
 
-      gsap.fromTo('.amx-ad__preview-card',
-        { x: -50, opacity: 0, scale: 0.97 },
-        {
-          scrollTrigger: {
-            trigger: '.amx-ad__grid', start: 'top 80%',
-            toggleActions: 'play none none none',
-          },
-          x: 0, opacity: 1, scale: 1,
-          duration: 0.85, ease: 'power4.out',
-        }
-      );
+      const panel = host.querySelector('.amx-ad__panel');
+      if (panel) {
+        gsap.fromTo(panel, { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: 'power3.out' });
+      }
 
-      gsap.fromTo('.amx-ad__panel',
-        { x: 40, opacity: 0 },
-        {
-          scrollTrigger: {
-            trigger: '.amx-ad__grid', start: 'top 80%',
-            toggleActions: 'play none none none',
-          },
-          x: 0, opacity: 1,
-          duration: 0.7, ease: 'power3.out',
-        }
-      );
-
-      gsap.fromTo('.amx-ad__qa-btn',
-        { y: 24, opacity: 0 },
-        {
-          scrollTrigger: {
-            trigger: '.amx-ad__actions-strip', start: 'top 85%',
-            toggleActions: 'play none none none',
-          },
-          y: 0, opacity: 1,
-          duration: 0.45, stagger: 0.08, ease: 'back.out(1.7)',
-        }
-      );
-
-      gsap.fromTo('.amx-ad__related-header',
-        { y: 20, opacity: 0 },
-        {
-          scrollTrigger: {
-            trigger: '.amx-ad__related', start: 'top 85%',
-            toggleActions: 'play none none none',
-          },
-          y: 0, opacity: 1,
-          duration: 0.6, ease: 'power3.out',
-        }
-      );
-
-    }, this.el.nativeElement);
+      const qaBtns = host.querySelectorAll('.amx-ad__qa-btn');
+      if (qaBtns.length) {
+        gsap.fromTo(qaBtns, { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'back.out(1.7)', delay: 0.3 });
+      }
+    }, host);
   }
 
   ngOnDestroy(): void {
     this.gsapCtx?.revert();
+  }
+
+  private categoryForFormat(format: string): { id: string; name: string; slug: string } {
+    const map: Record<string, { id: string; name: string; slug: string }> = {
+      PSD:    { id: 'cat-1', name: 'Templates',   slug: 'templates'   },
+      AI:     { id: 'cat-2', name: 'Vectors',      slug: 'vectors'     },
+      VECTOR: { id: 'cat-2', name: 'Vectors',      slug: 'vectors'     },
+      PHOTO:  { id: 'cat-3', name: 'Photos',       slug: 'photos'      },
+      VIDEO:  { id: 'cat-4', name: 'Videos',       slug: 'videos'      },
+      PPT:    { id: 'cat-5', name: 'Presentations',slug: 'presentations'},
+      AI_GEN: { id: 'cat-6', name: 'AI Generated', slug: 'ai-generated'},
+      PNG:    { id: 'cat-7', name: 'PNGs',         slug: 'pngs'        },
+    };
+    return map[format] ?? { id: 'cat-1', name: 'Templates', slug: 'templates' };
   }
 
   private buildMockAsset(slug: string): Asset {
@@ -218,22 +203,24 @@ export class AssetDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       'ai-landscape-pack':          { id: 'a8', title: 'AI Landscape Pack',              format: 'AI_GEN', fileSizeBytes: 22_000_000, isPremium: true,  isEditable: false },
     };
     const overrides = slugMap[slug] ?? {};
+    const format = overrides.format ?? 'PSD';
+    const category = this.categoryForFormat(format);
     return {
       id:            overrides.id    ?? SLUG_TO_ID[slug] ?? slug,
       title:         overrides.title ?? slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
       slug,
       description:   'A high-quality, professionally designed asset ready for your next creative project. Fully customisable and optimised for digital and print use.',
-      format:        overrides.format       ?? 'PSD',
+      format,
       orientation:   'LANDSCAPE',
       isPremium:     overrides.isPremium    ?? false,
       isEditable:    overrides.isEditable   ?? true,
       previewUrl:    `https://picsum.photos/seed/${slug}/900/675`,
       thumbnailUrl:  `https://picsum.photos/seed/${slug}/400/300`,
       fileSizeBytes: overrides.fileSizeBytes ?? 7_340_000,
-      downloadCount: Math.floor(Math.random() * 8000) + 500,
+      downloadCount: 1240 + (slug.length * 137 % 6500),
       status:        'ACTIVE',
-      categoryId:    'cat-1',
-      category:      { id: 'cat-1', name: 'Templates', slug: 'templates' },
+      categoryId:    category.id,
+      category,
       tags: [
         { id: 't1', name: 'Design' },
         { id: 't2', name: 'Creative' },

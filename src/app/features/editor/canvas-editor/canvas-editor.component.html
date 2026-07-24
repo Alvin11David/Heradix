@@ -8,7 +8,6 @@
         </svg>
       </button>
       <span class="tb-title">{{ projectTitle() }}</span>
-      <span class="tb-badge">Editing</span>
     </div>
 
     <div class="tb-center">
@@ -401,7 +400,7 @@
           </div>
         </div>
         <ng-template #emptyAssets>
-          <div class="panel-empty" *ngIf="!loadingAssets()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><p>No images found.<br/><small>Check the <b>Photos</b> tab for stock photos.</small></p></div>
+          <div class="panel-empty" *ngIf="!loadingAssets()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><p>No project images yet.<br/><small>Browse free stock photos in the <b>Photos</b> panel, or upload your own using the toolbar above.</small></p></div>
         </ng-template>
         <div class="im-loading" *ngIf="loadingAssets()"><span>Loading…</span></div>
 
@@ -1451,11 +1450,26 @@
         </ng-container>
 
         <ng-template #noSelection>
-          <div class="panel-empty">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.25">
-              <circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <div class="panel-empty panel-empty--onboarding">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.2">
+              <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
             </svg>
-            <p>Select an element to see its properties.</p>
+            <p class="panel-empty__headline">Nothing selected</p>
+            <p class="panel-empty__hint">Click any object on the canvas to edit its colour, size, font, or opacity — properties appear here.</p>
+            <div class="panel-empty__tips">
+              <span class="panel-empty__tip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                Press <kbd>T</kbd> to add text
+              </span>
+              <span class="panel-empty__tip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                Press <kbd>R</kbd> to draw a shape
+              </span>
+              <span class="panel-empty__tip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Use <b>Upload</b> to add your images
+              </span>
+            </div>
           </div>
         </ng-template>
       </div>
