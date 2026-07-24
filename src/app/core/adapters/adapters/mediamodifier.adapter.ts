@@ -1,7 +1,7 @@
-import { MmMockup } from '../services/mediamodifier-api.service';
+import { MmMockup } from '../../services/mediamodifier-api.service';
 import {
   MockupAsset, MockupCategory, MockupSceneType,
-} from '../models/mockup.model';
+} from '../../models/mockup.model';
 import { inferCategory } from './category-inference';
 
 const SOURCE_CREATOR = {

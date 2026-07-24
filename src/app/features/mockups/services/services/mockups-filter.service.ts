@@ -2,8 +2,8 @@ import { Injectable, signal, computed } from '@angular/core';
 import {
   MockupAsset, MockupCategory, MockupFilterState,
   MockupSceneType, MockupOrientation, MockupLicense, MockupSortMode,
-} from '../../../core/models/mockup.model';
-import { MockupWithSource } from '../../../core/repositories/mockups.repository';
+} from '../../../../core/models/mockup.model';
+import { MockupWithSource } from '../../../../core/repositories/mockups.repository';
 
 const DEFAULT_FILTER: MockupFilterState = {
   query: '',

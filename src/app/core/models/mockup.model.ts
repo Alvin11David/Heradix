@@ -88,6 +88,10 @@ export interface MockupCollection {
   createdAt: string;
 }
 
+export interface MockupWithSource extends MockupAsset {
+  source?: 'mockuuups' | 'mediamodifier' | 'local';
+}
+
 export interface MockupFilterState {
   query: string;
   categoryId: MockupCategory | null;

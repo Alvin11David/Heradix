@@ -1,3 +1,4 @@
+import type { AppError } from './errors';
 export type Result<T, E = AppError> = Success<T> | Failure<E>;
 
 export interface Success<T> {

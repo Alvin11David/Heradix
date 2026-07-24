@@ -310,9 +310,21 @@ export class PngComponent implements OnInit {
       const zip = new JSZip();
       const results = await Promise.allSettled(
         items.map(async (png) => {
-          const res = await fetch(png.url);
-          if (!res.ok) throw new Error(`fetch failed for ${png.slug}`);
-          const blob = await res.blob();
+          // Some external CDNs return Cross-Origin-Resource-Policy: same-origin,
+          // which blocks the fetch with ERR_BLOCKED_BY_RESPONSE.NotSameOrigin.
+          // We use a try/catch so the allSettled fallback handles those gracefully.
+          let blob: Blob;
+          try {
+            const res = await fetch(png.url, { mode: 'cors' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            blob = await res.blob();
+          } catch {
+            // Attempt without CORS headers (no-cors gives opaque blob but still
+            // allows the file to be added to the zip for same-origin assets).
+            const res = await fetch(png.url, { mode: 'no-cors' });
+            blob = await res.blob();
+            if (blob.size === 0) throw new Error(`blocked or empty: ${png.slug}`);
+          }
           zip.file(`${png.slug}.png`, blob);
           return png;
         })

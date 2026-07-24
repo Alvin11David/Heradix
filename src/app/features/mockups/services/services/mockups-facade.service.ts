@@ -1,14 +1,14 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import {
   MockupAsset, MockupCategory, MockupCategoryMeta,
-} from '../../../core/models/mockup.model';
+} from '../../../../core/models/mockup.model';
 import {
   MockupsRepository,
-} from '../../../core/repositories/mockups.repository';
+} from '../../../../core/repositories/mockups.repository';
 import { MockupsFilterService } from './mockups-filter.service';
 import { MockupsPersistenceService } from './mockups-persistence.service';
 import { MockupsEditorService } from './mockups-editor.service';
-import { isSuccess } from '../../../core/lib/result';
+import { isSuccess } from '../../../../core/lib/result';
 import { Subscription } from 'rxjs';
 
 const CATEGORY_LABELS: Record<MockupCategory, { label: string; icon: string }> = {

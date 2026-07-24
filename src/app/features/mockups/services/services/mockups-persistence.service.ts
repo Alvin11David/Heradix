@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
-import { MockupCollection } from '../../../core/models/mockup.model';
-import { Result, success, failure } from '../../../core/lib/result';
-import { AppError } from '../../../core/lib/errors';
+import { MockupCollection } from '../../../../core/models/mockup.model';
+import { Result, success, failure } from '../../../../core/lib/result';
+import { AppError } from '../../../../core/lib/errors';
 
 const FAVS_KEY = 'amx_mockup_favs';
 const COLLECTIONS_KEY = 'amx_mockup_collections';

@@ -22,10 +22,10 @@ export class MockupsFacade {
   readonly error = signal<string | null>(null);
   readonly loaded = signal(false);
 
-  readonly categories = MOCKUP_CATEGORIES;
-  readonly trendingTags = MOCKUP_TRENDING_TAGS;
-  readonly trendingColors = MOCKUP_TRENDING_COLORS;
-  readonly seasonalCollections = MOCKUP_SEASONAL_COLLECTIONS;
+  readonly categories = signal(MOCKUP_CATEGORIES);
+  readonly trendingTags = signal(MOCKUP_TRENDING_TAGS);
+  readonly trendingColors = signal(MOCKUP_TRENDING_COLORS);
+  readonly seasonalCollections = signal(MOCKUP_SEASONAL_COLLECTIONS);
 
   readonly filteredAssets = computed(() => {
     return this.filterService.filterAssets(this.assets(), this.persistence.favorites());
