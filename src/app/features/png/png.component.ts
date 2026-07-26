@@ -3,7 +3,7 @@ import {
   inject, signal, computed, effect, ElementRef, ViewChild,
 } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { PngService } from './png.service';
 import { PngAsset, PngSortMode, PngViewMode, PngCollection } from '../../core/models/png.model';
 import { removeBackgroundFromImage, resizeImageToDataUrl } from '../../shared/utils/bg-removal';
@@ -72,10 +72,13 @@ const CURATED_PACKS = [
 })
 export class PngComponent implements OnInit {
   private readonly router  = inject(Router);
+  private readonly route   = inject(ActivatedRoute);
   private readonly location = inject(Location);
   readonly svc             = inject(PngService);
   private readonly auth    = inject(AuthService);
   ngOnInit(): void {
+    const cat = this.route.snapshot.queryParamMap.get('category');
+    if (cat) { this.svc.setCategory(cat); }
     this.svc.search();
   }
   readonly categories    = this.svc.categories;

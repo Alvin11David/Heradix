@@ -771,4 +771,123 @@
       padding-left: 26px;
     }
   }
+
+  /* ── Rich card variant (PNG / mega-dropdown) ─────────────────── */
+  &--rich {
+    left: 0;
+    transform: translateX(-10%);
+    padding: 0;
+    min-width: 580px;
+    max-width: 640px;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.16), 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--amx-border);
+    background: var(--amx-bg-soft);
+  }
+
+  &__header-label {
+    font-family: 'Lato', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--amx-muted);
+  }
+
+  &__header-all {
+    font-family: 'Lato', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--amx-orange);
+    text-decoration: none;
+    transition: opacity 0.15s;
+    &:hover { opacity: 0.75; }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    padding: 8px;
+    background: var(--amx-bg-soft);
+  }
+
+  &__card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    background: var(--amx-elevated);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+
+    &:hover {
+      background: var(--amx-card, var(--amx-elevated));
+      border-color: var(--amx-orange);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(245, 130, 10, 0.1);
+
+      .amx-cat-dropdown__card-label { color: var(--amx-orange); }
+      .amx-cat-dropdown__card-arrow { opacity: 1; transform: translateX(2px); color: var(--amx-orange); }
+    }
+  }
+
+  &__card-emoji {
+    font-size: 22px;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--amx-bg-soft);
+    border-radius: 9px;
+  }
+
+  &__card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__card-label {
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--amx-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.15s;
+  }
+
+  &__card-desc {
+    font-family: 'Lato', sans-serif;
+    font-size: 11.5px;
+    color: var(--amx-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__card-arrow {
+    flex-shrink: 0;
+    color: var(--amx-faint);
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.15s, color 0.15s;
+  }
 }

@@ -4,16 +4,40 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ThemeService } from '../../../core/theme/theme.service';
 
+interface DropdownLink {
+  label: string;
+  emoji: string;
+  desc: string;
+  route: string;
+  queryParams?: Record<string, string>;
+}
+
 interface CategoryGroup {
   label: string;
   route: string;
   hasDropdown?: boolean;
   dropdownItems?: string[];
+  dropdownLinks?: DropdownLink[];
 }
 
 const FORMAT_ITEMS = [
   'All Images', 'PSDs', 'Vector', 'PNGs', 'Photos',
   'Videos', 'Mockups', 'SVGs', 'Motion Graphics', 'Templates',
+];
+
+const PNG_DROPDOWN_LINKS: DropdownLink[] = [
+  { label: 'All PNGs',          emoji: '🖼️',  desc: 'Browse every category',       route: '/png' },
+  { label: 'Business & Office', emoji: '💼',  desc: 'Laptops, tools & workspace',   route: '/png', queryParams: { category: 'business' } },
+  { label: 'Technology',        emoji: '💻',  desc: 'Devices, gadgets & circuits',  route: '/png', queryParams: { category: 'technology' } },
+  { label: 'Nature & Plants',   emoji: '🌿',  desc: 'Leaves, flowers & landscapes', route: '/png', queryParams: { category: 'nature' } },
+  { label: 'Animals',           emoji: '🐾',  desc: 'Pets, wildlife & creatures',   route: '/png', queryParams: { category: 'animals' } },
+  { label: 'Food & Drink',      emoji: '🍕',  desc: 'Meals, snacks & beverages',    route: '/png', queryParams: { category: 'food' } },
+  { label: 'Fashion & Beauty',  emoji: '👗',  desc: 'Clothes, bags & accessories',  route: '/png', queryParams: { category: 'fashion' } },
+  { label: 'Holidays & Events', emoji: '🎉',  desc: 'Seasonal & celebration assets',route: '/png', queryParams: { category: 'holiday' } },
+  { label: 'Sports & Fitness',  emoji: '⚽',  desc: 'Gear, balls & equipment',      route: '/png', queryParams: { category: 'sports' } },
+  { label: 'Travel',            emoji: '✈️',  desc: 'Maps, bags & destinations',    route: '/png', queryParams: { category: 'travel' } },
+  { label: 'Money & Finance',   emoji: '💰',  desc: 'Coins, cards & charts',        route: '/png', queryParams: { category: 'money' } },
+  { label: 'Social & Media',    emoji: '📱',  desc: 'Phones, icons & social UI',    route: '/png', queryParams: { category: 'social' } },
 ];
 
 @Component({
@@ -232,7 +256,7 @@ const FORMAT_ITEMS = [
       <div class="amx-catnav__inner">
         <ul class="amx-catnav__list" role="list">
           <li *ngFor="let cat of categories" class="amx-catnav__item"
-              (mouseenter)="cat.dropdownItems && openCatDropdown(cat.label)"
+              (mouseenter)="(cat.dropdownItems || cat.dropdownLinks) && openCatDropdown(cat.label)"
               (mouseleave)="closeCatDropdown()">
             <a [routerLink]="cat.route"
                class="amx-catnav__link"
@@ -244,7 +268,30 @@ const FORMAT_ITEMS = [
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
             </a>
-            <ul *ngIf="cat.dropdownItems && openDropdown === cat.label"
+            <!-- Rich card dropdown (PNG) -->
+            <div *ngIf="cat.dropdownLinks && openDropdown === cat.label"
+                 class="amx-cat-dropdown amx-cat-dropdown--rich" role="menu">
+              <div class="amx-cat-dropdown__header">
+                <span class="amx-cat-dropdown__header-label">{{ cat.label }} Categories</span>
+                <a [routerLink]="cat.route" class="amx-cat-dropdown__header-all">View all →</a>
+              </div>
+              <div class="amx-cat-dropdown__grid">
+                <a *ngFor="let link of cat.dropdownLinks"
+                   [routerLink]="link.route"
+                   [queryParams]="link.queryParams || {}"
+                   class="amx-cat-dropdown__card"
+                   role="menuitem">
+                  <span class="amx-cat-dropdown__card-emoji">{{ link.emoji }}</span>
+                  <span class="amx-cat-dropdown__card-body">
+                    <span class="amx-cat-dropdown__card-label">{{ link.label }}</span>
+                    <span class="amx-cat-dropdown__card-desc">{{ link.desc }}</span>
+                  </span>
+                  <svg class="amx-cat-dropdown__card-arrow" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+              </div>
+            </div>
+            <!-- Legacy plain dropdown -->
+            <ul *ngIf="cat.dropdownItems && !cat.dropdownLinks && openDropdown === cat.label"
                 class="amx-cat-dropdown" role="menu">
               <li *ngFor="let item of cat.dropdownItems"
                   class="amx-cat-dropdown__item"
@@ -329,10 +376,7 @@ export class HeaderComponent {
     },
     { label: 'Mockups', route: '/mockups' },
     { label: 'Icons',   route: '/icons' },
-    {
-      label: 'PNG', route: '/png', hasDropdown: true,
-      dropdownItems: ['All PNGs', 'Business & Office', 'Technology', 'Nature & Plants', 'Animals', 'Food & Drink', 'Holidays & Events'],
-    },
+    { label: 'PNG', route: '/png', hasDropdown: true, dropdownLinks: PNG_DROPDOWN_LINKS },
     { label: 'Vectors', route: '/vectors' },
     {
       label: 'Photos', route: '/marketplace', hasDropdown: true,
