@@ -40,6 +40,26 @@ const PNG_DROPDOWN_LINKS: DropdownLink[] = [
   { label: 'Social & Media',    emoji: '📱',  desc: 'Phones, icons & social UI',    route: '/png', queryParams: { category: 'social' } },
 ];
 
+const PHOTOS_DROPDOWN_LINKS: DropdownLink[] = [
+  { label: 'All Photos',     emoji: '📷',  desc: 'Explore every photo collection',  route: '/marketplace', queryParams: { type: 'photos' } },
+  { label: 'AI Generated',   emoji: '🤖',  desc: 'Stunning AI-crafted imagery',     route: '/marketplace', queryParams: { type: 'photos', category: 'ai' } },
+  { label: 'City',           emoji: '🏙️', desc: 'Urban scenes & architecture',     route: '/marketplace', queryParams: { type: 'photos', category: 'city' } },
+  { label: 'Landscapes',     emoji: '🌄',  desc: 'Mountains, skies & scenic views', route: '/marketplace', queryParams: { type: 'photos', category: 'landscapes' } },
+  { label: 'People',         emoji: '🧑‍🤝‍🧑', desc: 'Portraits, lifestyle & candids', route: '/marketplace', queryParams: { type: 'photos', category: 'people' } },
+  { label: 'Animals',        emoji: '🦁',  desc: 'Wildlife, pets & creatures',      route: '/marketplace', queryParams: { type: 'photos', category: 'animals' } },
+  { label: 'Sports',         emoji: '🏆',  desc: 'Action shots & athletic moments', route: '/marketplace', queryParams: { type: 'photos', category: 'sports' } },
+  { label: 'Branding',       emoji: '🎨',  desc: 'Product shots & brand stories',   route: '/marketplace', queryParams: { type: 'photos', category: 'branding' } },
+];
+
+const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
+  { label: 'Templates',      emoji: '📄',  desc: 'Ready-made design layouts',       route: '/marketplace', queryParams: { type: 'templates' } },
+  { label: 'Fonts',          emoji: '🔤',  desc: 'Typefaces for every project',     route: '/marketplace', queryParams: { type: 'fonts' } },
+  { label: 'Textures',       emoji: '🪨',  desc: 'Surfaces, grains & materials',    route: '/marketplace', queryParams: { type: 'textures' } },
+  { label: 'Backgrounds',    emoji: '🌌',  desc: 'Gradients, patterns & scenes',    route: '/marketplace', queryParams: { type: 'backgrounds' } },
+  { label: 'Motion Graphics', emoji: '🎞️', desc: 'Animated elements & transitions', route: '/marketplace', queryParams: { type: 'motion' } },
+  { label: 'Sound Effects',  emoji: '🔊',  desc: 'Audio clips for your projects',   route: '/marketplace', queryParams: { type: 'audio' } },
+];
+
 @Component({
   selector: 'amx-header',
   standalone: true,
@@ -378,11 +398,8 @@ export class HeaderComponent {
     { label: 'Icons',   route: '/icons' },
     { label: 'PNG', route: '/png', hasDropdown: true, dropdownLinks: PNG_DROPDOWN_LINKS },
     { label: 'Vectors', route: '/vectors' },
-    {
-      label: 'Photos', route: '/marketplace', hasDropdown: true,
-      dropdownItems: ['All Photos', 'AI Generated', 'City', 'Landscapes', 'People', 'Animals', 'Sports', 'Branding'],
-    },
+    { label: 'Photos', route: '/marketplace', hasDropdown: true, dropdownLinks: PHOTOS_DROPDOWN_LINKS },
     { label: 'Videos', route: '/marketplace' },
-    { label: 'Other Categories', route: '/marketplace', hasDropdown: true },
+    { label: 'Other Categories', route: '/marketplace', hasDropdown: true, dropdownLinks: OTHER_CATEGORIES_LINKS },
   ];
 }
