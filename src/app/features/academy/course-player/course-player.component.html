@@ -39,7 +39,7 @@
 
     <div class="amx-player__left">
 
-      <div class="amx-player__card amx-player__card--video">
+      <div class="amx-player__card amx-player__card--video" #playerWrap>
       <div class="amx-player__video-wrap">
         <div class="amx-player__screen" [class.amx-player__screen--playing]="playing()">
           <div class="amx-player__screen-placeholder" *ngIf="!playing()">
@@ -147,11 +147,17 @@
               </div>
             </div>
 
-            <button class="amx-player__ctrl-btn" aria-label="Fullscreen">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            <button class="amx-player__ctrl-btn" (click)="toggleFullscreen()"
+                    [attr.aria-label]="isFullscreen() ? 'Exit fullscreen' : 'Enter fullscreen'">
+              <svg *ngIf="!isFullscreen()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                    stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
                 <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
                 <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+              <svg *ngIf="isFullscreen()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/>
+                <line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/>
               </svg>
             </button>
           </div>
