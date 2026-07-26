@@ -86,31 +86,32 @@ const MOCK_COMMENTS: CourseComment[] = [
 })
 export class CoursePlayerComponent implements OnInit, OnDestroy {
   @ViewChild('videoEl') videoEl?: ElementRef<HTMLVideoElement>;
+  @ViewChild('playerWrap') playerWrap?: ElementRef<HTMLDivElement>;
 
   private readonly route      = inject(ActivatedRoute);
   private readonly router     = inject(Router);
   private readonly academySvc = inject(AcademyService);
 
-  contentLoading = signal(true);
-  lessons        = signal<PlayerLesson[]>([]);
-  comments       = signal<CourseComment[]>([...MOCK_COMMENTS]);
-  courseTitle    = signal('');
+  contentLoading   = signal(true);
+  lessons          = signal<PlayerLesson[]>([]);
+  comments         = signal<CourseComment[]>([...MOCK_COMMENTS]);
+  courseTitle      = signal('');
 
-  activeLesson   = signal<PlayerLesson | null>(null);
-  playing        = signal(false);
-  muted          = signal(false);
-  volume         = signal(80);
-  currentTime    = signal(0);
-  duration       = signal(0);
-  buffered       = signal(0);
-  showSettings   = signal(false);
-  playbackRate   = signal(1);
-  commentText    = signal('');
-  markingComplete = signal(false);
+  activeLesson     = signal<PlayerLesson | null>(null);
+  activeTab        = signal<'lesson' | 'comments'>('lesson');
+  playing          = signal(false);
+  muted            = signal(false);
+  volume           = signal(80);
+  currentTime      = signal(0);
+  duration         = signal(0);
+  playbackRate     = signal(1);
+  commentText      = signal('');
+  markingComplete  = signal(false);
   settingsMenuOpen = signal(false);
-  fullscreen = signal(false);
+  fullscreen       = signal(false);
 
   readonly RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
+  readonly Math  = Math;
 
   readonly completedCount = computed(() =>
     this.lessons().filter(l => l.completed).length
@@ -138,14 +139,6 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   readonly hasPrev = computed(() => this.activeIndex() > 0);
   readonly hasNext = computed(() => this.activeIndex() < this.lessons().length - 1);
 
-  readonly autoMarkSecs = computed(() => {
-    const al = this.activeLesson();
-    if (!al) return 0;
-    return Math.max(0, al.durationSecs - 60);
-  });
-
-  readonly Math = Math;
-
   private courseId = 'default';
   private readonly PROGRESS_KEY = () => `amx_course_progress_${this.courseId}`;
 
@@ -160,7 +153,6 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
     try { localStorage.setItem(this.PROGRESS_KEY(), JSON.stringify([...completedIds])); } catch {}
   }
 
-  /** Map an API Lesson to the local PlayerLesson shape */
   private mapLesson(l: Lesson, done: Set<number>): PlayerLesson {
     const order = l.order;
     return {
@@ -190,7 +182,6 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
           .map(l => this.mapLesson(l, done));
         this.lessons.set(mapped);
       } else {
-        // API unavailable or course has no lessons — use fallback
         const restored = FALLBACK_LESSONS.map(l => ({ ...l, completed: done.has(l.id) }));
         this.lessons.set(restored);
       }
@@ -204,9 +195,12 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Clean up any video element listeners
     const v = this.videoEl?.nativeElement;
     if (v) v.src = '';
+  }
+
+  setTab(tab: 'lesson' | 'comments'): void {
+    this.activeTab.set(tab);
   }
 
   selectLesson(lesson: PlayerLesson): void {
@@ -215,7 +209,6 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
     this.currentTime.set(0);
     this.duration.set(lesson.durationSecs);
     this.settingsMenuOpen.set(false);
-    // If there's a real video element, update its src
     const v = this.videoEl?.nativeElement;
     if (v && lesson.hlsUrl) {
       v.src = lesson.hlsUrl;
@@ -289,13 +282,12 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   }
 
   toggleFullscreen(): void {
-    const el = document.documentElement;
+    const el = this.playerWrap?.nativeElement ?? document.documentElement;
     if (!this.fullscreen()) {
       el.requestFullscreen?.().then(() => this.fullscreen.set(true)).catch(() => {});
     } else {
       document.exitFullscreen?.().then(() => this.fullscreen.set(false)).catch(() => {});
     }
-    this.fullscreen.update(f => !f);
   }
 
   markComplete(): void {
@@ -303,7 +295,6 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
     if (!al || al.completed) return;
     this.markingComplete.set(true);
 
-    // Call the API to persist progress, then update locally regardless of outcome
     this.academySvc.markLessonComplete(String(al.id)).pipe(
       catchError(() => of(null)),
     ).subscribe(() => {
@@ -335,6 +326,16 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     this.router.navigate(['/academy']);
+  }
+
+  /** Strip the numeric prefix (e.g. "01 - ") from lesson titles */
+  stripPrefix(title: string): string {
+    return title.replace(/^\d+\s*[-–]\s*/, '');
+  }
+
+  /** Zero-pad a lesson number */
+  padNum(n: number): string {
+    return n < 10 ? '0' + n : String(n);
   }
 
   formatTime(secs: number): string {

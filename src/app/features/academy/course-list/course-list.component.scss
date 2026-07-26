@@ -2,24 +2,28 @@
   background: var(--amx-bg-soft);
   min-height: 100vh;
   font-family: 'Lato', sans-serif;
-  padding: 32px 40px 64px;
-
-  @media (max-width: 860px) { padding: 24px 16px 48px; }
+  padding-bottom: 72px;
 }
 
+// ── Loading skeleton ──────────────────────────────────────────────────────────
 .amx-academy__loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 32px;
-  padding-top: 48px;
+  padding: 32px 40px;
+  @media (max-width: 860px) { padding: 24px 16px; }
+}
+
+.amx-academy__skeleton-hero {
+  height: 260px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, var(--amx-border-3) 25%, var(--amx-border-light) 50%, var(--amx-border-3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  margin-bottom: 32px;
 }
 
 .amx-academy__skeleton-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 18px;
-  width: 100%;
 
   @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
   @media (max-width: 600px)  { grid-template-columns: 1fr; }
@@ -63,19 +67,48 @@
   100% { background-position: -200% 0; }
 }
 
+// ── Hero ──────────────────────────────────────────────────────────────────────
 .amx-academy__hero {
-  background: var(--amx-card);
-  border-radius: 18px;
-  padding: 36px 40px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 32px;
-  margin-bottom: 36px;
-  box-shadow: var(--amx-shadow-card);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0f1c4d 0%, #1a3280 40%, #1d4ed8 100%);
+  padding: 0;
+}
 
+.amx-academy__hero-bg-glow {
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 140, 255, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.amx-academy__hero-dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+.amx-academy__hero-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 48px;
+  padding: 52px 48px 52px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  @media (max-width: 1100px) { grid-template-columns: 1fr 280px; gap: 32px; padding: 40px 32px; }
   @media (max-width: 860px) {
     grid-template-columns: 1fr;
-    padding: 24px;
+    padding: 36px 24px;
+    gap: 32px;
   }
 }
 
@@ -89,202 +122,322 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--amx-orange);
-  margin-bottom: 12px;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 50px;
+  padding: 4px 12px;
+  width: fit-content;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .amx-academy__title-row {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 14px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .amx-academy__icon-box {
-  width: 56px;
-  height: 56px;
+  width: 54px;
+  height: 54px;
   border-radius: 14px;
-  background: var(--amx-chip-bg-3);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255,255,255,0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  color: #fff;
 }
 
 .amx-academy__title {
-  font-size: clamp(22px, 3vw, 32px);
+  font-size: clamp(24px, 3.5vw, 36px);
   font-weight: 900;
-  color: var(--amx-text);
+  color: #fff;
   margin: 0;
   letter-spacing: -0.5px;
+  line-height: 1.15;
+}
+
+.amx-academy__subtitle {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 2px 0 0;
+  font-weight: 500;
 }
 
 .amx-academy__desc {
-  font-size: 14px;
-  color: var(--amx-muted);
-  line-height: 1.65;
-  margin: 0 0 24px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.7;
+  margin: 0 0 28px;
+  max-width: 520px;
 }
 
+// Stats row
 .amx-academy__stats {
   display: flex;
-  gap: 24px;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 28px;
   flex-wrap: wrap;
+  row-gap: 12px;
 }
 
 .amx-academy__stat {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  padding: 0 24px 0 0;
+  &:first-child { padding-left: 0; }
 }
 
-.amx-academy__stat-icon {
-  width: 36px;
-  height: 36px;
-  background: var(--amx-chip-bg-3);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+.amx-academy__stat-sep {
+  width: 1px;
+  height: 28px;
+  background: rgba(255,255,255,0.18);
+  margin-right: 24px;
 }
 
 .amx-academy__stat-value {
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 900;
-  color: var(--amx-text);
+  color: #fff;
   line-height: 1;
 }
 
 .amx-academy__stat-label {
-  font-size: 12px;
-  color: var(--amx-faint);
-  margin-top: 2px;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 3px;
+  font-weight: 500;
 }
 
+// Hero actions
+.amx-academy__hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.amx-academy__cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  background: linear-gradient(135deg, #f5820a, #e06b00);
+  color: #fff;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 16px rgba(245, 130, 10, 0.4);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(245, 130, 10, 0.45);
+  }
+}
+
+.amx-academy__cta-note {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.5);
+}
+
+.amx-academy__access-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #34d399;
+}
+
+// Hero right – feature cards
 .amx-academy__hero-right {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  min-width: 280px;
+  gap: 12px;
+  justify-content: center;
 
-  @media (max-width: 860px) { flex-direction: row; flex-wrap: wrap; }
+  @media (max-width: 860px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  @media (max-width: 500px) {
+    grid-template-columns: 1fr;
+  }
 }
 
-.amx-academy__highlight {
+.amx-academy__feature-card {
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px 16px;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+
+  &:hover { background: rgba(255, 255, 255, 0.1); }
 }
 
-.amx-academy__highlight-icon {
-  width: 40px;
-  height: 40px;
-  background: var(--amx-chip-bg-3);
-  border-radius: 10px;
+.amx-academy__feature-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  color: #93c5fd;
 }
 
-.amx-academy__highlight-title {
-  font-size: 14px;
+.amx-academy__feature-title {
+  font-size: 13px;
   font-weight: 700;
-  color: var(--amx-text);
+  color: #fff;
+  margin-bottom: 2px;
 }
 
-.amx-academy__highlight-desc {
-  font-size: 12.5px;
-  color: var(--amx-faint);
-  margin-top: 2px;
+.amx-academy__feature-desc {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.5;
 }
 
+// ── Courses section ───────────────────────────────────────────────────────────
 .amx-academy__courses-section {
-  background: transparent;
+  padding: 36px 48px 0;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  @media (max-width: 1100px) { padding: 32px 32px 0; }
+  @media (max-width: 860px)  { padding: 24px 16px 0; }
 }
 
-.amx-academy__courses-heading {
+.amx-academy__section-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.amx-academy__section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
 
   h2 {
     font-size: 20px;
     font-weight: 800;
     color: var(--amx-text);
     margin: 0;
+    letter-spacing: -0.3px;
   }
 }
 
 .amx-academy__count {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--amx-faint);
   font-weight: 600;
 }
 
-.amx-academy__carousel-wrap {
-  position: relative;
+.amx-academy__filters {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.amx-academy__carousel {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  flex: 1;
-  overflow: hidden;
-
-  @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 600px)  { grid-template-columns: 1fr; }
-}
-
-.amx-academy__nav {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+.amx-academy__filter-btn {
+  padding: 6px 16px;
+  border-radius: 50px;
   border: 1.5px solid var(--amx-border-3);
   background: var(--amx-card);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
-  flex-shrink: 0;
+  font-family: 'Lato', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--amx-text-2);
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: all 0.15s;
 
-  &:hover:not(:disabled) {
-    background: var(--amx-text);
-    border-color: var(--amx-text);
-    color: var(--amx-btn-text);
-  }
+  &:hover { border-color: var(--amx-link); color: var(--amx-link); }
 
-  &:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
+  &--active {
+    background: var(--amx-link);
+    border-color: var(--amx-link);
+    color: #fff;
   }
 }
 
+// ── Course grid ───────────────────────────────────────────────────────────────
+.amx-academy__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+
+  @media (max-width: 1200px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 860px)  { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 520px)  { grid-template-columns: 1fr; }
+}
+
+// ── Course card ───────────────────────────────────────────────────────────────
 .amx-academy__course-card {
   background: var(--amx-card);
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.18s, box-shadow 0.18s;
   text-decoration: none;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid var(--amx-border-light);
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: var(--amx-shadow-hover);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+    border-color: transparent;
+
+    .amx-academy__thumb-overlay {
+      opacity: 1;
+    }
+
+    .amx-academy__play-btn {
+      transform: scale(1.08);
+    }
+
+    .amx-academy__thumb-img {
+      transform: scale(1.04);
+    }
+  }
+
+  &--locked {
+    cursor: default;
+    &:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: var(--amx-border-light);
+
+      .amx-academy__thumb-overlay { opacity: 0; }
+      .amx-academy__thumb-img { transform: none; }
+    }
   }
 }
 
+// Thumbnail
 .amx-academy__thumb {
   position: relative;
   aspect-ratio: 16 / 9;
@@ -298,10 +451,6 @@
   object-fit: cover;
   display: block;
   transition: transform 0.3s ease;
-
-  .amx-academy__course-card:hover & {
-    transform: scale(1.04);
-  }
 }
 
 .amx-academy__thumb-bg {
@@ -309,74 +458,207 @@
   height: 100%;
 }
 
-.amx-academy__lock-overlay {
+.amx-academy__thumb-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.42);
+  background: rgba(0, 0, 0, 0.38);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  backdrop-filter: blur(1px);
+  opacity: 0;
   transition: opacity 0.2s;
+}
+
+.amx-academy__play-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.18s;
+  padding-left: 2px;
 }
 
 .amx-academy__level-badge {
   position: absolute;
   top: 10px;
-  right: 10px;
+  left: 10px;
   padding: 3px 10px;
   border-radius: 50px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 
   &--beginner     { background: var(--amx-level-beginner-bg); color: var(--amx-level-beginner-text); }
   &--intermediate { background: var(--amx-level-intermediate-bg); color: var(--amx-level-intermediate-text); }
   &--advanced     { background: var(--amx-level-advanced-bg); color: var(--amx-level-advanced-text); }
 }
 
-.amx-academy__card-body {
-  padding: 14px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.amx-academy__duration-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  backdrop-filter: blur(4px);
 }
 
-.amx-academy__course-card--locked {
-  cursor: default;
+.amx-academy__lock-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
 
-  &:hover {
-    transform: none;
-    box-shadow: none;
+.amx-academy__lock-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+
+  span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.85;
   }
 }
 
+// Card body
+.amx-academy__card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
 .amx-academy__card-title {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
   color: var(--amx-text);
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.45;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
+.amx-academy__card-instructor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--amx-muted);
+  font-weight: 500;
+}
+
+.amx-academy__instructor-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--amx-link);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.amx-academy__card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.amx-academy__meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--amx-muted);
+  background: var(--amx-bg-soft);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.amx-academy__card-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--amx-text-2);
+}
+
+.amx-academy__rating-reviews {
+  font-size: 11px;
+  color: var(--amx-faint);
+  font-weight: 400;
+}
+
+.amx-academy__card-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--amx-border-light);
+}
+
+.amx-academy__card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--amx-link);
+  transition: gap 0.15s;
+
+  .amx-academy__course-card:hover & { gap: 7px; }
+
+  &--locked {
+    color: var(--amx-faint);
+    font-weight: 500;
+  }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
 .amx-academy__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 64px 24px;
+  gap: 10px;
+  padding: 72px 24px;
   background: var(--amx-card);
-  border-radius: 16px;
+  border-radius: 18px;
   border: 1.5px dashed var(--amx-border);
   text-align: center;
 }
 
 .amx-academy__empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: var(--amx-bg-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--amx-faint);
   margin-bottom: 4px;
 }
@@ -395,99 +677,118 @@
   line-height: 1.6;
 }
 
+.amx-academy__empty-reset {
+  margin-top: 4px;
+  padding: 8px 20px;
+  border-radius: 50px;
+  border: 1.5px solid var(--amx-border-3);
+  background: var(--amx-card);
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--amx-text-2);
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover { border-color: var(--amx-link); color: var(--amx-link); }
+}
+
+// ── Premium gate ──────────────────────────────────────────────────────────────
 .amx-academy__premium-gate {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-top: 28px;
-  padding: 32px 24px;
+  margin-top: 32px;
+  border-radius: 20px;
   background: linear-gradient(135deg,
-    color-mix(in srgb, var(--amx-orange) 6%, var(--amx-card)) 0%,
+    color-mix(in srgb, var(--amx-orange) 8%, var(--amx-card)) 0%,
     var(--amx-card) 100%);
-  border: 1.5px solid color-mix(in srgb, var(--amx-orange) 30%, var(--amx-border));
-  border-radius: 16px;
-  text-align: center;
+  border: 1.5px solid color-mix(in srgb, var(--amx-orange) 25%, var(--amx-border));
+  overflow: hidden;
+}
+
+.amx-academy__gate-inner {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 28px 32px;
+  flex-wrap: wrap;
+
+  @media (max-width: 860px) { flex-direction: column; align-items: flex-start; gap: 20px; padding: 24px; }
+}
+
+.amx-academy__gate-text {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 260px;
 }
 
 .amx-academy__gate-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--amx-orange) 10%, transparent);
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--amx-orange) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amx-orange) 25%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--amx-orange);
-  margin-bottom: 4px;
+  flex-shrink: 0;
 }
 
 .amx-academy__gate-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
   color: var(--amx-text);
-  margin: 0;
+  margin: 0 0 4px;
   letter-spacing: -0.3px;
 }
 
 .amx-academy__gate-sub {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--amx-muted);
-  line-height: 1.65;
   margin: 0;
-  max-width: 460px;
+  line-height: 1.55;
+}
+
+.amx-academy__gate-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 240px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    color: var(--amx-text-2);
+
+    svg { color: var(--amx-success); flex-shrink: 0; }
+  }
 }
 
 .amx-academy__gate-cta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 6px;
-  padding: 12px 28px;
+  padding: 13px 26px;
   background: linear-gradient(135deg, var(--amx-orange), var(--amx-orange-dark));
   color: #fff;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
   font-family: 'Lato', sans-serif;
   transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 4px 14px color-mix(in srgb, var(--amx-orange) 30%, transparent);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--amx-orange) 30%, transparent);
+  white-space: nowrap;
+  flex-shrink: 0;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px color-mix(in srgb, var(--amx-orange) 35%, transparent);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--amx-orange) 38%, transparent);
   }
-}
-
-.amx-academy__card-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.amx-academy__card-lessons,
-.amx-academy__card-rating,
-.amx-academy__card-instructor {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12.5px;
-  color: var(--amx-muted);
-}
-
-.amx-academy__card-rating {
-  color: var(--amx-text-2);
-  font-weight: 600;
-}
-
-.amx-academy__card-instructor {
-  color: var(--amx-muted);
-}
-
-[data-theme="dark"] {
-  .amx-academy__card   { background: var(--amx-card-bg); border-color: var(--amx-border); }
-  .amx-academy__card-title       { color: var(--amx-text); }
-  .amx-academy__card-instructor  { color: var(--amx-muted); }
 }
