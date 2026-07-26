@@ -22,8 +22,8 @@
   border-radius: 24px;
   overflow: hidden;
   width: 100%;
-  max-width: 920px;
-  min-height: 580px;
+  max-width: 1080px;
+  min-height: 600px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.10), 0 8px 24px rgba(0, 0, 0, 0.06);
   position: relative;
   z-index: 60;
@@ -151,7 +151,6 @@
   flex-direction: column;
   gap: 16px;
   width: 100%;
-  max-width: 440px;
 }
 
 .auth-field {
@@ -217,7 +216,6 @@
   justify-content: center;
   gap: 10px;
   width: 100%;
-  max-width: 440px;
   padding: 14px 24px;
   border-radius: 10px;
   font-family: 'Lato', sans-serif;
@@ -252,7 +250,6 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  max-width: 440px;
   margin: 20px 0;
 
   &::before, &::after {
