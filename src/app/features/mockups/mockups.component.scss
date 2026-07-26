@@ -83,10 +83,13 @@
 }
 
 .amx-mk-hero {
-  background: linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#4338ca 70%,#6366f1 100%);
-  padding: 64px 24px 48px;
+  position: relative;
+  background: #000;
+  overflow: hidden;
+  padding: 72px 24px 56px;
   text-align: center;
   transition: padding .3s;
+  color: #fff;
 
   &--compact {
     padding: 20px 24px;
@@ -94,32 +97,45 @@
     .amx-mk-hero__sub,
     .amx-mk-hero__badge,
     .amx-mk-hero__colors,
-    .amx-mk-hero__trending { display: none; }
+    .amx-mk-hero__trending,
+    .amx-mk-hero__letters,
+    .amx-mk-hero__vignette { display: none; }
   }
 
-  &__inner { max-width: 720px; margin: 0 auto; }
+  &__letters {
+    position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  }
+
+  &__vignette {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 70% 65% at 50% 50%, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 55%, transparent 100%);
+  }
+
+  &__inner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
 
   &__badge {
     display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(255,255,255,.15); color: #c7d2fe;
+    background: rgba(107,63,245,.18); color: #c4b5fd;
+    border: 1px solid rgba(107,63,245,.5);
     padding: 4px 14px; border-radius: 50px; font-size: 12px;
     margin-bottom: 20px; backdrop-filter: blur(8px);
-    svg { color: #fbbf24; }
+    svg { color: #a78bfa; }
   }
 
   &__title {
-    font-size: clamp(28px, 5vw, 52px);
-    font-weight: 800; color: #fff;
+    font-size: clamp(32px, 5vw, 60px);
+    font-weight: 900; color: #fff;
     line-height: 1.1; margin: 0 0 14px;
+    letter-spacing: -0.03em;
   }
 
   &__accent {
-    background: linear-gradient(135deg,#fbbf24,#f97316);
+    background: linear-gradient(135deg, #fff 10%, #c4b5fd 55%, #7c3aed 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
 
   &__sub {
-    font-size: 18px; color: #c7d2fe; margin: 0 0 32px;
+    font-size: 17px; color: rgba(255,255,255,.62); margin: 0 0 32px;
     line-height: 1.5;
   }
 
@@ -149,6 +165,16 @@
       &:hover { background: rgba(255,255,255,.25); }
     }
   }
+}
+
+.amx-mk-word-row {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  white-space: nowrap; font-weight: 900; letter-spacing: -0.03em; line-height: 1;
+  color: #6B3FF5; font-family: 'Manrope', 'Inter', sans-serif; user-select: none;
+  &--t1 { top: 2%; font-size: clamp(80px, 14vw, 160px); opacity: .75; }
+  &--t2 { top: 28%; font-size: clamp(52px, 9vw, 100px); opacity: .45; }
+  &--b1 { bottom: 2%; font-size: clamp(80px, 14vw, 160px); opacity: .75; }
+  &--b2 { bottom: 28%; font-size: clamp(52px, 9vw, 100px); opacity: .45; }
 }
 
 .amx-mk-search {

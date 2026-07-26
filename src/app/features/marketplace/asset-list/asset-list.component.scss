@@ -1,44 +1,76 @@
 .amx-hero {
-  padding: 40px 24px 32px;
-  background: var(--amx-bg);
+  position: relative;
+  overflow: hidden;
+  padding: 72px 24px 56px;
+  background: #000;
   display: flex;
   justify-content: center;
-  transition: background 0.25s ease;
-    --market-hero-surface: linear-gradient(135deg, var(--amx-chip-bg-2) 0%, #f5c27a 50%, var(--amx-orange) 100%);
-    --market-hero-text: var(--amx-text);
-    --market-card-shadow: 0 6px 32px rgba(245, 130, 10, 0.18);
-    --market-link: var(--amx-orange);
-    --market-link-hover: var(--amx-orange-dark);
-    --market-card-surface: var(--amx-bg-card);
-    --market-border: var(--amx-border);
-    --market-muted: var(--amx-text-muted);
-    --market-text: var(--amx-text);
-    --market-chip-next-bg: var(--amx-chip-bg);
-    --market-chip-next-text: var(--amx-chip-text);
-    --market-chip-high-bg: var(--amx-chip-bg-2);
-    --market-chip-high-text: var(--amx-chip-text-2);
-    --market-chip-sought-bg: var(--amx-chip-bg-3);
-    --market-chip-sought-text: var(--amx-chip-text-3);
-    --market-thumb-overlay: rgba(0, 0, 0, 0.28);
-    --market-thumb-button: var(--amx-orange);
-    --market-thumb-button-text: var(--amx-btn-text);
+  align-items: center;
+  min-height: 340px;
+  --market-card-shadow: 0 8px 40px rgba(0,0,0,.55);
+  --market-link: #a78bfa;
+  --market-link-hover: #c4b5fd;
+  --market-card-surface: rgba(255,255,255,0.05);
+  --market-border: rgba(255,255,255,0.12);
+  --market-muted: rgba(255,255,255,0.55);
+  --market-text: #fff;
+  --market-chip-next-bg: rgba(107,63,245,.2);
+  --market-chip-next-text: #c4b5fd;
+  --market-chip-high-bg: rgba(107,63,245,.18);
+  --market-chip-high-text: #c4b5fd;
+  --market-chip-sought-bg: rgba(107,63,245,.15);
+  --market-chip-sought-text: #a78bfa;
+  --market-thumb-overlay: rgba(0,0,0,0.4);
+  --market-thumb-button: #7c3aed;
+  --market-thumb-button-text: #fff;
+
+  &__letters {
+    position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  }
+
+  &__word-row {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    white-space: nowrap; font-weight: 900; letter-spacing: -0.03em; line-height: 1;
+    color: #6B3FF5; font-family: 'Manrope', 'Inter', sans-serif; user-select: none;
+    &--t1 { top: 2%; font-size: clamp(80px, 14vw, 160px); opacity: .75; }
+    &--t2 { top: 28%; font-size: clamp(52px, 9vw, 100px); opacity: .45; }
+    &--b1 { bottom: 2%; font-size: clamp(80px, 14vw, 160px); opacity: .75; }
+    &--b2 { bottom: 28%; font-size: clamp(52px, 9vw, 100px); opacity: .45; }
+  }
+
+  &__vignette {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 70% 65% at 50% 50%, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 55%, transparent 100%);
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
   &__card {
     width: 100%;
     max-width: 820px;
-    background: var(--market-hero-surface);
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(107,63,245,.35);
     border-radius: 20px;
     padding: 36px 40px 32px;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    box-shadow: var(--market-card-shadow);
+    box-shadow: 0 8px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(107,63,245,.15) inset;
+    backdrop-filter: blur(12px);
     will-change: transform, opacity;
   }
   &__title {
     font-family: 'Lato', sans-serif;
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 900;
-    color: var(--market-hero-text);
+    background: linear-gradient(135deg, #fff 20%, #c4b5fd 65%, #7c3aed 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     text-align: center;
     letter-spacing: -0.3px;
   }

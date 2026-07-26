@@ -317,7 +317,8 @@
   overflow: hidden;
   padding: 80px 24px 60px;
   text-align: center;
-  background: var(--amx-surface);
+  background: #000;
+  color: #fff;
 }
 
 .vec-hero__bg {
@@ -325,45 +326,42 @@
   inset: 0;
   pointer-events: none;
   overflow: hidden;
+  background: #000;
 }
 
-.vec-hero__orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: .18;
+.vec-hero__vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 70% 65% at 50% 50%, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 55%, transparent 100%);
+}
 
-  &--1 {
-    width: 600px; height: 600px;
-    background: #f5820a;
-    top: -200px; left: -100px;
-  }
-  &--2 {
-    width: 500px; height: 500px;
-    background: #8B5CF6;
-    top: -150px; right: -100px;
-  }
-  &--3 {
-    width: 400px; height: 400px;
-    background: #10B981;
-    bottom: -150px; left: 50%;
-    transform: translateX(-50%);
-  }
+.vec-hero__letters {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+}
+
+.vec-word-row {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  white-space: nowrap; font-weight: 900; letter-spacing: -0.03em; line-height: 1;
+  color: #6B3FF5; font-family: 'Manrope', 'Inter', sans-serif; user-select: none;
+  &--t1 { top: 2%; font-size: clamp(80px, 14vw, 160px); opacity: .75; }
+  &--t2 { top: 28%; font-size: clamp(52px, 9vw, 100px); opacity: .45; }
+  &--b1 { bottom: 2%; font-size: clamp(80px, 14vw, 160px); opacity: .75; }
+  &--b2 { bottom: 28%; font-size: clamp(52px, 9vw, 100px); opacity: .45; }
 }
 
 .vec-hero__content {
   position: relative;
   max-width: 840px;
   margin: 0 auto;
+  z-index: 1;
 }
 
 .vec-hero__badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #f5820a20;
-  color: #f5820a;
-  border: 1px solid #f5820a40;
+  background: rgba(107,63,245,.18);
+  color: #c4b5fd;
+  border: 1px solid rgba(107,63,245,.5);
   border-radius: 20px;
   padding: 5px 14px;
   font-size: 12px;
@@ -374,16 +372,16 @@
 
 .vec-hero__title {
   font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: clamp(32px, 5vw, 56px);
-  font-weight: 800;
-  line-height: 1.12;
-  color: var(--amx-text);
+  font-size: clamp(32px, 5vw, 60px);
+  font-weight: 900;
+  line-height: 1.1;
+  color: #fff;
   margin: 0 0 16px;
-  letter-spacing: -1px;
+  letter-spacing: -0.03em;
 }
 
 .vec-hero__title-accent {
-  background: linear-gradient(135deg, #f5820a, #f59e0b, #ec4899);
+  background: linear-gradient(135deg, #fff 10%, #c4b5fd 55%, #7c3aed 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -391,7 +389,7 @@
 
 .vec-hero__subtitle {
   font-size: 16px;
-  color: var(--amx-text-muted);
+  color: rgba(255,255,255,.62);
   margin: 0 0 32px;
   line-height: 1.6;
 }

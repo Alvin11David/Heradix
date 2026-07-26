@@ -26,26 +26,35 @@ interface CalendarEvent {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="amx-hero">
-      <div class="amx-hero__card">
-        <h2 class="amx-hero__title">Create Your Design!</h2>
-        <div class="amx-hero__prompt">
-          <input
-            class="amx-hero__input"
-            type="text"
-            placeholder="Describe what you would want to create"
-            aria-label="Design prompt"
-          />
-          <button class="amx-hero__attach" type="button" aria-label="Attach file">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-            </svg>
-          </button>
-          <button class="amx-hero__send" type="button" aria-label="Generate design" routerLink="/editor">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <line x1="22" y1="2" x2="11" y2="13"/>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-            </svg>
-          </button>
+      <div class="amx-hero__letters" aria-hidden="true">
+        <div class="amx-hero__word-row amx-hero__word-row--t1"><span>CREATE · DESIGN · VIDEO · MOTION · ANIMATE · CREATE · DESIGN · VIDEO · MOTION · ANIMATE</span></div>
+        <div class="amx-hero__word-row amx-hero__word-row--t2"><span>STUDIO · CANVAS · EDIT · GENERATE · BRAND · STUDIO · CANVAS · EDIT · GENERATE · BRAND</span></div>
+        <div class="amx-hero__word-row amx-hero__word-row--b2"><span>STUDIO · CANVAS · EDIT · GENERATE · BRAND · STUDIO · CANVAS · EDIT · GENERATE · BRAND</span></div>
+        <div class="amx-hero__word-row amx-hero__word-row--b1"><span>CREATE · DESIGN · VIDEO · MOTION · ANIMATE · CREATE · DESIGN · VIDEO · MOTION · ANIMATE</span></div>
+      </div>
+      <div class="amx-hero__vignette" aria-hidden="true"></div>
+      <div class="amx-hero__content">
+        <div class="amx-hero__card">
+          <h2 class="amx-hero__title">Create Your Design!</h2>
+          <div class="amx-hero__prompt">
+            <input
+              class="amx-hero__input"
+              type="text"
+              placeholder="Describe what you would want to create"
+              aria-label="Design prompt"
+            />
+            <button class="amx-hero__attach" type="button" aria-label="Attach file">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+            </button>
+            <button class="amx-hero__send" type="button" aria-label="Generate design" routerLink="/editor">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </section>
