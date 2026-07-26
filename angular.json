@@ -34,7 +34,10 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "polyfills": [
+              "zone.js"
+            ]
           },
           "configurations": {
             "production": {

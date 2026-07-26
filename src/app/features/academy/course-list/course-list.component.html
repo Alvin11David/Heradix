@@ -19,11 +19,34 @@
 
   <!-- Hero ─────────────────────────────────────────────────────────────────── -->
   <div class="amx-academy__hero">
-    <div class="amx-academy__hero-bg-glow"></div>
-    <div class="amx-academy__hero-dots"></div>
 
-    <div class="amx-academy__hero-inner">
-      <div class="amx-academy__hero-left">
+    <!-- Animated ticker rows — decorative, same layout as marketplace -->
+    <div class="amx-academy__hero-tickers" aria-hidden="true">
+      <div class="amx-academy__hero-row amx-academy__hero-row--1">
+        <span>DESIGN · PHOTOSHOP · ILLUSTRATOR · CINEMA 4D · BRANDING · MOTION · VIDEO · </span>
+        <span>DESIGN · PHOTOSHOP · ILLUSTRATOR · CINEMA 4D · BRANDING · MOTION · VIDEO · </span>
+      </div>
+      <div class="amx-academy__hero-row amx-academy__hero-row--2">
+        <span>LEARN · CREATE · MASTER · INSPIRE · GROW · TEACH · ANIMATE · BUILD · LAUNCH · </span>
+        <span>LEARN · CREATE · MASTER · INSPIRE · GROW · TEACH · ANIMATE · BUILD · LAUNCH · </span>
+      </div>
+      <div class="amx-academy__hero-row amx-academy__hero-row--3">
+        <span>LEARN · CREATE · MASTER · INSPIRE · GROW · TEACH · ANIMATE · BUILD · LAUNCH · </span>
+        <span>LEARN · CREATE · MASTER · INSPIRE · GROW · TEACH · ANIMATE · BUILD · LAUNCH · </span>
+      </div>
+      <div class="amx-academy__hero-row amx-academy__hero-row--4">
+        <span>DESIGN · PHOTOSHOP · ILLUSTRATOR · CINEMA 4D · BRANDING · MOTION · VIDEO · </span>
+        <span>DESIGN · PHOTOSHOP · ILLUSTRATOR · CINEMA 4D · BRANDING · MOTION · VIDEO · </span>
+      </div>
+    </div>
+
+    <!-- Radial vignette identical to marketplace -->
+    <div class="amx-academy__hero-vignette" aria-hidden="true"></div>
+
+    <!-- Centred glassmorphism card -->
+    <div class="amx-academy__hero-content">
+      <div class="amx-academy__hero-card">
+
         <div class="amx-academy__premium-badge">
           <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
@@ -44,11 +67,6 @@
             <p class="amx-academy__subtitle">Master design from zero to professional</p>
           </div>
         </div>
-
-        <p class="amx-academy__desc">
-          Learn graphic design with in-depth video courses taught by working professionals.
-          Go from beginner to advanced at your own pace, with lifetime access.
-        </p>
 
         <div class="amx-academy__stats">
           <div class="amx-academy__stat">
@@ -91,21 +109,7 @@
             Full access enabled
           </div>
         </div>
-      </div>
 
-      <div class="amx-academy__hero-right">
-        <div class="amx-academy__feature-card" *ngFor="let h of highlights">
-          <div class="amx-academy__feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                 stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-              <path [attr.d]="h.icon"/>
-            </svg>
-          </div>
-          <div>
-            <div class="amx-academy__feature-title">{{ h.title }}</div>
-            <div class="amx-academy__feature-desc">{{ h.desc }}</div>
-          </div>
-        </div>
       </div>
     </div>
   </div>

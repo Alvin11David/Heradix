@@ -68,54 +68,118 @@
 }
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
+// Same dark shell and glassmorphism card as the marketplace hero.
 .amx-academy__hero {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #0f1c4d 0%, #1a3280 40%, #1d4ed8 100%);
-  padding: 0;
+  background: #000;
+  padding: 72px 24px 56px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 360px;
 }
 
-.amx-academy__hero-bg-glow {
-  position: absolute;
-  top: -80px;
-  right: -80px;
-  width: 400px;
-  height: 400px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 140, 255, 0.25) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.amx-academy__hero-dots {
+// ── Ticker rows (aria-hidden decorative) ──────────────────────────────────────
+.amx-academy__hero-tickers {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px);
-  background-size: 28px 28px;
+  overflow: hidden;
   pointer-events: none;
 }
 
-.amx-academy__hero-inner {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 48px;
-  padding: 52px 48px 52px;
-  max-width: 1400px;
-  margin: 0 auto;
+.amx-academy__hero-row {
+  position: absolute;
+  left: 0;
+  white-space: nowrap;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-family: 'Manrope', 'Inter', sans-serif;
+  user-select: none;
+  display: flex;
 
-  @media (max-width: 1100px) { grid-template-columns: 1fr 280px; gap: 32px; padding: 40px 32px; }
-  @media (max-width: 860px) {
-    grid-template-columns: 1fr;
-    padding: 36px 24px;
-    gap: 32px;
+  span { display: inline-block; }
+
+  // Row 1 — top, large, orange — scrolls LEFT
+  &--1 {
+    top: 2%;
+    font-size: clamp(80px, 14vw, 160px);
+    opacity: .75;
+    color: #f5820a;
+    animation: amx-acad-left 22s linear infinite;
+  }
+
+  // Row 2 — upper-mid, smaller, purple — scrolls RIGHT
+  &--2 {
+    top: 28%;
+    font-size: clamp(52px, 9vw, 100px);
+    opacity: .45;
+    color: #6B3FF5;
+    animation: amx-acad-right 28s linear infinite;
+  }
+
+  // Row 3 — lower-mid, smaller, purple — scrolls RIGHT (mirrors row 2)
+  &--3 {
+    bottom: 28%;
+    font-size: clamp(52px, 9vw, 100px);
+    opacity: .45;
+    color: #6B3FF5;
+    animation: amx-acad-right 28s linear infinite;
+  }
+
+  // Row 4 — bottom, large, orange — scrolls LEFT (mirrors row 1)
+  &--4 {
+    bottom: 2%;
+    font-size: clamp(80px, 14vw, 160px);
+    opacity: .75;
+    color: #f5820a;
+    animation: amx-acad-left 22s linear infinite;
   }
 }
 
-.amx-academy__hero-left {
+@keyframes amx-acad-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes amx-acad-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+// ── Vignette overlay ──────────────────────────────────────────────────────────
+.amx-academy__hero-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 65% at 50% 50%, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 55%, transparent 100%);
+}
+
+// ── Centred content wrapper ───────────────────────────────────────────────────
+.amx-academy__hero-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+// ── Glassmorphism card — same treatment as marketplace ────────────────────────
+.amx-academy__hero-card {
+  width: 100%;
+  max-width: 820px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(107,63,245,.35);
+  border-radius: 20px;
+  padding: 36px 40px 32px;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 20px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(107,63,245,.15) inset;
+  backdrop-filter: blur(12px);
+
+  @media (max-width: 640px) { padding: 28px 24px 24px; }
 }
 
 .amx-academy__premium-badge {
@@ -156,9 +220,12 @@
 }
 
 .amx-academy__title {
-  font-size: clamp(24px, 3.5vw, 36px);
+  font-size: clamp(22px, 3.5vw, 34px);
   font-weight: 900;
-  color: #fff;
+  background: linear-gradient(135deg, #fff 20%, #c4b5fd 65%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
   letter-spacing: -0.5px;
   line-height: 1.15;
@@ -261,61 +328,6 @@
   color: #34d399;
 }
 
-// Hero right – feature cards
-.amx-academy__hero-right {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  justify-content: center;
-
-  @media (max-width: 860px) {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  @media (max-width: 500px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.amx-academy__feature-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 14px 16px;
-  backdrop-filter: blur(4px);
-  transition: background 0.2s;
-
-  &:hover { background: rgba(255, 255, 255, 0.1); }
-}
-
-.amx-academy__feature-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: #93c5fd;
-}
-
-.amx-academy__feature-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 2px;
-}
-
-.amx-academy__feature-desc {
-  font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.5);
-  line-height: 1.5;
-}
 
 // ── Courses section ───────────────────────────────────────────────────────────
 .amx-academy__courses-section {
