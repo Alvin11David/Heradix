@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ThemeService } from '../../../core/theme/theme.service';
 
@@ -279,8 +279,10 @@ const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
               (mouseenter)="(cat.dropdownItems || cat.dropdownLinks) && openCatDropdown(cat.label)"
               (mouseleave)="closeCatDropdown()">
             <a [routerLink]="cat.route"
+               routerLinkActive="active"
+               [routerLinkActiveOptions]="{exact: true}"
                class="amx-catnav__link"
-               [class.active]="activeCat === cat.label">
+               (click)="onCatClick(cat)">
               {{ cat.label }}
               <svg *ngIf="cat.hasDropdown"
                    width="11" height="11" viewBox="0 0 24 24" fill="none"
@@ -315,7 +317,8 @@ const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
                 class="amx-cat-dropdown" role="menu">
               <li *ngFor="let item of cat.dropdownItems"
                   class="amx-cat-dropdown__item"
-                  role="menuitem">{{ item }}</li>
+                  role="menuitem"
+                  (click)="navigateDropdown(cat, item)">{{ item }}</li>
             </ul>
           </li>
         </ul>
@@ -347,6 +350,7 @@ const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
   styleUrl: './header.component.scss',
 })
 export class HeaderComponent {
+  private readonly router = inject(Router);
   readonly auth = inject(AuthService);
   readonly theme = inject(ThemeService);
 
@@ -374,6 +378,17 @@ export class HeaderComponent {
   openCatDropdown(label: string): void  { this.openDropdown = label; }
   closeCatDropdown(): void              { this.openDropdown = null; }
 
+  onCatClick(cat: CategoryGroup): void {
+    this.activeCat = cat.label;
+    this.closeCatDropdown();
+  }
+
+  navigateDropdown(cat: CategoryGroup, item: string): void {
+    this.closeCatDropdown();
+    const q = item.toLowerCase().replace(/\s+/g, '-');
+    this.router.navigateByUrl(`${cat.route}?category=${encodeURIComponent(q)}`);
+  }
+
   selectFormat(item: string): void {
     this.selectedFormat.set(item);
     this.formatOpen.set(false);
@@ -391,7 +406,7 @@ export class HeaderComponent {
   readonly categories: CategoryGroup[] = [
     { label: 'Collections', route: '/collections' },
     {
-      label: 'PSD', route: '/marketplace', hasDropdown: true,
+      label: 'PSD', route: '/marketplace/psd', hasDropdown: true,
       dropdownItems: ['All PSDs', 'Church Flyer', 'Business Cards', 'Brochures', 'Profile', 'Party Flyers'],
     },
     { label: 'Mockups', route: '/mockups' },

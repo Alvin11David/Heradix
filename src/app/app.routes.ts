@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard, premiumGuard, adminGuard } from './core/guards';
+import { authGuard, guestGuard, adminGuard } from './core/guards';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'marketplace', pathMatch: 'full' },
@@ -19,6 +19,9 @@ export const routes: Routes = [
     path: 'marketplace',
     children: [
       { path: '',              loadComponent: () => import('./features/marketplace/asset-list/asset-list.component').then(m => m.AssetListComponent) },
+      { path: 'psd',           loadComponent: () => import('./features/marketplace/asset-list/asset-list.component').then(m => m.AssetListComponent) },
+      { path: 'photos',        loadComponent: () => import('./features/marketplace/asset-list/asset-list.component').then(m => m.AssetListComponent) },
+      { path: 'videos',        loadComponent: () => import('./features/marketplace/asset-list/asset-list.component').then(m => m.AssetListComponent) },
       { path: 'asset/:slug',  loadComponent: () => import('./features/marketplace/asset-detail/asset-detail.component').then(m => m.AssetDetailComponent) },
     ],
   },
@@ -84,7 +87,6 @@ export const routes: Routes = [
 
   {
     path: 'collections',
-    canActivate: [premiumGuard],
     children: [
       { path: '', loadComponent: () => import('./features/collections/collections/collections.component').then(m => m.CollectionsComponent) },
       { path: ':id', loadComponent: () => import('./features/collections/collection-detail/collection-detail.component').then(m => m.CollectionDetailComponent) },

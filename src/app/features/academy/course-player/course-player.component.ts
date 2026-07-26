@@ -324,6 +324,19 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
     this.commentText.set('');
   }
 
+  isFullscreen(): boolean {
+    return !!document.fullscreenElement;
+  }
+
+  toggleFullscreen(): void {
+    const el = document.querySelector('amx-course-player');
+    if (this.isFullscreen()) {
+      document.exitFullscreen();
+    } else if (el) {
+      el.requestFullscreen();
+    }
+  }
+
   goBack(): void {
     this.router.navigate(['/academy']);
   }
