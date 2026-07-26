@@ -3543,3 +3543,20 @@
     svg { opacity: 1; color: #f5820a; }
   }
 }
+
+@media (max-width: 400px) {
+  .vec-topbar__inner { padding: 6px 12px; }
+  .vec-search--bar { max-width: 100%; }
+  .vec-search__btn { padding: 6px 12px; font-size: 11px; }
+  .vec-home { padding: 0 12px 60px; }
+  .vec-main { padding: 16px 12px 40px; }
+  .vec-grid--grid { grid-template-columns: 1fr; }
+  .vec-hero__title { font-size: 26px; }
+  .vec-hero__subtitle { font-size: 14px; }
+  .vec-detail__stats { grid-template-columns: repeat(2, 1fr); }
+  .vec-detail__stat { padding: 8px 6px; }
+  .vec-detail__stat span { font-size: 12px; }
+  .vec-detail__info-grid { font-size: 11px; }
+  .vec-active-filters { gap: 4px; }
+  .vec-chip { font-size: 10px; padding: 3px 8px; }
+}

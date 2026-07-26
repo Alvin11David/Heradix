@@ -1070,3 +1070,20 @@
   color: var(--amx-faint);
   font-variant-numeric: tabular-nums;
 }
+
+@media (max-width: 480px) {
+  .amx-player__body { padding: 12px 12px 32px; }
+  .amx-player__tabs-header { padding: 0 12px; overflow-x: auto; }
+  .amx-player__tab { padding: 12px 8px 10px; font-size: 12px; margin-right: 12px; white-space: nowrap; }
+  .amx-player__tab-pane { padding: 16px; }
+  .amx-player__lesson-title { font-size: 16px; }
+  .amx-player__lesson-desc { font-size: 13px; }
+  .amx-player__volume-group { display: none; }
+  .amx-player__ctrl-btn--speed { display: none; }
+  .amx-player__info-top { padding: 14px 14px 0; }
+  .amx-player__info-stats { grid-template-columns: repeat(3, 1fr); gap: 3px; }
+  .amx-player__info-stat { padding: 6px 2px; }
+  .amx-player__info-stat-val { font-size: 13px; }
+  .amx-player__info-stat-lbl { font-size: 9px; }
+  .amx-player__progress-block { padding: 12px 14px; }
+}

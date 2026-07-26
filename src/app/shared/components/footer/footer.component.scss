@@ -12,12 +12,10 @@
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glow-color: rgba(245, 130, 10, 0.3);
-
   position: relative;
   background: var(--footer-grad);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow: hidden;
-
   &::before {
     content: '';
     position: absolute;
@@ -29,7 +27,6 @@
     background-size: 40px 40px;
     pointer-events: none;
   }
-
   &::after {
     content: '';
     position: absolute;
@@ -42,7 +39,6 @@
     pointer-events: none;
   }
 }
-
 .amx-footer__circular-text {
   position: absolute;
   bottom: 40px;
@@ -53,21 +49,18 @@
   opacity: 0.5;
   pointer-events: auto;
 }
-
 .amx-footer__circular-text-inner {
   translate: 0 0 !important;
   margin: 0 !important;
   width: 100% !important;
   height: 100% !important;
 }
-
 .amx-footer__circular-text .circular-text {
   width: 100%;
   height: 100%;
   font-size: 12px;
   translate: 0 0 !important;
 }
-
 @media (max-width: 768px) {
   .amx-footer__circular-text {
     bottom: 20px;
@@ -75,12 +68,10 @@
     width: 80px;
     height: 80px;
   }
-
   .amx-footer__circular-text .circular-text {
     font-size: 10px;
   }
 }
-
 [data-theme="light"] .amx-footer {
   --footer-grad: radial-gradient(ellipse at 20% 0%, rgba(245, 130, 10, 0.12) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 100%, rgba(250, 165, 74, 0.08) 0%, transparent 50%),
@@ -95,12 +86,10 @@
   --glass-bg: rgba(0, 0, 0, 0.02);
   --glass-border: rgba(0, 0, 0, 0.06);
   --glow-color: rgba(245, 130, 10, 0.2);
-
   &::before {
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(0,0,0,0.03)"/></svg>');
   }
 }
-
 @keyframes rotate {
   from {
     transform: rotate(0deg);
@@ -109,7 +98,6 @@
     transform: rotate(360deg);
   }
 }
-
 .amx-footer__wave {
   display: block;
   width: 100%;
@@ -118,31 +106,26 @@
   line-height: 0;
   position: relative;
   z-index: 2;
-
   path {
     fill: var(--footer-link-hover);
     filter: drop-shadow(0 -4px 20px var(--glow-color));
   }
 }
-
 .amx-footer__inner {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 48px;
   position: relative;
   z-index: 1;
-
   @media (max-width: 860px) {
     padding: 0 28px;
   }
 }
-
 .amx-footer__masthead {
   padding: 48px 0 0;
   position: relative;
   z-index: 2;
 }
-
 .amx-footer__brand-row {
   display: flex;
   flex-direction: column;
@@ -151,7 +134,6 @@
   padding-bottom: 48px;
   border-bottom: 1px solid var(--footer-divider);
   position: relative;
-
   &::after {
     content: '';
     position: absolute;
@@ -162,13 +144,11 @@
     background: linear-gradient(90deg, var(--footer-link-hover), transparent);
   }
 }
-
 .amx-footer__brand-group {
   display: flex;
   align-items: center;
   gap: 20px;
 }
-
 .amx-footer__brand-logo {
   height: 48px;
   width: auto;
@@ -176,13 +156,11 @@
   flex-shrink: 0;
   filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
-
   &:hover {
     transform: scale(1.05);
     filter: drop-shadow(0 4px 16px var(--glow-color));
   }
 }
-
 .amx-footer__brand-name {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 2.75rem;
@@ -196,7 +174,6 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-
   &:hover {
     letter-spacing: -0.02em;
     background: linear-gradient(135deg, var(--footer-link-hover) 0%, var(--footer-brand-text) 100%);
@@ -205,7 +182,6 @@
     background-clip: text;
   }
 }
-
 .amx-footer__brand-tagline {
   font-size: 15px;
   color: var(--footer-link);
@@ -215,14 +191,12 @@
   font-weight: 400;
   letter-spacing: 0.01em;
 }
-
 .amx-footer__trusted {
   padding: 44px 0 0;
   overflow: hidden;
   position: relative;
   z-index: 2;
 }
-
 .amx-footer__trusted-label {
   font-size: 10px;
   font-weight: 700;
@@ -232,7 +206,6 @@
   text-align: center;
   text-transform: uppercase;
 }
-
 .amx-footer__trusted-viewport {
   overflow: hidden;
   mask-image: linear-gradient(
@@ -250,7 +223,6 @@
     transparent 100%
   );
 }
-
 .amx-footer__trusted-track {
   display: flex;
   gap: 72px;
@@ -258,7 +230,6 @@
   animation: marquee 40s linear infinite;
   will-change: transform;
 }
-
 .amx-footer__trusted-item {
   display: flex;
   align-items: center;
@@ -269,17 +240,14 @@
   color: var(--footer-link);
   white-space: nowrap;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-
   &:hover {
     color: var(--footer-link-hover);
     transform: translateY(-2px);
   }
 }
-
 .amx-footer__trusted-name {
   transition: color 0.3s ease;
 }
-
 .amx-footer__trusted-logo {
   height: 22px;
   width: auto;
@@ -287,11 +255,9 @@
   transition: all 0.3s ease;
   flex-shrink: 0;
 }
-
 .amx-footer__trusted-item:hover .amx-footer__trusted-logo {
   opacity: 1;
 }
-
 @keyframes marquee {
   0% {
     transform: translate3d(0, 0, 0);
@@ -300,7 +266,6 @@
     transform: translate3d(-50%, 0, 0);
   }
 }
-
 .amx-footer__cols {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -308,14 +273,12 @@
   padding: 52px 0;
   position: relative;
   z-index: 2;
-
   @media (max-width: 700px) {
     grid-template-columns: repeat(2, 1fr);
     gap: 32px 20px;
     padding: 40px 0;
   }
 }
-
 .amx-footer__col-heading {
   font-size: 11px;
   font-weight: 700;
@@ -325,7 +288,6 @@
   text-transform: uppercase;
   position: relative;
   display: inline-block;
-
   &::after {
     content: '';
     position: absolute;
@@ -337,7 +299,6 @@
     border-radius: 2px;
   }
 }
-
 .amx-footer__col-list {
   list-style: none;
   padding: 0;
@@ -346,7 +307,6 @@
   flex-direction: column;
   gap: 14px;
 }
-
 .amx-footer__link {
   font-size: 14px;
   color: var(--footer-link);
@@ -356,7 +316,6 @@
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: inline-block;
   padding: 4px 0;
-
   &::after {
     content: '';
     position: absolute;
@@ -368,17 +327,14 @@
     background: linear-gradient(90deg, var(--footer-link-hover), transparent);
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
   &:hover {
     color: var(--footer-link-hover);
     transform: translateX(6px);
-
     &::after {
       width: 100%;
     }
   }
 }
-
 .amx-footer__social-row {
   display: flex;
   justify-content: center;
@@ -386,13 +342,11 @@
   position: relative;
   z-index: 2;
 }
-
 .amx-footer__socials {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .amx-footer__social-btn {
   display: flex;
   align-items: center;
@@ -407,7 +361,6 @@
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   backdrop-filter: blur(10px);
-
   &::before {
     content: '';
     position: absolute;
@@ -417,53 +370,44 @@
     opacity: 0;
     transition: opacity 0.3s ease;
   }
-
   &:hover {
     color: #ffffff;
     transform: translateY(-6px) scale(1.05);
     border-color: var(--footer-link-hover);
     box-shadow: 0 12px 28px var(--glow-color);
-
     &::before {
       opacity: 1;
     }
   }
-
   &:active {
     transform: translateY(-2px) scale(0.95);
   }
-
   svg {
     position: relative;
     z-index: 1;
     transition: transform 0.3s ease;
   }
-
   &:hover svg {
     transform: scale(1.1);
   }
 }
-
 .amx-footer__bottom {
   border-top: 1px solid var(--footer-divider);
   padding: 24px 0;
   position: relative;
   z-index: 2;
-
   .amx-footer__inner {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-
     @media (max-width: 600px) {
       flex-direction: column;
       text-align: center;
     }
   }
 }
-
 .amx-footer__copy {
   font-size: 13px;
   color: var(--footer-bottom-text);
@@ -472,7 +416,6 @@
   white-space: nowrap;
   letter-spacing: 0.01em;
 }
-
 .amx-footer__legal-text {
   font-size: 12px;
   color: var(--footer-bottom-legal);
@@ -480,8 +423,21 @@
   letter-spacing: 0.04em;
   text-align: right;
   font-weight: 400;
-
   @media (max-width: 600px) {
     text-align: center;
   }
+}
+
+@media (max-width: 480px) {
+  .amx-footer__inner { padding: 0 16px; }
+  .amx-footer__brand-name { font-size: 1.75rem; }
+  .amx-footer__brand-tagline { font-size: 13px; }
+  .amx-footer__social-btn { width: 40px; height: 40px; }
+}
+
+@media (max-width: 400px) {
+  .amx-footer__cols { grid-template-columns: 1fr; gap: 28px; padding: 32px 0; }
+  .amx-footer__bottom .amx-footer__inner { flex-direction: column; text-align: center; gap: 8px; }
+  .amx-footer__copy { font-size: 12px; white-space: normal; }
+  .amx-footer__legal-text { font-size: 11px; }
 }

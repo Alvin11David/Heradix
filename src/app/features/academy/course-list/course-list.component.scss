@@ -804,3 +804,18 @@
     box-shadow: 0 8px 24px color-mix(in srgb, var(--amx-orange) 38%, transparent);
   }
 }
+
+@media (max-width: 480px) {
+  .amx-academy__hero { padding: 48px 16px 40px; min-height: auto; }
+  .amx-academy__hero-card { padding: 20px 16px 18px; }
+  .amx-academy__title { font-size: 20px; }
+  .amx-academy__desc { font-size: 13.5px; margin-bottom: 20px; }
+  .amx-academy__stats { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .amx-academy__stat-sep { display: none; }
+  .amx-academy__stat { padding: 0; }
+  .amx-academy__stat-value { font-size: 22px; }
+  .amx-academy__section-title h2 { font-size: 17px; }
+  .amx-academy__filter-btn { padding: 5px 12px; font-size: 12px; }
+  .amx-academy__gate-inner { padding: 18px; }
+  .amx-academy__gate-text { flex-direction: column; align-items: flex-start; gap: 12px; }
+}

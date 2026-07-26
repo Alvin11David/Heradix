@@ -131,52 +131,20 @@
   &--active { background: var(--amx-tag-bg); color: var(--amx-orange-dark); font-weight: 700; }
   &--lib { display: flex; align-items: center; gap: 8px; }
   &--loading { opacity: 0.7; }
-  &--soon { opacity: 0.72; cursor: default; }
-  &--soon:hover {
-    background: var(--amx-tag-bg);
-    color: var(--amx-orange-dark);
-  }
-  &--flutter {
-    text-decoration: none;
-    &:hover { background: var(--amx-bg-soft); }
-  }
-}
-.amx-lib-soon-badge {
-  font-size: 9px; font-weight: 800; letter-spacing: 0.04em;
-  text-transform: uppercase; color: var(--amx-orange-dark);
-  background: var(--amx-tag-bg); border-radius: 999px;
-  padding: 1px 5px; flex-shrink: 0; margin-left: 2px;
-}
-.amx-lib-ext {
-  flex-shrink: 0; opacity: 0.45; margin-left: 1px;
-}
-.amx-filter-group--flutter {
-  h4 {
-    display: flex; align-items: center; gap: 5px;
-  }
-  .amx-lib-dot--flutter {
-    background: #54C5F8;
-  }
 }
 .amx-lib-dot {
   width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
   background: var(--amx-muted);
   &--all { background: linear-gradient(135deg, var(--amx-orange) 50%, #2563eb 100%); }
-  &[data-lib="amarapix"]         { background: var(--amx-orange); }
-  &[data-lib="tabler"]           { background: #227BCE; }
-  &[data-lib="lucide"]           { background: #F56565; }
-  &[data-lib="mdi"]              { background: #2196F3; }
-  &[data-lib="material-symbols"] { background: #4285F4; }
-  &[data-lib="heroicons"]        { background: #0284C7; }
-  &[data-lib="feather"]          { background: #E0823D; }
-  &[data-lib="fontawesome"]      { background: #538FD8; }
-  &[data-lib="remixicon"]        { background: #6366F1; }
-  &[data-lib="bootstrap"]        { background: #7952B3; }
-  &[data-lib="phosphor"]         { background: #059669; }
-  &[data-lib="ionicons"]         { background: #3880FF; }
-  &[data-lib="react-icons"]      { background: #61DAFB; }
-  // Flutter packages share the Flutter teal palette
-  &[data-lib^="flutter-"]        { background: #54C5F8; }
+  &[data-lib="amarapix"] { background: var(--amx-orange); }
+  &[data-lib="tabler"]    { background: #227BCE; }
+  &[data-lib="lucide"]    { background: #F56565; }
+  &[data-lib="mdi"]       { background: #2196F3; }
+  &[data-lib="remixicon"] { background: #6366F1; }
+  &[data-lib="bootstrap"] { background: #7952B3; }
+  &[data-lib="phosphor"]  { background: #059669; }
+  &[data-lib="heroicons"] { background: #0284C7; }
+  &[data-lib="ionicons"]  { background: #3880FF; }
 }
 .amx-lib-count {
   margin-left: auto; font-size: 11px; font-weight: 600;
@@ -343,14 +311,6 @@
     }
   }
 }
-.amx-icons__ai-help {
-  display: none;
-  color: var(--amx-muted);
-  font-size: 11px;
-  line-height: 1.2;
-  max-width: 130px;
-  &--on { display: inline-block; color: #7c3aed; }
-}
 .amx-icons__recolor {
   position: relative;
   &-btn {
@@ -515,21 +475,6 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
     &::-webkit-scrollbar { display: none; }
-    &::after {
-      content: '';
-      flex: 0 0 18px;
-    }
-  }
-  &__hint {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 5px;
-    margin-top: 8px;
-    color: var(--amx-muted);
-    font-size: 11px;
-    font-weight: 600;
-    svg { color: var(--amx-orange); }
   }
   &__restore {
     display: inline-flex;
@@ -746,22 +691,6 @@
     strong { font-family: var(--font-display); font-size: 20px; color: var(--amx-orange-dark); }
     span { font-size: 11px; color: var(--amx-muted); }
   }
-  &-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    margin-top: 18px;
-    border: 1px solid var(--amx-orange);
-    border-radius: 999px;
-    padding: 9px 14px;
-    background: var(--amx-card);
-    color: var(--amx-orange-dark);
-    font-size: 12.5px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s, transform 0.15s;
-    &:hover { background: var(--amx-tag-bg); transform: translateX(2px); }
-  }
   &-showcase { display: flex; gap: 12px; flex-shrink: 0; }
   &-tile {
     width: 80px; height: 80px;
@@ -772,30 +701,6 @@
     transform: rotate(calc((var(--i, 0) - 1) * 6deg)) translateY(calc(var(--i, 0) * -6px));
     .amx-icon-render { width: 36px; height: 36px; }
   }
-}
-.amx-icons__toast {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  max-width: min(360px, calc(100vw - 32px));
-  padding: 12px 15px;
-  border: 1px solid rgba(245,130,10,.28);
-  border-radius: 12px;
-  background: var(--amx-card);
-  box-shadow: 0 12px 32px rgba(15,23,42,.16);
-  color: var(--amx-text);
-  font-size: 13px;
-  font-weight: 600;
-  animation: amx-toast-in .2s ease-out;
-  svg { flex-shrink: 0; color: var(--amx-orange); }
-}
-@keyframes amx-toast-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 @media (max-width: 900px) {
   .amx-icons__hero { flex-direction: column; align-items: flex-start; }
@@ -905,19 +810,14 @@
     position: absolute; bottom: -6px; left: -6px;
     width: 10px; height: 10px; border-radius: 50%;
     border: 1.5px solid var(--amx-card); background: var(--amx-muted);
-    &[data-lib="tabler"]           { background: #227BCE; }
-    &[data-lib="lucide"]           { background: #F56565; }
-    &[data-lib="mdi"]              { background: #2196F3; }
-    &[data-lib="material-symbols"] { background: #4285F4; }
-    &[data-lib="heroicons"]        { background: #0284C7; }
-    &[data-lib="feather"]          { background: #E0823D; }
-    &[data-lib="fontawesome"]      { background: #538FD8; }
-    &[data-lib="remixicon"]        { background: #6366F1; }
-    &[data-lib="bootstrap"]        { background: #7952B3; }
-    &[data-lib="phosphor"]         { background: #059669; }
-    &[data-lib="ionicons"]         { background: #3880FF; }
-    &[data-lib="react-icons"]      { background: #61DAFB; }
-    &[data-lib^="flutter-"]        { background: #54C5F8; }
+    &[data-lib="tabler"]    { background: #227BCE; }
+    &[data-lib="lucide"]    { background: #F56565; }
+    &[data-lib="mdi"]       { background: #2196F3; }
+    &[data-lib="remixicon"] { background: #6366F1; }
+    &[data-lib="bootstrap"] { background: #7952B3; }
+    &[data-lib="phosphor"]  { background: #059669; }
+    &[data-lib="heroicons"] { background: #0284C7; }
+    &[data-lib="ionicons"]  { background: #3880FF; }
   }
   &__fav {
     position: absolute; bottom: -7px; right: -10px;
@@ -1980,4 +1880,24 @@
 @keyframes figma-tip-in {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .amx-icons__layout { padding: 12px 12px 0; gap: 16px; }
+  .amx-icons__hero { padding: 18px 16px; }
+  .amx-icons__hero-copy h1 { font-size: 20px; }
+  .amx-icons__hero-copy p { font-size: 13px; }
+  .amx-icons__hero-stats { flex-direction: column; gap: 8px; }
+  .amx-icons__search { min-width: 0; padding: 8px 10px; }
+  .amx-icons__search input { font-size: 13px; }
+  .amx-icons__toolbar { gap: 6px; }
+  .amx-icons__density-toggle { display: none; }
+  .amx-icon-grid { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; }
+  .amx-icon-card { padding: 10px 4px 8px; }
+  .amx-icon-card__preview { width: 32px; height: 32px; }
+  .amx-icon-card__name { font-size: 10px; }
+  .amx-icon-detail { padding: 18px 14px 40px; }
+  .amx-icon-detail__title { font-size: 16px; }
+  .amx-icon-detail__preview { height: 120px; }
+  .amx-bulk-bar__inner { flex-wrap: wrap; justify-content: center; padding: 8px 12px; gap: 8px; }
 }

@@ -1350,3 +1350,26 @@ $transition:    0.18s ease;
   &--approved { background: rgba(34,197,94,.15); color: #22c55e; }
   &--rejected { background: rgba(239,68,68,.15); color: #ef4444; }
 }
+
+@media (max-width: 500px) {
+  .amx-png__hero { padding: 48px 16px 40px; }
+  .amx-png__search { padding: 10px 6px 10px 14px; }
+  .amx-png__search input { font-size: 14px; }
+  .amx-png__search-btn span { display: none; }
+  .amx-png__toolbar { padding: 10px 12px; }
+  .amx-png__count { font-size: 12px; }
+  .amx-png__grid--masonry { columns: 2 130px; column-gap: 10px; }
+  .amx-png__grid--uniform { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .amx-png-card__frame { min-height: 80px; }
+  .amx-png-card__meta-name { font-size: 10.5px; }
+  .amx-png-card__meta-dl { font-size: 9.5px; }
+  .amx-png__pagination-bar { width: 140px; }
+  .amx-png__load-more-btn { padding: 10px 24px; font-size: 12.5px; }
+}
+
+@media (max-width: 400px) {
+  .amx-png__grid--masonry { columns: 1; }
+  .amx-png__grid--uniform { grid-template-columns: 1fr; }
+  .amx-png__active-filters { padding: 8px 12px; }
+  .amx-png__chip { font-size: 11px; padding: 4px 8px 4px 10px; }
+}

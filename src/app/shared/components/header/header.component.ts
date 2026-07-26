@@ -40,26 +40,6 @@ const PNG_DROPDOWN_LINKS: DropdownLink[] = [
   { label: 'Social & Media',    emoji: '📱',  desc: 'Phones, icons & social UI',    route: '/png', queryParams: { category: 'social' } },
 ];
 
-const PHOTOS_DROPDOWN_LINKS: DropdownLink[] = [
-  { label: 'All Photos',     emoji: '📷',  desc: 'Explore every photo collection',  route: '/marketplace', queryParams: { type: 'photos' } },
-  { label: 'AI Generated',   emoji: '🤖',  desc: 'Stunning AI-crafted imagery',     route: '/marketplace', queryParams: { type: 'photos', category: 'ai' } },
-  { label: 'City',           emoji: '🏙️', desc: 'Urban scenes & architecture',     route: '/marketplace', queryParams: { type: 'photos', category: 'city' } },
-  { label: 'Landscapes',     emoji: '🌄',  desc: 'Mountains, skies & scenic views', route: '/marketplace', queryParams: { type: 'photos', category: 'landscapes' } },
-  { label: 'People',         emoji: '🧑‍🤝‍🧑', desc: 'Portraits, lifestyle & candids', route: '/marketplace', queryParams: { type: 'photos', category: 'people' } },
-  { label: 'Animals',        emoji: '🦁',  desc: 'Wildlife, pets & creatures',      route: '/marketplace', queryParams: { type: 'photos', category: 'animals' } },
-  { label: 'Sports',         emoji: '🏆',  desc: 'Action shots & athletic moments', route: '/marketplace', queryParams: { type: 'photos', category: 'sports' } },
-  { label: 'Branding',       emoji: '🎨',  desc: 'Product shots & brand stories',   route: '/marketplace', queryParams: { type: 'photos', category: 'branding' } },
-];
-
-const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
-  { label: 'Templates',      emoji: '📄',  desc: 'Ready-made design layouts',       route: '/marketplace', queryParams: { type: 'templates' } },
-  { label: 'Fonts',          emoji: '🔤',  desc: 'Typefaces for every project',     route: '/marketplace', queryParams: { type: 'fonts' } },
-  { label: 'Textures',       emoji: '🪨',  desc: 'Surfaces, grains & materials',    route: '/marketplace', queryParams: { type: 'textures' } },
-  { label: 'Backgrounds',    emoji: '🌌',  desc: 'Gradients, patterns & scenes',    route: '/marketplace', queryParams: { type: 'backgrounds' } },
-  { label: 'Motion Graphics', emoji: '🎞️', desc: 'Animated elements & transitions', route: '/marketplace', queryParams: { type: 'motion' } },
-  { label: 'Sound Effects',  emoji: '🔊',  desc: 'Audio clips for your projects',   route: '/marketplace', queryParams: { type: 'audio' } },
-];
-
 @Component({
   selector: 'amx-header',
   standalone: true,
@@ -69,6 +49,16 @@ const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
     <header class="amx-topbar">
       <div class="amx-topbar__inner">
 
+        <button class="amx-hamburger" type="button"
+                (click)="mobileMenuOpen.set(!mobileMenuOpen())"
+                [attr.aria-expanded]="mobileMenuOpen()"
+                aria-label="Toggle navigation menu"
+                aria-controls="amx-mobile-nav">
+          <span class="amx-hamburger__line" [class.amx-hamburger__line--open]="mobileMenuOpen()"></span>
+          <span class="amx-hamburger__line" [class.amx-hamburger__line--open]="mobileMenuOpen()"></span>
+          <span class="amx-hamburger__line" [class.amx-hamburger__line--open]="mobileMenuOpen()"></span>
+        </button>
+
         <a routerLink="/marketplace" class="amx-logo" aria-label="Amarapix home">
           <img src="/assets/logo/blacklogo.png"
                alt="Amarapix"
@@ -77,7 +67,7 @@ const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
           <span class="amx-logo__text" style="display:none">Amara<span class="amx-logo__pix">pix</span></span>
         </a>
 
-        <button class="amx-categories-btn" type="button" aria-haspopup="true">
+        <button class="amx-categories-btn amx-hide-mobile" type="button" aria-haspopup="true">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
             <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
@@ -85,7 +75,7 @@ const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
           All Categories
         </button>
 
-        <div class="amx-search">
+        <div class="amx-search" [class.amx-search--mobile-open]="mobileSearchOpen()">
           <input
             class="amx-search__input"
             type="search"
@@ -118,6 +108,14 @@ const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
             </svg>
           </button>
         </div>
+
+        <button class="amx-search-toggle amx-show-mobile" type="button"
+                (click)="mobileSearchOpen.set(!mobileSearchOpen())"
+                aria-label="Toggle search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
 
         <div class="amx-topbar__actions">
           <button
@@ -272,7 +270,15 @@ const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
       </div>
     </header>
 
-    <nav class="amx-catnav" aria-label="Asset categories">
+    <!-- Mobile overlay -->
+    <div class="amx-mobile-overlay" *ngIf="mobileMenuOpen()"
+         (click)="mobileMenuOpen.set(false)"
+         (keydown.escape)="mobileMenuOpen.set(false)"
+         aria-hidden="true"></div>
+
+    <nav class="amx-catnav" id="amx-mobile-nav"
+         [class.amx-catnav--mobile-open]="mobileMenuOpen()"
+         aria-label="Asset categories">
       <div class="amx-catnav__inner">
         <ul class="amx-catnav__list" role="list">
           <li *ngFor="let cat of categories" class="amx-catnav__item"
@@ -282,7 +288,7 @@ const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
                routerLinkActive="active"
                [routerLinkActiveOptions]="{exact: true}"
                class="amx-catnav__link"
-               (click)="onCatClick(cat)">
+               (click)="onCatClick(cat); mobileMenuOpen.set(false)">
               {{ cat.label }}
               <svg *ngIf="cat.hasDropdown"
                    width="11" height="11" viewBox="0 0 24 24" fill="none"
@@ -295,13 +301,14 @@ const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
                  class="amx-cat-dropdown amx-cat-dropdown--rich" role="menu">
               <div class="amx-cat-dropdown__header">
                 <span class="amx-cat-dropdown__header-label">{{ cat.label }} Categories</span>
-                <a [routerLink]="cat.route" class="amx-cat-dropdown__header-all">View all →</a>
+                <a [routerLink]="cat.route" class="amx-cat-dropdown__header-all" (click)="mobileMenuOpen.set(false)">View all →</a>
               </div>
               <div class="amx-cat-dropdown__grid">
                 <a *ngFor="let link of cat.dropdownLinks"
                    [routerLink]="link.route"
                    [queryParams]="link.queryParams || {}"
                    class="amx-cat-dropdown__card"
+                   (click)="mobileMenuOpen.set(false)"
                    role="menuitem">
                   <span class="amx-cat-dropdown__card-emoji">{{ link.emoji }}</span>
                   <span class="amx-cat-dropdown__card-body">
@@ -318,14 +325,14 @@ const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
               <li *ngFor="let item of cat.dropdownItems"
                   class="amx-cat-dropdown__item"
                   role="menuitem"
-                  (click)="navigateDropdown(cat, item)">{{ item }}</li>
+                  (click)="navigateDropdown(cat, item); mobileMenuOpen.set(false)">{{ item }}</li>
             </ul>
           </li>
         </ul>
 
         <ul class="amx-catnav__utils" role="list">
           <li>
-            <a routerLink="/print" routerLinkActive="active" class="amx-catnav__util-link">
+            <a routerLink="/print" routerLinkActive="active" class="amx-catnav__util-link" (click)="mobileMenuOpen.set(false)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <polyline points="6 9 6 2 18 2 18 9"/>
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
@@ -335,7 +342,7 @@ const OTHER_CATEGORIES_LINKS: DropdownLink[] = [
             </a>
           </li>
           <li>
-            <a routerLink="/academy" routerLinkActive="active" class="amx-catnav__util-link">
+            <a routerLink="/academy" routerLinkActive="active" class="amx-catnav__util-link" (click)="mobileMenuOpen.set(false)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
                 <path d="M6 12v5c3 3 9 3 12 0v-5"/>
@@ -359,6 +366,8 @@ export class HeaderComponent {
   selectedFormat = signal('Format');
   readonly formatItems = FORMAT_ITEMS;
 
+  mobileMenuOpen  = signal(false);
+  mobileSearchOpen = signal(false);
 
   openDropdown: string | null = null;
   activeCat: string | null = null;
@@ -413,8 +422,14 @@ export class HeaderComponent {
     { label: 'Icons',   route: '/icons' },
     { label: 'PNG', route: '/png', hasDropdown: true, dropdownLinks: PNG_DROPDOWN_LINKS },
     { label: 'Vectors', route: '/vectors' },
-    { label: 'Photos', route: '/marketplace', hasDropdown: true, dropdownLinks: PHOTOS_DROPDOWN_LINKS },
-    { label: 'Videos', route: '/marketplace' },
-    { label: 'Other Categories', route: '/marketplace', hasDropdown: true, dropdownLinks: OTHER_CATEGORIES_LINKS },
+    {
+      label: 'Photos', route: '/marketplace/photos', hasDropdown: true,
+      dropdownItems: ['All Photos', 'AI Generated', 'City', 'Landscapes', 'People', 'Animals', 'Sports', 'Branding'],
+    },
+    { label: 'Videos', route: '/marketplace/videos' },
+    {
+      label: 'Other Categories', route: '/marketplace', hasDropdown: true,
+      dropdownItems: ['Templates', 'SVGs', 'Motion Graphics', '3D Assets', 'Fonts', 'Textures'],
+    },
   ];
 }

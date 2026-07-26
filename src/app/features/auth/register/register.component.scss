@@ -511,3 +511,17 @@
     color: rgba(0, 0, 0, 0.7);
   }
 }
+
+@media (max-width: 480px) {
+  .auth-page { padding: 24px 16px; }
+  .auth-panel--form { padding: 28px 18px; }
+  .auth-title { font-size: 20px; }
+  .auth-sub { font-size: 13px; margin-bottom: 20px; }
+  .auth-logo { margin-bottom: 24px; }
+  .auth-logo__icon { width: 36px; height: 36px; }
+  .auth-logo__text { font-size: 17px; }
+  .auth-form { max-width: 100%; }
+  .auth-btn { max-width: 100%; padding: 13px 18px; font-size: 14px; }
+  .auth-divider { max-width: 100%; margin: 14px 0; }
+  .auth-footer-link { margin-top: 18px; font-size: 12.5px; }
+}
