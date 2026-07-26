@@ -2,7 +2,7 @@ import {
   Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, AfterViewInit, OnDestroy, ElementRef, HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, of, timeout } from 'rxjs';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -41,7 +41,7 @@ export interface DownloadFormat {
 @Component({
   selector: 'amx-asset-detail',
   standalone: true,
-  imports: [CommonModule, SpinnerComponent, AddToCollectionMenuComponent],
+  imports: [CommonModule, RouterLink, SpinnerComponent, AddToCollectionMenuComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './asset-detail.component.html',
   styleUrl: './asset-detail.component.scss',

@@ -34,7 +34,7 @@ export class FooterComponent {
         { label: 'About Amarapix', href: '/about' },
         { label: 'Contact', href: '/contact' },
         { label: 'Work with us', href: '/careers' },
-        { label: 'Collaborators', href: '/affiliates' },
+        { label: 'Collaborators', href: '/affiliate' },
       ],
     },
     {

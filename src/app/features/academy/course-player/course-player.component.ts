@@ -108,6 +108,7 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
   commentText    = signal('');
   markingComplete = signal(false);
   settingsMenuOpen = signal(false);
+  fullscreen = signal(false);
 
   readonly RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
@@ -281,6 +282,20 @@ export class CoursePlayerComponent implements OnInit, OnDestroy {
 
   toggleSettings(): void {
     this.settingsMenuOpen.update(v => !v);
+  }
+
+  isFullscreen(): boolean {
+    return this.fullscreen();
+  }
+
+  toggleFullscreen(): void {
+    const el = document.documentElement;
+    if (!this.fullscreen()) {
+      el.requestFullscreen?.().then(() => this.fullscreen.set(true)).catch(() => {});
+    } else {
+      document.exitFullscreen?.().then(() => this.fullscreen.set(false)).catch(() => {});
+    }
+    this.fullscreen.update(f => !f);
   }
 
   markComplete(): void {

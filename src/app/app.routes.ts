@@ -125,6 +125,16 @@ export const routes: Routes = [
     ],
   },
 
+  // Informational / static pages
+  { path: 'about',    loadComponent: () => import('./features/static-pages/static-page.component').then(m => m.StaticPageComponent) },
+  { path: 'contact',  loadComponent: () => import('./features/static-pages/static-page.component').then(m => m.StaticPageComponent) },
+  { path: 'careers',  loadComponent: () => import('./features/static-pages/static-page.component').then(m => m.StaticPageComponent) },
+  { path: 'licence',  loadComponent: () => import('./features/static-pages/static-page.component').then(m => m.StaticPageComponent) },
+  { path: 'refund',   loadComponent: () => import('./features/static-pages/static-page.component').then(m => m.StaticPageComponent) },
+  { path: 'terms',    loadComponent: () => import('./features/static-pages/static-page.component').then(m => m.StaticPageComponent) },
+  { path: 'privacy',  loadComponent: () => import('./features/static-pages/static-page.component').then(m => m.StaticPageComponent) },
+  { path: 'report',   loadComponent: () => import('./features/static-pages/static-page.component').then(m => m.StaticPageComponent) },
+
   { path: 'unauthorized', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) },
   { path: '**', redirectTo: 'marketplace' },
 ];
