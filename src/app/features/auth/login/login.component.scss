@@ -53,7 +53,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 48px 36px;
+    padding: 0;
     position: relative;
     overflow: hidden;
     animation: auth-promo-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
@@ -445,6 +445,97 @@
 }
 
 
+/* ── Image carousel ─────────────────────────────────────────── */
+.auth-img-slider {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.auth-img-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+
+  &--active {
+    opacity: 1;
+    z-index: 1;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(11, 17, 32, 0.40) 0%,
+      rgba(11, 17, 32, 0.10) 45%,
+      rgba(11, 17, 32, 0.72) 100%
+    );
+  }
+
+  &__label {
+    position: absolute;
+    bottom: 54px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.93);
+    letter-spacing: -0.2px;
+    z-index: 2;
+    padding: 0 20px;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+  }
+}
+
+.auth-img-slider__dots {
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 2;
+}
+
+.auth-img-slider__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &--active {
+    width: 22px;
+    border-radius: 999px;
+    background: var(--amx-orange);
+    box-shadow: 0 0 10px rgba(245, 130, 10, 0.55);
+  }
+
+  &:hover:not(.auth-img-slider__dot--active) {
+    background: rgba(255, 255, 255, 0.6);
+  }
+}
+
+/* ── Ambient overlay sits above images ──────────────────────── */
 .auth-ambient {
   position: absolute;
   top: 50%;

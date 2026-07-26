@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -137,32 +137,31 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
 
       <div class="auth-panel auth-panel--promo">
 
+        <div class="auth-img-slider">
+          <div
+            *ngFor="let slide of heroSlides; let i = index"
+            class="auth-img-slide"
+            [class.auth-img-slide--active]="heroSlideIndex() === i">
+            <img [src]="slide.img" [alt]="slide.label" class="auth-img-slide__img" loading="lazy"/>
+            <div class="auth-img-slide__overlay"></div>
+          </div>
+        </div>
+
         <div class="auth-ambient">
           <amx-circular-text text="Amarapix" [spinDuration]="24" onHover="speedUp" />
         </div>
 
-        <div class="auth-slider">
-          <div class="auth-slider__track" [style.transform]="'translateX(-' + (activeSlide() * 100) + '%)'">
-            <div class="auth-slide" *ngFor="let slide of slides">
-              <div class="auth-slide__icon">
-                <img src="assets/logo/whitelogo.png" alt="" class="auth-slide__icon-img" />
-              </div>
-              <h2 class="auth-promo__title">{{ slide.title }} <span>{{ slide.highlight }}</span></h2>
-              <p class="auth-promo__sub">{{ slide.sub }}</p>
-            </div>
-          </div>
-          <div class="auth-slider__dots">
-            <div class="auth-slider__track-line">
-              <div class="auth-slider__track-fill" [style.width.%]="activeSlide() * 50"></div>
-            </div>
-            <button *ngFor="let slide of slides; let i = index"
-              class="auth-slider__dot"
-              [class.auth-slider__dot--active]="activeSlide() === i"
-              (click)="activeSlide.set(i)"
-              [attr.aria-label]="'Slide ' + (i + 1)">
-            </button>
-          </div>
+        <div class="auth-img-slide__label">{{ heroSlides[heroSlideIndex()].label }}</div>
+        <div class="auth-img-slider__dots">
+          <button
+            *ngFor="let slide of heroSlides; let i = index"
+            class="auth-img-slider__dot"
+            [class.auth-img-slider__dot--active]="heroSlideIndex() === i"
+            (click)="goToSlide(i)"
+            [attr.aria-label]="'Go to slide ' + (i + 1)">
+          </button>
         </div>
+
       </div>
 
       <amx-splash-cursor [RAINBOW_MODE]="false" COLOR="#a855f7" />
@@ -171,33 +170,24 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
   `,
   styleUrl: './register.component.scss',
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit, OnDestroy {
   readonly authService = inject(AuthService);
   private readonly fb     = inject(FormBuilder);
   private readonly router = inject(Router);
   readonly isDark = inject(ThemeService).isDark;
 
-  loading     = signal(false);
-  error       = signal('');
-  showPwd     = signal(false);
-  activeSlide = signal(0);
+  loading        = signal(false);
+  error          = signal('');
+  showPwd        = signal(false);
+  heroSlideIndex = signal(0);
+  private slideTimer?: ReturnType<typeof setInterval>;
 
-  readonly slides = [
-    {
-      icon: '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
-      title: 'Create without', highlight: 'Limits',
-      sub: 'Access thousands of premium design assets for your projects',
-    },
-    {
-      icon: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
-      title: 'Millions of', highlight: 'Templates',
-      sub: 'Browse PSD, vectors, mockups, icons and more — all in one place',
-    },
-    {
-      icon: '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
-      title: 'Built for', highlight: 'Designers',
-      sub: 'Professional tools, AI editor and print-on-demand all in one',
-    },
+  readonly heroSlides = [
+    { img: '/assets/images/Branding_Print/All_Branding.jpg',     label: 'Full Branding Packages'  },
+    { img: '/assets/images/Branding_Print/Tshirt-2.jpg',         label: 'Custom T-Shirts'          },
+    { img: '/assets/images/Branding_Print/Business_cards-2.jpg', label: 'Premium Business Cards'   },
+    { img: '/assets/images/Branding_Print/Pullup_Banner.jpg',    label: 'Pull-Up Banners'          },
+    { img: '/assets/images/Branding_Print/Cap_Branding.jpg',     label: 'Custom Caps & Hats'       },
   ];
 
   form = this.fb.nonNullable.group({
@@ -209,6 +199,18 @@ export class RegisterComponent {
   get nameCtrl()  { return this.form.controls['fullName']; }
   get emailCtrl() { return this.form.controls['email']; }
   get pwdCtrl()   { return this.form.controls['password']; }
+
+  ngOnInit(): void {
+    this.slideTimer = setInterval(() => {
+      this.heroSlideIndex.update(i => (i + 1) % this.heroSlides.length);
+    }, 3500);
+  }
+
+  ngOnDestroy(): void {
+    if (this.slideTimer) clearInterval(this.slideTimer);
+  }
+
+  goToSlide(i: number): void { this.heroSlideIndex.set(i); }
 
   submit(): void {
     this.form.markAllAsTouched();
