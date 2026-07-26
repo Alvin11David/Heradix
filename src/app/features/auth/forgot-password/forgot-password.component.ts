@@ -222,6 +222,18 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   private otpDigits: string[] = ['', '', '', '', '', ''];
 
+  ngOnInit(): void {
+    this.slideTimer = setInterval(() => {
+      this.heroSlideIndex.update(i => (i + 1) % this.heroSlides.length);
+    }, 3500);
+  }
+
+  ngOnDestroy(): void {
+    if (this.slideTimer) clearInterval(this.slideTimer);
+  }
+
+  goToSlide(i: number): void { this.heroSlideIndex.set(i); }
+
   sendCode(): void {
     this.emailForm.markAllAsTouched();
     if (this.emailForm.invalid) return;
