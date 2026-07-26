@@ -196,4 +196,35 @@ export class PricingComponent {
     { q: 'How is Premium activation done?', a: 'After payment is confirmed, your account is upgraded instantly. Refresh your session and premium features will be unlocked immediately.', open: false },
     { q: 'Can I switch plans later?', a: 'Absolutely. You can upgrade or downgrade at any time. Prorated credits are applied when switching between plans.', open: false },
   ];
+
+  readonly compareRows: { feature: string; lite: string | boolean; pro: string | boolean; plus: string | boolean }[] = [
+    { feature: 'Daily downloads',         lite: '5 / day',    pro: '10 / day',   plus: '20 / day'    },
+    { feature: 'Asset resolution',        lite: 'Standard',   pro: 'High',       plus: 'Ultra HD'    },
+    { feature: 'Commercial licence',      lite: false,        pro: true,         plus: true          },
+    { feature: 'Simultaneous downloads',  lite: false,        pro: true,         plus: true          },
+    { feature: 'Custom asset requests',   lite: false,        pro: false,        plus: true          },
+    { feature: 'Team collaboration',      lite: false,        pro: false,        plus: true          },
+    { feature: 'Academy access',          lite: true,         pro: true,         plus: true          },
+    { feature: 'Ad-free experience',      lite: true,         pro: true,         plus: true          },
+    { feature: 'Priority support',        lite: false,        pro: true,         plus: true          },
+    { feature: 'Dedicated account mgr',   lite: false,        pro: false,        plus: true          },
+    { feature: 'Early access content',    lite: false,        pro: true,         plus: true          },
+    { feature: 'Daily content updates',   lite: true,         pro: true,         plus: true          },
+  ];
+
+  readonly testimonials = [
+    { name: 'Sarah Okonkwo', role: 'Brand Designer, Lagos', plan: 'Pro', avatar: 'SO', rating: 5, quote: 'Amarapix completely transformed my workflow. The quality of assets is unmatched and the daily download limit is more than enough for my client projects.' },
+    { name: 'James Mwangi', role: 'Marketing Director, Nairobi', plan: 'Plus', avatar: 'JM', rating: 5, quote: 'The Plus plan pays for itself after one client project. Having a dedicated account manager is a game-changer for our agency.' },
+    { name: 'Amara Diallo', role: 'Freelance Illustrator', plan: 'Lite', avatar: 'AD', rating: 5, quote: 'Even the Lite plan has everything I need. The academy alone is worth the subscription price. Highly recommend to any creative.' },
+  ];
+
+  toggleFaq(faq: Faq): void {
+    faq.open = !faq.open;
+  }
+
+  annualSavings(plan: PricingPlan): string {
+    const monthly = plan.monthlyPrice;
+    const annual  = this.annualPrice(monthly) * 12;
+    return ((monthly * 12 - annual)).toFixed(0);
+  }
 }
