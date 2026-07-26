@@ -292,9 +292,8 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.error.set('');
     const { newPassword } = this.passwordForm.getRawValue();
-    const email = this.emailForm.getRawValue().email;
     const token = this.otpDigits.join('');
-    this.authService.resetPassword({ email, token, newPassword }).subscribe({
+    this.authService.resetPassword({ token, newPassword }).subscribe({
       next: () => { this.loading.set(false); this.step.set(4); },
       error: () => { this.loading.set(false); this.step.set(4); },
     });
