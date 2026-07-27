@@ -10,7 +10,7 @@
 
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
 .amx-acc__sidebar {
-  width: 248px;
+  width: 256px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -21,26 +21,35 @@
   z-index: 50;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  // Glass surface
   background: var(--amx-card);
   border-right: 1px solid var(--amx-border);
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.06);
+  box-shadow: 1px 0 0 var(--amx-border), 4px 0 32px rgba(0, 0, 0, 0.07);
 
-  // Scroll only on nav overflow, no visible bar
-  &::after {
+  // Subtle top-glow mesh
+  &::before {
     content: '';
     position: absolute;
-    inset: 0;
+    top: 0; left: 0; right: 0;
+    height: 220px;
     pointer-events: none;
-    background:
-      radial-gradient(ellipse 120% 40% at 50% 0%,
-        rgba(245, 130, 10, 0.06) 0%, transparent 70%);
+    background: radial-gradient(ellipse 140% 60% at 50% -10%,
+      rgba(245, 130, 10, 0.09) 0%, transparent 65%);
     z-index: 0;
   }
 
+  // Bottom fade for nav overflow
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+
   &--collapsed {
-    width: 60px;
-    overflow: visible; // allow tooltip overflow
+    width: 64px;
+    overflow: visible;
 
     .amx-acc__brand-name,
     .amx-acc__user-info,
@@ -51,13 +60,24 @@
 
     .amx-acc__brand { justify-content: center; padding: 16px 0 14px; }
     .amx-acc__collapse-btn { margin-left: 0; }
-    .amx-acc__user-card { justify-content: center; padding: 10px 0 14px; }
-    .amx-acc__nav { padding: 0 8px; gap: 2px; }
+    .amx-acc__user-card { justify-content: center; padding: 12px 0 14px; }
+    .amx-acc__nav { padding: 0 10px; gap: 2px; }
     .amx-acc__section { gap: 2px; margin-bottom: 10px; }
-    .amx-acc__link { justify-content: center; padding: 0; width: 40px; height: 40px; margin: 0 auto; border-radius: 10px; }
+    .amx-acc__link {
+      justify-content: center; padding: 0;
+      width: 40px; height: 40px;
+      margin: 0 auto; border-radius: 11px;
+    }
     .amx-acc__link-icon { margin: 0; }
-    .amx-acc__footer { justify-content: center; flex-wrap: wrap; gap: 4px; padding: 10px 4px 16px; }
-    .amx-acc__footer-btn { padding: 0; width: 36px; height: 36px; justify-content: center; border-radius: 10px; span { display: none; } }
+    .amx-acc__footer {
+      justify-content: center; flex-wrap: wrap;
+      gap: 4px; padding: 10px 4px 16px;
+    }
+    .amx-acc__footer-btn {
+      padding: 0; width: 36px; height: 36px;
+      justify-content: center; border-radius: 10px;
+      span { display: none; }
+    }
   }
 
   @media (max-width: 820px) { display: none; }
@@ -68,7 +88,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 18px 16px 14px;
+  padding: 18px 16px 16px;
   border-bottom: 1px solid var(--amx-border);
   flex-shrink: 0;
   position: relative;
@@ -77,29 +97,29 @@
 }
 
 .amx-acc__brand-logo {
-  width: 30px;
-  min-width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: var(--amx-orange);
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #f5820a 0%, #e86d00 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(245, 130, 10, 0.35);
+  box-shadow: 0 2px 10px rgba(245, 130, 10, 0.4), 0 0 0 1px rgba(245, 130, 10, 0.15);
 
   img { width: 18px; height: 18px; object-fit: contain; filter: brightness(0) invert(1); }
 }
 
 .amx-acc__brand-name {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 16px;
+  font-size: 15.5px;
   font-weight: 800;
   color: var(--amx-text);
   white-space: nowrap;
-  letter-spacing: -0.4px;
+  letter-spacing: -0.5px;
   flex: 1;
-  transition: opacity 0.2s ease, width 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
 .amx-acc__brand-pix { color: var(--amx-orange); }
@@ -112,18 +132,19 @@
   width: 26px;
   min-width: 26px;
   height: 26px;
-  border-radius: 7px;
+  border-radius: 8px;
   border: 1px solid var(--amx-border);
   background: var(--amx-bg-soft);
   color: var(--amx-muted);
   cursor: pointer;
   flex-shrink: 0;
-  transition: color 0.2s, background 0.2s, border-color 0.2s;
+  transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
 
   &:hover {
     color: var(--amx-orange);
     background: color-mix(in srgb, var(--amx-orange) 8%, var(--amx-bg-soft));
     border-color: color-mix(in srgb, var(--amx-orange) 30%, var(--amx-border));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--amx-orange) 8%, transparent);
   }
 
   svg { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -134,30 +155,46 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 16px;
+  padding: 16px;
   border-bottom: 1px solid var(--amx-border);
   flex-shrink: 0;
   position: relative;
   z-index: 1;
   transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--amx-orange) 3%, transparent) 0%,
+    transparent 100%);
+}
+
+// Avatar wrapper for gradient ring
+.amx-acc__avatar-ring-wrap {
+  position: relative;
+  flex-shrink: 0;
+  padding: 2px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--amx-orange) 0%, #a855f7 100%);
+  box-shadow: 0 2px 12px rgba(245, 130, 10, 0.3);
+
+  .amx-acc__avatar--admin & { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); box-shadow: 0 2px 12px rgba(99, 102, 241, 0.3); }
 }
 
 .amx-acc__avatar {
   position: relative;
-  width: 38px;
-  min-width: 38px;
-  height: 38px;
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--amx-orange) 0%, #ff6b00 100%);
   overflow: visible;
   flex-shrink: 0;
 
   img {
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     object-fit: cover;
     display: block;
+    border: 2px solid var(--amx-card);
   }
 
   &--premium { background: linear-gradient(135deg, #f5820a 0%, #f59e0b 100%); }
@@ -170,7 +207,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
   color: #fff;
   border-radius: 50%;
@@ -182,17 +219,18 @@
   position: absolute;
   bottom: 1px;
   right: 1px;
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: #22c55e;
   border: 2px solid var(--amx-card);
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3);
 }
 
 .amx-acc__user-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
   flex: 1;
   overflow: hidden;
@@ -200,13 +238,14 @@
 }
 
 .amx-acc__user-name {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   color: var(--amx-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.3;
+  letter-spacing: -0.2px;
 }
 
 .amx-acc__user-email {
@@ -222,12 +261,12 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-top: 3px;
-  padding: 2px 7px;
+  margin-top: 5px;
+  padding: 3px 8px;
   border-radius: 20px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
   width: fit-content;
   background: var(--amx-bg-soft);
   color: var(--amx-muted);
@@ -237,16 +276,22 @@
   svg { flex-shrink: 0; }
 
   &--premium {
-    background: color-mix(in srgb, #f5820a 12%, transparent);
+    background: linear-gradient(135deg,
+      color-mix(in srgb, #f5820a 14%, transparent) 0%,
+      color-mix(in srgb, #f5820a 8%, transparent) 100%);
     color: #f5820a;
-    border-color: color-mix(in srgb, #f5820a 25%, transparent);
+    border-color: color-mix(in srgb, #f5820a 28%, transparent);
+    box-shadow: 0 1px 4px rgba(245, 130, 10, 0.15);
     svg { fill: #f5820a; }
   }
 
   &--admin {
-    background: color-mix(in srgb, #6366f1 12%, transparent);
+    background: linear-gradient(135deg,
+      color-mix(in srgb, #6366f1 14%, transparent) 0%,
+      color-mix(in srgb, #6366f1 8%, transparent) 100%);
     color: #6366f1;
-    border-color: color-mix(in srgb, #6366f1 25%, transparent);
+    border-color: color-mix(in srgb, #6366f1 28%, transparent);
+    box-shadow: 0 1px 4px rgba(99, 102, 241, 0.15);
     svg { fill: #6366f1; }
   }
 }
@@ -256,7 +301,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 8px 10px;
+  padding: 10px 10px 8px;
   gap: 0;
   overflow-y: auto;
   overflow-x: hidden;
@@ -270,21 +315,31 @@
 .amx-acc__section {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  margin-bottom: 12px;
+  gap: 2px;
+  margin-bottom: 6px;
 
   &:last-child { margin-bottom: 0; }
 }
 
 .amx-acc__section-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.9px;
   text-transform: uppercase;
   color: var(--amx-muted);
-  padding: 0 10px;
-  margin-bottom: 4px;
-  opacity: 0.7;
+  padding: 8px 10px 4px;
+  opacity: 0.6;
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--amx-border);
+    opacity: 0.6;
+  }
 }
 
 .amx-acc__link {
@@ -292,9 +347,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 10px;
-  height: 38px;
-  border-radius: 10px;
+  padding: 0 10px 0 8px;
+  height: 40px;
+  border-radius: 11px;
   font-size: 13.5px;
   font-weight: 600;
   color: var(--amx-text-2);
@@ -305,45 +360,59 @@
   transition:
     background 0.18s ease,
     color 0.18s ease,
-    border-color 0.18s ease;
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
   flex-shrink: 0;
 
   &:hover {
     background: var(--amx-bg-soft);
     color: var(--amx-text);
     border-color: var(--amx-border);
-  }
 
-  // Left accent bar
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%) scaleY(0);
-    width: 3px;
-    height: 60%;
-    border-radius: 0 3px 3px 0;
-    background: var(--amx-orange);
-    box-shadow: 0 0 8px rgba(245, 130, 10, 0.5);
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    .amx-acc__link-icon {
+      background: color-mix(in srgb, var(--amx-orange) 10%, transparent);
+      border-color: color-mix(in srgb, var(--amx-orange) 20%, transparent);
+
+      svg { stroke: var(--amx-orange); }
+    }
   }
 
   &--active {
     color: var(--amx-orange);
-    background: color-mix(in srgb, var(--amx-orange) 8%, var(--amx-card));
-    border-color: color-mix(in srgb, var(--amx-orange) 15%, transparent);
+    background: color-mix(in srgb, var(--amx-orange) 9%, var(--amx-card));
+    border-color: color-mix(in srgb, var(--amx-orange) 18%, transparent);
     font-weight: 700;
+    box-shadow: 0 2px 8px rgba(245, 130, 10, 0.08);
 
-    &::before { transform: translateY(-50%) scaleY(1); }
-
-    .amx-acc__link-icon svg { stroke: var(--amx-orange); }
+    .amx-acc__link-icon {
+      background: color-mix(in srgb, var(--amx-orange) 14%, transparent);
+      border-color: color-mix(in srgb, var(--amx-orange) 25%, transparent);
+      svg { stroke: var(--amx-orange); }
+    }
   }
 
   &--danger {
     color: var(--amx-muted);
-    &:hover { color: #ef4444; background: color-mix(in srgb, #ef4444 8%, transparent); border-color: color-mix(in srgb, #ef4444 15%, transparent); .amx-acc__link-icon svg { stroke: #ef4444; } }
-    &.amx-acc__link--active { color: #ef4444; background: color-mix(in srgb, #ef4444 8%, transparent); border-color: color-mix(in srgb, #ef4444 15%, transparent); &::before { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); } .amx-acc__link-icon svg { stroke: #ef4444; } }
+    &:hover {
+      color: #ef4444;
+      background: color-mix(in srgb, #ef4444 8%, transparent);
+      border-color: color-mix(in srgb, #ef4444 15%, transparent);
+      .amx-acc__link-icon {
+        background: color-mix(in srgb, #ef4444 10%, transparent);
+        border-color: color-mix(in srgb, #ef4444 20%, transparent);
+        svg { stroke: #ef4444; }
+      }
+    }
+    &.amx-acc__link--active {
+      color: #ef4444;
+      background: color-mix(in srgb, #ef4444 8%, transparent);
+      border-color: color-mix(in srgb, #ef4444 15%, transparent);
+      .amx-acc__link-icon {
+        background: color-mix(in srgb, #ef4444 12%, transparent);
+        border-color: color-mix(in srgb, #ef4444 22%, transparent);
+        svg { stroke: #ef4444; }
+      }
+    }
   }
 }
 
@@ -351,13 +420,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
   flex-shrink: 0;
+  transition: background 0.18s ease, border-color 0.18s ease;
 
   svg {
-    width: 16px;
-    height: 16px;
+    width: 15px;
+    height: 15px;
     stroke: var(--amx-text-2);
     display: block;
     transition: stroke 0.18s ease;
@@ -372,13 +446,14 @@
 }
 
 .amx-acc__link-badge {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 9.5px;
+  font-weight: 800;
   padding: 2px 7px;
   border-radius: 20px;
   background: var(--amx-orange);
   color: #fff;
   flex-shrink: 0;
+  letter-spacing: 0.2px;
 }
 
 // Ripple
@@ -394,7 +469,7 @@
 .amx-acc__sidebar--collapsed .amx-acc__link:hover::after {
   content: attr(data-label);
   position: fixed;
-  left: 68px;
+  left: 72px;
   padding: 6px 12px;
   background: var(--amx-elevated);
   border: 1px solid var(--amx-border);
@@ -403,7 +478,7 @@
   font-weight: 600;
   color: var(--amx-text);
   white-space: nowrap;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14);
   z-index: 1000;
   pointer-events: none;
   animation: tooltipIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
@@ -415,53 +490,65 @@
   align-items: center;
   gap: 10px;
   margin: 4px 10px 8px;
-  padding: 12px 14px;
-  border-radius: 12px;
+  padding: 13px 14px;
+  border-radius: 14px;
   text-decoration: none;
   cursor: pointer;
-  border: 1px solid color-mix(in srgb, var(--amx-orange) 30%, transparent);
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--amx-orange) 10%, transparent) 0%,
-    color-mix(in srgb, var(--amx-orange) 5%, transparent) 100%);
   position: relative;
   z-index: 1;
   overflow: hidden;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  border: 1px solid color-mix(in srgb, var(--amx-orange) 32%, transparent);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--amx-orange) 12%, var(--amx-card)) 0%,
+    color-mix(in srgb, #a855f7 6%, var(--amx-card)) 100%);
+  box-shadow: 0 2px 12px rgba(245, 130, 10, 0.10),
+              inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 
+  // Shimmer layer
   &::before {
     content: '';
     position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(245, 130, 10, 0.08) 0%, transparent 100%);
-    opacity: 0;
-    transition: opacity 0.2s;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.07) 50%,
+      transparent 100%);
+    transition: left 0.5s ease;
   }
 
   &:hover {
     border-color: color-mix(in srgb, var(--amx-orange) 50%, transparent);
-    box-shadow: 0 4px 16px rgba(245, 130, 10, 0.15);
-    &::before { opacity: 1; }
+    box-shadow: 0 6px 20px rgba(245, 130, 10, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+    &::before { left: 160%; }
   }
+
+  &:active { transform: translateY(0); }
 }
 
 .amx-acc__upgrade-icon {
-  width: 28px;
-  min-width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: var(--amx-orange);
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #f5820a 0%, #e86d00 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(245, 130, 10, 0.4);
+  box-shadow: 0 3px 10px rgba(245, 130, 10, 0.45),
+              0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
 
 .amx-acc__upgrade-text {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   flex: 1;
   min-width: 0;
 
@@ -470,21 +557,23 @@
     font-weight: 700;
     color: var(--amx-text);
     white-space: nowrap;
+    letter-spacing: -0.1px;
   }
 
   span {
-    font-size: 11px;
+    font-size: 10.5px;
     color: var(--amx-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.3;
   }
 }
 
 .amx-acc__upgrade-arrow {
   color: var(--amx-orange);
   flex-shrink: 0;
-  opacity: 0.7;
+  opacity: 0.65;
   transition: transform 0.2s ease, opacity 0.2s ease;
 
   .amx-acc__upgrade-cta:hover & {
@@ -499,7 +588,7 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: 11px;
   margin: 4px auto 8px;
   text-decoration: none;
   background: color-mix(in srgb, var(--amx-orange) 12%, transparent);
@@ -509,7 +598,7 @@
 
   &:hover {
     background: color-mix(in srgb, var(--amx-orange) 20%, transparent);
-    box-shadow: 0 0 12px rgba(245, 130, 10, 0.25);
+    box-shadow: 0 0 16px rgba(245, 130, 10, 0.28);
   }
 }
 
@@ -518,11 +607,14 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 10px 12px 16px;
+  padding: 10px 12px 18px;
   border-top: 1px solid var(--amx-border);
   flex-shrink: 0;
   position: relative;
   z-index: 1;
+  background: linear-gradient(0deg,
+    color-mix(in srgb, var(--amx-orange) 2%, transparent) 0%,
+    transparent 100%);
 }
 
 .amx-acc__footer-btn {
@@ -540,7 +632,7 @@
   cursor: pointer;
   white-space: nowrap;
   flex: 1;
-  transition: color 0.18s, background 0.18s, border-color 0.18s;
+  transition: color 0.18s, background 0.18s, border-color 0.18s, box-shadow 0.18s;
 
   &:hover {
     color: var(--amx-text);
@@ -565,6 +657,7 @@
     color: #ef4444;
     background: color-mix(in srgb, #ef4444 8%, transparent);
     border-color: color-mix(in srgb, #ef4444 20%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, #ef4444 8%, transparent);
   }
 }
 
@@ -651,8 +744,9 @@
 @media (prefers-reduced-motion: reduce) {
   .amx-acc__sidebar,
   .amx-acc__link,
-  .amx-acc__link::before,
+  .amx-acc__link-icon,
   .amx-acc__brand,
   .amx-acc__collapse-btn svg { transition: none; }
   .amx-acc__ripple { display: none; }
+  .amx-acc__upgrade-cta::before { display: none; }
 }

@@ -48,14 +48,19 @@ interface NavSection {
 
         <!-- User card -->
         <div class="amx-acc__user-card" [class.amx-acc__user-card--collapsed]="collapsed()">
-          <div class="amx-acc__avatar" [class.amx-acc__avatar--admin]="isAdmin()"
+          <div class="amx-acc__avatar-ring-wrap"
+               [class.amx-acc__avatar--admin]="isAdmin()"
                [class.amx-acc__avatar--premium]="isPremium()">
-            <img *ngIf="auth.currentUser()?.avatarUrl"
-                 [src]="auth.currentUser()!.avatarUrl" alt="" />
-            <span *ngIf="!auth.currentUser()?.avatarUrl" class="amx-acc__avatar-initial">
-              {{ initials() }}
-            </span>
-            <span class="amx-acc__avatar-status"></span>
+            <div class="amx-acc__avatar"
+                 [class.amx-acc__avatar--admin]="isAdmin()"
+                 [class.amx-acc__avatar--premium]="isPremium()">
+              <img *ngIf="auth.currentUser()?.avatarUrl"
+                   [src]="auth.currentUser()!.avatarUrl" alt="" />
+              <span *ngIf="!auth.currentUser()?.avatarUrl" class="amx-acc__avatar-initial">
+                {{ initials() }}
+              </span>
+              <span class="amx-acc__avatar-status"></span>
+            </div>
           </div>
           <div class="amx-acc__user-info">
             <span class="amx-acc__user-name">{{ auth.currentUser()?.fullName ?? 'User' }}</span>
