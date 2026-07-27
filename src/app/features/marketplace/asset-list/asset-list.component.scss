@@ -7,8 +7,6 @@
   justify-content: center;
   align-items: center;
   min-height: 340px;
-  @media (max-width: 768px) { padding: 48px 16px 40px; min-height: 260px; }
-  @media (max-width: 480px) { padding: 40px 12px 32px; min-height: 220px; }
   --market-card-shadow: 0 8px 40px rgba(0,0,0,.55);
   --market-link: #a78bfa;
   --market-link-hover: #c4b5fd;
@@ -25,6 +23,8 @@
   --market-thumb-overlay: rgba(0,0,0,0.4);
   --market-thumb-button: #7c3aed;
   --market-thumb-button-text: #fff;
+  @media (max-width: 768px) { padding: 48px 16px 40px; min-height: 260px; }
+  @media (max-width: 480px) { padding: 40px 12px 32px; min-height: 220px; }
 
   &__letters {
     position: absolute; inset: 0; overflow: hidden; pointer-events: none;
