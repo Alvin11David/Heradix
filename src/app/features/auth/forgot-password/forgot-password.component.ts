@@ -15,6 +15,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
   template: `
     <div class="auth-page">
 
+      <div class="auth-panels">
       <div class="auth-panel auth-panel--form">
 
         <div class="auth-logo">
@@ -181,6 +182,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
         </div>
 
       </div>
+      </div><!-- /.auth-panels -->
 
       <amx-splash-cursor [RAINBOW_MODE]="false" COLOR="#a855f7" />
     </div>
