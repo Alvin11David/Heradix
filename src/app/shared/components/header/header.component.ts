@@ -10,6 +10,7 @@ interface DropdownLink {
   desc: string;
   route: string;
   queryParams?: Record<string, string>;
+  color?: string;
 }
 
 interface CategoryGroup {
@@ -18,6 +19,7 @@ interface CategoryGroup {
   hasDropdown?: boolean;
   dropdownItems?: string[];
   dropdownLinks?: DropdownLink[];
+  dropdownType?: 'rich' | 'photos' | 'other';
 }
 
 const FORMAT_ITEMS = [
@@ -38,6 +40,26 @@ const PNG_DROPDOWN_LINKS: DropdownLink[] = [
   { label: 'Travel',            emoji: '✈️',  desc: 'Maps, bags & destinations',    route: '/png', queryParams: { category: 'travel' } },
   { label: 'Money & Finance',   emoji: '💰',  desc: 'Coins, cards & charts',        route: '/png', queryParams: { category: 'money' } },
   { label: 'Social & Media',    emoji: '📱',  desc: 'Phones, icons & social UI',    route: '/png', queryParams: { category: 'social' } },
+];
+
+const PHOTOS_DROPDOWN_LINKS: DropdownLink[] = [
+  { label: 'All Photos',    emoji: '🌅', desc: 'Browse the full library',        route: '/marketplace/photos' },
+  { label: 'AI Generated',  emoji: '🤖', desc: 'Crafted by AI models',           route: '/marketplace/photos', queryParams: { category: 'ai' } },
+  { label: 'Cityscapes',    emoji: '🏙️', desc: 'Urban life & architecture',      route: '/marketplace/photos', queryParams: { category: 'city' } },
+  { label: 'Landscapes',    emoji: '🌄', desc: 'Nature, mountains & skies',      route: '/marketplace/photos', queryParams: { category: 'landscapes' } },
+  { label: 'People',        emoji: '👥', desc: 'Portraits & lifestyle shots',    route: '/marketplace/photos', queryParams: { category: 'people' } },
+  { label: 'Animals',       emoji: '🦁', desc: 'Wildlife & domestic pets',       route: '/marketplace/photos', queryParams: { category: 'animals' } },
+  { label: 'Sports',        emoji: '🏃', desc: 'Action shots & athletes',        route: '/marketplace/photos', queryParams: { category: 'sports' } },
+  { label: 'Branding',      emoji: '🎨', desc: 'Flat lays & brand mockups',      route: '/marketplace/photos', queryParams: { category: 'branding' } },
+];
+
+const OTHER_DROPDOWN_LINKS: DropdownLink[] = [
+  { label: 'Templates',       emoji: '📐', desc: 'Editable ready-to-use layouts',   route: '/marketplace', queryParams: { category: 'templates' },      color: '#6366f1' },
+  { label: 'SVGs',            emoji: '✏️', desc: 'Crisp scalable vector files',     route: '/marketplace', queryParams: { category: 'svgs' },           color: '#0ea5e9' },
+  { label: 'Motion Graphics', emoji: '🎬', desc: 'Animated & video-ready assets',   route: '/marketplace', queryParams: { category: 'motion' },         color: '#ec4899' },
+  { label: '3D Assets',       emoji: '🧊', desc: 'Models, scenes & renders',        route: '/marketplace', queryParams: { category: '3d' },             color: '#14b8a6' },
+  { label: 'Fonts',           emoji: '🔤', desc: 'Premium typeface families',       route: '/marketplace', queryParams: { category: 'fonts' },          color: '#f59e0b' },
+  { label: 'Textures',        emoji: '🖼️', desc: 'Backgrounds & surface patterns',  route: '/marketplace', queryParams: { category: 'textures' },       color: '#22c55e' },
 ];
 
 @Component({
@@ -296,8 +318,82 @@ const PNG_DROPDOWN_LINKS: DropdownLink[] = [
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
             </a>
+            <!-- Photos mega-menu -->
+            <div *ngIf="cat.dropdownType === 'photos' && openDropdown === cat.label"
+                 class="amx-cat-dropdown amx-cat-dropdown--photos" role="menu">
+              <div class="amx-photos-mega">
+                <div class="amx-photos-mega__hero">
+                  <div class="amx-photos-mega__hero-icon-wrap">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                      <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                  </div>
+                  <h3 class="amx-photos-mega__hero-title">Stock<br>Photos</h3>
+                  <p class="amx-photos-mega__hero-sub">Over 1M+ licensed images ready to download</p>
+                  <a [routerLink]="cat.route" class="amx-photos-mega__hero-cta" (click)="mobileMenuOpen.set(false)">
+                    Browse All
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                  </a>
+                  <div class="amx-photos-mega__hero-tags">
+                    <span>HD Quality</span>
+                    <span>AI-Enhanced</span>
+                    <span>Royalty-Free</span>
+                  </div>
+                </div>
+                <div class="amx-photos-mega__categories">
+                  <a *ngFor="let link of cat.dropdownLinks"
+                     [routerLink]="link.route"
+                     [queryParams]="link.queryParams || {}"
+                     class="amx-photos-mega__card"
+                     (click)="mobileMenuOpen.set(false)"
+                     role="menuitem">
+                    <span class="amx-photos-mega__card-emoji">{{ link.emoji }}</span>
+                    <span class="amx-photos-mega__card-body">
+                      <span class="amx-photos-mega__card-label">{{ link.label }}</span>
+                      <span class="amx-photos-mega__card-desc">{{ link.desc }}</span>
+                    </span>
+                    <svg class="amx-photos-mega__card-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Other Categories grid -->
+            <div *ngIf="cat.dropdownType === 'other' && openDropdown === cat.label"
+                 class="amx-cat-dropdown amx-cat-dropdown--other" role="menu">
+              <div class="amx-cat-dropdown__header">
+                <span class="amx-cat-dropdown__header-label">More Asset Types</span>
+                <a [routerLink]="cat.route" class="amx-cat-dropdown__header-all" (click)="mobileMenuOpen.set(false)">Browse All →</a>
+              </div>
+              <div class="amx-other-grid">
+                <a *ngFor="let link of cat.dropdownLinks"
+                   [routerLink]="link.route"
+                   [queryParams]="link.queryParams || {}"
+                   class="amx-other-grid__item"
+                   (click)="mobileMenuOpen.set(false)"
+                   role="menuitem">
+                  <span class="amx-other-grid__icon"
+                        [style.background]="(link.color || '#f5820a') + '18'"
+                        [style.color]="link.color || '#f5820a'">
+                    {{ link.emoji }}
+                  </span>
+                  <span class="amx-other-grid__body">
+                    <span class="amx-other-grid__label">{{ link.label }}</span>
+                    <span class="amx-other-grid__desc">{{ link.desc }}</span>
+                  </span>
+                  <svg class="amx-other-grid__arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+              </div>
+              <div class="amx-other-footer">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Can't find what you need?
+                <a [routerLink]="cat.route" (click)="mobileMenuOpen.set(false)">Search all 1M+ assets</a>
+              </div>
+            </div>
+
             <!-- Rich card dropdown (PNG) -->
-            <div *ngIf="cat.dropdownLinks && openDropdown === cat.label"
+            <div *ngIf="cat.dropdownType === 'rich' && openDropdown === cat.label"
                  class="amx-cat-dropdown amx-cat-dropdown--rich" role="menu">
               <div class="amx-cat-dropdown__header">
                 <span class="amx-cat-dropdown__header-label">{{ cat.label }} Categories</span>
@@ -319,7 +415,7 @@ const PNG_DROPDOWN_LINKS: DropdownLink[] = [
                 </a>
               </div>
             </div>
-            <!-- Legacy plain dropdown -->
+            <!-- Legacy plain dropdown (PSD) -->
             <ul *ngIf="cat.dropdownItems && !cat.dropdownLinks && openDropdown === cat.label"
                 class="amx-cat-dropdown" role="menu">
               <li *ngFor="let item of cat.dropdownItems"
@@ -420,16 +516,16 @@ export class HeaderComponent {
     },
     { label: 'Mockups', route: '/mockups' },
     { label: 'Icons',   route: '/icons' },
-    { label: 'PNG', route: '/png', hasDropdown: true, dropdownLinks: PNG_DROPDOWN_LINKS },
+    { label: 'PNG', route: '/png', hasDropdown: true, dropdownLinks: PNG_DROPDOWN_LINKS, dropdownType: 'rich' },
     { label: 'Vectors', route: '/vectors' },
     {
       label: 'Photos', route: '/marketplace/photos', hasDropdown: true,
-      dropdownItems: ['All Photos', 'AI Generated', 'City', 'Landscapes', 'People', 'Animals', 'Sports', 'Branding'],
+      dropdownLinks: PHOTOS_DROPDOWN_LINKS, dropdownType: 'photos',
     },
     { label: 'Videos', route: '/marketplace/videos' },
     {
       label: 'Other Categories', route: '/marketplace', hasDropdown: true,
-      dropdownItems: ['Templates', 'SVGs', 'Motion Graphics', '3D Assets', 'Fonts', 'Textures'],
+      dropdownLinks: OTHER_DROPDOWN_LINKS, dropdownType: 'other',
     },
   ];
 }
