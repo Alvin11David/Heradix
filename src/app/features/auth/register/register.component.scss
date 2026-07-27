@@ -1,4 +1,10 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
 .auth-page {
+  width: 100%;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -302,7 +308,7 @@
   height: 340px;
   opacity: 0.4;
   color: #fff;
-  pointer-events: auto;
+  pointer-events: none;
   z-index: 1;
 
   .circular-text {
