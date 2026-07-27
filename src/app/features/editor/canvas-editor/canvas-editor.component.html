@@ -7,7 +7,17 @@
           <polyline points="15 18 9 12 15 6"/>
         </svg>
       </button>
-      <span class="tb-title">{{ projectTitle() }}</span>
+      <span class="tb-title" *ngIf="!titleEditing()" (click)="startTitleEdit()" data-tip="Click to rename" aria-label="Rename project">
+        {{ projectTitle() }}
+        <svg class="tb-title-edit-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </span>
+      <input *ngIf="titleEditing()" class="tb-title-input" type="text"
+        [value]="titleEditValue()"
+        (input)="titleEditValue.set($any($event.target).value)"
+        (keydown.enter)="commitTitleEdit()"
+        (keydown.escape)="cancelTitleEdit()"
+        (blur)="commitTitleEdit()"
+        autofocus/>
     </div>
 
     <div class="tb-center">
@@ -606,6 +616,40 @@
       </button>
 
       <canvas #canvasEl id="amx-fabric-canvas"></canvas>
+
+      <!-- Empty canvas guide — visible when no layers exist -->
+      <div class="canvas-empty-guide" *ngIf="layers().length === 0 && !showWelcomeScreen()">
+        <div class="ceg-inner">
+          <div class="ceg-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35">
+              <rect x="3" y="3" width="18" height="18" rx="2.5"/>
+              <path d="M8 12h8M12 8v8"/>
+            </svg>
+          </div>
+          <p class="ceg-heading">Your canvas is ready</p>
+          <p class="ceg-sub">Pick an action to get started</p>
+          <div class="ceg-actions">
+            <button class="ceg-btn" (click)="setTool('text')" data-tip="Add a text box (T)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+              <span>Add Text</span>
+              <kbd>T</kbd>
+            </button>
+            <button class="ceg-btn" (click)="setTool('shape')" data-tip="Draw a shape (R)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+              <span>Add Shape</span>
+              <kbd>R</kbd>
+            </button>
+            <button class="ceg-btn" (click)="setTool('upload')" data-tip="Upload an image">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Upload Image</span>
+            </button>
+            <button class="ceg-btn ceg-btn--templates" (click)="setLeftTab('templates')" data-tip="Browse templates">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+              <span>Browse Templates</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       
       <div class="safe-zone-overlay" *ngIf="showSafeZone()">
@@ -1700,6 +1744,135 @@
       </div>
     </div>
   </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     WELCOME SCREEN — shown on brand-new blank projects
+═══════════════════════════════════════════════════════════════════ -->
+<div class="welcome-overlay" *ngIf="showWelcomeScreen()" (click)="startFromWelcome()">
+  <div class="welcome-dialog" (click)="$event.stopPropagation()">
+    <div class="welcome-header">
+      <div class="welcome-logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f5820a" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18"/></svg>
+        <span>Amarapix Editor</span>
+      </div>
+      <button class="welcome-close" (click)="startFromWelcome()" aria-label="Start blank" data-tip="Start with blank canvas">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <h2 class="welcome-title">What would you like to create?</h2>
+    <p class="welcome-sub">Pick a format to get started — or open a blank canvas.</p>
+
+    <div class="welcome-formats">
+      <div class="wf-group">
+        <div class="wf-group-label">📱 Social Media</div>
+        <div class="wf-grid">
+          <button class="wf-card" *ngFor="let p of canvasPresets" [class.wf-card--hidden]="p.tag !== 'Social'"
+            (click)="startFromWelcome(p)">
+            <div class="wf-card-thumb wf-card-thumb--social">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <span class="wf-card-name">{{ p.label }}</span>
+            <span class="wf-card-dim">{{ p.w }}×{{ p.h }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="wf-group">
+        <div class="wf-group-label">🎬 Video & Slides</div>
+        <div class="wf-grid">
+          <button class="wf-card" *ngFor="let p of canvasPresets" [class.wf-card--hidden]="p.tag !== 'Video' && p.tag !== 'Slides'"
+            (click)="startFromWelcome(p)">
+            <div class="wf-card-thumb wf-card-thumb--video">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <span class="wf-card-name">{{ p.label }}</span>
+            <span class="wf-card-dim">{{ p.w }}×{{ p.h }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="wf-group">
+        <div class="wf-group-label">🖨️ Print</div>
+        <div class="wf-grid">
+          <button class="wf-card" *ngFor="let p of canvasPresets" [class.wf-card--hidden]="p.tag !== 'Print'"
+            (click)="startFromWelcome(p)">
+            <div class="wf-card-thumb wf-card-thumb--print">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            </div>
+            <span class="wf-card-name">{{ p.label }}</span>
+            <span class="wf-card-dim">{{ p.w }}×{{ p.h }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="welcome-footer">
+      <button class="welcome-blank-btn" (click)="startFromWelcome()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        Start with blank canvas
+      </button>
+      <button class="welcome-size-btn" (click)="startFromWelcome(); showSizeDialog.set(true)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Enter custom size
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     ONBOARDING TOUR — 4-step spotlight, shown once per device
+═══════════════════════════════════════════════════════════════════ -->
+<div class="tour-overlay" *ngIf="onboardingStep() > 0" (click)="skipTour()">
+
+  <!-- Step 1: Toolbar -->
+  <div class="tour-tooltip tour-tooltip--toolbar" *ngIf="onboardingStep() === 1" (click)="$event.stopPropagation()">
+    <div class="tour-step-badge">1 / 4</div>
+    <h4 class="tour-title">Your toolbar</h4>
+    <p class="tour-body">Pick <b>Select</b>, <b>Text</b>, <b>Shape</b>, <b>Image</b>, <b>Upload</b>, or <b>Draw</b> to add and edit elements.</p>
+    <div class="tour-actions">
+      <button class="tour-skip" (click)="skipTour()">Skip tour</button>
+      <button class="tour-next" (click)="advanceTour()">Next →</button>
+    </div>
+    <div class="tour-arrow tour-arrow--down"></div>
+  </div>
+
+  <!-- Step 2: Left panel -->
+  <div class="tour-tooltip tour-tooltip--left-panel" *ngIf="onboardingStep() === 2" (click)="$event.stopPropagation()">
+    <div class="tour-step-badge">2 / 4</div>
+    <h4 class="tour-title">Add content from here</h4>
+    <p class="tour-body">Browse <b>Templates</b>, <b>Elements</b>, <b>Photos</b>, <b>Text styles</b>, and <b>Backgrounds</b> in this panel.</p>
+    <div class="tour-actions">
+      <button class="tour-skip" (click)="skipTour()">Skip</button>
+      <button class="tour-next" (click)="advanceTour()">Next →</button>
+    </div>
+    <div class="tour-arrow tour-arrow--left"></div>
+  </div>
+
+  <!-- Step 3: Right panel -->
+  <div class="tour-tooltip tour-tooltip--right-panel" *ngIf="onboardingStep() === 3" (click)="$event.stopPropagation()">
+    <div class="tour-step-badge">3 / 4</div>
+    <h4 class="tour-title">Edit anything you select</h4>
+    <p class="tour-body">Click any object on the canvas — <b>color</b>, <b>size</b>, <b>font</b>, <b>shadow</b>, and all other properties appear here.</p>
+    <div class="tour-actions">
+      <button class="tour-skip" (click)="skipTour()">Skip</button>
+      <button class="tour-next" (click)="advanceTour()">Next →</button>
+    </div>
+    <div class="tour-arrow tour-arrow--right"></div>
+  </div>
+
+  <!-- Step 4: Export -->
+  <div class="tour-tooltip tour-tooltip--export" *ngIf="onboardingStep() === 4" (click)="$event.stopPropagation()">
+    <div class="tour-step-badge">4 / 4</div>
+    <h4 class="tour-title">Export when you're ready</h4>
+    <p class="tour-body">Download your design as <b>PNG</b>, <b>JPG</b>, <b>PDF</b>, or <b>SVG</b> — all client-side, no upload needed.</p>
+    <div class="tour-actions">
+      <button class="tour-done" (click)="advanceTour()">Got it — let me design! 🎉</button>
+    </div>
+    <div class="tour-arrow tour-arrow--down-right"></div>
+  </div>
+
 </div>
 
 <div class="editor-loading" *ngIf="loading()"

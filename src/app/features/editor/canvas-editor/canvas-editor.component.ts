@@ -177,6 +177,12 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   readonly recentColors = signal<string[]>([]);
 
+  // Onboarding & UX
+  readonly showWelcomeScreen = signal(false);
+  readonly onboardingStep = signal(0); // 0=off, 1–4=active tour steps
+  readonly titleEditing = signal(false);
+  readonly titleEditValue = signal('');
+
   readonly imgBrightness = signal(0);
   readonly imgContrast = signal(0);
   readonly imgSaturation = signal(0);
@@ -723,6 +729,15 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.ed.dirty.set(false);
     this.ed.saveState.set('saved');
+
+    // Show welcome screen for brand-new blank projects
+    const isBlank = !this.ed.project()?.canvasJson || this.ed.project()!.canvasJson === '{}';
+    if (isBlank && !this._assetImageUrl) {
+      this.showWelcomeScreen.set(true);
+      this.leftPanelTab.set('templates');
+    } else {
+      this._maybeStartTour();
+    }
   }
 
   private setupCanvasPanning(): void {
@@ -4506,6 +4521,59 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     document.head.appendChild(link);
   }
 
+
+  // ── Onboarding / welcome ────────────────────────────────────────────────
+
+  startFromWelcome(preset?: { label: string; w: number; h: number; tag: string }): void {
+    if (preset) { this.applyCanvasPreset(preset); }
+    this.showWelcomeScreen.set(false);
+    this.leftPanelTab.set('templates');
+    this._maybeStartTour();
+  }
+
+  private _maybeStartTour(): void {
+    if (!localStorage.getItem('amx_editor_tour_v1')) {
+      setTimeout(() => this.onboardingStep.set(1), 600);
+    }
+  }
+
+  advanceTour(): void {
+    const next = this.onboardingStep() + 1;
+    if (next > 4) { this.skipTour(); }
+    else { this.onboardingStep.set(next); }
+  }
+
+  skipTour(): void {
+    this.onboardingStep.set(0);
+    localStorage.setItem('amx_editor_tour_v1', '1');
+  }
+
+  resetTour(): void {
+    localStorage.removeItem('amx_editor_tour_v1');
+    this.onboardingStep.set(1);
+  }
+
+  // ── Inline title editing ────────────────────────────────────────────────
+
+  startTitleEdit(): void {
+    this.titleEditing.set(true);
+    this.titleEditValue.set(this.projectTitle());
+  }
+
+  commitTitleEdit(): void {
+    const val = this.titleEditValue().trim();
+    if (val && val !== this.projectTitle()) {
+      this.ed.project.update((p) => (p ? { ...p, title: val } : p));
+      this.ed.setDirty();
+    }
+    this.titleEditing.set(false);
+  }
+
+  cancelTitleEdit(): void {
+    this.titleEditing.set(false);
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
 
   saveAndClose(): void {
     this.save();
