@@ -78,7 +78,7 @@ button {
 
 .editor-body {
   display: grid;
-  grid-template-columns: 260px 1fr 280px;
+  grid-template-columns: 304px 1fr 300px;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -88,13 +88,14 @@ button {
 .editor-toolbar {
   display: flex;
   align-items: center;
-  height: 54px;
-  padding: 0 14px;
-  background: #111115;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  height: 56px;
+  padding: 0 16px;
+  background: #0e0e14;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   gap: 6px;
   flex-shrink: 0;
   z-index: 20;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.3);
 }
 
 .tb-left {
@@ -138,11 +139,12 @@ button {
 .tb-tool-group {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 10px;
   padding: 3px;
   gap: 1px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 3px rgba(0,0,0,0.25);
 }
 
 .tb-right {
@@ -195,25 +197,29 @@ button {
 }
 
 .tb-btn--save {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
   color: #fff;
-  box-shadow: 0 1px 6px rgba(37, 99, 235, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 1px 4px rgba(79, 70, 229, 0.4), 0 4px 12px rgba(79, 70, 229, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-weight: 700;
 
   &:hover {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.45);
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.5), 0 6px 20px rgba(99, 102, 241, 0.35);
     transform: translateY(-1px);
+    color: #fff;
   }
 }
 
 .tb-btn--export {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 600;
 
   &:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: #e0e0e0;
   }
 }
 
@@ -229,38 +235,44 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   padding: 6px 10px;
-  border-radius: 7px;
+  border-radius: 8px;
   border: none;
   background: transparent;
-  color: #6e6e78;
+  color: #5e5e68;
   cursor: pointer;
   transition:
     background 0.14s,
-    color 0.14s;
+    color 0.14s,
+    transform 0.08s;
   position: relative;
   min-width: 44px;
 
   &:hover {
     background: rgba(255, 255, 255, 0.07);
-    color: #c8c8d0;
+    color: #c0c0cc;
+  }
+
+  &:active {
+    transform: scale(0.94);
   }
 
   &--active {
-    background: rgba(59, 130, 246, 0.15);
-    color: #60a5fa;
+    background: rgba(99, 102, 241, 0.18);
+    color: #a5b4fc;
+    box-shadow: inset 0 0 0 1px rgba(99,102,241,0.25);
 
     &::after {
       content: '';
       position: absolute;
-      bottom: 3px;
+      bottom: 4px;
       left: 50%;
       transform: translateX(-50%);
-      width: 14px;
-      height: 2.5px;
+      width: 12px;
+      height: 2px;
       border-radius: 2px;
-      background: #3b82f6;
+      background: #6366f1;
     }
   }
 
@@ -271,14 +283,22 @@ button {
       background: rgba(139, 92, 246, 0.12);
       color: #c4b5fd;
     }
+
+    &.tb-tool--active {
+      background: rgba(139, 92, 246, 0.2);
+      color: #c4b5fd;
+      box-shadow: inset 0 0 0 1px rgba(139,92,246,0.3);
+      &::after { background: #8b5cf6; }
+    }
   }
 }
 
 .tb-tool-label {
   font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.35px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
   line-height: 1;
+  text-transform: uppercase;
 }
 
 .sel-toolbar {
@@ -358,18 +378,19 @@ button {
 }
 
 .panel {
-  background: #111115;
+  background: #0f0f15;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 
   &--layers {
-    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
   }
 
   &--props {
-    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    border-left: 1px solid rgba(255, 255, 255, 0.07);
     grid-column: 3;
+    background: #0f0f15;
   }
 }
 
@@ -382,17 +403,18 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 13px 14px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
+  background: rgba(255,255,255,0.015);
 }
 
 .panel-title {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 9.5px;
+  font-weight: 800;
   letter-spacing: 0.9px;
   text-transform: uppercase;
-  color: #6e6e78;
+  color: #5a5a6e;
   margin: 0;
 }
 
@@ -435,11 +457,11 @@ button {
 }
 
 .editor-body--left-collapsed {
-  grid-template-columns: 0 1fr 280px !important;
+  grid-template-columns: 0 1fr 300px !important;
 }
 
 .editor-body--right-collapsed {
-  grid-template-columns: 260px 1fr 0 !important;
+  grid-template-columns: 304px 1fr 0 !important;
 }
 
 .editor-body--left-collapsed.editor-body--right-collapsed {
@@ -566,22 +588,28 @@ button {
   min-height: 34px;
   border: none;
   background: transparent;
-  color: #a0a0a8;
-  font-size: 12.5px;
+  color: #9090a0;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   text-align: left;
-  transition: background 0.1s;
+  transition: background 0.1s, color 0.1s;
   border-left: 2px solid transparent;
+  border-right: 2px solid transparent; /* balance */
 
   &:hover {
     background: rgba(255, 255, 255, 0.04);
+    color: #c0c0d0;
   }
 
   &--selected {
-    background: rgba(59, 130, 246, 0.09);
-    color: #e8e8f0;
-    border-left-color: #3b82f6;
+    background: rgba(99, 102, 241, 0.1);
+    color: #e0e0f0;
+    border-left-color: #6366f1;
+
+    .layer-icon {
+      background: rgba(99, 102, 241, 0.15);
+    }
   }
 }
 
@@ -615,19 +643,32 @@ button {
   justify-content: center;
   width: 26px;
   height: 26px;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
   flex: 0 0 26px;
-  color: #808088;
+  color: #808090;
+  transition: background 0.12s;
 
-  &--text { color: #60a5fa; }
-  &--image { color: #34d399; }
+  &--text {
+    color: #60a5fa;
+    background: rgba(96, 165, 250, 0.1);
+  }
+  &--image {
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.1);
+  }
   &--rect,
   &--circle,
   &--polygon,
-  &--star { color: #fbbf24; }
+  &--star {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.1);
+  }
   &--line,
-  &--path { color: #f472b6; }
+  &--path {
+    color: #f472b6;
+    background: rgba(244, 114, 182, 0.1);
+  }
 }
 
 .layer-name {
@@ -670,21 +711,25 @@ button {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 14px 6px;
+  padding: 10px 14px 5px;
   cursor: pointer;
   user-select: none;
 
   &:hover .prop-section-title {
-    color: #c0c0c8;
+    color: #b0b0c4;
+  }
+
+  &:hover {
+    background: rgba(255,255,255,0.02);
   }
 }
 
 .prop-section-title {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 9.5px;
+  font-weight: 800;
   letter-spacing: 0.9px;
   text-transform: uppercase;
-  color: #6e6e78;
+  color: #5a5a68;
   flex: 1;
   transition: color 0.12s;
 }
@@ -938,14 +983,17 @@ button {
   transition: border-color 0.14s;
 
   &:focus {
-    border-color: rgba(59, 130, 246, 0.6);
+    border-color: rgba(99, 102, 241, 0.65);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    outline: none;
+    background: rgba(255,255,255,0.05);
   }
 }
 
 .prop-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.055);
-  margin: 4px 0;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 6px 0;
 }
 
 .prop-hint {
@@ -1051,9 +1099,11 @@ button {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(139, 92, 246, 0.03) 0%, transparent 50%),
-    #16161e;
+    radial-gradient(circle at center, rgba(255,255,255,0.045) 1px, transparent 1px),
+    radial-gradient(ellipse at 25% 45%, rgba(59, 130, 246, 0.045) 0%, transparent 55%),
+    radial-gradient(ellipse at 78% 55%, rgba(139, 92, 246, 0.035) 0%, transparent 55%),
+    #12121a;
+  background-size: 24px 24px, 100% 100%, 100% 100%, 100% 100%;
   overflow: hidden;
   width: 100%;
   height: 100%;
@@ -1061,9 +1111,11 @@ button {
 
 canvas {
   box-shadow:
-    0 4px 40px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(255, 255, 255, 0.04);
-  border-radius: 2px;
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 24px 64px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
 }
 
 .canvas-overlay {
@@ -1246,14 +1298,15 @@ canvas {
 .editor-statusbar {
   display: flex;
   align-items: center;
-  height: 34px;
-  padding: 0 14px;
-  background: #0d0d11;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  background: #09090e;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  gap: 6px;
   flex-shrink: 0;
   overflow-x: auto;
   overflow-y: hidden;
+  box-shadow: 0 -1px 0 rgba(0,0,0,0.3);
 
   &::-webkit-scrollbar { height: 0; }
 }
@@ -1451,25 +1504,27 @@ canvas {
   align-items: center;
   gap: 14px;
   padding: 13px 15px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   background: rgba(255, 255, 255, 0.03);
-  color: #a0a0a8;
+  color: #a0a0b0;
   cursor: pointer;
   text-align: left;
   transition:
     background 0.12s,
     border-color 0.12s,
-    color 0.12s;
+    color 0.12s,
+    transform 0.1s;
 
   &:hover:not([disabled]) {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #e0e0e0;
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.28);
+    color: #e0e0f0;
+    transform: translateX(2px);
   }
 
   &[disabled] {
-    opacity: 0.4;
+    opacity: 0.35;
     cursor: default;
   }
 
@@ -1477,13 +1532,14 @@ canvas {
     font-size: 14px;
     font-weight: 700;
     display: block;
+    color: rgba(255,255,255,0.85);
   }
   small {
     font-size: 11px;
     font-weight: 400;
-    color: #55555e;
+    color: rgba(255,255,255,0.32);
     display: block;
-    margin-top: 1px;
+    margin-top: 2px;
   }
 }
 
@@ -1771,15 +1827,27 @@ canvas {
   }
 }
 
+@media (max-width: 1400px) {
+  .editor-body {
+    grid-template-columns: 280px 1fr 280px;
+  }
+  .editor-body--left-collapsed {
+    grid-template-columns: 0 1fr 280px !important;
+  }
+  .editor-body--right-collapsed {
+    grid-template-columns: 280px 1fr 0 !important;
+  }
+}
+
 @media (max-width: 1280px) {
   .editor-body {
-    grid-template-columns: 230px 1fr 260px;
+    grid-template-columns: 260px 1fr 260px;
   }
   .editor-body--left-collapsed {
     grid-template-columns: 0 1fr 260px !important;
   }
   .editor-body--right-collapsed {
-    grid-template-columns: 230px 1fr 0 !important;
+    grid-template-columns: 260px 1fr 0 !important;
   }
   .tb-tool-label { display: none; }
   .tb-tool { min-width: 36px; padding: 6px 8px; }
@@ -1836,59 +1904,75 @@ canvas {
   50% { opacity: 0.3; }
 }
 
+/* ── Left panel: vertical icon rail + scrollable content ────────────── */
 .panel--left {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* icon rail on left, content on right */
   min-width: 0;
   overflow: hidden;
 }
 
+/* Vertical icon rail */
 .lp-tabs {
   display: flex;
-  align-items: stretch;
-  background: #16161c;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-  overflow-x: auto;
+  flex-direction: column;
+  align-items: center;
+  background: #0c0c11;
+  border-right: 1px solid rgba(255,255,255,0.07);
+  border-bottom: none;
+  overflow-y: auto;
+  overflow-x: hidden;
   flex-shrink: 0;
+  width: 60px;
+  padding: 6px 0 10px;
+  gap: 1px;
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
 }
 
+/* Individual tab button */
 .lp-tab {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 8px 6px 7px;
+  gap: 4px;
+  padding: 9px 4px 8px;
   background: none;
   border: none;
-  border-bottom: 2px solid transparent;
-  color: rgba(255,255,255,0.42);
+  border-left: 2px solid transparent;
+  border-right: 2px solid transparent; /* balance */
+  color: rgba(255,255,255,0.32);
   cursor: pointer;
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  min-width: 48px;
-  flex: 1;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  width: 100%;
+  min-height: 54px;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 
-  svg { flex-shrink: 0; }
+  svg { flex-shrink: 0; opacity: 0.7; transition: opacity 0.15s; }
+  span { line-height: 1.2; text-align: center; padding: 0 2px; }
 
   &:hover {
     color: rgba(255,255,255,0.75);
-    background: rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.05);
+    svg { opacity: 1; }
   }
 
   &.lp-tab--active {
-    color: #818cf8;
-    border-bottom-color: #818cf8;
-    background: rgba(129,140,248,0.06);
+    color: #a5b4fc;
+    border-left-color: #6366f1;
+    background: rgba(99,102,241,0.1);
+    svg { opacity: 1; }
   }
 }
 
+/* Panel content area to the right of the rail */
 .lp-body {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.1) transparent;
@@ -1900,15 +1984,15 @@ canvas {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 12px 4px;
+  padding: 12px 12px 5px;
 }
 
 .lp-section-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.5);
+  font-size: 9.5px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.38);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   flex: 1;
 }
 
@@ -2063,8 +2147,8 @@ canvas {
 
 .photo-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 5px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
   padding: 0 10px 12px;
 }
 
@@ -3378,15 +3462,19 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 28px 32px;
-  background: rgba(15,15,19,0.72);
-  border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 18px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+  gap: 12px;
+  padding: 32px 36px;
+  background: rgba(12,12,18,0.82);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    0 4px 20px rgba(0,0,0,0.5),
+    0 16px 60px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.06);
   pointer-events: auto;
-  max-width: 380px;
+  max-width: 400px;
   text-align: center;
 }
 
@@ -3477,16 +3565,22 @@ canvas {
 }
 
 .welcome-dialog {
-  background: #13131a;
+  background: #11111a;
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 20px;
-  padding: 28px 32px 24px;
+  border-radius: 22px;
+  padding: 30px 34px 26px;
   width: 100%;
-  max-width: 680px;
+  max-width: 700px;
   max-height: 88vh;
   overflow-y: auto;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(99,102,241,0.12);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.6),
+    0 32px 96px rgba(0,0,0,0.65),
+    0 0 0 1px rgba(99,102,241,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.06);
   animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
 
 .welcome-header {
@@ -3851,4 +3945,181 @@ canvas {
 @keyframes pulseRing {
   0%, 100% { opacity: 0.5; transform: scale(1); }
   50%       { opacity: 1;   transform: scale(1.015); }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// FINAL POLISH PASS — additional refinements
+// ══════════════════════════════════════════════════════════════════
+
+/* Scrollbars inside panels */
+.lp-body,
+.panel--props,
+.panel-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.09) transparent;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    &:hover { background: rgba(255,255,255,0.18); }
+  }
+}
+
+/* Better section divider in the left-panel body */
+.lp-section-divider {
+  background: rgba(255,255,255,0.05);
+  margin: 10px 0;
+}
+
+/* Template card hover polish */
+.tmpl-card {
+  transition: background 0.14s, border-color 0.14s, transform 0.12s, box-shadow 0.14s;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    border-color: rgba(99,102,241,0.35);
+  }
+}
+
+/* Better zoom controls */
+.zoom-btn {
+  border-radius: 7px;
+  transition: background 0.12s, color 0.12s, transform 0.08s;
+  &:hover { transform: scale(1.08); }
+  &:active { transform: scale(0.94); }
+}
+
+/* Better status-bar items */
+.sb-item {
+  transition: color 0.12s, background 0.12s;
+  border-radius: 5px;
+  padding: 2px 5px;
+  &:hover { background: rgba(255,255,255,0.06); color: #c0c0d0; }
+}
+
+/* Better wf-card: larger and more polished on welcome */
+.wf-card {
+  &:active { transform: scale(0.96); }
+}
+
+/* Prevent text shimmer on active toolbar tool labels */
+.tb-tool--active .tb-tool-label {
+  color: #a5b4fc;
+}
+
+/* Consistent icon size in layer panel */
+.layer-name {
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Locked/hidden badge on layers */
+.layer-badge {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: rgba(255,255,255,0.28);
+  transition: color 0.12s;
+  &:hover { color: rgba(255,255,255,0.65); }
+}
+
+/* Better color swatch ring */
+.color-swatch {
+  box-shadow: 0 0 0 1.5px rgba(0,0,0,0.5), 0 0 0 2.5px rgba(255,255,255,0.12);
+  &:hover { box-shadow: 0 0 0 1.5px rgba(0,0,0,0.5), 0 0 0 3px rgba(99,102,241,0.6); }
+}
+
+/* Font-size input arrows hidden for cleanliness */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { display: none; }
+}
+
+/* Canvas ruler tick marks */
+.ruler-tick { color: rgba(255,255,255,0.3); }
+
+/* Context-menu improvements */
+.ctx-menu-item {
+  border-radius: 6px;
+  &:hover { background: rgba(99,102,241,0.12); color: #e0e0f0; }
+}
+
+/* Align-distribute buttons */
+.align-btn {
+  transition: background 0.1s, color 0.1s, transform 0.08s;
+  border-radius: 6px;
+  &:hover { background: rgba(255,255,255,0.08); transform: scale(1.08); }
+  &:active { transform: scale(0.94); }
+}
+
+/* Right panel header accent line on hover */
+.prop-section-header:hover .prop-section-title {
+  color: rgba(165,180,252,0.65);
+}
+
+/* Better "no selection" empty state */
+.no-selection-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  color: rgba(255,255,255,0.22);
+  text-align: center;
+  padding: 24px 20px;
+  font-size: 12px;
+
+  svg { opacity: 0.4; margin-bottom: 4px; }
+}
+
+/* Tour tooltip polish */
+.tour-tooltip {
+  border: 1px solid rgba(99,102,241,0.4);
+  box-shadow:
+    0 4px 20px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(99,102,241,0.12) inset;
+}
+
+/* Gradient text for logo in welcome */
+.welcome-logo-text {
+  background: linear-gradient(135deg, #a5b4fc, #f0abfc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Better collapse/expand button */
+.panel-collapse-btn,
+.panel-expand-btn {
+  border-radius: 7px;
+  &:hover { background: rgba(255,255,255,0.1); }
+}
+
+/* Smooth panel transitions */
+.panel--left,
+.panel--props {
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Micro-animation on tool icon */
+.tb-tool svg,
+.lp-tab svg {
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tb-tool:hover svg,
+.lp-tab:hover svg {
+  transform: scale(1.12);
+}
+.tb-tool--active svg,
+.lp-tab.lp-tab--active svg {
+  transform: scale(1.05);
 }
