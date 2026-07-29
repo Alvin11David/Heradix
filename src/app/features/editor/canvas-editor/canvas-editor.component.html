@@ -117,20 +117,20 @@
           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
         </svg>
       </button>
-      <div class="tb-sep"></div>
-      <button class="tb-btn" (click)="showSizeDialog.set(true)" aria-label="Resize canvas" data-tip="Resize canvas">
+      <div class="tb-sep tb-sep--hide-mobile"></div>
+      <button class="tb-btn tb-btn--hide-mobile" (click)="showSizeDialog.set(true)" aria-label="Resize canvas" data-tip="Resize canvas">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="1.5"/>
           <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
         </svg>
         Resize
       </button>
-      <button class="tb-btn" (click)="toggleShortcutsModal()" aria-label="Keyboard shortcuts" data-tip="Keyboard shortcuts (?)">
+      <button class="tb-btn tb-btn--hide-mobile" (click)="toggleShortcutsModal()" aria-label="Keyboard shortcuts" data-tip="Keyboard shortcuts (?)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M18 12h.01M10 12h4M8 16h8"/>
         </svg>
       </button>
-      <button class="tb-btn" [class.tb-btn--active]="presentationMode()" (click)="togglePresentationMode()"
+      <button class="tb-btn tb-btn--hide-mobile" [class.tb-btn--active]="presentationMode()" (click)="togglePresentationMode()"
         aria-label="Presentation mode (Shift+F)" data-tip="Present fullscreen (Shift+F)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
@@ -290,8 +290,15 @@
     <aside class="panel panel--left"
       *ngIf="!leftPanelCollapsed() || mobileLeftOpen()"
       [class.mobile-sheet--open]="mobileLeftOpen()">
-      <!-- Mobile drag handle -->
-      <div class="mobile-sheet-handle"></div>
+      <!-- Mobile drag handle + close button row -->
+      <div class="mobile-sheet-topbar">
+        <div class="mobile-sheet-handle"></div>
+        <button class="mobile-sheet-close" (click)="closeMobileDrawer()" aria-label="Close panel">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
 
       
       <nav class="lp-tabs">
@@ -772,11 +779,18 @@
     <aside class="panel panel--props"
       *ngIf="!rightPanelCollapsed() || mobilePropsOpen()"
       [class.mobile-sheet--open]="mobilePropsOpen()">
-      <!-- Mobile drag handle -->
-      <div class="mobile-sheet-handle"></div>
+      <!-- Mobile drag handle + close button row -->
+      <div class="mobile-sheet-topbar">
+        <div class="mobile-sheet-handle"></div>
+        <button class="mobile-sheet-close" (click)="closeMobileProps()" aria-label="Close panel">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
       <div class="panel-header">
         <h3 class="panel-title">Properties</h3>
-        <button class="panel-collapse-btn" (click)="toggleRightPanel()" aria-label="Collapse panel" data-tip="Collapse panel">
+        <button class="panel-collapse-btn desktop-only" (click)="toggleRightPanel()" aria-label="Collapse panel" data-tip="Collapse panel">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
@@ -1542,16 +1556,16 @@
        MOBILE BOTTOM NAVIGATION BAR — Canva-style bottom nav
   ═══════════════════════════════════════════════════════════════════ -->
   <nav class="mobile-bottom-nav" aria-label="Editor tools">
-    <!-- Templates -->
+    <!-- Layers -->
     <button class="mob-nav-btn"
-      [class.mob-nav-btn--active]="mobileLeftOpen() && leftPanelTab()==='templates'"
-      (click)="openMobilePanel('templates')"
-      aria-label="Templates">
+      [class.mob-nav-btn--active]="mobileLeftOpen() && leftPanelTab()==='layers'"
+      (click)="openMobilePanel('layers')"
+      aria-label="Layers">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/>
-        <rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+        <rect x="2" y="7" width="20" height="3" rx="1"/><rect x="2" y="13" width="20" height="3" rx="1"/>
+        <path d="M4 4h16M4 20h16"/>
       </svg>
-      <span>Templates</span>
+      <span>Layers</span>
     </button>
     <!-- Elements -->
     <button class="mob-nav-btn"

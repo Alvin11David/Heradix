@@ -1116,6 +1116,8 @@ canvas {
     0 24px 64px rgba(0, 0, 0, 0.35),
     0 0 0 1px rgba(255, 255, 255, 0.06);
   border-radius: 3px;
+  /* Let Fabric.js own all touch events on the canvas */
+  touch-action: none;
 }
 
 .canvas-overlay {
@@ -4125,18 +4127,56 @@ input[type="number"] {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   MOBILE BOTTOM-SHEET HANDLE (hidden on desktop, shown via media query)
+   MOBILE BOTTOM-SHEET TOPBAR (handle + close button row)
 ═══════════════════════════════════════════════════════════════════════ */
+.mobile-sheet-topbar {
+  display: none;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px 0;
+  position: relative;
+  flex-shrink: 0;
+}
+
 .mobile-sheet-handle {
   display: none;
   width: 36px;
   height: 4px;
   background: rgba(255,255,255,0.18);
   border-radius: 2px;
-  margin: 10px auto 0;
   cursor: grab;
   flex-shrink: 0;
   align-self: center;
+}
+
+.mobile-sheet-close {
+  display: none;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: #9090a0;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover, &:active {
+    background: rgba(255,255,255,0.14);
+    color: #e0e0e0;
+  }
+}
+
+/* Desktop-only collapse button: visible on desktop, hidden on mobile */
+.desktop-only {
+  display: flex;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -4278,7 +4318,14 @@ input[type="number"] {
   /* Show mobile-only elements */
   .mobile-overlay { display: block; }
   .mobile-bottom-nav { display: flex; }
+  .mobile-sheet-topbar { display: flex; }
   .mobile-sheet-handle { display: block; }
+  .mobile-sheet-close { display: flex; }
+
+  /* Hide desktop-only elements on mobile */
+  .desktop-only { display: none !important; }
+  .tb-btn--hide-mobile { display: none !important; }
+  .tb-sep--hide-mobile { display: none !important; }
 
   /* ── Editor body: single column ───────────────────────────────── */
   .editor-body {
@@ -4304,8 +4351,8 @@ input[type="number"] {
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
-    max-height: 74vh !important;
-    height: 74vh !important;
+    max-height: 78vh !important;
+    height: 78vh !important;
     z-index: 200 !important;
     border-radius: 20px 20px 0 0 !important;
     overflow: hidden !important;
@@ -4313,6 +4360,8 @@ input[type="number"] {
     border-right: none !important;
     box-shadow: 0 -8px 40px rgba(0,0,0,0.55) !important;
     grid-column: unset !important;
+    flex-direction: column !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
 
     &.mobile-sheet--open {
       display: flex !important;
@@ -4328,8 +4377,8 @@ input[type="number"] {
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
-    max-height: 74vh !important;
-    height: 74vh !important;
+    max-height: 78vh !important;
+    height: 78vh !important;
     z-index: 200 !important;
     border-radius: 20px 20px 0 0 !important;
     overflow: hidden !important;
@@ -4337,6 +4386,8 @@ input[type="number"] {
     border-left: none !important;
     box-shadow: 0 -8px 40px rgba(0,0,0,0.55) !important;
     grid-column: unset !important;
+    flex-direction: column !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
 
     &.mobile-sheet--open {
       display: flex !important;
