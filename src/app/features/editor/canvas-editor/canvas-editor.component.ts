@@ -1607,7 +1607,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ed.pushUndoState();
     const clamped = Math.min(Math.max(value, 0), 20);
     obj._layerBlur = clamped;
-    obj.filters = clamped > 0 ? [new this.fabric.Image.filters.Blur({ blur: clamped / 10 })] : [];
+    obj.filters = clamped > 0 ? [new this.fabric.filters.Blur({ blur: clamped / 10 })] : [];
     obj.applyFilters();
     this.canvas?.renderAll();
     this.readPropsFromSelected();
@@ -2810,7 +2810,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onSelect({ target: obj });
   }
 
-  private addText(text?: string): void {
+  addText(text?: string): void {
     if (!this.canvas || !this.fabric) return;
     this.ed.pushUndoState();
     const c = this.getCanvasCenter();
@@ -3102,20 +3102,22 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const obj = this.canvas?.getObjects().find((o: any) => o._id === id);
     if (!obj || !this.canvas || !this.fabric) return;
     this.ed.pushUndoState();
-    const clone = obj.clone();
-    clone.set({
-      _id: `layer-${Date.now()}`,
-      name: `${obj.name ?? 'Layer'} Copy`,
-      left: (obj.left ?? 0) + 24,
-      top: (obj.top ?? 0) + 24,
-      opacity: obj.opacity ?? 1,
+    void Promise.resolve(obj.clone()).then((clone: any) => {
+      if (!clone || !this.canvas) return;
+      clone.set({
+        _id: `layer-${Date.now()}`,
+        name: `${obj.name ?? 'Layer'} Copy`,
+        left: (obj.left ?? 0) + 24,
+        top: (obj.top ?? 0) + 24,
+        opacity: obj.opacity ?? 1,
+      });
+      clone.setCoords?.();
+      this.canvas.add(clone);
+      this.canvas.setActiveObject(clone);
+      this.canvas.renderAll();
+      this.onSelect({ target: clone });
+      this.ed.setDirty();
     });
-    clone.setCoords();
-    this.canvas.add(clone);
-    this.canvas.setActiveObject(clone);
-    this.canvas.renderAll();
-    this.onSelect({ target: clone });
-    this.ed.setDirty();
   }
 
   toggleLayerVisibility(id: string): void {
@@ -3574,39 +3576,29 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     const active = this.canvas.getActiveObjects?.() ?? [];
     if (!active.length) return;
     this.ed.pushUndoState();
-    active.forEach((obj: any) => {
-      try {
-        const clone = obj.clone((cloned: any) => {
-          if (!cloned) return;
-          cloned.set({
-            _id: `layer-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-            name: `${obj.name ?? 'Layer'} Copy`,
-            left: (obj.left ?? 0) + 20,
-            top: (obj.top ?? 0) + 20,
-          });
-          cloned.setCoords?.();
-          this.canvas?.add(cloned);
-          this.canvas?.setActiveObject(cloned);
-          this.canvas?.renderAll();
-          this.onSelect({ target: cloned });
+    void Promise.all(active.map((obj: any) => Promise.resolve(obj.clone()))).then((clones: any[]) => {
+      if (!this.canvas) return;
+      let lastClone: any = null;
+      clones.forEach((cloned, i) => {
+        if (!cloned) return;
+        const src = active[i];
+        cloned.set({
+          _id: `layer-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          name: `${src.name ?? 'Layer'} Copy`,
+          left: (src.left ?? 0) + 20,
+          top: (src.top ?? 0) + 20,
         });
-
-        if (clone && typeof clone.set === 'function') {
-          clone.set({
-            _id: `layer-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-            name: `${obj.name ?? 'Layer'} Copy`,
-            left: (obj.left ?? 0) + 20,
-            top: (obj.top ?? 0) + 20,
-          });
-          clone.setCoords?.();
-          this.canvas?.add(clone);
-          this.canvas?.setActiveObject(clone);
-          this.canvas?.renderAll();
-          this.onSelect({ target: clone });
-        }
-      } catch {  }
+        cloned.setCoords?.();
+        this.canvas!.add(cloned);
+        lastClone = cloned;
+      });
+      if (lastClone) {
+        this.canvas.setActiveObject(lastClone);
+        this.canvas.renderAll();
+        this.onSelect({ target: lastClone });
+      }
+      this.ed.setDirty();
     });
-    this.ed.setDirty();
   }
 
 
@@ -4068,8 +4060,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     if (
       target &&
       !target._isStrokeSide &&
-      !target._isArrow &&
-      typeof target.onSelect === 'function'
+      !target._isArrow
     ) {
       const already = (this.canvas.getActiveObjects?.() ?? []).some((o: any) => o === target);
       if (!already) {

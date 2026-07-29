@@ -4227,7 +4227,7 @@ input[type="number"] {
 
   /* Properties button with selection indicator */
   &--props { color: #5a5a68; }
-  &--props&--active { color: #f5820a; background: rgba(245,130,10,0.14); }
+  &--props.mob-nav-btn--active { color: #f5820a; background: rgba(245,130,10,0.14); }
   &--has-selection { color: #f5820a; }
 }
 
