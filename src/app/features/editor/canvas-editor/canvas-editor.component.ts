@@ -65,6 +65,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly leftPanelCollapsed = signal(false);
   readonly rightPanelCollapsed = signal(false);
 
+  // Mobile bottom-sheet panel state
+  readonly mobileLeftOpen = signal(false);
+  readonly mobilePropsOpen = signal(false);
+
   readonly toolMode = this.ed.toolMode;
   readonly zoom = this.ed.zoom;
   readonly saveState = this.ed.saveState;
@@ -4588,6 +4592,35 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleRightPanel(): void {
     this.rightPanelCollapsed.update((v) => !v);
     requestAnimationFrame(() => this.resizeCanvas());
+  }
+
+  /** Open the mobile left-panel bottom sheet on a specific tab */
+  openMobilePanel(tab: 'layers'|'templates'|'elements'|'photos'|'text'|'background'): void {
+    this.setLeftTab(tab);
+    this.mobilePropsOpen.set(false);
+    this.mobileLeftOpen.set(true);
+  }
+
+  /** Close the mobile left panel bottom sheet */
+  closeMobileDrawer(): void {
+    this.mobileLeftOpen.set(false);
+  }
+
+  /** Toggle the mobile properties bottom sheet */
+  toggleMobileProps(): void {
+    this.mobileLeftOpen.set(false);
+    this.mobilePropsOpen.update(v => !v);
+  }
+
+  /** Close the mobile properties bottom sheet */
+  closeMobileProps(): void {
+    this.mobilePropsOpen.set(false);
+  }
+
+  /** Close all mobile drawers (backdrop tap) */
+  closeMobileAll(): void {
+    this.mobileLeftOpen.set(false);
+    this.mobilePropsOpen.set(false);
   }
 
   private resizeCanvas(): void {

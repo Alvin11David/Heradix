@@ -4123,3 +4123,504 @@ input[type="number"] {
 .lp-tab.lp-tab--active svg {
   transform: scale(1.05);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MOBILE BOTTOM-SHEET HANDLE (hidden on desktop, shown via media query)
+═══════════════════════════════════════════════════════════════════════ */
+.mobile-sheet-handle {
+  display: none;
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 2px;
+  margin: 10px auto 0;
+  cursor: grab;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MOBILE OVERLAY BACKDROP
+═══════════════════════════════════════════════════════════════════════ */
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 190;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: overlayFadeIn 0.2s ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MOBILE BOTTOM NAVIGATION BAR
+═══════════════════════════════════════════════════════════════════════ */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 62px;
+  background: #0e0e14;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  z-index: 150;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 4px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.35);
+}
+
+.mob-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 10px 6px;
+  border: none;
+  background: transparent;
+  color: #5a5a68;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: color 0.15s, background 0.15s, transform 0.1s;
+  min-width: 56px;
+  min-height: 50px;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+
+  svg { flex-shrink: 0; transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1); }
+
+  span:not(.mob-props-dot):not(.mob-nav-add-ring) {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  &:active { transform: scale(0.92); }
+
+  &--active {
+    color: #a5b4fc;
+    background: rgba(99,102,241,0.14);
+    svg { transform: scale(1.1); }
+  }
+
+  &:hover:not(&--active) {
+    color: #9090a0;
+    background: rgba(255,255,255,0.05);
+  }
+
+  /* "Add Text" center button special styling */
+  &--add {
+    color: #e0e0e8;
+  }
+
+  /* Properties button with selection indicator */
+  &--props { color: #5a5a68; }
+  &--props&--active { color: #f5820a; background: rgba(245,130,10,0.14); }
+  &--has-selection { color: #f5820a; }
+}
+
+.mob-nav-add-ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  box-shadow: 0 2px 10px rgba(99,102,241,0.45);
+  margin-bottom: 2px;
+
+  svg { stroke: #fff; }
+}
+
+/* Dot indicator when an object is selected */
+.mob-props-dot {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f5820a;
+  border: 1.5px solid #0e0e14;
+  animation: dotPop 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes dotPop {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BOTTOM SHEET SLIDE-UP ANIMATION
+═══════════════════════════════════════════════════════════════════════ */
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — ≤ 768px
+═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Show mobile-only elements */
+  .mobile-overlay { display: block; }
+  .mobile-bottom-nav { display: flex; }
+  .mobile-sheet-handle { display: block; }
+
+  /* ── Editor body: single column ───────────────────────────────── */
+  .editor-body {
+    grid-template-columns: 1fr !important;
+    position: relative;
+  }
+
+  /* ── Canvas area: full width, pad for bottom nav ─────────────── */
+  .canvas-area {
+    padding-bottom: 62px;
+  }
+
+  /* ── Status bar: hidden on mobile ────────────────────────────── */
+  .editor-statusbar {
+    display: none !important;
+  }
+
+  /* ── Left panel: hidden by default, shows as bottom sheet ─────── */
+  .panel--left {
+    display: none !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-height: 74vh !important;
+    height: 74vh !important;
+    z-index: 200 !important;
+    border-radius: 20px 20px 0 0 !important;
+    overflow: hidden !important;
+    border-top: 1px solid rgba(255,255,255,0.12) !important;
+    border-right: none !important;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.55) !important;
+    grid-column: unset !important;
+
+    &.mobile-sheet--open {
+      display: flex !important;
+      animation: sheetSlideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+  }
+
+  /* ── Right panel: hidden by default, shows as bottom sheet ────── */
+  .panel--props {
+    display: none !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-height: 74vh !important;
+    height: 74vh !important;
+    z-index: 200 !important;
+    border-radius: 20px 20px 0 0 !important;
+    overflow: hidden !important;
+    border-top: 1px solid rgba(255,255,255,0.12) !important;
+    border-left: none !important;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.55) !important;
+    grid-column: unset !important;
+
+    &.mobile-sheet--open {
+      display: flex !important;
+      animation: sheetSlideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+  }
+
+  /* ── Panel expand buttons: hide on mobile ─────────────────────── */
+  .panel-expand-btn { display: none !important; }
+
+  /* ── Toolbar: condensed ──────────────────────────────────────── */
+  .editor-toolbar {
+    padding: 0 8px;
+    height: 52px;
+    gap: 2px;
+  }
+
+  .tb-left {
+    min-width: 0;
+    gap: 4px;
+    flex: 0 0 auto;
+  }
+
+  .tb-title {
+    max-width: 110px;
+    font-size: 12px;
+  }
+
+  /* Hide center tool group on mobile (they live in the bottom nav) */
+  .tb-center { display: none !important; }
+
+  .tb-right {
+    min-width: 0;
+    gap: 2px;
+    flex: 0 0 auto;
+  }
+
+  /* Undo / Redo — icon only on mobile */
+  .tb-btn {
+    padding: 6px 7px;
+    gap: 4px;
+    font-size: 11.5px;
+  }
+
+  .tb-btn--save,
+  .tb-btn--export {
+    /* Keep icon, text is too wide */
+    padding: 7px;
+    svg { flex-shrink: 0; }
+    /* Hide text label on very small screens */
+    > :not(svg) { display: none; }
+  }
+
+  /* ── Selection toolbar: scrollable ──────────────────────────── */
+  .sel-toolbar {
+    max-width: calc(100vw - 16px);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    top: 54px;
+    border-radius: 12px;
+    padding: 4px 6px;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .sel-btn {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  /* ── Left panel tabs: horizontal row ────────────────────────── */
+  .lp-tabs {
+    flex-direction: row !important;
+    width: 100%;
+    height: auto !important;
+    overflow-x: auto;
+    padding: 8px 12px;
+    gap: 4px;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .lp-tab {
+    flex-direction: row !important;
+    align-items: center;
+    gap: 6px !important;
+    padding: 8px 14px !important;
+    border-radius: 10px;
+    width: auto !important;
+    flex-shrink: 0;
+    font-size: 12px;
+
+    svg { width: 15px !important; height: 15px !important; }
+    span { display: block !important; }
+  }
+
+  /* ── Panel body: scrollable ──────────────────────────────────── */
+  .lp-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .panel-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ── Touch targets: minimum 44×44px ─────────────────────────── */
+  .tb-btn, .tb-tool {
+    min-height: 40px;
+  }
+
+  .layer-item {
+    min-height: 40px;
+  }
+
+  /* Layer actions always visible on touch (no hover) */
+  .layer-actions {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: static !important;
+    transform: none !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+  }
+
+  /* ── Photo grid: bigger tap targets ─────────────────────────── */
+  .photo-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .photo-item {
+    min-height: 100px !important;
+  }
+
+  /* ── Template grid: 2 cols ───────────────────────────────────── */
+  .tmpl-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .tmpl-item {
+    min-height: 90px !important;
+  }
+
+  /* ── Element grid: 4 cols ────────────────────────────────────── */
+  .el-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+
+  /* ── Text style list: larger items ──────────────────────────── */
+  .text-style-item {
+    padding: 14px 12px !important;
+  }
+
+  /* ── Background grids ────────────────────────────────────────── */
+  .bg-color-grid {
+    grid-template-columns: repeat(7, 1fr) !important;
+  }
+
+  /* ── Float bar: bigger on touch ─────────────────────────────── */
+  .float-bar {
+    .fb-btn {
+      width: 40px !important;
+      height: 40px !important;
+    }
+  }
+
+  /* ── Context menu: bigger tap targets ───────────────────────── */
+  .ctx-menu {
+    border-radius: 16px;
+    min-width: 200px;
+  }
+  .ctx-item {
+    padding: 12px 16px;
+    font-size: 13.5px;
+    gap: 12px;
+  }
+
+  /* ── Modals: slide up from bottom on mobile ──────────────────── */
+  .editor-modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .export-dialog,
+  .size-dialog,
+  .shortcuts-dialog {
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 88vh !important;
+    overflow-y: auto;
+  }
+
+  /* ── Welcome screen: full-screen on mobile ───────────────────── */
+  .welcome-dialog {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    overflow-y: auto;
+  }
+
+  .welcome-formats {
+    padding: 0 12px;
+  }
+
+  .wf-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  /* ── Props panel: compact layout on mobile ───────────────────── */
+  .transform-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+
+  .prop-section {
+    flex-wrap: nowrap;
+  }
+
+  .color-strip {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .color-swatch {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  /* ── Draw controls: smaller on mobile ───────────────────────── */
+  .draw-controls {
+    font-size: 12px;
+    padding: 10px;
+    bottom: 70px;
+  }
+
+  /* ── Canvas empty guide: adapt for mobile ────────────────────── */
+  .ceg-actions {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  .ceg-btn {
+    width: 90%;
+    justify-content: center;
+  }
+
+  /* ── Zoom / AI overlay: adjust position ─────────────────────── */
+  .canvas-overlay.top-left {
+    bottom: 70px !important;
+    top: auto !important;
+  }
+
+  /* ── Tour tooltips: reposition for mobile ────────────────────── */
+  .tour-tooltip {
+    max-width: calc(100vw - 32px);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SMALL MOBILE — ≤ 480px extra tweaks
+═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .tb-title { max-width: 80px; font-size: 11px; }
+  .mob-nav-btn { min-width: 46px; padding: 6px 6px 4px; }
+  .mob-nav-btn span:not(.mob-props-dot):not(.mob-nav-add-ring) { font-size: 8px; }
+
+  .sel-toolbar { top: 52px; }
+
+  .photo-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .tmpl-item { min-height: 80px !important; }
+
+  .el-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}

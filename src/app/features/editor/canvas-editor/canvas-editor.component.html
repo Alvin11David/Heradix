@@ -287,7 +287,11 @@
     [class.editor-body--right-collapsed]="rightPanelCollapsed()">
 
     
-    <aside class="panel panel--left" *ngIf="!leftPanelCollapsed()">
+    <aside class="panel panel--left"
+      *ngIf="!leftPanelCollapsed() || mobileLeftOpen()"
+      [class.mobile-sheet--open]="mobileLeftOpen()">
+      <!-- Mobile drag handle -->
+      <div class="mobile-sheet-handle"></div>
 
       
       <nav class="lp-tabs">
@@ -765,7 +769,11 @@
     </main>
 
     
-    <aside class="panel panel--props" *ngIf="!rightPanelCollapsed()">
+    <aside class="panel panel--props"
+      *ngIf="!rightPanelCollapsed() || mobilePropsOpen()"
+      [class.mobile-sheet--open]="mobilePropsOpen()">
+      <!-- Mobile drag handle -->
+      <div class="mobile-sheet-handle"></div>
       <div class="panel-header">
         <h3 class="panel-title">Properties</h3>
         <button class="panel-collapse-btn" (click)="toggleRightPanel()" aria-label="Collapse panel" data-tip="Collapse panel">
@@ -1521,6 +1529,80 @@
   </div>
 
   
+  <!-- ═══════════════════════════════════════════════════════════════════
+       MOBILE OVERLAY — backdrop that closes drawers on tap
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="mobile-overlay"
+    *ngIf="mobileLeftOpen() || mobilePropsOpen()"
+    (click)="closeMobileAll()"
+    aria-hidden="true">
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       MOBILE BOTTOM NAVIGATION BAR — Canva-style bottom nav
+  ═══════════════════════════════════════════════════════════════════ -->
+  <nav class="mobile-bottom-nav" aria-label="Editor tools">
+    <!-- Templates -->
+    <button class="mob-nav-btn"
+      [class.mob-nav-btn--active]="mobileLeftOpen() && leftPanelTab()==='templates'"
+      (click)="openMobilePanel('templates')"
+      aria-label="Templates">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/>
+        <rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+      </svg>
+      <span>Templates</span>
+    </button>
+    <!-- Elements -->
+    <button class="mob-nav-btn"
+      [class.mob-nav-btn--active]="mobileLeftOpen() && leftPanelTab()==='elements'"
+      (click)="openMobilePanel('elements')"
+      aria-label="Elements">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="9" cy="9" r="5"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+        <polygon points="3 20 8 11 13 20"/>
+      </svg>
+      <span>Elements</span>
+    </button>
+    <!-- Text (quick-add, no drawer) -->
+    <button class="mob-nav-btn mob-nav-btn--add"
+      (click)="addText(); closeMobileAll()"
+      aria-label="Add Text">
+      <span class="mob-nav-add-ring">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/>
+          <line x1="12" y1="4" x2="12" y2="20"/>
+        </svg>
+      </span>
+      <span>Text</span>
+    </button>
+    <!-- Photos -->
+    <button class="mob-nav-btn"
+      [class.mob-nav-btn--active]="mobileLeftOpen() && leftPanelTab()==='photos'"
+      (click)="openMobilePanel('photos')"
+      aria-label="Photos">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
+      </svg>
+      <span>Photos</span>
+    </button>
+    <!-- Properties (opens right panel) -->
+    <button class="mob-nav-btn mob-nav-btn--props"
+      [class.mob-nav-btn--active]="mobilePropsOpen()"
+      (click)="toggleMobileProps()"
+      [attr.aria-label]="selectedLayerType() ? 'Edit Properties' : 'Properties'"
+      [class.mob-nav-btn--has-selection]="!!selectedLayerType()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      <span>Properties</span>
+      <!-- selection indicator dot -->
+      <span class="mob-props-dot" *ngIf="!!selectedLayerType()"></span>
+    </button>
+  </nav>
+
   <footer class="editor-statusbar">
     <div class="sb-left">
       <span class="sb-item">{{ layers().length }} objects</span>
