@@ -16,6 +16,7 @@ interface DropdownLink {
 interface CategoryGroup {
   label: string;
   route: string;
+  icon?: string;
   hasDropdown?: boolean;
   dropdownItems?: string[];
   dropdownLinks?: DropdownLink[];
@@ -292,144 +293,161 @@ const OTHER_DROPDOWN_LINKS: DropdownLink[] = [
       </div>
     </header>
 
-    <!-- Mobile overlay -->
+    <!-- Mobile overlay (for avatar menu only now) -->
     <div class="amx-mobile-overlay" *ngIf="mobileMenuOpen()"
          (click)="mobileMenuOpen.set(false)"
          (keydown.escape)="mobileMenuOpen.set(false)"
          aria-hidden="true"></div>
 
-    <nav class="amx-catnav" id="amx-mobile-nav"
-         [class.amx-catnav--mobile-open]="mobileMenuOpen()"
-         aria-label="Asset categories">
+    <!-- ── Category Nav Bar ─────────────────────────────────── -->
+    <nav class="amx-catnav" aria-label="Asset categories">
       <div class="amx-catnav__inner">
-        <ul class="amx-catnav__list" role="list">
-          <li *ngFor="let cat of categories" class="amx-catnav__item"
-              (mouseenter)="(cat.dropdownItems || cat.dropdownLinks) && openCatDropdown(cat.label)"
-              (mouseleave)="closeCatDropdown()">
-            <a [routerLink]="cat.route"
-               routerLinkActive="active"
-               [routerLinkActiveOptions]="{exact: true}"
-               class="amx-catnav__link"
-               (click)="onCatClick(cat); mobileMenuOpen.set(false)">
-              {{ cat.label }}
-              <svg *ngIf="cat.hasDropdown"
-                   width="11" height="11" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-            </a>
-            <!-- Photos mega-menu -->
-            <div *ngIf="cat.dropdownType === 'photos' && openDropdown === cat.label"
-                 class="amx-cat-dropdown amx-cat-dropdown--photos" role="menu">
-              <div class="amx-photos-mega">
-                <div class="amx-photos-mega__hero">
-                  <div class="amx-photos-mega__hero-icon-wrap">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                      <circle cx="12" cy="13" r="4"/>
-                    </svg>
+
+        <!-- Browse badge -->
+        <span class="amx-catnav__badge amx-hide-mobile" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+          Browse
+        </span>
+
+        <!-- Scrollable category strip -->
+        <div class="amx-catnav__scroll-wrap">
+          <ul class="amx-catnav__list" role="list">
+            <li *ngFor="let cat of categories" class="amx-catnav__item"
+                (mouseenter)="(cat.dropdownItems || cat.dropdownLinks) && openCatDropdown(cat.label)"
+                (mouseleave)="closeCatDropdown()">
+              <a [routerLink]="cat.route"
+                 routerLinkActive="active"
+                 [routerLinkActiveOptions]="{exact: true}"
+                 class="amx-catnav__link"
+                 (click)="onCatClick(cat)">
+                <span *ngIf="cat.icon" class="amx-catnav__cat-icon" aria-hidden="true">{{ cat.icon }}</span>
+                {{ cat.label }}
+                <svg *ngIf="cat.hasDropdown"
+                     class="amx-catnav__chevron"
+                     width="10" height="10" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </a>
+
+              <!-- Photos mega-menu -->
+              <div *ngIf="cat.dropdownType === 'photos' && openDropdown === cat.label"
+                   class="amx-cat-dropdown amx-cat-dropdown--photos" role="menu">
+                <div class="amx-photos-mega">
+                  <div class="amx-photos-mega__hero">
+                    <div class="amx-photos-mega__hero-icon-wrap">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                      </svg>
+                    </div>
+                    <h3 class="amx-photos-mega__hero-title">Stock<br>Photos</h3>
+                    <p class="amx-photos-mega__hero-sub">Over 1M+ licensed images ready to download</p>
+                    <a [routerLink]="cat.route" class="amx-photos-mega__hero-cta">
+                      Browse All
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                    </a>
+                    <div class="amx-photos-mega__hero-tags">
+                      <span>HD Quality</span>
+                      <span>AI-Enhanced</span>
+                      <span>Royalty-Free</span>
+                    </div>
                   </div>
-                  <h3 class="amx-photos-mega__hero-title">Stock<br>Photos</h3>
-                  <p class="amx-photos-mega__hero-sub">Over 1M+ licensed images ready to download</p>
-                  <a [routerLink]="cat.route" class="amx-photos-mega__hero-cta" (click)="mobileMenuOpen.set(false)">
-                    Browse All
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-                  </a>
-                  <div class="amx-photos-mega__hero-tags">
-                    <span>HD Quality</span>
-                    <span>AI-Enhanced</span>
-                    <span>Royalty-Free</span>
+                  <div class="amx-photos-mega__categories">
+                    <a *ngFor="let link of cat.dropdownLinks"
+                       [routerLink]="link.route"
+                       [queryParams]="link.queryParams || {}"
+                       class="amx-photos-mega__card"
+                       role="menuitem">
+                      <span class="amx-photos-mega__card-emoji">{{ link.emoji }}</span>
+                      <span class="amx-photos-mega__card-body">
+                        <span class="amx-photos-mega__card-label">{{ link.label }}</span>
+                        <span class="amx-photos-mega__card-desc">{{ link.desc }}</span>
+                      </span>
+                      <svg class="amx-photos-mega__card-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                    </a>
                   </div>
                 </div>
-                <div class="amx-photos-mega__categories">
+              </div>
+
+              <!-- Other Categories grid -->
+              <div *ngIf="cat.dropdownType === 'other' && openDropdown === cat.label"
+                   class="amx-cat-dropdown amx-cat-dropdown--other" role="menu">
+                <div class="amx-cat-dropdown__header">
+                  <span class="amx-cat-dropdown__header-label">More Asset Types</span>
+                  <a [routerLink]="cat.route" class="amx-cat-dropdown__header-all">Browse All →</a>
+                </div>
+                <div class="amx-other-grid">
                   <a *ngFor="let link of cat.dropdownLinks"
                      [routerLink]="link.route"
                      [queryParams]="link.queryParams || {}"
-                     class="amx-photos-mega__card"
-                     (click)="mobileMenuOpen.set(false)"
+                     class="amx-other-grid__item"
                      role="menuitem">
-                    <span class="amx-photos-mega__card-emoji">{{ link.emoji }}</span>
-                    <span class="amx-photos-mega__card-body">
-                      <span class="amx-photos-mega__card-label">{{ link.label }}</span>
-                      <span class="amx-photos-mega__card-desc">{{ link.desc }}</span>
+                    <span class="amx-other-grid__icon"
+                          [style.background]="(link.color || '#f5820a') + '18'"
+                          [style.color]="link.color || '#f5820a'">
+                      {{ link.emoji }}
                     </span>
-                    <svg class="amx-photos-mega__card-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                    <span class="amx-other-grid__body">
+                      <span class="amx-other-grid__label">{{ link.label }}</span>
+                      <span class="amx-other-grid__desc">{{ link.desc }}</span>
+                    </span>
+                    <svg class="amx-other-grid__arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                  </a>
+                </div>
+                <div class="amx-other-footer">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Can't find what you need?
+                  <a [routerLink]="cat.route">Search all 1M+ assets</a>
+                </div>
+              </div>
+
+              <!-- Rich card dropdown (PNG) -->
+              <div *ngIf="cat.dropdownType === 'rich' && openDropdown === cat.label"
+                   class="amx-cat-dropdown amx-cat-dropdown--rich" role="menu">
+                <div class="amx-cat-dropdown__header">
+                  <span class="amx-cat-dropdown__header-label">{{ cat.label }} Categories</span>
+                  <a [routerLink]="cat.route" class="amx-cat-dropdown__header-all">View all →</a>
+                </div>
+                <div class="amx-cat-dropdown__grid">
+                  <a *ngFor="let link of cat.dropdownLinks"
+                     [routerLink]="link.route"
+                     [queryParams]="link.queryParams || {}"
+                     class="amx-cat-dropdown__card"
+                     role="menuitem">
+                    <span class="amx-cat-dropdown__card-emoji">{{ link.emoji }}</span>
+                    <span class="amx-cat-dropdown__card-body">
+                      <span class="amx-cat-dropdown__card-label">{{ link.label }}</span>
+                      <span class="amx-cat-dropdown__card-desc">{{ link.desc }}</span>
+                    </span>
+                    <svg class="amx-cat-dropdown__card-arrow" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
                   </a>
                 </div>
               </div>
-            </div>
 
-            <!-- Other Categories grid -->
-            <div *ngIf="cat.dropdownType === 'other' && openDropdown === cat.label"
-                 class="amx-cat-dropdown amx-cat-dropdown--other" role="menu">
-              <div class="amx-cat-dropdown__header">
-                <span class="amx-cat-dropdown__header-label">More Asset Types</span>
-                <a [routerLink]="cat.route" class="amx-cat-dropdown__header-all" (click)="mobileMenuOpen.set(false)">Browse All →</a>
-              </div>
-              <div class="amx-other-grid">
-                <a *ngFor="let link of cat.dropdownLinks"
-                   [routerLink]="link.route"
-                   [queryParams]="link.queryParams || {}"
-                   class="amx-other-grid__item"
-                   (click)="mobileMenuOpen.set(false)"
-                   role="menuitem">
-                  <span class="amx-other-grid__icon"
-                        [style.background]="(link.color || '#f5820a') + '18'"
-                        [style.color]="link.color || '#f5820a'">
-                    {{ link.emoji }}
-                  </span>
-                  <span class="amx-other-grid__body">
-                    <span class="amx-other-grid__label">{{ link.label }}</span>
-                    <span class="amx-other-grid__desc">{{ link.desc }}</span>
-                  </span>
-                  <svg class="amx-other-grid__arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
-              </div>
-              <div class="amx-other-footer">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                Can't find what you need?
-                <a [routerLink]="cat.route" (click)="mobileMenuOpen.set(false)">Search all 1M+ assets</a>
-              </div>
-            </div>
+              <!-- PSD plain dropdown -->
+              <ul *ngIf="cat.dropdownItems && !cat.dropdownLinks && openDropdown === cat.label"
+                  class="amx-cat-dropdown amx-cat-dropdown--plain" role="menu">
+                <li *ngFor="let item of cat.dropdownItems"
+                    class="amx-cat-dropdown__item"
+                    role="menuitem"
+                    (click)="navigateDropdown(cat, item)">{{ item }}</li>
+              </ul>
+            </li>
+          </ul>
+        </div><!-- /scroll-wrap -->
 
-            <!-- Rich card dropdown (PNG) -->
-            <div *ngIf="cat.dropdownType === 'rich' && openDropdown === cat.label"
-                 class="amx-cat-dropdown amx-cat-dropdown--rich" role="menu">
-              <div class="amx-cat-dropdown__header">
-                <span class="amx-cat-dropdown__header-label">{{ cat.label }} Categories</span>
-                <a [routerLink]="cat.route" class="amx-cat-dropdown__header-all" (click)="mobileMenuOpen.set(false)">View all →</a>
-              </div>
-              <div class="amx-cat-dropdown__grid">
-                <a *ngFor="let link of cat.dropdownLinks"
-                   [routerLink]="link.route"
-                   [queryParams]="link.queryParams || {}"
-                   class="amx-cat-dropdown__card"
-                   (click)="mobileMenuOpen.set(false)"
-                   role="menuitem">
-                  <span class="amx-cat-dropdown__card-emoji">{{ link.emoji }}</span>
-                  <span class="amx-cat-dropdown__card-body">
-                    <span class="amx-cat-dropdown__card-label">{{ link.label }}</span>
-                    <span class="amx-cat-dropdown__card-desc">{{ link.desc }}</span>
-                  </span>
-                  <svg class="amx-cat-dropdown__card-arrow" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
-              </div>
-            </div>
-            <!-- Legacy plain dropdown (PSD) -->
-            <ul *ngIf="cat.dropdownItems && !cat.dropdownLinks && openDropdown === cat.label"
-                class="amx-cat-dropdown" role="menu">
-              <li *ngFor="let item of cat.dropdownItems"
-                  class="amx-cat-dropdown__item"
-                  role="menuitem"
-                  (click)="navigateDropdown(cat, item); mobileMenuOpen.set(false)">{{ item }}</li>
-            </ul>
-          </li>
-        </ul>
-
+        <!-- Divider + Utility links -->
+        <div class="amx-catnav__divider" aria-hidden="true"></div>
         <ul class="amx-catnav__utils" role="list">
           <li>
-            <a routerLink="/print" routerLinkActive="active" class="amx-catnav__util-link" (click)="mobileMenuOpen.set(false)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <a routerLink="/print" routerLinkActive="active" class="amx-catnav__util-link">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <polyline points="6 9 6 2 18 2 18 9"/>
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
                 <rect x="6" y="14" width="12" height="8"/>
@@ -438,15 +456,16 @@ const OTHER_DROPDOWN_LINKS: DropdownLink[] = [
             </a>
           </li>
           <li>
-            <a routerLink="/academy" routerLinkActive="active" class="amx-catnav__util-link" (click)="mobileMenuOpen.set(false)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <a routerLink="/academy" routerLinkActive="active" class="amx-catnav__util-link">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
                 <path d="M6 12v5c3 3 9 3 12 0v-5"/>
               </svg>
-              Amarapix Academy
+              <span class="amx-hide-mobile">Amarapix</span> Academy
             </a>
           </li>
         </ul>
+
       </div>
     </nav>
   `,
@@ -509,22 +528,22 @@ export class HeaderComponent {
   }
 
   readonly categories: CategoryGroup[] = [
-    { label: 'Collections', route: '/collections' },
+    { label: 'Collections', route: '/collections',      icon: '🗂️' },
     {
-      label: 'PSD', route: '/marketplace/psd', hasDropdown: true,
+      label: 'PSD', route: '/marketplace/psd', icon: '🎨', hasDropdown: true,
       dropdownItems: ['All PSDs', 'Church Flyer', 'Business Cards', 'Brochures', 'Profile', 'Party Flyers'],
     },
-    { label: 'Mockups', route: '/mockups' },
-    { label: 'Icons',   route: '/icons' },
-    { label: 'PNG', route: '/png', hasDropdown: true, dropdownLinks: PNG_DROPDOWN_LINKS, dropdownType: 'rich' },
-    { label: 'Vectors', route: '/vectors' },
+    { label: 'Mockups', route: '/mockups',              icon: '📱' },
+    { label: 'Icons',   route: '/icons',                icon: '✦' },
+    { label: 'PNG',     route: '/png', icon: '🖼️', hasDropdown: true, dropdownLinks: PNG_DROPDOWN_LINKS, dropdownType: 'rich' },
+    { label: 'Vectors', route: '/vectors',              icon: '✏️' },
     {
-      label: 'Photos', route: '/marketplace/photos', hasDropdown: true,
+      label: 'Photos', route: '/marketplace/photos', icon: '📸', hasDropdown: true,
       dropdownLinks: PHOTOS_DROPDOWN_LINKS, dropdownType: 'photos',
     },
-    { label: 'Videos', route: '/marketplace/videos' },
+    { label: 'Videos', route: '/marketplace/videos',   icon: '🎬' },
     {
-      label: 'Other Categories', route: '/marketplace', hasDropdown: true,
+      label: 'Other', route: '/marketplace', icon: '···', hasDropdown: true,
       dropdownLinks: OTHER_DROPDOWN_LINKS, dropdownType: 'other',
     },
   ];
