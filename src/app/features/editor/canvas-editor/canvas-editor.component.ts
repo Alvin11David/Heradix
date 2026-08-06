@@ -823,7 +823,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isPanning = false;
     this.panStartPoint = null;
     this.panOriginTransform = null;
-    this.canvas?.selection && (this.canvas.selection = true);
+    if (this.canvas) this.canvas.selection = true;
     this.updateCanvasCursor();
   }
 
@@ -4124,6 +4124,14 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   ctxUngroup(): void      { this.ctxRun(() => this.ungroupSelected()); }
   ctxCenterH(): void      { this.ctxRun(() => this.centerOnCanvas('h')); }
   ctxCenterV(): void      { this.ctxRun(() => this.centerOnCanvas('v')); }
+  ctxAlignLeft(): void    { this.ctxRun(() => this.alignSelected('left')); }
+  ctxAlignRight(): void   { this.ctxRun(() => this.alignSelected('right')); }
+  ctxAlignTop(): void     { this.ctxRun(() => this.alignSelected('top')); }
+  ctxAlignBottom(): void  { this.ctxRun(() => this.alignSelected('bottom')); }
+  ctxAlignCenterX(): void { this.ctxRun(() => this.alignSelected('centerX')); }
+  ctxAlignCenterY(): void { this.ctxRun(() => this.alignSelected('centerY')); }
+  ctxDistributeH(): void  { this.ctxRun(() => this.distributeHorizontally()); }
+  ctxDistributeV(): void  { this.ctxRun(() => this.distributeVertically()); }
   ctxLock(): void         { this.ctxRun(() => this.toggleSelectedLock()); }
   ctxSelectAll(): void    { this.ctxRun(() => this.selectAll()); }
   ctxDelete(): void       { this.ctxRun(() => this.deleteSelected()); }

@@ -157,129 +157,6 @@
     </div>
   </header>
 
-  
-  <div class="sel-toolbar" *ngIf="selectedLayerIds().size > 0" style="position: fixed; top: 62px; left: 50%; transform: translateX(-50%); z-index: 50;">
-    
-    <button class="sel-btn" (click)="alignSelected('left')" aria-label="Align left" data-tip="Align left">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="4" y1="4" x2="4" y2="20"/><rect x="6" y="7" width="10" height="4" rx="1"/><rect x="6" y="13" width="14" height="4" rx="1"/>
-      </svg>
-    </button>
-    <button class="sel-btn" (click)="alignSelected('centerX')" aria-label="Align center (horizontal)" data-tip="Align center (horizontal)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="12" y1="4" x2="12" y2="20"/><rect x="6" y="7" width="12" height="4" rx="1"/><rect x="4" y="13" width="16" height="4" rx="1"/>
-      </svg>
-    </button>
-    <button class="sel-btn" (click)="alignSelected('right')" aria-label="Align right" data-tip="Align right">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="20" y1="4" x2="20" y2="20"/><rect x="8" y="7" width="10" height="4" rx="1"/><rect x="4" y="13" width="14" height="4" rx="1"/>
-      </svg>
-    </button>
-    <button class="sel-btn" (click)="alignSelected('top')" aria-label="Align top" data-tip="Align top">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="4" y1="4" x2="20" y2="4"/><rect x="7" y="6" width="4" height="10" rx="1"/><rect x="13" y="6" width="4" height="14" rx="1"/>
-      </svg>
-    </button>
-    <button class="sel-btn" (click)="alignSelected('centerY')" aria-label="Align middle (vertical)" data-tip="Align middle (vertical)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="4" y1="12" x2="20" y2="12"/><rect x="7" y="5" width="4" height="14" rx="1"/><rect x="13" y="7" width="4" height="10" rx="1"/>
-      </svg>
-    </button>
-    <button class="sel-btn" (click)="alignSelected('bottom')" aria-label="Align bottom" data-tip="Align bottom">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="4" y1="20" x2="20" y2="20"/><rect x="7" y="4" width="4" height="14" rx="1"/><rect x="13" y="6" width="4" height="12" rx="1"/>
-      </svg>
-    </button>
-    <div class="sel-sep"></div>
-    
-    <button class="sel-btn" (click)="moveSelectedForward()" aria-label="Bring forward" data-tip="Bring forward">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="8" y="8" width="12" height="12" rx="2"/><rect x="4" y="4" width="12" height="12" rx="2" stroke-dasharray="2 2"/>
-        <path d="M12 2v4M10 4l2-2 2 2"/>
-      </svg>
-    </button>
-    <button class="sel-btn" (click)="bringSelectedToFront()" aria-label="Bring to front" data-tip="Bring to front">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="8" y="8" width="12" height="12" rx="2"/><rect x="4" y="4" width="12" height="12" rx="2" opacity=".4"/>
-      </svg>
-    </button>
-    <button class="sel-btn" (click)="moveSelectedBackward()" aria-label="Send backward" data-tip="Send backward">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="4" y="4" width="12" height="12" rx="2"/><rect x="8" y="8" width="12" height="12" rx="2" stroke-dasharray="2 2"/>
-        <path d="M12 22v-4M10 20l2 2 2-2"/>
-      </svg>
-    </button>
-    <button class="sel-btn" (click)="sendSelectedToBack()" aria-label="Send to back" data-tip="Send to back">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="4" y="4" width="12" height="12" rx="2"/><rect x="8" y="8" width="12" height="12" rx="2" opacity=".4"/>
-      </svg>
-    </button>
-    <div class="sel-sep"></div>
-    
-    <button class="sel-btn" (click)="groupSelected()" [disabled]="selectedLayerIds().size < 2" aria-label="Group (Ctrl+G — select 2+ objects)" data-tip="Group (Ctrl+G — select 2+ objects)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="2" y="2" width="8" height="8" rx="1.5"/><rect x="14" y="2" width="8" height="8" rx="1.5"/>
-        <rect x="2" y="14" width="8" height="8" rx="1.5"/><rect x="14" y="14" width="8" height="8" rx="1.5"/>
-        <path d="M10 6h4M6 10v4M18 10v4M10 18h4"/>
-      </svg>
-    </button>
-    <button class="sel-btn" (click)="ungroupSelected()" aria-label="Ungroup" data-tip="Ungroup">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="2" y="2" width="8" height="8" rx="1.5" opacity=".5"/><rect x="14" y="2" width="8" height="8" rx="1.5" opacity=".5"/>
-        <rect x="2" y="14" width="8" height="8" rx="1.5" opacity=".5"/><rect x="14" y="14" width="8" height="8" rx="1.5" opacity=".5"/>
-      </svg>
-    </button>
-    <div class="sel-sep"></div>
-    
-    <button class="sel-btn" (click)="flipSelectedHorizontal()" aria-label="Flip horizontal" data-tip="Flip horizontal">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/>
-        <line x1="12" y1="3" x2="12" y2="21" stroke-dasharray="3 2"/>
-      </svg>
-    </button>
-    <button class="sel-btn" (click)="flipSelectedVertical()" aria-label="Flip vertical" data-tip="Flip vertical">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/><path d="M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/>
-        <line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="3 2"/>
-      </svg>
-    </button>
-    <div class="sel-sep"></div>
-    
-    <button class="sel-btn" (click)="distributeHorizontally()" [disabled]="selectedLayerIds().size < 3"
-      aria-label="Distribute horizontally (3+ objects)" data-tip="Distribute horizontally (3+ objects)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <line x1="3" y1="4" x2="3" y2="20"/><line x1="21" y1="4" x2="21" y2="20"/>
-        <rect x="8" y="7" width="8" height="10" rx="1"/>
-      </svg>
-    </button>
-    <button class="sel-btn" (click)="distributeVertically()" [disabled]="selectedLayerIds().size < 3"
-      aria-label="Distribute vertically (3+ objects)" data-tip="Distribute vertically (3+ objects)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <line x1="4" y1="3" x2="20" y2="3"/><line x1="4" y1="21" x2="20" y2="21"/>
-        <rect x="7" y="8" width="10" height="8" rx="1"/>
-      </svg>
-    </button>
-    <div class="sel-sep"></div>
-    
-    <button class="sel-btn" (click)="duplicateSelected()" aria-label="Duplicate (Ctrl+D)" data-tip="Duplicate (Ctrl+D)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="9" y="9" width="13" height="13" rx="2"/>
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-      </svg>
-    </button>
-    <button class="sel-btn" (click)="toggleSelectedLock()" aria-label="Lock / Unlock" data-tip="Lock / Unlock">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="11" width="18" height="11" rx="2"/>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-      </svg>
-    </button>
-    <button class="sel-btn sel-btn--danger" (click)="deleteSelected()" aria-label="Delete (Del)" data-tip="Delete (Del)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="3 6 5 6 21 6"/>
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-      </svg>
-    </button>
-  </div>
 
   
   <div class="editor-body"
@@ -2312,6 +2189,31 @@
     <div class="ctx-divider"></div>
 
     
+    <button class="ctx-item" (click)="ctxAlignLeft()" role="menuitem">
+      <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="4" x2="4" y2="20"/><rect x="6" y="7" width="10" height="4" rx="1"/><rect x="6" y="13" width="14" height="4" rx="1"/></svg>
+      <span>Align Left</span>
+    </button>
+    <button class="ctx-item" (click)="ctxAlignCenterX()" role="menuitem">
+      <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="4" x2="12" y2="20"/><rect x="6" y="7" width="12" height="4" rx="1"/><rect x="4" y="13" width="16" height="4" rx="1"/></svg>
+      <span>Align Center (H)</span>
+    </button>
+    <button class="ctx-item" (click)="ctxAlignRight()" role="menuitem">
+      <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="20" y1="4" x2="20" y2="20"/><rect x="8" y="7" width="10" height="4" rx="1"/><rect x="4" y="13" width="14" height="4" rx="1"/></svg>
+      <span>Align Right</span>
+    </button>
+    <button class="ctx-item" (click)="ctxAlignTop()" role="menuitem">
+      <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="4" x2="20" y2="4"/><rect x="7" y="6" width="4" height="10" rx="1"/><rect x="13" y="6" width="4" height="14" rx="1"/></svg>
+      <span>Align Top</span>
+    </button>
+    <button class="ctx-item" (click)="ctxAlignCenterY()" role="menuitem">
+      <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="12" x2="20" y2="12"/><rect x="7" y="5" width="4" height="14" rx="1"/><rect x="13" y="7" width="4" height="10" rx="1"/></svg>
+      <span>Align Middle (V)</span>
+    </button>
+    <button class="ctx-item" (click)="ctxAlignBottom()" role="menuitem">
+      <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="20"/><rect x="7" y="4" width="4" height="14" rx="1"/><rect x="13" y="6" width="4" height="12" rx="1"/></svg>
+      <span>Align Bottom</span>
+    </button>
+    <div class="ctx-divider"></div>
     <button class="ctx-item" (click)="ctxCenterH()" role="menuitem">
       <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="3" x2="12" y2="21"/><rect x="5" y="8" width="14" height="3" rx="1"/></svg>
       <span>Center Horizontally</span>
@@ -2321,6 +2223,15 @@
       <span>Center Vertically</span>
     </button>
     <div class="ctx-divider"></div>
+    <button class="ctx-item" *ngIf="ctxMenu().selCount > 2" (click)="ctxDistributeH()" role="menuitem">
+      <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="4" x2="3" y2="20"/><line x1="21" y1="4" x2="21" y2="20"/><rect x="8" y="7" width="8" height="10" rx="1"/></svg>
+      <span>Distribute Horizontally</span>
+    </button>
+    <button class="ctx-item" *ngIf="ctxMenu().selCount > 2" (click)="ctxDistributeV()" role="menuitem">
+      <svg class="ctx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="3" x2="20" y2="3"/><line x1="4" y1="21" x2="20" y2="21"/><rect x="7" y="8" width="10" height="8" rx="1"/></svg>
+      <span>Distribute Vertically</span>
+    </button>
+    <div class="ctx-divider" *ngIf="ctxMenu().selCount > 2"></div>
   </ng-container>
 
   

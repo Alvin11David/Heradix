@@ -50,17 +50,14 @@ button {
   transition-delay: 0.35s;
 }
 
-.editor-toolbar [data-tip]::after,
-.sel-toolbar [data-tip]::after {
+.editor-toolbar [data-tip]::after {
   bottom: auto;
   top: calc(100% + 8px);
   transform: translateX(-50%) translateY(-4px);
 }
 
 .editor-toolbar [data-tip]:hover::after,
-.editor-toolbar [data-tip]:focus-visible::after,
-.sel-toolbar [data-tip]:hover::after,
-.sel-toolbar [data-tip]:focus-visible::after {
+.editor-toolbar [data-tip]:focus-visible::after {
   transform: translateX(-50%) translateY(0);
 }
 
