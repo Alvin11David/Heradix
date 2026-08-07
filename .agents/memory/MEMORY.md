@@ -7,3 +7,4 @@
 - [Angular template expression limits](angular-template-expr-limits.md) — templates reject TS `as` casts and arrow functions (`=>`); push casting/lookup logic into component methods instead.
 - [Premium/paywall gating pattern](premium-gating-pattern.md) — reuse AuthService.isPremium() and gate client-side; existing asset-detail badge alone doesn't actually block downloads.
 - [Background removal dependency](background-removal-dependency.md) — this app's background-removal package requires the matching 1.21.0 ONNX web runtime peer.
+- [PNG download CORS handling](png-download-cors.md) — fetch external image bytes into a Blob and use a CORS-enabled proxy fallback before triggering downloads.

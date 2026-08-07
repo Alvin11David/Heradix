@@ -316,18 +316,7 @@ export class PngComponent implements OnInit {
           // Some external CDNs return Cross-Origin-Resource-Policy: same-origin,
           // which blocks the fetch with ERR_BLOCKED_BY_RESPONSE.NotSameOrigin.
           // We use a try/catch so the allSettled fallback handles those gracefully.
-          let blob: Blob;
-          try {
-            const res = await fetch(png.url, { mode: 'cors' });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            blob = await res.blob();
-          } catch {
-            // Attempt without CORS headers (no-cors gives opaque blob but still
-            // allows the file to be added to the zip for same-origin assets).
-            const res = await fetch(png.url, { mode: 'no-cors' });
-            blob = await res.blob();
-            if (blob.size === 0) throw new Error(`blocked or empty: ${png.slug}`);
-          }
+          const blob = await this.fetchImageBlob(png.url);
           zip.file(`${png.slug}.png`, blob);
           return png;
         })
@@ -366,15 +355,58 @@ export class PngComponent implements OnInit {
       this.zipping.set(false);
     }
   }
-  private directDownload(png: PngAsset): void {
-    const a = document.createElement('a');
-    a.href     = png.url;
-    a.download = `${png.slug}.png`;
-    a.target   = '_blank';
-    a.rel      = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+  private async directDownload(png: PngAsset): Promise<boolean> {
+    try {
+      const blob = await this.fetchImageBlob(png.url);
+      this.triggerBlobDownload(blob, `${png.slug}.png`);
+      return true;
+    } catch (error) {
+      console.error(`PNG download failed for "${png.name}"`, error);
+      this.showToast(`Couldn't download "${png.name}". Please try again.`, 'info');
+      return false;
+    }
+  }
+
+  /**
+   * Fetch the actual image bytes before downloading them. Setting download on
+   * an external URL is not reliable: browsers ignore it for cross-origin
+   * resources and open the provider page instead. The image proxy is only a
+   * fallback for providers that block CORS or hotlink requests.
+   */
+  private async fetchImageBlob(sourceUrl: string): Promise<Blob> {
+    const urls = [
+      sourceUrl,
+      `https://images.weserv.nl/?url=${encodeURIComponent(sourceUrl)}&n=-1`,
+    ];
+    let lastError: unknown;
+
+    for (const url of urls) {
+      try {
+        const response = await fetch(url, { mode: 'cors', credentials: 'omit' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const blob = await response.blob();
+        if (!blob.size || (blob.type && !blob.type.startsWith('image/'))) {
+          throw new Error('The response was not an image');
+        }
+        return blob;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    throw lastError instanceof Error ? lastError : new Error('Image request failed');
+  }
+
+  private triggerBlobDownload(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
   }
   selectRelated(png: PngAsset): void {
     this.selected.set(png);
@@ -396,11 +428,12 @@ export class PngComponent implements OnInit {
   toggleLightboxZoom(): void { this.lightboxZoom.update((v) => !v); }
   isLocked(png: PngAsset): boolean { return png.isPremium && !this.isPremiumUser(); }
   readonly watermarkRepeat = Array.from({ length: 12 });
-  downloadPng(png: PngAsset, event?: Event): void {
+  async downloadPng(png: PngAsset, event?: Event): Promise<void> {
     event?.stopPropagation();
     if (this.isLocked(png)) { this.goPremium(png); return; }
     if (this.isQuotaExceeded(png)) { this.goQuotaLimit(); return; }
-    this.directDownload(png);
+    const downloaded = await this.directDownload(png);
+    if (!downloaded) return;
     this.registerDownloadUsage(png);
     this.showToast(`⬇️ Downloading "${png.name}"…`, 'success');
   }
@@ -418,43 +451,37 @@ export class PngComponent implements OnInit {
     this.showToast(`⭐ "${png?.name ?? 'This PNG'}" is a Premium asset — upgrade to download it`, 'info');
     this.router.navigate(['/pricing']);
   }
-  downloadWithSize(png: PngAsset, event?: Event): void {
+  async downloadWithSize(png: PngAsset, event?: Event): Promise<void> {
     event?.stopPropagation();
     if (this.isLocked(png)) { this.goPremium(png); return; }
     if (this.isQuotaExceeded(png)) { this.goQuotaLimit(); return; }
     const size = this.selectedSize();
-    if (!size.px) { this.downloadPng(png); return; }
-    const img = new Image();
-    // Only set crossOrigin for same-origin images. External CDNs that respond
-    // with Cross-Origin-Resource-Policy: same-origin will block the request and
-    // log ERR_BLOCKED_BY_RESPONSE.NotSameOrigin. The onerror fallback below
-    // handles that case by falling back to a direct download.
-    const isSameOrigin =
-      png.url.startsWith('/') ||
-      png.url.startsWith('data:') ||
-      png.url.startsWith(window.location.origin);
-    if (isSameOrigin) img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      try {
-        const dataUrl = resizeImageToDataUrl(img, size.px);
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = `${png.slug}-${size.px}px.png`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        this.registerDownloadUsage(png);
-        this.showToast(`⬇️ Downloading "${png.name}" (${size.label})…`, 'success');
-      } catch {
-        this.showToast(`Couldn't resize this image — downloading full resolution instead`, 'info');
-        this.downloadPng(png);
-      }
-    };
-    img.onerror = () => {
-      this.showToast(`Couldn't resize this image — downloading full resolution instead`, 'info');
-      this.downloadPng(png);
-    };
-    img.src = png.url;
+    if (!size.px) {
+      await this.downloadPng(png);
+      return;
+    }
+
+    try {
+      const blob = await this.fetchImageBlob(png.url);
+      const sourceUrl = URL.createObjectURL(blob);
+      const img = new Image();
+      const loaded = new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('The downloaded image could not be decoded'));
+      });
+      img.src = sourceUrl;
+      await loaded;
+      URL.revokeObjectURL(sourceUrl);
+
+      const dataUrl = resizeImageToDataUrl(img, size.px);
+      const response = await fetch(dataUrl);
+      this.triggerBlobDownload(await response.blob(), `${png.slug}-${size.px}px.png`);
+      this.registerDownloadUsage(png);
+      this.showToast(`⬇️ Downloading "${png.name}" (${size.label})…`, 'success');
+    } catch (error) {
+      console.error(`PNG resize download failed for "${png.name}"`, error);
+      this.showToast(`Couldn't resize "${png.name}". Please try the original download.`, 'info');
+    }
   }
   requiresAttribution(png: PngAsset): boolean { return !png.isPremium; }
   attributionText(png: PngAsset): string {
