@@ -170,7 +170,7 @@
       <!-- Mobile drag handle + close button row -->
       <div class="mobile-sheet-topbar">
         <div class="mobile-sheet-handle"></div>
-        <button class="mobile-sheet-close" (click)="closeMobileDrawer()" aria-label="Close panel">
+        <button class="mobile-sheet-close" (click)="closeMobileDrawer()" aria-label="Close left panel" data-tip="Close left panel">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
@@ -241,7 +241,7 @@
           <input type="text" class="prop-input" style="width:100%;margin-bottom:6px"
             placeholder="Search layers…" [value]="layerSearchQuery()"
             (input)="searchLayers($any($event.target).value)"/>
-          <button class="panel-footer-btn" (click)="createLayer()">
+          <button class="panel-footer-btn" (click)="createLayer()" aria-label="Create new layer" data-tip="Create new layer">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
             New Layer
           </button>
@@ -249,9 +249,11 @@
 
         <ng-container *ngIf="layers().length; else emptyLayers">
           <div class="layer-list" *ngIf="filteredLayers().length; else noMatchingLayers">
-            <button class="layer-item"
+          <button class="layer-item"
               *ngFor="let layer of filteredLayers(); trackBy: trackLayer"
               [class.layer-item--selected]="selectedLayerIds().has(layer.id)"
+            [attr.aria-label]="'Select layer ' + layer.name"
+            [attr.data-tip]="'Select layer ' + layer.name"
               (click)="onLayerSelect(layer.id)">
               <span class="layer-icon" [class]="'layer-icon--'+layer.type">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="layer.type==='text'"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
@@ -303,7 +305,7 @@
         <div class="im-loading" *ngIf="loadingAssets()"><span>Loading…</span></div>
 
         <div class="panel-footer" *ngIf="selectedLayerType()" style="border-top:none">
-          <button class="panel-footer-btn panel-footer-btn--danger" (click)="deleteSelected()">
+          <button class="panel-footer-btn panel-footer-btn--danger" (click)="deleteSelected()" aria-label="Delete selected object" data-tip="Delete selected object">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             Delete Selected
           </button>
@@ -458,7 +460,7 @@
         <div class="lp-section-label">Solid Colors</div>
         <div class="bg-color-grid">
           <button class="bg-color-swatch" *ngFor="let c of bgSolidColors"
-            [style.background]="c" [attr.aria-label]="'Set background to ' + c" [attr.data-tip]="c"
+            [style.background]="c" [attr.aria-label]="'Set background to ' + c" [attr.data-tip]="'Set background to ' + c"
             (click)="setCanvasBgColor(c)">
           </button>
         </div>
@@ -476,8 +478,8 @@
         <div class="lp-section-label">Custom Color</div>
         <div class="lp-pad" style="padding-top:0">
           <div class="color-picker-row">
-            <div class="color-picker-swatch" style="width:36px;height:36px">
-              <input type="color" value="#ffffff" (change)="setCanvasBgColor($any($event.target).value)"/>
+            <div class="color-picker-swatch" style="width:36px;height:36px" data-tip="Choose custom background color">
+              <input type="color" value="#ffffff" aria-label="Choose custom background color" (change)="setCanvasBgColor($any($event.target).value)"/>
             </div>
             <span class="prop-label" style="margin-left:8px;color:#aaa;font-size:12px">Pick any color</span>
           </div>
@@ -587,7 +589,7 @@
             Eraser
           </button>
         </div>
-        <button class="draw-done-btn" (click)="setTool('select')">Done Drawing</button>
+      <button class="draw-done-btn" (click)="setTool('select')" aria-label="Finish drawing" data-tip="Finish drawing">Done Drawing</button>
       </div>
 
       
@@ -603,7 +605,8 @@
       <div class="canvas-overlay top-left" *ngIf="toolMode() === 'ai'">
         <div class="ai-menu">
           <div class="ai-menu-title">AI Tools</div>
-          <button class="ai-menu-btn" (click)="removeBg()" [disabled]="aiJobState().status === 'processing' || selectedLayerType() !== 'image'">
+          <button class="ai-menu-btn" (click)="removeBg()" [disabled]="aiJobState().status === 'processing' || selectedLayerType() !== 'image'"
+            aria-label="Remove image background" data-tip="Remove image background">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2"/>
               <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
@@ -628,9 +631,9 @@
           </div>
           <h4>Upload Files</h4>
           <p>Drag &amp; drop or click to browse</p>
-          <button class="ai-menu-btn" (click)="triggerImageUpload()">Choose File</button>
+          <button class="ai-menu-btn" (click)="triggerImageUpload()" aria-label="Choose image file" data-tip="Choose image file">Choose File</button>
           <p class="ai-menu-hint">PNG, JPEG, WebP, SVG — max 10 MB</p>
-          <button class="upload-close" (click)="showUploadDialog.set(false)">Cancel</button>
+          <button class="upload-close" (click)="showUploadDialog.set(false)" aria-label="Cancel upload" data-tip="Cancel upload">Cancel</button>
         </div>
       </div>
 
@@ -639,7 +642,7 @@
         <div class="templates-card" (click)="$event.stopPropagation()">
           <div class="templates-header">
             <h4>Templates</h4>
-            <button class="upload-close" (click)="showTemplatePicker.set(false)">Close</button>
+            <button class="upload-close" (click)="showTemplatePicker.set(false)" aria-label="Close templates" data-tip="Close templates">Close</button>
           </div>
           <div class="templates-grid">
             <div class="template-item" *ngFor="let t of templates" (click)="applyTemplate(t)"
@@ -659,7 +662,7 @@
       <!-- Mobile drag handle + close button row -->
       <div class="mobile-sheet-topbar">
         <div class="mobile-sheet-handle"></div>
-        <button class="mobile-sheet-close" (click)="closeMobileProps()" aria-label="Close panel">
+        <button class="mobile-sheet-close" (click)="closeMobileProps()" aria-label="Close properties panel" data-tip="Close properties panel">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
@@ -878,7 +881,7 @@
               <div class="prop-section">
                 <label class="prop-label">Font</label>
                 <div class="fp-wrap" (click)="$event.stopPropagation()">
-                  <button class="fp-trigger" (click)="showFontPicker.set(!showFontPicker())">
+                  <button class="fp-trigger" (click)="showFontPicker.set(!showFontPicker())" aria-label="Choose font" data-tip="Choose font">
                     <span class="fp-current" [style.font-family]="selectedFontFamily()">{{ selectedFontFamily() }}</span>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="6 9 12 15 18 9"/>
@@ -1026,7 +1029,9 @@
               <div class="prop-section" style="padding-top:4px">
                 <div class="color-strip">
                   <button class="color-swatch" *ngFor="let c of colorPalette()" [style.background]="c"
-                    [class.color-swatch--active]="selectedFill() === c" (click)="applyColor(c, 'fill')"></button>
+                    [class.color-swatch--active]="selectedFill() === c"
+                    [attr.aria-label]="'Set text color to ' + c" [attr.data-tip]="'Set text color to ' + c"
+                    (click)="applyColor(c, 'fill')"></button>
                 </div>
               </div>
             </div>
@@ -1041,7 +1046,9 @@
                 <label class="prop-label">Outline</label>
                 <div class="color-strip">
                   <button class="color-swatch" *ngFor="let c of colorPalette()" [style.background]="c"
-                    [class.color-swatch--active]="selectedStroke() === c" (click)="applyColor(c, 'stroke')"></button>
+                    [class.color-swatch--active]="selectedStroke() === c"
+                    [attr.aria-label]="'Set outline color to ' + c" [attr.data-tip]="'Set outline color to ' + c"
+                    (click)="applyColor(c, 'stroke')"></button>
                   <button class="color-swatch color-swatch--none" [class.color-swatch--active]="!selectedStroke()"
                     (click)="updateProperty('stroke', '')" aria-label="No outline" data-tip="No outline">&#8709;</button>
                 </div>
@@ -1058,6 +1065,7 @@
                 <div class="color-strip">
                   <button class="color-swatch" *ngFor="let c of colorPalette()" [style.background]="c"
                     [class.color-swatch--active]="selectedTextBackgroundColor() === c"
+                    [attr.aria-label]="'Set highlight color to ' + c" [attr.data-tip]="'Set highlight color to ' + c"
                     (click)="updateProperty('textBackgroundColor', c)"></button>
                   <button class="color-swatch color-swatch--none"
                     [class.color-swatch--active]="!selectedTextBackgroundColor()"
@@ -1079,11 +1087,12 @@
                 <label class="prop-label">Type</label>
                 <div class="cap-join-pills">
                   <button class="pill-btn" [class.pill-btn--on]="selectedFillType() === 'solid'"
-                    (click)="applyFillType('solid'); applyColor(selectedGradientColors()[0], 'fill')">Solid</button>
+                    (click)="applyFillType('solid'); applyColor(selectedGradientColors()[0], 'fill')"
+                    aria-label="Use solid fill" data-tip="Use solid fill">Solid</button>
                   <button class="pill-btn" [class.pill-btn--on]="selectedFillType() === 'linear'"
-                    (click)="applyFillType('linear')">Linear</button>
+                    (click)="applyFillType('linear')" aria-label="Use linear gradient" data-tip="Use linear gradient">Linear</button>
                   <button class="pill-btn" [class.pill-btn--on]="selectedFillType() === 'radial'"
-                    (click)="applyFillType('radial')">Radial</button>
+                    (click)="applyFillType('radial')" aria-label="Use radial gradient" data-tip="Use radial gradient">Radial</button>
                 </div>
               </div>
               
@@ -1099,6 +1108,7 @@
                   <div class="color-strip">
                     <button class="color-swatch" *ngFor="let c of colorPalette()" [style.background]="c"
                       [class.color-swatch--active]="selectedFillType() === 'solid' && selectedFill() === c"
+                      [attr.aria-label]="'Set fill color to ' + c" [attr.data-tip]="'Set fill color to ' + c"
                       (click)="applyFillType('solid'); applyColor(c, 'fill')"></button>
                   </div>
                 </div>
@@ -1110,6 +1120,7 @@
                   <div class="color-strip">
                     <button class="color-swatch" *ngFor="let c of colorPalette()" [style.background]="c"
                       [class.color-swatch--active]="selectedGradientColors()[0] === c"
+                      [attr.aria-label]="'Set gradient start color to ' + c" [attr.data-tip]="'Set gradient start color to ' + c"
                       (click)="applyGradientColor(0, c)"></button>
                   </div>
                 </div>
@@ -1118,6 +1129,7 @@
                   <div class="color-strip">
                     <button class="color-swatch" *ngFor="let c of colorPalette()" [style.background]="c"
                       [class.color-swatch--active]="selectedGradientColors()[1] === c"
+                      [attr.aria-label]="'Set gradient end color to ' + c" [attr.data-tip]="'Set gradient end color to ' + c"
                       (click)="applyGradientColor(1, c)"></button>
                   </div>
                 </div>
@@ -1228,28 +1240,36 @@
                 <div class="prop-section">
                   <label class="prop-label">Caps</label>
                   <div class="cap-join-pills">
-                    <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineCap() === 'butt'" (click)="updateStrokeCap('butt')">Butt</button>
-                    <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineCap() === 'round'" (click)="updateStrokeCap('round')">Round</button>
-                    <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineCap() === 'square'" (click)="updateStrokeCap('square')">Square</button>
+                    <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineCap() === 'butt'" (click)="updateStrokeCap('butt')"
+                      aria-label="Use butt line caps" data-tip="Use butt line caps">Butt</button>
+                    <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineCap() === 'round'" (click)="updateStrokeCap('round')"
+                      aria-label="Use round line caps" data-tip="Use round line caps">Round</button>
+                    <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineCap() === 'square'" (click)="updateStrokeCap('square')"
+                      aria-label="Use square line caps" data-tip="Use square line caps">Square</button>
                   </div>
                 </div>
                 <div class="prop-section">
                   <label class="prop-label">Joins</label>
                   <div class="cap-join-pills">
-                    <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineJoin() === 'miter'" (click)="updateStrokeJoin('miter')">Miter</button>
-                    <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineJoin() === 'round'" (click)="updateStrokeJoin('round')">Round</button>
-                    <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineJoin() === 'bevel'" (click)="updateStrokeJoin('bevel')">Bevel</button>
+                    <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineJoin() === 'miter'" (click)="updateStrokeJoin('miter')"
+                      aria-label="Use miter line joins" data-tip="Use miter line joins">Miter</button>
+                    <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineJoin() === 'round'" (click)="updateStrokeJoin('round')"
+                      aria-label="Use round line joins" data-tip="Use round line joins">Round</button>
+                    <button class="pill-btn" [class.pill-btn--on]="selectedStrokeLineJoin() === 'bevel'" (click)="updateStrokeJoin('bevel')"
+                      aria-label="Use bevel line joins" data-tip="Use bevel line joins">Bevel</button>
                   </div>
                 </div>
                 <div class="prop-section">
                   <label class="prop-label">Arrows</label>
                   <div class="cap-join-pills">
-                    <button class="pill-btn" [class.pill-btn--on]="selectedArrowStart()" (click)="updateArrowStart()">
+                    <button class="pill-btn" [class.pill-btn--on]="selectedArrowStart()" (click)="updateArrowStart()"
+                      aria-label="Toggle start arrow" data-tip="Toggle start arrow">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="20" y1="12" x2="4" y2="12"/><polyline points="10 6 4 12 10 18"/>
                       </svg> Start
                     </button>
-                    <button class="pill-btn" [class.pill-btn--on]="selectedArrowEnd()" (click)="updateArrowEnd()">
+                    <button class="pill-btn" [class.pill-btn--on]="selectedArrowEnd()" (click)="updateArrowEnd()"
+                      aria-label="Toggle end arrow" data-tip="Toggle end arrow">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="4" y1="12" x2="20" y2="12"/><polyline points="14 6 20 12 14 18"/>
                       </svg> End
@@ -1313,7 +1333,8 @@
                 <span class="prop-value">{{ selectedOpacity() | percent }}</span>
               </div>
               <div class="prop-section">
-                <button class="ai-menu-btn ai-menu-btn--sm" (click)="removeBg()" [disabled]="aiJobState().status === 'processing'">
+                <button class="ai-menu-btn ai-menu-btn--sm" (click)="removeBg()" [disabled]="aiJobState().status === 'processing'"
+                  aria-label="Remove image background" data-tip="Remove image background">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="18" height="18" rx="2"/>
                     <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
@@ -1383,7 +1404,8 @@
               <div class="recent-colors-row">
                 <button class="rc-swatch" *ngFor="let rc of recentColors()"
                   [style.background]="rc"
-                  [attr.data-tip]="rc"
+                  [attr.aria-label]="'Use recent color ' + rc"
+                  [attr.data-tip]="'Use recent color ' + rc"
                   (click)="applyColor(rc, 'fill')">
                 </button>
               </div>

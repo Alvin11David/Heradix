@@ -4672,3 +4672,126 @@ input[type="number"] {
     grid-template-columns: repeat(3, 1fr) !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SIDEBAR REFINEMENT — contained properties layout and clearer hierarchy
+═══════════════════════════════════════════════════════════════════════ */
+.panel {
+  min-width: 0;
+  background: linear-gradient(180deg, rgba(25, 25, 34, 0.98), rgba(13, 13, 19, 0.99));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.panel--layers,
+.panel--props {
+  min-width: 0;
+}
+
+.panel--props {
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 15px 14px 13px;
+  background: rgba(255, 255, 255, 0.025);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.16);
+}
+
+.panel-title {
+  color: #8d8da4;
+  font-size: 10px;
+}
+
+.panel-scroll {
+  min-width: 0;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+}
+
+.panel-scroll > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.prop-section-header {
+  padding: 14px 14px 7px;
+}
+
+.prop-section-title {
+  color: #8d8da4;
+}
+
+.prop-section-body,
+.prop-section,
+.prop-row,
+.align-row,
+.color-picker-row {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.prop-section-body {
+  overflow: hidden;
+}
+
+.prop-row {
+  flex-wrap: wrap;
+}
+
+.prop-label {
+  min-width: 64px;
+}
+
+.prop-row > *,
+.prop-section-body > *,
+.prop-section > * {
+  max-width: 100%;
+}
+
+.color-strip {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.color-swatch,
+.rc-swatch,
+.bg-color-swatch {
+  flex: 0 0 auto;
+}
+
+.cap-join-pills,
+.stroke-sides,
+.filter-strip {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  flex-wrap: wrap;
+}
+
+.prop-input,
+.prop-select,
+.color-picker-hex,
+.fp-trigger {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.panel-footer-btn:focus-visible,
+.prop-style-btn:focus-visible,
+.align-btn:focus-visible,
+.color-swatch:focus-visible,
+.pill-btn:focus-visible,
+.stroke-side-btn:focus-visible,
+.filter-pill:focus-visible,
+.fp-trigger:focus-visible {
+  outline: 2px solid rgba(129, 140, 248, 0.85);
+  outline-offset: 2px;
+}
+
+.panel-footer-btn {
+  border: 1px solid transparent;
+}
+
+.panel-footer-btn:hover {
+  border-color: rgba(255, 255, 255, 0.06);
+}
