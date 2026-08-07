@@ -13,6 +13,7 @@ import { MockuuupsApiService } from '../../core/services/mockuuups-api.service';
 import { MockAnythingApiService, MockProductBrief, MockProductDetail, MockStyle } from '../../core/services/mock-anything-api.service';
 import { MockupsFacade } from './services/mockups-facade.service';
 import { EditorState as EditorStateI, DEFAULT_EDITOR } from './services/mockups-editor.service';
+import { downloadBrowserFile } from '../../shared/utils/browser-download';
 
 export type DownloadQuality = 'png' | 'jpg' | 'pdf' | 'psd' | 'svg' | 'webp';
 
@@ -311,7 +312,7 @@ export class MockupsComponent implements OnInit, OnDestroy {
     this.showToast('Collection created');
   }
 
-  downloadAsset(asset: MockupAsset, fmt = 'png', event?: MouseEvent): void {
+  async downloadAsset(asset: MockupAsset, fmt = 'png', event?: MouseEvent): Promise<void> {
     event?.stopPropagation();
     if (asset.isPremium && !this.auth.isPremium()) {
       this.showToast('Premium plan required for this mockup');
@@ -319,10 +320,7 @@ export class MockupsComponent implements OnInit, OnDestroy {
       return;
     }
     this.showToast(`Downloading ${asset.name} as ${fmt.toUpperCase()}…`);
-    const link = document.createElement('a');
-    link.href = asset.previewUrl;
-    link.download = `${asset.slug}.${fmt}`;
-    link.click();
+    await downloadBrowserFile(asset.previewUrl, `${asset.slug}.${fmt}`);
   }
 
   downloadSelected(): void {
@@ -454,11 +452,10 @@ export class MockupsComponent implements OnInit, OnDestroy {
     }
   }
 
-  downloadAiResult(): void {
+  async downloadAiResult(): Promise<void> {
     const url = this.aiResultUrl();
     if (!url) return;
-    const link = document.createElement('a');
-    link.href = url; link.download = `ai-mockup-${Date.now()}.png`; link.target = '_blank'; link.click();
+    await downloadBrowserFile(url, `ai-mockup-${Date.now()}.png`);
   }
 
   openAiPanel(): void { this.showAiPanel.set(true); this.loadAiStyles(); }
@@ -470,11 +467,10 @@ export class MockupsComponent implements OnInit, OnDestroy {
     if (this.aiPollTimer) { clearInterval(this.aiPollTimer); this.aiPollTimer = null; }
   }
 
-  downloadRendered(): void {
+  async downloadRendered(): Promise<void> {
     const url = this.renderResultUrl();
     if (!url) return;
-    const link = document.createElement('a');
-    link.href = url; link.download = `${this.selectedAsset()?.slug ?? 'mockup'}-rendered.webp`; link.target = '_blank'; link.click();
+    await downloadBrowserFile(url, `${this.selectedAsset()?.slug ?? 'mockup'}-rendered.webp`);
     this.showToast('Downloading rendered mockup…');
   }
 

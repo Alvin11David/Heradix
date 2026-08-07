@@ -11,6 +11,7 @@ import { Asset, AssetFormat } from '../../../core/models/asset.model';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { AddToCollectionMenuComponent } from '../../../shared/components/add-to-collection/add-to-collection-menu.component';
 import { CollectionsService } from '../../collections/collections.service';
+import { downloadBrowserFile } from '../../../shared/utils/browser-download';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -284,26 +285,31 @@ export class AssetDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedFormat.set(type);
   }
 
-  download(): void {
+  async download(): Promise<void> {
     if (!this.asset() || this.downloading()) return;
+    if (this.asset()!.isPremium) {
+      this.router.navigate(['/pricing']);
+      this.showToast('Premium plan required to download this asset');
+      return;
+    }
     this.downloading.set(true);
-    this.svc.requestDownload(this.asset()!.id).subscribe({
-      next: ({ signedUrl }) => {
-        window.open(signedUrl, '_blank');
-        this.downloading.set(false);
-        this.showToast('Download started!');
-      },
-      error: (err) => {
-        this.downloading.set(false);
-        alert(err.message);
-      },
-    });
+    const asset = this.asset()!;
+    const extension = this.selectedFormat().toLowerCase() === 'photo'
+      ? 'jpg'
+      : this.selectedFormat().toLowerCase().replace(/[^a-z0-9]+/g, '');
+    await downloadBrowserFile(asset.previewUrl, `${asset.slug}.${extension || 'download'}`);
+    this.downloading.set(false);
+    this.showToast('Download started!');
   }
 
-  downloadAsset(asset: Asset): void {
-    this.svc.requestDownload(asset.id).subscribe({
-      next: ({ signedUrl }) => window.open(signedUrl, '_blank'),
-    });
+  async downloadAsset(asset: Asset): Promise<void> {
+    if (asset.isPremium) {
+      this.router.navigate(['/pricing']);
+      this.showToast('Premium plan required to download this asset');
+      return;
+    }
+    const extension = asset.format.toLowerCase() === 'photo' ? 'jpg' : asset.format.toLowerCase();
+    await downloadBrowserFile(asset.previewUrl, `${asset.slug}.${extension}`);
   }
 
   openEditor(): void {

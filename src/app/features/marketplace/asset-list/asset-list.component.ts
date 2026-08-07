@@ -8,6 +8,7 @@ import { Asset, AssetListParams } from '../../../core/models/asset.model';
 import { AssetCardComponent } from '../../../shared/components/asset-card/asset-card.component';
 import { AddToCollectionMenuComponent } from '../../../shared/components/add-to-collection/add-to-collection-menu.component';
 import { CollectionsService } from '../../collections/collections.service';
+import { downloadBrowserFile } from '../../../shared/utils/browser-download';
 gsap.registerPlugin(ScrollTrigger);
 interface CalendarEvent {
   emoji: string;
@@ -485,11 +486,9 @@ export class AssetListComponent implements OnInit, AfterViewInit, OnDestroy {
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
-  onDownload(asset: Asset): void {
-    this.svc.requestDownload(asset.id).subscribe({
-      next: ({ signedUrl }) => window.open(signedUrl, '_blank'),
-      error: (err) => alert(err.message),
-    });
+  async onDownload(asset: Asset): Promise<void> {
+    const extension = asset.format.toLowerCase() === 'photo' ? 'jpg' : asset.format.toLowerCase();
+    await downloadBrowserFile(asset.previewUrl, `${asset.slug}.${extension}`);
   }
   onEdit(asset: Asset): void { this.router.navigate(['/editor'], { queryParams: { assetId: asset.id, imageUrl: asset.previewUrl, title: asset.title } }); }
   onSave(data: { asset: Asset; event: MouseEvent }): void {
