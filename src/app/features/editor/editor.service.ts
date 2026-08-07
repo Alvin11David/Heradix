@@ -140,6 +140,25 @@ export class EditorService {
     }
   }
 
+  private isDefaultSampleCanvas(canvasJson: string): boolean {
+    try {
+      const parsed = JSON.parse(canvasJson);
+      const objects = parsed?.objects;
+      if (!Array.isArray(objects) || objects.length !== 16) return false;
+
+      // Older imported editor state contained 16 demo strokes. Fabric may
+      // have assigned IDs and generated names by the time this is read, so
+      // match the known demo labels while leaving named user work intact.
+      return objects.every((object: any) => {
+        const type = String(object?.type ?? '').toLowerCase();
+        const label = String(object?.name ?? object?._id ?? '').toLowerCase();
+        return type === 'line' && /^(?:line|ine|object)-\d+$/.test(label);
+      });
+    } catch {
+      return false;
+    }
+  }
+
   private saveToStorage(project: EditorProject): void {
     try {
       localStorage.setItem(this.storageKey(project.id), JSON.stringify(project));
@@ -152,6 +171,15 @@ export class EditorService {
     const id = assetId ? `asset-${assetId}` : 'draft';
     const existing = this.loadFromStorage(id);
     if (existing) {
+      if (!assetId && this.isDefaultSampleCanvas(existing.canvasJson)) {
+        const cleaned = { ...existing, canvasJson: '{}' };
+        this.saveToStorage(cleaned);
+        this.project.set(cleaned);
+        this.dirty.set(false);
+        this.saveState.set('saved');
+        return of(cleaned);
+      }
+
       this.project.set(existing);
       this.dirty.set(false);
       this.saveState.set('saved');
