@@ -62,6 +62,8 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly showTemplatePicker = signal(false);
   readonly showUploadDialog = signal(false);
   readonly showFontPicker = signal(false);
+  readonly showCommandPalette = signal(false);
+  readonly commandQuery = signal('');
   readonly leftPanelCollapsed = signal(false);
   readonly rightPanelCollapsed = signal(false);
 
@@ -147,6 +149,34 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   assetsSearchQuery = '';
 
   readonly Math = Math;
+
+  readonly commandItems = [
+    { id: 'select', label: 'Select tool', group: 'Tools', shortcut: 'V', description: 'Select and move objects' },
+    { id: 'text', label: 'Add text', group: 'Tools', shortcut: 'T', description: 'Place editable text on the canvas' },
+    { id: 'shape', label: 'Add shape', group: 'Tools', shortcut: 'R', description: 'Draw a shape on the canvas' },
+    { id: 'upload', label: 'Upload image', group: 'Tools', shortcut: 'U', description: 'Add an image from your device' },
+    { id: 'draw', label: 'Draw', group: 'Tools', shortcut: 'P', description: 'Sketch with the pencil tool' },
+    { id: 'templates', label: 'Browse templates', group: 'Insert', shortcut: '', description: 'Start from a ready-made layout' },
+    { id: 'elements', label: 'Browse elements', group: 'Insert', shortcut: '', description: 'Add shapes, icons, and lines' },
+    { id: 'photos', label: 'Search photos', group: 'Insert', shortcut: '', description: 'Find stock photography' },
+    { id: 'layers', label: 'Show layers', group: 'View', shortcut: '', description: 'Organize and select objects' },
+    { id: 'background', label: 'Edit background', group: 'View', shortcut: '', description: 'Change the canvas background' },
+    { id: 'undo', label: 'Undo last change', group: 'Edit', shortcut: 'Ctrl Z', description: 'Go back one step' },
+    { id: 'redo', label: 'Redo last change', group: 'Edit', shortcut: 'Ctrl ⇧ Z', description: 'Restore the next step' },
+    { id: 'duplicate', label: 'Duplicate selection', group: 'Edit', shortcut: 'Ctrl D', description: 'Create a copy of the selected object' },
+    { id: 'selectAll', label: 'Select all objects', group: 'Edit', shortcut: 'Ctrl A', description: 'Select everything on the page' },
+    { id: 'grid', label: 'Toggle grid', group: 'View', shortcut: 'Ctrl G', description: 'Show or hide the layout grid' },
+    { id: 'fit', label: 'Fit canvas to view', group: 'View', shortcut: 'Shift F', description: 'Frame the design in the workspace' },
+    { id: 'resize', label: 'Resize canvas', group: 'File', shortcut: '', description: 'Change the page dimensions' },
+    { id: 'export', label: 'Export design', group: 'File', shortcut: '', description: 'Download PNG, JPG, PDF, or SVG' },
+  ];
+  readonly filteredCommands = computed(() => {
+    const query = this.commandQuery().trim().toLowerCase();
+    if (!query) return this.commandItems;
+    return this.commandItems.filter((command) =>
+      `${command.label} ${command.group} ${command.description}`.toLowerCase().includes(query),
+    );
+  });
 
   readonly leftPanelTab = signal<'layers'|'templates'|'elements'|'photos'|'text'|'background'>('layers');
 
@@ -1776,14 +1806,23 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostListener('window:keydown', ['$event'])
   onKeyDown(e: KeyboardEvent): void {
     const target = e.target as HTMLElement;
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const mod = isMac ? e.metaKey : e.ctrlKey;
+    if (mod && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      this.toggleCommandPalette();
+      return;
+    }
+    if (e.key === 'Escape' && this.showCommandPalette()) {
+      e.preventDefault();
+      this.closeCommandPalette();
+      return;
+    }
     const isInput =
       target?.tagName === 'INPUT' ||
       target?.tagName === 'TEXTAREA' ||
       target?.isContentEditable;
     if (isInput) return;
-
-    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    const mod = isMac ? e.metaKey : e.ctrlKey;
 
     if (mod && e.key === 'z') {
       e.preventDefault();
@@ -4581,6 +4620,47 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   cancelTitleEdit(): void {
     this.titleEditing.set(false);
+  }
+
+  toggleCommandPalette(): void {
+    this.showCommandPalette.update((open) => !open);
+    if (this.showCommandPalette()) {
+      this.commandQuery.set('');
+    }
+  }
+
+  closeCommandPalette(): void {
+    this.showCommandPalette.set(false);
+    this.commandQuery.set('');
+  }
+
+  runFirstCommand(): void {
+    const command = this.filteredCommands()[0];
+    if (command) this.runCommand(command.id);
+  }
+
+  runCommand(commandId: string): void {
+    switch (commandId) {
+      case 'select': this.setTool('select'); break;
+      case 'text': this.setTool('text'); break;
+      case 'shape': this.setTool('shape'); break;
+      case 'upload': this.setTool('upload'); break;
+      case 'draw': this.setTool('draw'); break;
+      case 'templates': this.setLeftTab('templates'); break;
+      case 'elements': this.setLeftTab('elements'); break;
+      case 'photos': this.setLeftTab('photos'); break;
+      case 'layers': this.setLeftTab('layers'); break;
+      case 'background': this.setLeftTab('background'); break;
+      case 'undo': this.undo(); break;
+      case 'redo': this.redo(); break;
+      case 'duplicate': this.duplicateSelected(); break;
+      case 'selectAll': this.selectAll(); break;
+      case 'grid': this.toggleGrid(); break;
+      case 'fit': this.zoomToFit(); break;
+      case 'resize': this.showSizeDialog.set(true); break;
+      case 'export': this.openExport(); break;
+    }
+    this.closeCommandPalette();
   }
 
   // ────────────────────────────────────────────────────────────────────────

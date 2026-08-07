@@ -21,6 +21,13 @@
     </div>
 
     <div class="tb-center">
+      <button class="tb-command" (click)="toggleCommandPalette()" aria-label="Search editor commands" data-tip="Search commands (Ctrl+K)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>
+        </svg>
+        <span>Search commands</span>
+        <kbd>⌘K</kbd>
+      </button>
       
       <div class="tb-tool-group">
         <button class="tb-tool" [class.tb-tool--active]="toolMode() === 'select'"
@@ -669,7 +676,10 @@
         </button>
       </div>
       <div class="panel-header">
-        <h3 class="panel-title">Properties</h3>
+        <div class="panel-heading">
+          <h3 class="panel-title">Properties</h3>
+          <span class="panel-context" *ngIf="selectedLayerIds().size">{{ selectedLayerIds().size }} selected</span>
+        </div>
         <button class="panel-collapse-btn desktop-only" (click)="toggleRightPanel()" aria-label="Collapse panel" data-tip="Collapse panel">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="9 18 15 12 9 6"/>
@@ -2057,6 +2067,68 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Command palette: one searchable place for tools and common actions -->
+<div class="command-overlay" *ngIf="showCommandPalette()" (click)="closeCommandPalette()">
+  <section class="command-dialog" role="dialog" aria-modal="true" aria-label="Editor command palette" (click)="$event.stopPropagation()">
+    <div class="command-header">
+      <div class="command-heading">
+        <span class="command-mark">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>
+          </svg>
+        </span>
+        <div>
+          <strong>Quick actions</strong>
+          <span>Find a tool, panel, or action</span>
+        </div>
+      </div>
+      <button class="command-close" (click)="closeCommandPalette()" aria-label="Close command palette" data-tip="Close (Esc)">Esc</button>
+    </div>
+    <label class="command-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>
+      </svg>
+      <input #commandInput type="search" autofocus [value]="commandQuery()"
+        placeholder="Try “text”, “export”, or “layers”…"
+        aria-label="Search editor commands"
+        (input)="commandQuery.set($any($event.target).value)"
+        (keydown.enter)="runFirstCommand()"
+        (keydown.escape)="closeCommandPalette()"/>
+      <kbd>Enter</kbd>
+    </label>
+    <div class="command-list" *ngIf="filteredCommands().length; else noCommands">
+      <button class="command-item" *ngFor="let command of filteredCommands()"
+        (click)="runCommand(command.id)" [attr.aria-label]="command.label">
+        <span class="command-item-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M5 5h14v14H5z"/><path d="M8 9h8M8 13h5"/>
+          </svg>
+        </span>
+        <span class="command-item-copy">
+          <strong>{{ command.label }}</strong>
+          <small>{{ command.description }}</small>
+        </span>
+        <span class="command-item-meta">
+          <span class="command-group">{{ command.group }}</span>
+          <kbd *ngIf="command.shortcut">{{ command.shortcut }}</kbd>
+        </span>
+      </button>
+    </div>
+    <ng-template #noCommands>
+      <div class="command-empty">
+        <span class="command-empty-mark">⌕</span>
+        <strong>No matching actions</strong>
+        <span>Try a different word, such as “image” or “view”.</span>
+      </div>
+    </ng-template>
+    <div class="command-footer">
+      <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+      <span><kbd>Enter</kbd> Run</span>
+      <span><kbd>Esc</kbd> Close</span>
+    </div>
+  </section>
 </div>
 
 <div
