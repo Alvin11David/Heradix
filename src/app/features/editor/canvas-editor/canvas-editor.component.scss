@@ -2283,18 +2283,25 @@ canvas {
 }
 
 .filter-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
 }
 
 .filter-pill {
-  padding: 3px 9px;
-  border-radius: 12px;
+  min-width: 0;
+  width: 100%;
+  min-height: 26px;
+  padding: 4px 3px;
+  border-radius: 7px;
   border: 1px solid rgba(255,255,255,0.1);
   background: rgba(255,255,255,0.05);
   color: rgba(255,255,255,0.55);
-  font-size: 10px;
+  font-size: 9px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
   transition: all 0.12s;
 
@@ -2826,14 +2833,15 @@ canvas {
 .transform-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px 8px;
+  gap: 5px 8px;
   padding: 4px 0 6px;
 }
 
 .transform-field {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
+  min-width: 0;
 }
 
 .transform-label {
@@ -2848,11 +2856,13 @@ canvas {
 }
 
 .transform-input {
-  flex: 1;
+  flex: 0 1 72px;
+  width: 72px;
+  max-width: 72px;
   min-width: 0;
   text-align: right;
-  font-size: 12px !important;
-  padding: 4px 6px !important;
+  font-size: 11px !important;
+  padding: 4px 5px !important;
 }
 
 .transform-lock-btn {

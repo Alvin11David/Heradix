@@ -85,8 +85,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly snapEnabled = this.ed.snapEnabled;
   readonly rulersVisible = signal(false);
   readonly gridView = signal(false);
-  readonly guidesVisible = signal(true);
-  readonly smartGuidesEnabled = signal(true);
+  // Keep the canvas clean by default. These can still be enabled from the
+  // status bar when alignment guides are useful.
+  readonly guidesVisible = signal(false);
+  readonly smartGuidesEnabled = signal(false);
 
   readonly pageMarginsVisible = signal(false);
   readonly snapToGridEnabled = signal(true);
@@ -649,7 +651,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       borderScaleFactor: 1.35,
       padding: 6,
       borderOpacityWhenMoving: 0.9,
-      hasBorders: true,
+      hasBorders: false,
       hasControls: true,
       objectCaching: false,
       strokeUniform: true,
@@ -2060,7 +2062,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       borderScaleFactor: 1.25,
       padding: 7,
       borderOpacityWhenMoving: 0.95,
-      hasBorders: true,
+      hasBorders: false,
       hasControls: true,
       objectCaching: false,
       strokeUniform: true,
@@ -2546,10 +2548,15 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private renderGuidesForObject(target: any): void {
-    if (!this.canvas || !this.fabric || !this.guidesVisible()) return;
+    if (!this.canvas || !this.fabric) return;
 
     const existing = this.canvas.getObjects().filter((obj: any) => obj._isGuideOverlay);
     existing.forEach((obj: any) => this.canvas.remove(obj));
+
+    if (!this.guidesVisible()) {
+      this.canvas.requestRenderAll();
+      return;
+    }
 
     if (!target || !this.smartGuidesEnabled()) return;
 
