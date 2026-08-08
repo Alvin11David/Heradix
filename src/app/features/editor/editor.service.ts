@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Observable, of, interval } from 'rxjs';
-import { EditorProject } from '../../core/models/editor.model';
+import { EditorDocumentSettings, EditorPage, EditorProject } from '../../core/models/editor.model';
 
 export type ToolMode = 'select' | 'text' | 'shape' | 'image' | 'upload' | 'templates' | 'ai' | 'draw';
 export type SaveState = 'saved' | 'saving' | 'failed';
@@ -28,6 +28,15 @@ export interface AiJobState {
   jobId?: string;
   error?: string;
   previewUrl?: string;
+}
+
+export interface EditorDocumentSnapshot {
+  canvasJson: string;
+  pages: EditorPage[];
+  currentPageIndex: number;
+  width: number;
+  height: number;
+  settings: EditorDocumentSettings;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -74,6 +83,8 @@ export class EditorService {
   private _redoStack: string[] = [];
   private _canvasGetJson: (() => string) | null = null;
   private _canvasLoadJson: ((json: string) => void) | null = null;
+  private _documentGet: (() => EditorDocumentSnapshot) | null = null;
+  private _documentLoad: ((snapshot: EditorDocumentSnapshot) => void) | null = null;
 
   private _autoSaveSub: any = null;
   private readonly STORAGE_PREFIX = 'amx-editor-project-';
@@ -81,6 +92,14 @@ export class EditorService {
   registerCanvasApi(getJson: () => string, loadJson: (json: string) => void): void {
     this._canvasGetJson = getJson;
     this._canvasLoadJson = loadJson;
+  }
+
+  registerDocumentApi(
+    getDocument: () => EditorDocumentSnapshot,
+    loadDocument: (snapshot: EditorDocumentSnapshot) => void,
+  ): void {
+    this._documentGet = getDocument;
+    this._documentLoad = loadDocument;
   }
 
   setDirty(): void {
@@ -98,29 +117,56 @@ export class EditorService {
     this._canvasLoadJson?.(json);
   }
 
+  get documentSnapshot(): EditorDocumentSnapshot {
+    const current = this._documentGet?.();
+    if (current) return current;
+
+    const project = this.project();
+    return {
+      canvasJson: this.canvasJson,
+      pages: project?.pages ?? [],
+      currentPageIndex: project?.currentPageIndex ?? 0,
+      width: project?.width ?? 800,
+      height: project?.height ?? 600,
+      settings: project?.settings ?? {},
+    };
+  }
+
   pushUndoState(): void {
-    const json = this.canvasJson;
-    this._undoStack.push(json);
+    this._undoStack.push(JSON.stringify(this.documentSnapshot));
     if (this._undoStack.length > 50) this._undoStack.shift();
     this._redoStack = [];
   }
 
   undo(): void {
     if (!this._undoStack.length) return;
-    const current = this.canvasJson;
+    const current = JSON.stringify(this.documentSnapshot);
     const prev = this._undoStack.pop()!;
     this._redoStack.push(current);
-    this.loadFromCanvasJson(prev);
+    this.loadDocumentSnapshot(prev);
     this.setDirty();
   }
 
   redo(): void {
     if (!this._redoStack.length) return;
-    const current = this.canvasJson;
+    const current = JSON.stringify(this.documentSnapshot);
     const next = this._redoStack.pop()!;
     this._undoStack.push(current);
-    this.loadFromCanvasJson(next);
+    this.loadDocumentSnapshot(next);
     this.setDirty();
+  }
+
+  private loadDocumentSnapshot(serialized: string): void {
+    try {
+      const snapshot = JSON.parse(serialized) as EditorDocumentSnapshot;
+      if (snapshot?.canvasJson && Array.isArray(snapshot.pages)) {
+        this._documentLoad?.(snapshot);
+        return;
+      }
+    } catch {
+      // Older undo entries contain canvas-only JSON.
+    }
+    this.loadFromCanvasJson(serialized);
   }
 
   canUndo = computed(() => this._undoStack.length > 0);
@@ -180,7 +226,27 @@ export class EditorService {
         return of(cleaned);
       }
 
-      this.project.set(existing);
+      if (existing.documentJson) {
+        try {
+          const snapshot = JSON.parse(existing.documentJson) as EditorDocumentSnapshot;
+          if (snapshot?.canvasJson) {
+            this.project.set({
+              ...existing,
+              width: snapshot.width ?? existing.width,
+              height: snapshot.height ?? existing.height,
+              pages: snapshot.pages ?? existing.pages,
+              currentPageIndex: snapshot.currentPageIndex ?? existing.currentPageIndex,
+              settings: snapshot.settings ?? existing.settings,
+            });
+          } else {
+            this.project.set(existing);
+          }
+        } catch {
+          this.project.set(existing);
+        }
+      } else {
+        this.project.set(existing);
+      }
       this.dirty.set(false);
       this.saveState.set('saved');
       return of(existing);
@@ -222,9 +288,16 @@ export class EditorService {
     const p = this.project();
     if (!p) return of(p as any);
     this.saveState.set('saving');
+    const snapshot = this.documentSnapshot;
     const updated: EditorProject = {
       ...p,
-      canvasJson: this.canvasJson,
+      canvasJson: snapshot.canvasJson,
+      documentJson: JSON.stringify(snapshot),
+      width: snapshot.width,
+      height: snapshot.height,
+      pages: snapshot.pages,
+      currentPageIndex: snapshot.currentPageIndex,
+      settings: snapshot.settings,
       updatedAt: new Date().toISOString(),
     };
     this.saveToStorage(updated);

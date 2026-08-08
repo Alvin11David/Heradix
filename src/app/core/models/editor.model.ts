@@ -1,5 +1,26 @@
 export type ExportFormat = 'PNG' | 'JPG' | 'PDF' | 'SVG';
 
+export interface EditorPage {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  margin?: number;
+}
+
+export interface EditorDocumentSettings {
+  backgroundColor?: string | object;
+  gridVisible?: boolean;
+  rulersVisible?: boolean;
+  pageMarginsVisible?: boolean;
+  guidesVisible?: boolean;
+  smartGuidesEnabled?: boolean;
+  snapToGridEnabled?: boolean;
+  snapToObjectsEnabled?: boolean;
+}
+
 export interface EditorProject {
   id: string;
   userId: string;
@@ -11,6 +32,11 @@ export interface EditorProject {
   thumbnailUrl?: string;
   createdAt: string;
   updatedAt: string;
+  /** Serialized document snapshot, retained separately from canvasJson for backwards compatibility. */
+  documentJson?: string;
+  pages?: EditorPage[];
+  currentPageIndex?: number;
+  settings?: EditorDocumentSettings;
 }
 
 export interface CreateProjectPayload {

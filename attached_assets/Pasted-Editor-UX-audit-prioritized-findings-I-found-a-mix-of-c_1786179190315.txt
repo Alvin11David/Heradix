@@ -1,0 +1,467 @@
+Editor UX audit — prioritized findings
+I found a mix of confirmed functional problems and significant usability friction. The most important theme is trust: users need to feel that their work is safe, that actions behave consistently, and that the editor is giving them clear feedback.
+
+Critical / should fix first
+1. Pages are not persisted with the project
+The editor supports:
+
+Add page
+Duplicate page
+Delete page
+Previous/next page
+Page ordering
+But the saved project only stores canvasJson. The pages array, current page, page names, and page positions are component signals and are not included in the saved project model.
+
+User impact: A user can create multiple pages, save, leave the editor, and return to a project that no longer has the same page structure. This is one of the most damaging problems because it breaks confidence in the editor.
+
+Recommended fix:
+
+Store pages in the project data.
+Store the active page index.
+Store page-specific objects separately or attach objects to page IDs.
+Restore all page state during initialization.
+Make sure undo/redo also includes page operations.
+2. Canvas resizing changes the canvas but does not update the project dimensions
+applyCanvasPreset() and applyCustomSize() call canvas.setDimensions(...), but they do not update the project’s width and height.
+
+User impact: The canvas can visually become a new size while the project metadata remains at the old size. This can cause incorrect downstream behavior in reopening, exporting, print workflows, or other features that use project dimensions.
+
+Recommended fix:
+
+Update:
+
+project.width
+project.height
+
+whenever the canvas size changes, and include those changes in undo/redo.
+
+3. “Save” is local-only, while the UI implies durable saving
+EditorService.saveProject() writes to localStorage. There is an editor_projects mock API resource, but the editor does not appear to persist projects through the backend.
+
+User impact:
+
+Work is tied to one browser/device.
+Clearing browser storage loses projects.
+A user may expect to find the same work after logging in elsewhere.
+The “Saved” label suggests stronger persistence than actually exists.
+Recommended fix:
+
+Either:
+
+Implement real project persistence through the API, or
+Clearly label this as local draft storage and avoid implying account-level saving.
+For a production editor, the first option is the correct direction.
+
+4. Exit navigation can happen before save completion
+saveAndClose() calls save() and immediately navigates to /marketplace.
+
+this.save();
+this.router.navigate(['/marketplace']);
+
+The current save implementation is synchronous because it uses local storage, but once backend persistence is added this will become a real data-loss risk. Even now, the UI does not show a clear “saved before leaving” confirmation.
+
+Recommended fix:
+
+Make saveAndClose() wait for the save observable to complete, then navigate. If saving fails, keep the user in the editor and show a recovery action.
+
+High-impact usability problems
+5. The welcome screen looks like a broken thumbnail gallery
+The format cards show generic image, play, and printer icons instead of meaningful previews. The layout is also very dense and partially clipped in the screenshot.
+
+User impact:
+
+New users cannot quickly understand the difference between presets.
+The cards look unfinished or unloaded.
+The most important first interaction feels low-confidence.
+Recommended fix:
+
+Use clear visual previews for each format.
+Show the format name and dimensions with stronger hierarchy.
+Add a prominent “Blank canvas” option.
+Add “Recommended” or “Popular” labels.
+Make the layout scroll cleanly on shorter screens.
+Avoid showing a large modal with too many choices at once.
+6. The editor has too many competing entry points
+The same actions appear in multiple places:
+
+Top toolbar
+Left panel
+Empty-canvas guide
+Welcome screen
+Command palette
+Context menu
+Floating selection toolbar
+Mobile bottom navigation
+This gives the editor broad capability, but it also creates uncertainty about where the “correct” action lives.
+
+User impact: Beginners may not know whether to use the toolbar, panel, or canvas guide. Experienced users may feel the interface is noisy.
+
+Recommended fix:
+
+Define a clear hierarchy:
+
+Primary creation actions: left panel
+Primary editing actions: right properties panel
+Global actions: top bar
+Contextual actions: floating toolbar
+Advanced actions: command palette/context menu
+Then remove or reduce duplicate actions where possible.
+
+7. “Image” and “Upload” are confusingly separate
+The toolbar includes both:
+
+Image
+Upload
+The code behaves differently:
+
+Image immediately opens a file picker.
+Upload opens an upload dialog, which then opens a file picker.
+User impact: Users cannot predict which action to use. The two buttons appear to represent different capabilities but currently overlap heavily.
+
+Recommended fix:
+
+Use one clear “Add media” action with a menu:
+
+Upload from device
+Browse project images
+Browse stock photos
+Paste image
+If keeping both buttons, rename them clearly, such as:
+
+“Stock image”
+“Upload”
+8. Upload drag-and-drop is incomplete
+The upload dialog says:
+
+Drag & drop or click to browse
+
+But the actual drag/drop handling is attached to the main canvas area, not clearly to the upload card. Dropping onto the upload card may not behave as users expect.
+
+There is also inconsistent feedback:
+
+Invalid files dropped onto the canvas are silently ignored.
+Oversized dropped files are silently ignored.
+File picker errors show a toast.
+Recommended fix:
+
+Attach drag/drop handlers directly to the upload card.
+Add a visible drag-over state.
+Show an error for unsupported or oversized dropped files.
+Show upload progress for large files.
+Explain whether an image will be inserted at center or at the drop location.
+9. There are likely cross-origin image failure cases
+Images are loaded with crossOrigin: 'anonymous', then retried without it if loading fails.
+
+That fallback can allow the image to appear, but it can also taint the canvas. A tainted Fabric canvas can then fail during:
+
+PNG export
+JPG export
+PDF export
+Selection export
+Background processing
+User impact: The image may appear to work, then exporting fails later.
+
+Recommended fix:
+
+Reject images that cannot be loaded safely for export.
+Proxy external images through a CORS-safe endpoint.
+Validate canvas exportability immediately after insertion.
+Show an actionable message: “This image source cannot be exported. Upload the file instead.”
+10. Export options are not fully consistent
+The export dialog presents:
+
+PNG
+PDF
+SVG
+JPG
+But behavior is inconsistent:
+
+PNG/JPG buttons call exportSelection(), which exports only the selection when something is selected.
+PDF/SVG buttons call exportDesign(), which exports the full design.
+The UI does not clearly tell the user whether they are exporting the selection or the whole page.
+exportTransparent and exportQuality exist in code, but there does not appear to be a visible export control for them.
+User impact: A user may think they exported the full design and receive only one selected object.
+
+Recommended fix:
+
+Add an explicit scope choice:
+
+Entire design
+Current selection
+Then use the same scope for every format. Also expose:
+
+Transparent background
+JPG quality
+Page selection for multi-page projects
+11. Export filenames do not use the project name
+Downloads use names such as:
+
+design-<timestamp>.png
+selection-<timestamp>.png
+
+User impact: Downloaded files are difficult to identify and organize.
+
+Recommended fix:
+
+Use:
+
+<Project Name>-page-1.png
+<Project Name>-selection.png
+
+with safe filename normalization.
+
+12. Resize behavior can destroy layout intent
+The resize dialog explicitly says:
+
+Objects are not scaled when resizing.
+
+That is technically clear, but it creates a poor workflow for common format changes such as:
+
+Instagram post → Instagram story
+Social post → presentation slide
+Square → portrait
+User impact: Users resize the page and discover that objects are no longer positioned or sized appropriately.
+
+Recommended fix:
+
+Offer a choice:
+
+Resize canvas only
+Scale and reposition content
+Resize with smart layout
+At minimum, show a before/after preview.
+
+Editing behavior risks
+13. Text editing is not fully protected from global keyboard shortcuts
+The global window:keydown handler ignores normal inputs and contenteditable elements, but Fabric’s text editing surface is a canvas object rather than a normal DOM input.
+
+That means shortcuts such as:
+
+T
+R
+P
+Delete
+Arrow keys
+Ctrl+A
+can potentially interfere with text editing inside the canvas.
+
+User impact: While typing, a user may accidentally trigger a tool, delete a text object, select all objects, or move the text.
+
+Recommended fix:
+
+Check whether Fabric is currently in text editing mode before running editor shortcuts. Only allow text-editing shortcuts that are safe, such as copy/paste and standard text navigation.
+
+14. Undo/redo coverage is incomplete
+Many object changes push undo state, but not all editor state is included:
+
+Page creation/deletion is not included in the canvas JSON.
+Page ordering is not included.
+Grid visibility is not included.
+Guides/rulers/snap settings are not included.
+Canvas dimensions are not included.
+Some background and layout state is only held in component signals.
+User impact: Undo may not restore the complete previous editor state. Users can undo an object change but not undo a related page or document-level change.
+
+Recommended fix:
+
+Use a single document snapshot containing:
+
+Canvas objects
+Canvas size
+Pages
+Background
+Guides/grids
+Active page
+Relevant editor settings
+Then use that snapshot consistently for save, undo, redo, and restore.
+
+15. Shape property editing replaces objects
+For circles, polygons, and stars, changing properties such as arc, sides, or points creates a new Fabric object and removes the old one.
+
+User impact:
+
+Selection can jump.
+Object coordinates and scaling can subtly change.
+Related metadata can be lost.
+Repeated slider changes can create many undo entries and feel unstable.
+Recommended fix:
+
+Preserve complete transform state: position, scale, origin, angle, opacity, stroke, shadow, locks.
+Debounce slider-based undo snapshots so dragging a slider is one undo step.
+Keep the same object identity where possible.
+16. Drawing mode has weak error recovery
+The draw tool supports brush/eraser controls, but the eraser is implemented as white drawing:
+
+'rgba(255,255,255,1)'
+
+That does not erase underlying content; it paints over it with white.
+
+User impact: On a non-white background or over other objects, the “eraser” produces a white mark rather than removing pixels or strokes.
+
+Recommended fix:
+
+Use a real eraser mode or make the behavior explicit as “white brush.” For true erasing, use Fabric’s eraser support or remove/split path objects.
+
+17. The empty canvas guide and welcome modal duplicate the first-time experience
+There are two onboarding flows:
+
+Welcome modal
+Empty canvas guide
+Four-step tour after starting
+User impact: New users may be presented with multiple layers of instruction before they can work. This can feel like friction rather than help.
+
+Recommended fix:
+
+Use one first-run flow:
+
+Choose format.
+Land on the editor.
+Show three lightweight contextual hints.
+Let users dismiss or reopen help later.
+Avoid blocking the canvas with multiple onboarding systems.
+
+18. The onboarding tour is stored only per browser
+The tour state uses:
+
+localStorage.setItem('amx_editor_tour_v1', '1')
+
+User impact: The tour does not follow the user across devices or accounts, and shared devices can produce confusing behavior.
+
+Recommended fix:
+
+Store onboarding completion at the account/workspace level, with a local fallback for guests.
+
+Layout and responsive issues
+19. The desktop toolbar is overloaded
+The top toolbar includes:
+
+Back
+Project name
+Search commands
+Six tools
+Select all
+Templates
+AI
+Undo/redo
+Resize
+Shortcuts
+Present
+Export
+Save
+At smaller desktop widths, this becomes a compression problem. Some controls collapse or disappear before the user understands where they went.
+
+Recommended fix:
+
+Group actions:
+
+Create
+Edit
+View
+Share/export
+Keep only the most important controls visible and put secondary actions in an overflow menu.
+
+20. Mobile hides important functionality rather than adapting it
+At mobile widths, several desktop controls are hidden:
+
+Resize
+Shortcuts
+Presentation
+Some toolbar controls
+Status bar
+Some of these actions may still be accessible indirectly, but the discoverability is poor.
+
+Recommended fix:
+
+Add a mobile “More” menu containing:
+
+Resize
+Export
+Undo/redo
+Guides
+Keyboard/help
+Project settings
+Also ensure the mobile sheet has proper focus management and scroll locking.
+
+21. There is no clear focus management for modals and sheets
+The editor opens several overlays:
+
+Welcome
+Upload
+Templates
+Resize
+Shortcuts
+Export
+AI result
+Command palette
+Mobile drawers
+They have close buttons and click-outside behavior, but there is no clear focus trap or restoration of focus after closing.
+
+User impact: Keyboard and assistive-technology users can lose their place. Pressing Tab can move behind the modal.
+
+Recommended fix:
+
+Use a reusable dialog pattern with:
+
+role="dialog"
+aria-labelledby
+Focus moved into the dialog
+Focus trapped while open
+Escape handling
+Focus returned to the triggering button
+Confirmed quality issues from the running app
+22. The preview logs show a network failure
+The browser console reported:
+
+[Network] Cannot reach server
+
+The Angular and mock API workflows are running, so this likely comes from a request path or service call that is not resolving correctly in the preview environment.
+
+Recommended fix:
+
+Identify which request fails in the browser Network panel or API service, then:
+
+Use relative same-origin paths where appropriate.
+Confirm the proxy route.
+Add user-visible loading/error states instead of silently leaving empty panels.
+23. Missing assets look like empty or broken UI rather than intentional placeholders
+The welcome screen screenshot shows generic icons in place of meaningful format thumbnails. The marketplace/editor experience also appears to depend on external image resources.
+
+Recommended fix:
+
+Add local fallback thumbnails.
+Use skeletons only while loading.
+Use a deliberate “image unavailable” state after failure.
+Never leave a generic icon that looks like an unrendered image.
+Recommended fix order
+Phase 1 — restore trust
+Persist pages and document dimensions.
+Make save/exit wait for persistence.
+Fix export scope consistency.
+Fix cross-origin image/export failures.
+Protect Fabric text editing from global shortcuts.
+Phase 2 — improve first-use clarity
+Redesign the welcome format picker.
+Combine or clarify Image vs Upload.
+Consolidate onboarding into one flow.
+Add stronger empty/loading/error states.
+Simplify the desktop toolbar.
+Phase 3 — improve professional workflows
+Add scale/reposition behavior when resizing.
+Make undo/redo document-level.
+Fix the eraser behavior.
+Add multi-page export controls.
+Improve mobile “More” actions and modal focus management.
+Overall assessment
+The editor has a strong feature base—layers, text controls, shapes, snapping, grids, templates, image tools, export, pages, and AI utilities—but it currently behaves more like a broad prototype than a dependable professional editor.
+
+The highest-value improvement is not adding more tools. It is making the editor consistently answer these questions:
+
+Where is my work saved?
+What exactly am I exporting?
+What will happen if I resize?
+Which page am I editing?
+Is this action reversible?
+Where do I go to add content?
+Did my image actually load safely?
+Is this control changing the document or just the current view?
+Once those are clear and reliable, the existing feature set will feel much more powerful.

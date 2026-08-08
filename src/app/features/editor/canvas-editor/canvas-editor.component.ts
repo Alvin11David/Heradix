@@ -16,7 +16,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EditorService, ToolMode, EditorLayer, SaveState } from '../editor.service';
-import { EditorProject, ExportFormat } from '../../../core/models/editor.model';
+import { EditorPage, EditorProject, ExportFormat } from '../../../core/models/editor.model';
+import { EditorDocumentSnapshot } from '../editor.service';
 import { MarketplaceService } from '../../marketplace/marketplace.service';
 import { Asset } from '../../../core/models/asset.model';
 import { jsPDF } from 'jspdf';
@@ -129,17 +130,7 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.layerSearchQuery().trim().length ? `${visible} / ${total}` : `${total}`;
   });
 
-  readonly pages = signal<
-    Array<{
-      id: string;
-      name: string;
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-      margin?: number;
-    }>
-  >([
+  readonly pages = signal<EditorPage[]>([
 
     { id: 'page-1', name: 'Page 1', x: 0, y: 0, width: 10000, height: 8000, margin: 120 },
   ]);
@@ -185,6 +176,11 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly customHeight = signal(600);
 
   readonly showShortcutsModal = signal(false);
+  readonly mobileMoreOpen = signal(false);
+  readonly resizeMode = signal<'canvas' | 'scale'>('canvas');
+  readonly uploadDragActive = signal(false);
+  readonly uploadProgress = signal<number | null>(null);
+  readonly exportScope = signal<'design' | 'selection'>('design');
 
   readonly showSafeZone = signal(false);
 
@@ -489,6 +485,17 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly windowKeyDownHandler = this.handleWindowKeyDown.bind(this);
   private readonly windowKeyUpHandler = this.handleWindowKeyUp.bind(this);
 
+  private readonly defaultEditorSettings = {
+    backgroundColor: '#ffffff' as string | object,
+    gridVisible: false,
+    rulersVisible: false,
+    pageMarginsVisible: false,
+    guidesVisible: false,
+    smartGuidesEnabled: false,
+    snapToGridEnabled: true,
+    snapToObjectsEnabled: true,
+  };
+
   readonly selectedFill = computed(() => this._selectionProps()['fill'] ?? '');
   readonly selectedStroke = computed(() => this._selectionProps()['stroke'] ?? '');
   readonly selectedStrokeWidth = computed(() => this._selectionProps()['strokeWidth'] ?? 0);
@@ -736,6 +743,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
     );
+    this.ed.registerDocumentApi(
+      () => this.getDocumentSnapshot(),
+      (snapshot) => this.restoreDocumentSnapshot(snapshot),
+    );
 
     this.renderLayoutGrids();
     this.onModify();
@@ -749,9 +760,10 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       this.resizeObserver.observe(this.canvasAreaRef.nativeElement);
     }
 
-    if (this.ed.project()?.canvasJson && this.ed.project()!.canvasJson !== '{}') {
+    const savedSnapshot = this.getSavedDocumentSnapshot();
+    if (savedSnapshot?.canvasJson && savedSnapshot.canvasJson !== '{}') {
       try {
-        this.canvas.loadFromJSON(JSON.parse(this.ed.project()!.canvasJson), () =>
+        this.canvas.loadFromJSON(JSON.parse(savedSnapshot.canvasJson), () =>
           this.canvas.renderAll(),
         );
       } catch (err) {
@@ -787,6 +799,75 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     window.addEventListener('mouseup', this.canvasMouseUpHandler);
     window.addEventListener('keydown', this.windowKeyDownHandler);
     window.addEventListener('keyup', this.windowKeyUpHandler);
+  }
+
+  private getDocumentSnapshot(): EditorDocumentSnapshot {
+    const project = this.ed.project();
+    return {
+      canvasJson: JSON.stringify(this.canvas?.toJSON(this.canfulProperties()) ?? {}),
+      pages: this.pages(),
+      currentPageIndex: this.currentPageIndex(),
+      width: project?.width ?? this.canvas?.getWidth() ?? 800,
+      height: project?.height ?? this.canvas?.getHeight() ?? 600,
+      settings: {
+        backgroundColor: this.canvas?.backgroundColor ?? '#ffffff',
+        gridVisible: this.gridVisible(),
+        rulersVisible: this.rulersVisible(),
+        pageMarginsVisible: this.pageMarginsVisible(),
+        guidesVisible: this.guidesVisible(),
+        smartGuidesEnabled: this.smartGuidesEnabled(),
+        snapToGridEnabled: this.snapToGridEnabled(),
+        snapToObjectsEnabled: this.snapToObjectsEnabled(),
+      },
+    };
+  }
+
+  private getSavedDocumentSnapshot(): EditorDocumentSnapshot | null {
+    const project = this.ed.project();
+    if (!project) return null;
+    try {
+      if (project.documentJson) {
+        return JSON.parse(project.documentJson) as EditorDocumentSnapshot;
+      }
+    } catch {
+      // Fall through to the legacy canvas-only project format.
+    }
+    return {
+      canvasJson: project.canvasJson,
+      pages: project.pages ?? this.pages(),
+      currentPageIndex: project.currentPageIndex ?? 0,
+      width: project.width,
+      height: project.height,
+      settings: project.settings ?? {},
+    };
+  }
+
+  private restoreDocumentSnapshot(snapshot: EditorDocumentSnapshot): void {
+    if (!this.canvas) return;
+    this.pages.set(snapshot.pages?.length ? snapshot.pages : this.pages());
+    this.currentPageIndex.set(
+      Math.min(Math.max(snapshot.currentPageIndex ?? 0, 0), this.pages().length - 1),
+    );
+    this.customWidth.set(snapshot.width);
+    this.customHeight.set(snapshot.height);
+    const settings = { ...this.defaultEditorSettings, ...(snapshot.settings ?? {}) };
+    this.rulersVisible.set(!!settings.rulersVisible);
+    this.pageMarginsVisible.set(!!settings.pageMarginsVisible);
+    this.guidesVisible.set(!!settings.guidesVisible);
+    this.smartGuidesEnabled.set(!!settings.smartGuidesEnabled);
+    this.snapToGridEnabled.set(settings.snapToGridEnabled !== false);
+    this.snapToObjectsEnabled.set(settings.snapToObjectsEnabled !== false);
+    if (settings.backgroundColor) this.canvas.set('backgroundColor', settings.backgroundColor);
+    this.canvas.setDimensions({ width: snapshot.width, height: snapshot.height });
+    try {
+      this.canvas.loadFromJSON(JSON.parse(snapshot.canvasJson), () => {
+        this.canvas?.renderAll();
+        this.renderLayoutGrids();
+        this.renderPageGuides();
+      });
+    } catch (error) {
+      console.error('Document restore failed:', error);
+    }
   }
 
   private handleWindowKeyDown(event: KeyboardEvent): void {
