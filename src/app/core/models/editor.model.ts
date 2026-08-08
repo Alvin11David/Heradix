@@ -13,6 +13,7 @@ export interface EditorPage {
 export interface EditorDocumentSettings {
   backgroundColor?: string | object;
   gridVisible?: boolean;
+  layoutGrids?: Array<Record<string, any>>;
   rulersVisible?: boolean;
   pageMarginsVisible?: boolean;
   guidesVisible?: boolean;

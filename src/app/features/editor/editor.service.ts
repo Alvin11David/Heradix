@@ -37,6 +37,8 @@ export interface EditorDocumentSnapshot {
   width: number;
   height: number;
   settings: EditorDocumentSettings;
+  /** Each page owns its own canvas JSON. Kept optional for older local drafts. */
+  pageCanvases?: Record<string, string>;
 }
 
 @Injectable({ providedIn: 'root' })

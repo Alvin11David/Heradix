@@ -132,11 +132,12 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   readonly pages = signal<EditorPage[]>([
 
-    { id: 'page-1', name: 'Page 1', x: 0, y: 0, width: 10000, height: 8000, margin: 120 },
+    { id: 'page-1', name: 'Page 1', x: 0, y: 0, width: 800, height: 600, margin: 120 },
   ]);
   readonly currentPageIndex = signal(0);
   readonly currentPage = computed(() => this.pages()[this.currentPageIndex()] ?? this.pages()[0]);
   readonly currentPageLabel = computed(() => this.currentPage()?.name ?? 'Page 1');
+  private readonly pageCanvases = signal<Record<string, string>>({});
   assetsSearchQuery = '';
 
   readonly Math = Math;
@@ -3017,16 +3018,14 @@ export class CanvasEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private async loadFabricImage(
     url: string,
-    tryAnonymousCrossOrigin: boolean,
+    tryAnonymousCrossOrigin = true,
   ): Promise<any | null> {
     if (!this.fabric) return null;
     try {
-      const options = tryAnonymousCrossOrigin ? { crossOrigin: 'anonymous' } : {};
+      const isDataUrl = url.startsWith('data:') || url.startsWith('blob:');
+      const options = tryAnonymousCrossOrigin && !isDataUrl ? { crossOrigin: 'anonymous' } : {};
       return await this.fabric.Image.fromURL(url, options);
     } catch {
-      if (tryAnonymousCrossOrigin) {
-        return this.loadFabricImage(url, false);
-      }
       return null;
     }
   }
