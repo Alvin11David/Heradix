@@ -161,7 +161,7 @@ export class PngService {
       return (b.likes * 3 + b.downloads) - (a.likes * 3 + a.downloads);
     });
 
-    return this.personalization.rank(list, this.pngPreferences(), (png) => ({
+    return this.personalization.rank('png', list, this.pngPreferences(), (png) => ({
       categories: [png.category, png.categoryLabel],
       styles: [png.style],
       topics: [png.name, ...png.tags],
@@ -191,6 +191,20 @@ export class PngService {
 
   private byIdForRecent(id: string): PngAsset | undefined {
     return this.library().find((p) => p.id === id);
+  }
+
+  private recordAssetSignals(png: PngAsset, weight: number): void {
+    this.personalization.recordSignals(
+      'png',
+      [png.category, png.categoryLabel, png.style, ...png.tags.slice(0, 8)],
+      weight,
+    );
+  }
+
+  private searchSignalTerms(term: string): string[] {
+    const lowered = term.trim().toLowerCase();
+    const words = lowered.split(/[^a-z0-9]+/).filter((w) => w.length >= 2);
+    return [...new Set([lowered, ...words])];
   }
 
   private async fetchCuratedPicks(): Promise<void> {
@@ -313,9 +327,14 @@ export class PngService {
 
   toggleFavorite(id: string): void {
     const next = new Set(this.favorites());
+    const adding = !next.has(id);
     if (next.has(id)) next.delete(id); else next.add(id);
     this.favorites.set(next);
     this.saveFavorites(next);
+    if (adding) {
+      const png = this.byIdForRecent(id);
+      if (png) this.recordAssetSignals(png, 12);
+    }
   }
   isFavorite(id: string): boolean { return this.favorites().has(id); }
 
@@ -325,6 +344,8 @@ export class PngService {
     const next = [id, ...this.recentIds().filter((x) => x !== id)].slice(0, 20);
     this.recentIds.set(next);
     try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)); } catch { }
+    const png = this.byIdForRecent(id);
+    if (png) this.recordAssetSignals(png, 4);
   }
 
   trackSearch(query: string): void {
@@ -333,6 +354,7 @@ export class PngService {
     const next = [term, ...this.searchHistory().filter((t) => t.toLowerCase() !== term.toLowerCase())].slice(0, MAX_SEARCH_HISTORY);
     this.searchHistory.set(next);
     try { localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(next)); } catch { }
+    this.personalization.recordSignals('png', this.searchSignalTerms(term), 6);
   }
 
   removeSearchHistoryItem(term: string): void {

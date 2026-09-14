@@ -150,6 +150,15 @@ export class PngComponent implements OnInit {
   readonly createProgress = signal(0);
   private cancelRemoval = false;
   private uploadedFile: File | null = null;
+  private detailOpenedAt = 0;
+
+  private recordAssetSignal(png: PngAsset, weight: number): void {
+    this.personalization.recordSignals(
+      'png',
+      [png.category, png.categoryLabel, png.style, ...png.tags.slice(0, 8)],
+      weight,
+    );
+  }
   readonly collectionsOpen       = signal(false);
   readonly collectionTarget      = signal<PngAsset | null>(null);
   readonly newCollectionName     = signal('');
@@ -274,9 +283,18 @@ export class PngComponent implements OnInit {
     this.selected.set(png);
     this.selectedSize.set(SIZE_PRESETS[2]);
     this.licenseTier.set('standard');
+    this.detailOpenedAt = Date.now();
     this.svc.trackRecent(png.id);
   }
-  closeDetail(): void { this.selected.set(null); }
+  closeDetail(): void {
+    const elapsed = Date.now() - this.detailOpenedAt;
+    const png = this.selected();
+    if (png && elapsed > 2500) {
+      this.recordAssetSignal(png, Math.min(6, 2 + elapsed / 60000));
+    }
+    this.detailOpenedAt = 0;
+    this.selected.set(null);
+  }
   selectSize(size: (typeof SIZE_PRESETS)[number]): void { this.selectedSize.set(size); }
   sizeFileSize(png: PngAsset, size: (typeof SIZE_PRESETS)[number]): string {
     return formatFileSize(estimatePngFileSize(png.width, png.height, size.px));
@@ -379,6 +397,7 @@ export class PngComponent implements OnInit {
       }
       fellBackToDirect.forEach((png, idx) => setTimeout(() => this.directDownload(png), idx * 250));
       [...zipped, ...fellBackToDirect].forEach((png) => this.registerDownloadUsage(png));
+      [...zipped, ...fellBackToDirect].forEach((png) => this.recordAssetSignal(png, 12));
       if (!fellBackToDirect.length) {
         this.showToast(`⬇️ Downloaded ${zipped.length} PNG${zipped.length === 1 ? '' : 's'} as one ZIP`, 'success');
       } else if (!zipped.length) {
@@ -390,6 +409,7 @@ export class PngComponent implements OnInit {
       console.error('ZIP bundle download failed — falling back to individual downloads', e);
       items.forEach((png, idx) => setTimeout(() => this.directDownload(png), idx * 250));
       items.forEach((png) => this.registerDownloadUsage(png));
+      items.forEach((png) => this.recordAssetSignal(png, 12));
       this.showToast(`⬇️ Couldn't build a ZIP — downloading ${items.length} PNG${items.length === 1 ? '' : 's'} individually instead`, 'info');
     } finally {
       this.zipping.set(false);
@@ -475,6 +495,7 @@ export class PngComponent implements OnInit {
     const downloaded = await this.directDownload(png);
     if (!downloaded) return;
     this.registerDownloadUsage(png);
+    this.recordAssetSignal(png, 12);
     this.showToast(`⬇️ Downloading "${png.name}"…`, 'success');
   }
   isQuotaExceeded(png: PngAsset): boolean {
@@ -517,6 +538,7 @@ export class PngComponent implements OnInit {
       const response = await fetch(dataUrl);
       this.triggerBlobDownload(await response.blob(), `${png.slug}-${size.px}px.png`);
       this.registerDownloadUsage(png);
+      this.recordAssetSignal(png, 12);
       this.showToast(`⬇️ Downloading "${png.name}" (${size.label})…`, 'success');
     } catch (error) {
       console.error(`PNG resize download failed for "${png.name}"`, error);

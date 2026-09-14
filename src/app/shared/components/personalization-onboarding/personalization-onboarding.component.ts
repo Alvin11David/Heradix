@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, signal,
+  ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnChanges, OnDestroy, Output, SimpleChanges, signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -14,9 +14,16 @@ import {
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div *ngIf="visible" class="personalization-backdrop" role="presentation" (click)="skip()">
+    <div
+      *ngIf="visible"
+      class="personalization-backdrop"
+      [class.personalization-backdrop--closing]="closing()"
+      role="presentation"
+      (click)="skip()"
+    >
       <section
         class="personalization-modal"
+        [class.personalization-modal--closing]="closing()"
         role="dialog"
         aria-modal="true"
         aria-labelledby="personalization-title"
@@ -43,9 +50,10 @@ import {
           </div>
           <div class="personalization-options personalization-options--categories">
             <button
-              *ngFor="let option of config.categories"
+              *ngFor="let option of config.categories; index as i"
               type="button"
               class="personalization-option"
+              [style.--card-i]="i"
               [class.personalization-option--selected]="isSelected(selectedCategories(), option.id)"
               [attr.aria-pressed]="isSelected(selectedCategories(), option.id)"
               (click)="toggleCategory(option.id)"
@@ -68,9 +76,10 @@ import {
           </div>
           <div class="personalization-style-list">
             <button
-              *ngFor="let option of config.styles"
+              *ngFor="let option of config.styles; index as i"
               type="button"
               class="personalization-style"
+              [style.--chip-i]="i"
               [class.personalization-style--selected]="isSelected(selectedStyles(), option.id)"
               [attr.aria-pressed]="isSelected(selectedStyles(), option.id)"
               (click)="toggleStyle(option.id)"
@@ -99,7 +108,7 @@ import {
   `,
   styleUrl: './personalization-onboarding.component.scss',
 })
-export class PersonalizationOnboardingComponent implements OnChanges {
+export class PersonalizationOnboardingComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) config!: PersonalizationConfig;
   @Input() visible = false;
   @Input() existingPreferences: PersonalizationPreferences | null = null;
@@ -108,12 +117,22 @@ export class PersonalizationOnboardingComponent implements OnChanges {
 
   readonly selectedCategories = signal<string[]>([]);
   readonly selectedStyles = signal<string[]>([]);
+  readonly closing = signal(false);
+  private closingTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['visible']?.currentValue === true) {
+      this.closing.set(false);
+      if (this.closingTimer) { clearTimeout(this.closingTimer); this.closingTimer = null; }
+    }
     if (changes['visible']?.currentValue === true || changes['existingPreferences']) {
       this.selectedCategories.set([...(this.existingPreferences?.categories ?? [])]);
       this.selectedStyles.set([...(this.existingPreferences?.styles ?? [])]);
     }
+  }
+
+  ngOnDestroy(): void {
+    if (this.closingTimer) clearTimeout(this.closingTimer);
   }
 
   @HostListener('document:keydown.escape')
@@ -134,21 +153,31 @@ export class PersonalizationOnboardingComponent implements OnChanges {
   }
 
   continue(): void {
+    if (this.closing()) return;
     const selectedOptions = [
       ...this.config.categories.filter((option) => this.selectedCategories().includes(option.id)),
       ...this.config.styles.filter((option) => this.selectedStyles().includes(option.id)),
     ];
-    this.completed.emit({
+    const result: PersonalizationResult = {
       categories: this.selectedCategories(),
       styles: this.selectedStyles(),
       topics: selectedOptions.flatMap((option) => [option.id, option.label, ...(option.keywords ?? [])]),
       skipped: false,
-    });
+    };
+    this.playExit(() => this.completed.emit(result));
   }
 
   skip(): void {
-    if (!this.visible) return;
-    this.dismissed.emit();
+    if (!this.visible || this.closing()) return;
+    this.playExit(() => this.dismissed.emit());
+  }
+
+  private playExit(after: () => void): void {
+    this.closing.set(true);
+    this.closingTimer = setTimeout(() => {
+      this.closing.set(false);
+      after();
+    }, 560);
   }
 
   private toggle(items: string[], id: string): string[] {

@@ -525,11 +525,13 @@ export class AssetListComponent implements OnInit, AfterViewInit, OnDestroy {
   async onDownload(asset: Asset): Promise<void> {
     const extension = asset.format.toLowerCase() === 'photo' ? 'jpg' : asset.format.toLowerCase();
     await downloadBrowserFile(asset.previewUrl, `${asset.slug}.${extension}`);
+    this.recordAssetSignal(asset, 12);
   }
   onEdit(asset: Asset): void { this.router.navigate(['/editor'], { queryParams: { assetId: asset.id, imageUrl: asset.previewUrl, title: asset.title } }); }
   onSave(data: { asset: Asset; event: MouseEvent }): void {
     this.saveAssetId.set(data.asset.id);
     this.saveMenuOpen.set(true);
+    this.recordAssetSignal(data.asset, 10);
   }
   openPersonalization(): void { this.onboardingOpen.set(true); }
   async onPersonalizationCompleted(result: PersonalizationResult): Promise<void> {
@@ -546,9 +548,26 @@ export class AssetListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   trackById(_: number, a: Asset): string { return a.id; }
   openAsset(slug: string, img?: string, label?: string): void {
+    const asset = this.assets().find((a) => a.slug === slug);
+    if (asset) this.recordAssetSignal(asset, 4);
     this.router.navigate(['/marketplace', 'asset', slug], {
       queryParams: { thumb: img ?? null, label: label ?? null }
     });
+  }
+  private recordAssetSignal(asset: Asset, weight: number): void {
+    if (!this.isPhotosSection()) return;
+    this.personalization.recordSignals(
+      'photos',
+      [
+        asset.category?.id ?? asset.categoryId,
+        asset.category?.slug ?? '',
+        asset.category?.name ?? '',
+        asset.format,
+        asset.title,
+        ...(asset.tags ?? []).map((tag) => tag.name).slice(0, 8),
+      ],
+      weight,
+    );
   }
   private async refreshRecommendations(): Promise<void> {
     this.onboardingOpen.set(false);
@@ -567,7 +586,7 @@ export class AssetListComponent implements OnInit, AfterViewInit, OnDestroy {
     return new Promise((resolve) => this.svc.getAssets(this.params).subscribe({
       next: (res) => {
         const ranked = this.isPhotosSection()
-          ? this.personalization.rank(res.data, this.photoPreferences(), (asset) => ({
+          ? this.personalization.rank('photos', res.data, this.photoPreferences(), (asset) => ({
               categories: [asset.category?.id ?? '', asset.category?.slug ?? '', asset.category?.name ?? ''],
               styles: [asset.format, ...(asset.tags ?? []).map((tag) => tag.name)],
               topics: [asset.title, asset.description ?? '', ...(asset.tags ?? []).map((tag) => tag.name)],
