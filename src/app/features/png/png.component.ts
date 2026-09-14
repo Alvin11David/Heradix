@@ -10,6 +10,10 @@ import { removeBackgroundFromImage, resizeImageToDataUrl } from '../../shared/ut
 import { AuthService } from '../../core/auth/auth.service';
 import { DAILY_FREE_DOWNLOAD_LIMIT } from './png.service';
 import { estimatePngFileSize, formatFileSize } from '../../shared/utils/file-size-estimate';
+import { PersonalizationOnboardingComponent } from '../../shared/components/personalization-onboarding/personalization-onboarding.component';
+import { PersonalizationService } from '../../core/personalization/personalization.service';
+import { PNG_PERSONALIZATION_CONFIG } from '../../core/personalization/personalization-config';
+import { PersonalizationResult } from '../../core/personalization/personalization.model';
 const PAGE_SIZE = 32;
 const TRENDING_TAGS = [
   'flowers', 'laptop', 'confetti', 'crown', 'car', 'balloons',
@@ -65,7 +69,7 @@ const CURATED_PACKS = [
 @Component({
   selector: 'amx-png',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PersonalizationOnboardingComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './png.component.html',
   styleUrl: './png.component.scss',
@@ -76,10 +80,19 @@ export class PngComponent implements OnInit {
   private readonly location = inject(Location);
   readonly svc             = inject(PngService);
   private readonly auth    = inject(AuthService);
+  private readonly personalization = inject(PersonalizationService);
+  readonly personalizationConfig = PNG_PERSONALIZATION_CONFIG;
+  readonly pngPreferences = this.personalization.preferences('png');
+  readonly onboardingOpen = signal(false);
+  readonly recommendationLoading = signal(false);
   ngOnInit(): void {
     const cat = this.route.snapshot.queryParamMap.get('category');
     if (cat) { this.svc.setCategory(cat); }
-    this.svc.search();
+    if (this.personalization.hasPreferences('png')) {
+      this.svc.search();
+    } else {
+      this.onboardingOpen.set(true);
+    }
   }
   readonly categories    = this.svc.categories;
   readonly trendingTags  = TRENDING_TAGS;
@@ -161,6 +174,7 @@ export class PngComponent implements OnInit {
     this.suggestionsOpen.set(false);
   }
   readonly relatedTags = computed<string[]>(() => this.svc.relatedTags(this.results(), this.filters().query, 16));
+  readonly feedLoading = computed(() => this.svc.loading() || this.recommendationLoading());
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.lightboxOpen()) { this.closeLightbox(); return; }
@@ -186,6 +200,32 @@ export class PngComponent implements OnInit {
   get filters() { return this.svc.filters; }
   get activeFilterCount() { return this.svc.activeFilterCount; }
   setQuery(value: string): void { this.svc.setQuery(value); this.resetPage(); }
+  openPersonalization(): void { this.onboardingOpen.set(true); }
+  async onPersonalizationCompleted(result: PersonalizationResult): Promise<void> {
+    this.personalization.save('png', result);
+    await this.refreshRecommendations();
+  }
+  async onPersonalizationDismissed(): Promise<void> {
+    if (this.pngPreferences()) {
+      this.onboardingOpen.set(false);
+      return;
+    }
+    this.personalization.save('png', { categories: [], styles: [], topics: [], skipped: true });
+    await this.refreshRecommendations();
+  }
+  private async refreshRecommendations(): Promise<void> {
+    this.onboardingOpen.set(false);
+    this.recommendationLoading.set(true);
+    this.resetPage();
+    try {
+      await Promise.all([
+        this.svc.search(),
+        new Promise<void>((resolve) => setTimeout(resolve, 450)),
+      ]);
+    } finally {
+      this.recommendationLoading.set(false);
+    }
+  }
   applyTag(tag: string): void {
     this.setQuery(tag);
     this.suggestionsOpen.set(false);

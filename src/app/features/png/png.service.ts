@@ -7,6 +7,7 @@ import { PNG_CATEGORIES, PNG_LIBRARY } from './png-data';
 import { PixabayService } from '../../core/api/pixabay.service';
 import { PexelsService } from '../../core/api/pexels.service';
 import { OpenverseService } from '../../core/api/openverse.service';
+import { PersonalizationService } from '../../core/personalization/personalization.service';
 
 const FAVORITES_KEY   = 'amx_png_favorites';
 const COLLECTIONS_KEY = 'amx_png_collections';
@@ -72,6 +73,8 @@ export class PngService {
   private readonly pixabay = inject(PixabayService);
   private readonly pexels = inject(PexelsService);
   private readonly openverse = inject(OpenverseService);
+  private readonly personalization = inject(PersonalizationService);
+  private readonly pngPreferences = this.personalization.preferences('png');
 
   private readonly curatedPicks = signal<PngAsset[]>([]);
 
@@ -158,7 +161,11 @@ export class PngService {
       return (b.likes * 3 + b.downloads) - (a.likes * 3 + a.downloads);
     });
 
-    return list;
+    return this.personalization.rank(list, this.pngPreferences(), (png) => ({
+      categories: [png.category, png.categoryLabel],
+      styles: [png.style],
+      topics: [png.name, ...png.tags],
+    }));
   });
 
   readonly activeFilterCount = computed(() => {

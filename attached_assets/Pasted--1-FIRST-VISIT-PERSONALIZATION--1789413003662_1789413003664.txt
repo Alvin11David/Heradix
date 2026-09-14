@@ -1,0 +1,530 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. FIRST-VISIT PERSONALIZATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+When a user enters either the PNG section or the Photos section for the FIRST TIME, do not immediately show a generic feed.
+
+Instead, detect that the user has not yet selected preferences for that section and present a beautiful preference-selection experience.
+
+The experience should feel like a premium onboarding flow rather than a boring form.
+
+Example:
+
+User clicks:
+→ PNG
+
+System detects:
+→ No PNG preferences exist
+
+Display:
+→ Personalized PNG discovery onboarding
+
+Likewise:
+
+User clicks:
+→ Photos
+
+System detects:
+→ No Photo preferences exist
+
+Display:
+→ Personalized Photo discovery onboarding
+
+The PNG and Photo preference systems should be independent because a user may want completely different things from PNGs and photographs.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. PREFERENCE ONBOARDING UI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Create an elegant full-screen or large modal onboarding interface with:
+
+- Beautiful image previews
+- Large visual category cards
+- Rounded corners
+- Subtle shadows
+- Smooth animations
+- Excellent spacing
+- Modern typography
+- Minimal clutter
+- Clear hierarchy
+- Responsive design
+
+Header:
+
+"Make your feed yours"
+
+Supporting text:
+
+"Choose what you're interested in and we'll personalize your recommendations."
+
+Then display visual categories.
+
+DO NOT make the user read a long list of text options.
+
+The categories should primarily be represented visually.
+
+For example, for PNG:
+
+- Logos
+- Icons
+- Illustrations
+- Characters
+- Stickers
+- 3D Objects
+- Gaming Assets
+- UI Elements
+- Social Media Graphics
+- Nature
+- Animals
+- People
+- Technology
+- Business
+- Food
+- Fashion
+- Vehicles
+- Background Elements
+- Decorative Elements
+- Text/Typographic PNGs
+
+For Photos:
+
+- Nature
+- Travel
+- Architecture
+- People
+- Portraits
+- Fashion
+- Food
+- Cars
+- Technology
+- Business
+- Sports
+- Animals
+- Wildlife
+- Cities
+- Landscapes
+- Night Photography
+- Street Photography
+- Minimalist
+- Abstract
+- Lifestyle
+- Events
+
+The actual categories should be dynamically configurable rather than hard-coded into the UI.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. VISUAL CATEGORY SELECTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Each category should appear as a beautiful visual card.
+
+Example:
+
+┌──────────────────────┐
+│                      │
+│    [CATEGORY IMAGE]  │
+│                      │
+│       Nature         │
+│                      │
+└──────────────────────┘
+
+When the user selects a category:
+
+- Animate the card smoothly
+- Add a clear selected state
+- Show a check indicator
+- Slightly scale the card
+- Apply an elegant border/highlight
+- Keep the interaction extremely responsive
+
+Allow MULTIPLE selections.
+
+Do not force users to select only one category.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. PERSONALIZATION DEPTH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After selecting broad categories, optionally ask a second-level preference question.
+
+Example:
+
+"What would you like to see more of?"
+
+For Photos:
+
+[ Portraits ]
+[ Landscapes ]
+[ Urban ]
+[ Minimal ]
+[ Cinematic ]
+[ Bright & Colorful ]
+[ Dark & Moody ]
+[ Professional ]
+
+For PNGs:
+
+[ Transparent Objects ]
+[ Characters ]
+[ Icons ]
+[ Illustrations ]
+[ 3D Assets ]
+[ Stickers ]
+[ Logos ]
+
+The system should progressively learn the user's interests without making onboarding feel long or exhausting.
+
+Keep the onboarding short and enjoyable.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. INTERACTION DESIGN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The entire preference experience should feel extremely smooth.
+
+Use:
+
+- Fade transitions
+- Scale animations
+- Slide transitions
+- Micro-interactions
+- Hover effects on desktop
+- Touch feedback on mobile
+- Smooth scrolling
+- Animated selection states
+- Loading transitions
+- Skeleton loaders
+
+Avoid excessive animations.
+
+Animations should communicate state and improve the experience, not distract the user.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. SKIP OPTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Give the user the ability to skip personalization.
+
+Example:
+
+"Skip for now"
+
+However, make personalization the visually emphasized primary action.
+
+Primary CTA:
+
+"Continue"
+
+Secondary action:
+
+"Skip for now"
+
+If the user skips, show a general discovery feed.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. PERSONALIZED FEED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After the user completes the preference selection:
+
+1. Save the user's preferences.
+2. Close the onboarding experience.
+3. Show a loading state.
+4. Generate a personalized discovery feed.
+
+Example:
+
+User selects:
+
+Nature
+Travel
+Landscapes
+Cinematic
+
+The recommendation system should prioritize:
+
+- Nature photography
+- Travel photography
+- Landscapes
+- Cinematic landscapes
+- Related visual content
+
+Do NOT simply show random images.
+
+The selected preferences must directly influence the recommendation algorithm.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. PERSONALIZATION LOGIC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Create a preference model similar to:
+
+User
+ ├── PNG Preferences
+ │    ├── Categories
+ │    ├── Styles
+ │    └── Topics
+ │
+ └── Photo Preferences
+      ├── Categories
+      ├── Styles
+      └── Topics
+
+Example:
+
+pngPreferences = {
+    categories: [
+        "illustrations",
+        "3d",
+        "characters"
+    ],
+    styles: [
+        "modern",
+        "minimal"
+    ]
+}
+
+photoPreferences = {
+    categories: [
+        "nature",
+        "travel",
+        "architecture"
+    ],
+    styles: [
+        "cinematic",
+        "minimal"
+    ]
+}
+
+The recommendation engine should use these preferences when ranking content.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. FIRST-TIME VS RETURNING USERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IMPORTANT:
+
+The preference onboarding should NOT appear every time the user enters PNG or Photos.
+
+Only display it when:
+
+- The user has never configured preferences for that section.
+
+For returning users:
+
+→ Immediately show their personalized feed.
+
+Provide a way for users to modify their preferences later.
+
+Example:
+
+"Customize your feed"
+
+or
+
+"Edit preferences"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. DISCOVERY FEED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After onboarding, create a premium image discovery experience.
+
+Use a modern masonry/grid layout similar to professional image discovery platforms.
+
+Images should have:
+
+- Smooth hover effects
+- Rounded corners
+- Lazy loading
+- High-quality previews
+- Save/bookmark action
+- Like/favorite action
+- Download action where applicable
+- Share action
+- View details action
+
+On hover, show actions elegantly instead of cluttering the image.
+
+On mobile, keep the interface clean and touch-friendly.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+11. SMART RECOMMENDATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The recommendation system should evolve over time.
+
+Use signals such as:
+
+- Selected categories
+- Selected styles
+- Searches
+- Images clicked
+- Images viewed
+- Time spent viewing
+- Saved images
+- Liked images
+- Downloads
+- Followed creators
+- Search history
+
+The system should gradually understand the user's visual interests.
+
+For example:
+
+If a user repeatedly opens:
+
+"cinematic mountain photography"
+
+the system should gradually increase:
+
+- Mountain photography
+- Nature
+- Travel
+- Cinematic photography
+- Landscapes
+
+in their feed.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12. UI/UX QUALITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The interface should feel:
+
+- Premium
+- Modern
+- Elegant
+- Fast
+- Intuitive
+- Visually immersive
+- Minimal but expressive
+- Professional
+- Highly polished
+
+Prioritize:
+
+UX > unnecessary visual complexity.
+
+The user should understand what to do immediately without needing instructions.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+13. RESPONSIVE DESIGN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The entire experience must work beautifully on:
+
+- Desktop
+- Laptop
+- Tablet
+- Mobile
+
+Desktop:
+Use a spacious grid and large visual cards.
+
+Tablet:
+Adapt the grid and spacing.
+
+Mobile:
+Use a compact grid and touch-friendly interactions.
+
+The onboarding experience should also be fully responsive.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+14. ACCESSIBILITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Ensure:
+
+- Good color contrast
+- Keyboard navigation
+- Visible focus states
+- Screen-reader-friendly labels
+- Large enough touch targets
+- Clear selected/unselected states
+
+Do not rely on color alone to communicate selection.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+15. LOADING EXPERIENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+When personalized recommendations are being generated, do NOT show a blank screen.
+
+Show an elegant loading experience.
+
+Example:
+
+"Creating your personalized collection..."
+
+Then display animated skeleton image cards.
+
+Once recommendations are ready:
+
+Smoothly transition into the personalized feed.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+16. IMPORTANT TECHNICAL REQUIREMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Separate the UI from the recommendation logic.
+
+Create a reusable personalization system that can support:
+
+PNG preferences
+Photo preferences
+Future content types
+
+The architecture should make it easy to add new categories and recommendation signals later.
+
+Categories should come from data/configuration rather than requiring UI code changes.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+17. FINAL EXPERIENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The complete user journey should feel like:
+
+FIRST VISIT
+
+User clicks PNG
+        ↓
+System detects no PNG preferences
+        ↓
+Beautiful personalization screen
+        ↓
+"What are you interested in?"
+        ↓
+User selects visual categories
+        ↓
+Optional style preferences
+        ↓
+"Continue"
+        ↓
+"Creating your personalized collection..."
+        ↓
+Personalized PNG feed
+
+
+RETURNING USER
+
+User clicks PNG
+        ↓
+System detects existing preferences
+        ↓
+Immediately display personalized PNG feed
+
+
+The same logic should independently apply to Photos.
+
+FINAL GOAL:
+
+Create an experience that feels intelligent, visually beautiful, effortless, and personalized.
+
+The user should feel:
+
+"These recommendations actually understand what I like."
+
+Do not create a generic image gallery.
+
+Build a true personalized visual discovery experience with excellent UI/UX, smooth interactions, strong visual hierarchy, and a premium modern aesthetic.

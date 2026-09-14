@@ -9,6 +9,10 @@ import { AssetCardComponent } from '../../../shared/components/asset-card/asset-
 import { AddToCollectionMenuComponent } from '../../../shared/components/add-to-collection/add-to-collection-menu.component';
 import { CollectionsService } from '../../collections/collections.service';
 import { downloadBrowserFile } from '../../../shared/utils/browser-download';
+import { PersonalizationOnboardingComponent } from '../../../shared/components/personalization-onboarding/personalization-onboarding.component';
+import { PersonalizationService } from '../../../core/personalization/personalization.service';
+import { PHOTO_PERSONALIZATION_CONFIG } from '../../../core/personalization/personalization-config';
+import { PersonalizationResult } from '../../../core/personalization/personalization.model';
 gsap.registerPlugin(ScrollTrigger);
 interface CalendarEvent {
   emoji: string;
@@ -23,9 +27,17 @@ interface CalendarEvent {
 @Component({
   selector: 'amx-asset-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, AssetCardComponent, AddToCollectionMenuComponent],
+  imports: [CommonModule, RouterLink, AssetCardComponent, AddToCollectionMenuComponent, PersonalizationOnboardingComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <amx-personalization-onboarding
+      *ngIf="isPhotosSection()"
+      [config]="personalizationConfig"
+      [visible]="onboardingOpen()"
+      [existingPreferences]="photoPreferences()"
+      (completed)="onPersonalizationCompleted($event)"
+      (dismissed)="onPersonalizationDismissed()"
+    />
     <section class="amx-hero">
       <div class="amx-hero__letters" aria-hidden="true">
         <div class="amx-hero__word-row amx-hero__word-row--t1"><span>CREATE · DESIGN · VIDEO · MOTION · ANIMATE · CREATE · DESIGN · VIDEO · MOTION · ANIMATE</span></div>
@@ -167,17 +179,29 @@ interface CalendarEvent {
     <section class="featured-assets">
       <div class="featured-assets__header">
         <h3 class="featured-assets__title">Featured Assets</h3>
-        <a routerLink="/marketplace" class="featured-assets__link">
-          Browse all
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-          </svg>
-        </a>
+        <div class="featured-assets__actions">
+          <button *ngIf="isPhotosSection()" class="featured-assets__personalize" type="button" (click)="openPersonalization()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" aria-hidden="true">
+              <path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="8"/>
+            </svg>
+            Customize feed
+          </button>
+          <a routerLink="/marketplace" class="featured-assets__link">
+            Browse all
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+        </div>
       </div>
-      <div class="asset-grid" *ngIf="loading()">
+      <div class="personalization-loading-note" *ngIf="recommendationLoading()" role="status">
+        <span class="personalization-loading-note__dot"></span>
+        Creating your personalized collection…
+      </div>
+      <div class="asset-grid" *ngIf="feedLoading()">
         <div class="skeleton skeleton--card" *ngFor="let _ of [1,2,3,4,5,6]"></div>
       </div>
-      <div class="asset-grid" *ngIf="!loading() && assets().length > 0">
+      <div class="asset-grid" *ngIf="!feedLoading() && assets().length > 0">
         <amx-asset-card
           *ngFor="let asset of assets(); trackBy: trackById"
           [asset]="asset"
@@ -186,7 +210,7 @@ interface CalendarEvent {
           (save)="onSave($event)"
         />
       </div>
-      <p class="empty-state" *ngIf="!loading() && assets().length === 0">
+      <p class="empty-state" *ngIf="!feedLoading() && assets().length === 0">
         No assets available at the moment.
       </p>
     </section>
@@ -202,10 +226,17 @@ export class AssetListComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly svc    = inject(MarketplaceService);
   private readonly router = inject(Router);
   private readonly el     = inject(ElementRef);
+  private readonly personalization = inject(PersonalizationService);
   private readonly mm     = gsap.matchMedia();
   readonly collectionsSvc = inject(CollectionsService);
   assets      = signal<Asset[]>([]);
   loading     = signal(true);
+  readonly isPhotosSection = computed(() => this.router.url.split('?')[0] === '/marketplace/photos');
+  readonly personalizationConfig = PHOTO_PERSONALIZATION_CONFIG;
+  readonly photoPreferences = this.personalization.preferences('photos');
+  readonly onboardingOpen = signal(false);
+  readonly recommendationLoading = signal(false);
+  readonly feedLoading = computed(() => this.loading() || this.recommendationLoading());
   total       = signal(0);
   currentPage = signal(1);
   totalPages  = signal(1);
@@ -324,7 +355,12 @@ export class AssetListComponent implements OnInit, AfterViewInit, OnDestroy {
   private params: AssetListParams = { page: 1, limit: 24 };
   ngOnInit(): void {
     this.activeEvent.set(this.calEvents[0]);
-    this.load();
+    if (this.isPhotosSection() && !this.personalization.hasPreferences('photos')) {
+      this.loading.set(false);
+      this.onboardingOpen.set(true);
+    } else {
+      void this.load();
+    }
   }
   ngAfterViewInit(): void {
     const el = this.el.nativeElement;
@@ -495,17 +531,49 @@ export class AssetListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.saveAssetId.set(data.asset.id);
     this.saveMenuOpen.set(true);
   }
+  openPersonalization(): void { this.onboardingOpen.set(true); }
+  async onPersonalizationCompleted(result: PersonalizationResult): Promise<void> {
+    this.personalization.save('photos', result);
+    await this.refreshRecommendations();
+  }
+  async onPersonalizationDismissed(): Promise<void> {
+    if (this.photoPreferences()) {
+      this.onboardingOpen.set(false);
+      return;
+    }
+    this.personalization.save('photos', { categories: [], styles: [], topics: [], skipped: true });
+    await this.refreshRecommendations();
+  }
   trackById(_: number, a: Asset): string { return a.id; }
   openAsset(slug: string, img?: string, label?: string): void {
     this.router.navigate(['/marketplace', 'asset', slug], {
       queryParams: { thumb: img ?? null, label: label ?? null }
     });
   }
-  private load(): void {
+  private async refreshRecommendations(): Promise<void> {
+    this.onboardingOpen.set(false);
+    this.recommendationLoading.set(true);
+    try {
+      await Promise.all([
+        this.load(),
+        new Promise<void>((resolve) => setTimeout(resolve, 450)),
+      ]);
+    } finally {
+      this.recommendationLoading.set(false);
+    }
+  }
+  private load(): Promise<void> {
     this.loading.set(true);
-    this.svc.getAssets(this.params).subscribe({
+    return new Promise((resolve) => this.svc.getAssets(this.params).subscribe({
       next: (res) => {
-        this.assets.set(res.data);
+        const ranked = this.isPhotosSection()
+          ? this.personalization.rank(res.data, this.photoPreferences(), (asset) => ({
+              categories: [asset.category?.id ?? '', asset.category?.slug ?? '', asset.category?.name ?? ''],
+              styles: [asset.format, ...(asset.tags ?? []).map((tag) => tag.name)],
+              topics: [asset.title, asset.description ?? '', ...(asset.tags ?? []).map((tag) => tag.name)],
+            }))
+          : res.data;
+        this.assets.set(ranked);
         this.total.set(res.total);
         this.totalPages.set(res.totalPages);
         this.loading.set(false);
@@ -513,9 +581,13 @@ export class AssetListComponent implements OnInit, AfterViewInit, OnDestroy {
           ScrollTrigger.refresh();
           this.animateAssetCards();
         });
+        resolve();
       },
-      error: () => this.loading.set(false),
-    });
+      error: () => {
+        this.loading.set(false);
+        resolve();
+      },
+    }));
   }
   private animateAssetCards(): void {
     const grid = this.el.nativeElement.querySelector('.asset-grid');

@@ -428,6 +428,43 @@ $transition:    0.18s ease;
   padding: 60px 20px; gap: 16px; color: var(--amx-muted);
   p { font-size: 14px; margin: 0; }
 }
+.amx-png__skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  width: min(100%, 720px);
+  margin-top: 8px;
+  span {
+    height: 110px;
+    border-radius: 12px;
+    background: linear-gradient(110deg, var(--amx-bg-soft) 20%, var(--amx-bg-card) 45%, var(--amx-bg-soft) 70%);
+    background-size: 240% 100%;
+    animation: amx-png-skeleton 1.4s ease-in-out infinite;
+  }
+  @media (max-width: 700px) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@keyframes amx-png-skeleton {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+.amx-png__personalize-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 11px;
+  color: var(--amx-orange);
+  background: rgba(245, 130, 10, .08);
+  border: 1px solid rgba(245, 130, 10, .3);
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, transform .18s;
+  &:hover { background: rgba(245, 130, 10, .15); border-color: var(--amx-orange); transform: translateY(-1px); }
+  &:focus-visible { outline: 3px solid rgba(245, 130, 10, .35); outline-offset: 2px; }
+  @media (max-width: 620px) { padding: 0 9px; }
+}
 .amx-png__spinner {
   width: 36px; height: 36px; border: 3px solid var(--amx-border-2);
   border-top-color: var(--amx-orange); border-radius: 50%;

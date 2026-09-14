@@ -1,4 +1,11 @@
 <div class="amx-png" [class.amx-png--panel-open]="!!selected()">
+  <amx-personalization-onboarding
+    [config]="personalizationConfig"
+    [visible]="onboardingOpen()"
+    [existingPreferences]="pngPreferences()"
+    (completed)="onPersonalizationCompleted($event)"
+    (dismissed)="onPersonalizationDismissed()"
+  />
   <div class="amx-png__top-bar">
     <button class="amx-png__back" type="button" (click)="goBack()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -330,6 +337,12 @@
           </span>
         </div>
         <div class="amx-png__toolbar-right">
+          <button class="amx-png__personalize-btn" type="button" (click)="openPersonalization()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="8"/>
+            </svg>
+            Customize feed
+          </button>
           <button class="amx-png__bulk-toggle" [class.active]="bulkMode()" (click)="toggleBulkMode()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>
             {{ bulkMode() ? 'Cancel select' : 'Select' }}
@@ -420,9 +433,12 @@
         </div>
       </div>
       <div class="amx-png__grid-wrap">
-        <div *ngIf="svc.loading()" class="amx-png__loading">
+        <div *ngIf="feedLoading()" class="amx-png__loading">
           <div class="amx-png__spinner"></div>
-          <p>Searching Pixabay library…</p>
+          <p>{{ recommendationLoading() ? 'Creating your personalized collection…' : 'Searching the PNG library…' }}</p>
+          <div class="amx-png__skeleton-grid" aria-hidden="true">
+            <span *ngFor="let skeleton of [1,2,3,4,5,6]"></span>
+          </div>
         </div>
         <div *ngIf="svc.error() as err" class="amx-png__error">
           <p>{{ err }}</p>
