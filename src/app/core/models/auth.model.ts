@@ -9,6 +9,22 @@ export interface RegisterPayload {
   password: string;
 }
 
+export interface RegisterResponse {
+  userId: string;
+  email: string;
+  fullName: string;
+  status: 'pending_verification';
+}
+
+export interface RegisterEmailVerificationPayload {
+  email: string;
+  code: string;
+}
+
+export interface ResendVerificationPayload {
+  email: string;
+}
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;

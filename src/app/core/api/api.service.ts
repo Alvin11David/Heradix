@@ -7,6 +7,7 @@ import { environment } from '../../../environments/environment';
 export class ApiService {
   private readonly http = inject(HttpClient);
   readonly baseUrl = environment.apiUrl;
+  readonly authBaseUrl = environment.authApiUrl;
 
   get<T>(path: string, params?: Record<string, string | number | boolean | undefined>): Observable<T> {
     let httpParams = new HttpParams();
@@ -22,6 +23,10 @@ export class ApiService {
 
   post<T>(path: string, body: unknown = {}): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}${path}`, body);
+  }
+
+  postAuth<T>(path: string, body: unknown = {}): Observable<T> {
+    return this.http.post<T>(`${this.authBaseUrl}${path}`, body);
   }
 
   patch<T>(path: string, body: unknown): Observable<T> {

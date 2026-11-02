@@ -5,6 +5,9 @@ import {
   AuthResponse,
   LoginPayload,
   RegisterPayload,
+  RegisterResponse,
+  RegisterEmailVerificationPayload,
+  ResendVerificationPayload,
   ForgotPasswordPayload,
   ResetPasswordPayload,
   VerifyEmailPayload,
@@ -114,18 +117,8 @@ export class AuthService {
     );
   }
 
-  register(payload: RegisterPayload): Observable<AuthResponse> {
-    if (payload.email === MOCK_EMAIL && payload.password === MOCK_PASSWORD) {
-      const res: AuthResponse = {
-        ...MOCK_AUTH_RESPONSE,
-        user: { ...MOCK_AUTH_RESPONSE.user, fullName: payload.fullName ?? MOCK_AUTH_RESPONSE.user.fullName },
-      };
-      this.setSession(res);
-      return of(res);
-    }
-    return this.api.post<AuthResponse>('/auth/register', payload).pipe(
-      tap((res) => this.setSession(res))
-    );
+  register(payload: RegisterPayload): Observable<RegisterResponse> {
+    return this.api.postAuth<RegisterResponse>('/auth/register', payload);
   }
 
   refreshToken(): Observable<AuthResponse> {
@@ -152,6 +145,14 @@ export class AuthService {
 
   verifyEmail(payload: VerifyEmailPayload): Observable<void> {
     return this.api.post<void>('/auth/verify-email', payload);
+  }
+
+  verifyRegistrationEmail(payload: RegisterEmailVerificationPayload): Observable<void> {
+    return this.api.postAuth<void>('/auth/verify-registration', payload);
+  }
+
+  resendVerificationCode(payload: ResendVerificationPayload): Observable<void> {
+    return this.api.postAuth<void>('/auth/resend-verification', payload);
   }
 
   getOAuthUrl(provider: 'google' | 'facebook'): string {
