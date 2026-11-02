@@ -16,6 +16,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ThemeService } from '../../../core/theme/theme.service';
 import { CircularTextComponent } from '../../../shared/components/circular-text/circular-text.component';
 import { SplashCursorComponent } from '../../../shared/components/splash-cursor/splash-cursor.component';
+import { hasShownSignupOnboarding } from '../onboarding/onboarding-state';
 
 @Component({
   selector: 'amx-verify-email',
@@ -44,8 +45,8 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
               </svg>
             </div>
             <h1 class="auth-title">Email verified!</h1>
-            <p class="auth-sub">Your Amarapix account is ready. Sign in to start creating.</p>
-            <a routerLink="/auth/login" class="auth-btn auth-btn--primary">Continue to login</a>
+            <p class="auth-sub">Your Amarapix account is ready. Let’s get you started.</p>
+            <a routerLink="/marketplace" class="auth-btn auth-btn--primary">Continue to marketplace</a>
           </ng-container>
 
           <ng-template #verificationForm>
@@ -240,9 +241,9 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
       next: () => {
         this.loading.set(false);
         this.verified.set(true);
-        void this.router.navigate(['/auth/onboarding'], {
-          queryParams: { email: this.email() },
-        });
+        void this.router.navigate([
+          hasShownSignupOnboarding() ? '/marketplace' : '/auth/onboarding',
+        ]);
       },
       error: () => {
         this.loading.set(false);

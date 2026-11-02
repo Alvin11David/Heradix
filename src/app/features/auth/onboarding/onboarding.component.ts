@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
+import { hasShownSignupOnboarding, markSignupOnboardingShown } from './onboarding-state';
 
 @Component({
   selector: 'amx-signup-onboarding',
@@ -146,12 +147,10 @@ import { ActivatedRoute, Router } from '@angular/router';
   `,
   styleUrl: './onboarding.component.scss',
 })
-export class OnboardingComponent {
-  private readonly route = inject(ActivatedRoute);
+export class OnboardingComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly currentStep = signal(0);
-  readonly email = this.route.snapshot.queryParamMap.get('email')?.trim() ?? '';
 
   readonly slides = [
     {
@@ -177,6 +176,14 @@ export class OnboardingComponent {
     },
   ];
 
+  ngOnInit(): void {
+    if (hasShownSignupOnboarding()) {
+      void this.router.navigate(['/marketplace'], { replaceUrl: true });
+      return;
+    }
+    markSignupOnboardingShown();
+  }
+
   goToStep(index: number): void {
     if (index >= 0 && index < this.slides.length) this.currentStep.set(index);
   }
@@ -194,8 +201,6 @@ export class OnboardingComponent {
   }
 
   private finish(): void {
-    this.router.navigate(['/auth/login'], {
-      queryParams: this.email ? { email: this.email } : {},
-    });
+    void this.router.navigate(['/marketplace'], { replaceUrl: true });
   }
 }
