@@ -86,9 +86,15 @@
   --amx-premium-text:      #3b82f6;
   --amx-affiliate-bg:      #f0fdf4;
   --amx-affiliate-text:    #16a34a;
-  --amx-radius:        14px;
-  --amx-radius-lg:     22px;
-  --amx-radius-sm:     8px;
+  --amx-radius-xs:     8px;
+  --amx-radius-sm:     12px;
+  --amx-radius:        16px;
+  --amx-radius-lg:     24px;
+  --amx-radius-xl:     30px;
+  --amx-radius-card:   20px;
+  --amx-radius-control: 12px;
+  --amx-radius-media:  12px;
+  --amx-radius-pill:   999px;
   --font-body:         'Manrope', sans-serif;
   --font-display:      'Bricolage Grotesque', 'Space Grotesk', sans-serif;
   --amx-ink:            #1e1b3a;
@@ -521,3 +527,63 @@ h1, h2, h3, h4, h5, h6 {
 @media (min-width: 2560px) {
   html { font-size: 20px; }
 }
+
+/* ── Shared rounded-corner system ─────────────────────────────
+   Use one radius scale across feature-specific component styles.
+   Circular indicators, swatches, and avatars keep their shape.
+   ──────────────────────────────────────────────────────────── */
+button:not([class*="dot"]):not([class*="swatch"]):not([class*="color"]):not([class*="avatar"]):not([class*="circle"]):not([class*="round"]),
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+select,
+textarea,
+a[class*="btn"],
+a[class*="button"],
+[role="button"]:not([class*="dot"]):not([class*="swatch"]):not([class*="color"]):not([class*="avatar"]):not([class*="circle"]):not([class*="round"]) {
+  border-radius: var(--amx-radius-control) !important;
+}
+
+[class*="card"],
+[class*="tile"],
+[class*="panel"],
+[class*="modal"],
+[class*="dialog"],
+[class*="drawer"],
+[class*="sheet"],
+[class*="popover"],
+[class*="dropdown"],
+[class*="toast"],
+[class*="dropzone"],
+[class*="upload-area"] {
+  border-radius: var(--amx-radius-card) !important;
+}
+
+[class*="chip"],
+[class*="badge"],
+[class*="tag"],
+[class*="pill"] {
+  border-radius: var(--amx-radius-pill) !important;
+}
+
+[class*="menu"],
+[class*="tooltip"],
+[class*="search"],
+[class*="toolbar"],
+[class*="field"],
+[class*="input"],
+[class*="select"],
+[class*="pagination"] {
+  border-radius: var(--amx-radius) !important;
+}
+
+img:not([class*="logo"]):not([class*="avatar"]):not([class*="profile"]):not([class*="icon"]):not([class*="circle"]):not([class*="dot"]):not([class*="swatch"]),
+video,
+iframe {
+  border-radius: var(--amx-radius-media) !important;
+}
+
+.skeleton:not(.skeleton--circle):not(.skeleton--chip) {
+  border-radius: var(--amx-radius-sm) !important;
+}
+.skeleton--card,
+.skeleton--image { border-radius: var(--amx-radius-card) !important; }
+.skeleton--chip { border-radius: var(--amx-radius-pill) !important; }
