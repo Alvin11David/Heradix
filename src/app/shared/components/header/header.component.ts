@@ -304,7 +304,7 @@ const OTHER_DROPDOWN_LINKS: DropdownLink[] = [
       <div class="amx-catnav__inner">
 
         <!-- Browse badge -->
-        <span class="amx-catnav__badge amx-hide-mobile" aria-hidden="true">
+        <span class="amx-catnav__badge amx-hide-mobile" role="img" aria-label="Browse asset categories">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
             <rect x="3" y="3" width="7" height="7" rx="1.5"/>
             <rect x="14" y="3" width="7" height="7" rx="1.5"/>

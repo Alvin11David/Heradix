@@ -314,7 +314,7 @@
   &:hover {
     border-color: var(--amx-orange);
     color: var(--amx-orange);
-    background: var(--amx-orange-light);
+    background: color-mix(in srgb, var(--amx-orange) 12%, var(--amx-bg-card));
     box-shadow: 0 0 0 4px rgba(245, 130, 10, 0.1);
     transform: translateY(-1px);
 
@@ -1646,4 +1646,199 @@
   .amx-catnav__scroll-wrap::after {
     background: linear-gradient(to left, var(--amx-bg) 20%, transparent);
   }
+}
+
+/* ── Floating capsule category navigation ───────────────────── */
+.amx-catnav {
+  height: 68px;
+  background: transparent;
+  border-bottom: 0;
+
+  &::after { display: none; }
+
+  &__inner {
+    box-sizing: border-box;
+    width: calc(100% - 48px);
+    max-width: 1280px;
+    height: 50px;
+    padding: 0 9px;
+    gap: 8px;
+    border: 1px solid var(--amx-border);
+    border-radius: 999px;
+    background: var(--amx-bg-card);
+    box-shadow: 0 8px 24px rgba(32, 25, 15, 0.09), 0 2px 6px rgba(32, 25, 15, 0.04);
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  &__badge {
+    width: 36px;
+    height: 36px;
+    box-sizing: border-box;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--amx-orange) 12%, var(--amx-bg-card));
+    color: var(--amx-orange);
+    font-size: 0;
+
+    svg {
+      width: 15px;
+      height: 15px;
+      opacity: 1;
+    }
+  }
+
+  &__scroll-wrap {
+    &::after {
+      background: linear-gradient(to left, var(--amx-bg-card) 12%, transparent);
+    }
+  }
+
+  &__cat-icon { display: none; }
+
+  &__link {
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 13px;
+
+    &.active {
+      background: color-mix(in srgb, var(--amx-orange) 12%, var(--amx-bg-card));
+      color: var(--amx-orange);
+      box-shadow: none;
+    }
+  }
+
+  &__divider {
+    height: 22px;
+    opacity: 0.7;
+  }
+
+  &__utils {
+    margin-left: auto;
+    gap: 4px;
+  }
+
+  &__util-link {
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+
+    &.active {
+      background: color-mix(in srgb, var(--amx-orange) 12%, var(--amx-bg-card));
+      color: var(--amx-orange);
+    }
+  }
+
+  &__utils li:last-child .amx-catnav__util-link {
+    padding: 0 15px;
+    background: color-mix(in srgb, var(--amx-orange) 12%, var(--amx-bg-card));
+    color: var(--amx-orange);
+    font-weight: 700;
+
+    svg { opacity: 0.85; }
+
+    &:hover {
+      background: color-mix(in srgb, var(--amx-orange) 18%, var(--amx-bg-card));
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .amx-catnav {
+    height: 62px;
+
+    &__inner {
+      width: calc(100% - 32px);
+      height: 48px;
+      padding: 0 7px;
+      gap: 6px;
+    }
+
+    &__badge {
+      width: 34px;
+      height: 34px;
+    }
+
+    &__link {
+      height: 34px;
+      padding: 0 10px;
+    }
+
+    &__util-link {
+      height: 34px;
+      padding: 0 9px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .amx-catnav {
+    top: 58px;
+    height: 58px;
+
+    &__inner {
+      width: calc(100% - 16px);
+      max-width: none;
+      height: 46px;
+      padding: 0 7px;
+      gap: 4px;
+    }
+
+    &__badge,
+    &__divider,
+    &__utils {
+      display: none !important;
+    }
+
+    &__scroll-wrap {
+      width: 100%;
+      flex: 1;
+      min-width: 0;
+
+      &::after {
+        width: 24px;
+        background: linear-gradient(to left, var(--amx-bg-card) 12%, transparent);
+      }
+    }
+
+    &__list {
+      gap: 2px;
+      padding: 0 2px;
+    }
+
+    &__item { height: 44px; }
+
+    &__link {
+      height: 34px;
+      padding: 0 11px;
+      font-size: 12.5px;
+    }
+  }
+
+  .amx-cat-dropdown {
+    top: calc(58px + 58px);
+  }
+}
+
+@media (max-width: 480px) {
+  .amx-catnav {
+    height: 54px;
+
+    &__inner {
+      height: 42px;
+      width: calc(100% - 12px);
+      padding: 0 5px;
+    }
+
+    &__link {
+      height: 32px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+  }
+
+  .amx-cat-dropdown { top: calc(58px + 54px); }
 }
