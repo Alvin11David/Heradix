@@ -27,7 +27,7 @@ export class App implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         const url = event.urlAfterRedirects || '';
-        this.isAuthPage.set(/^\/auth\/(login|register|verify-email|forgot-password)(?:[/?#]|$)|^\/editor(?:[/?#]|$)/.test(url));
+        this.isAuthPage.set(/^\/auth\/(login|register|verify-email|onboarding|forgot-password)(?:[/?#]|$)|^\/editor(?:[/?#]|$)/.test(url));
       });
   }
 

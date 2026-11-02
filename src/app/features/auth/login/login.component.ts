@@ -211,8 +211,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const welcomeEmail = this.route.snapshot.queryParamMap.get('email')?.trim();
     const saved = localStorage.getItem('amx_remember_email');
-    if (saved) {
+    if (welcomeEmail) {
+      this.form.patchValue({ email: welcomeEmail });
+    } else if (saved) {
       this.form.patchValue({ email: saved, remember: true });
     }
     this.slideTimer = setInterval(() => {

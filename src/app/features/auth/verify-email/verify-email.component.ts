@@ -11,7 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ThemeService } from '../../../core/theme/theme.service';
 import { CircularTextComponent } from '../../../shared/components/circular-text/circular-text.component';
@@ -148,6 +148,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
 export class VerifyEmailComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   readonly isDark = inject(ThemeService).isDark;
 
   @ViewChildren('codeInput') private readonly codeInputs!: QueryList<ElementRef<HTMLInputElement>>;
@@ -239,6 +240,9 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
       next: () => {
         this.loading.set(false);
         this.verified.set(true);
+        void this.router.navigate(['/auth/onboarding'], {
+          queryParams: { email: this.email() },
+        });
       },
       error: () => {
         this.loading.set(false);
