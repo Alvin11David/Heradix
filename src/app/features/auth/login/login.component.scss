@@ -1,3 +1,5 @@
+@use '../auth-responsive' as auth;
+
 :host {
   display: block;
   width: 100%;
@@ -819,3 +821,5 @@
   .auth-form__meta { flex-wrap: wrap; gap: 8px; }
   .auth-btn { padding: 13px 18px; font-size: 14px; }
 }
+
+@include auth.auth-responsive;

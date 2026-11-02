@@ -8,3 +8,4 @@
 - [Premium/paywall gating pattern](premium-gating-pattern.md) — reuse AuthService.isPremium() and gate client-side; existing asset-detail badge alone doesn't actually block downloads.
 - [Background removal dependency](background-removal-dependency.md) — this app's background-removal package requires the matching 1.21.0 ONNX web runtime peer.
 - [PNG download CORS handling](png-download-cors.md) — fetch external image bytes into a Blob and use a CORS-enabled proxy fallback before triggering downloads.
+- [Angular preview readiness](angular-preview-readiness.md) — after restarting `ng serve`, wait for compilation and serving logs; the proxy can return HTTP 200 with only a “Running” placeholder meanwhile.

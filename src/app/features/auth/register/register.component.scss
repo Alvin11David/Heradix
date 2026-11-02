@@ -1,3 +1,5 @@
+@use '../auth-responsive' as auth;
+
 :host {
   display: block;
   width: 100%;
@@ -129,6 +131,19 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 36px;
+
+  &__img {
+    width: auto;
+    max-width: min(100%, 220px);
+    height: 36px;
+    object-fit: contain;
+  }
+
+  &__fallback {
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
 
   &__icon {
     width: 46px;
@@ -752,3 +767,5 @@
     font-size: 12.5px;
   }
 }
+
+@include auth.auth-responsive;
