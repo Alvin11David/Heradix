@@ -183,7 +183,31 @@
     &[aria-invalid='true'] {
       border-color: var(--amx-danger);
     }
+    &:disabled { cursor: wait; opacity: .72; }
   }
+  &--error .auth-otp__box { animation: auth-otp-shake .42s ease both; border-color: var(--amx-danger); }
+  &--verifying .auth-otp__box { border-color: var(--amx-orange); }
+}
+
+.auth-btn__spinner {
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: auth-otp-spin .65s linear infinite;
+}
+
+@keyframes auth-otp-spin { to { transform: rotate(360deg); } }
+@keyframes auth-otp-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-otp__box, .auth-btn__spinner { animation: none !important; }
 }
 
 .auth-resend {

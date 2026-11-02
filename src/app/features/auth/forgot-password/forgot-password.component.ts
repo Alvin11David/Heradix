@@ -66,7 +66,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
 
           <form [formGroup]="otpForm" (ngSubmit)="verifyOtp()" class="auth-form">
 
-            <div class="auth-otp">
+            <div class="auth-otp" [class.auth-otp--error]="!!error()" [class.auth-otp--verifying]="loading()" role="group" aria-label="Six-digit reset code">
               <input *ngFor="let i of [0,1,2,3,4,5]; let idx = index"
                 class="auth-otp__box"
                 type="text"
@@ -76,13 +76,20 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
                 [id]="'otp-' + idx"
                 (input)="onOtpInput($event, idx)"
                 (keydown)="onOtpKeydown($event, idx)"
+                (paste)="onOtpPaste($event)"
+                [value]="otpDigit(idx)"
+                [disabled]="loading()"
+                [attr.aria-label]="'Reset code digit ' + (idx + 1)"
+                [attr.aria-invalid]="!!error()"
                 autocomplete="one-time-code"
               />
             </div>
 
+            <p class="auth-demo-code" role="note">Frontend demo code: <strong>123456</strong></p>
             <p *ngIf="error()" class="auth-error">{{ error() }}</p>
 
-            <button type="submit" class="auth-btn auth-btn--primary" [disabled]="loading()">
+            <button type="submit" class="auth-btn auth-btn--primary" [disabled]="loading() || otpForm.value.code?.length !== 6">
+              <span *ngIf="loading()" class="auth-btn__spinner" aria-hidden="true"></span>
               {{ loading() ? 'Verifying…' : 'Verify Code' }}
             </button>
 
@@ -222,7 +229,8 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     newPassword: ['', [Validators.required, Validators.minLength(8)]],
   });
 
-  private otpDigits: string[] = ['', '', '', '', '', ''];
+  otpDigits: string[] = ['', '', '', '', '', ''];
+  private lastOtpAttempt = '';
 
   ngOnInit(): void {
     this.slideTimer = setInterval(() => {
@@ -258,34 +266,87 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   onOtpInput(event: Event, idx: number): void {
     const input = event.target as HTMLInputElement;
-    const val = input.value.replace(/\D/g, '');
-    input.value = val;
-    this.otpDigits[idx] = val;
-    if (val && idx < 5) {
+    const value = input.value.replace(/\D/g, '');
+    const wasInvalid = !!this.error();
+    if (value.length > 1) {
+      this.setOtp(value);
+      const nextIndex = Math.min(value.length, 5);
+      if (this.otpDigits.join('').length === 6) this.autoVerifyOtp();
+      else (document.getElementById(`otp-${nextIndex}`) as HTMLInputElement)?.focus();
+      return;
+    }
+    this.otpDigits[idx] = value.slice(-1);
+    input.value = this.otpDigits[idx];
+    this.error.set('');
+    this.otpForm.patchValue({ code: this.otpDigits.join('') });
+    if (input.value && idx < 5) {
       (document.getElementById(`otp-${idx + 1}`) as HTMLInputElement)?.focus();
     }
-    this.otpForm.patchValue({ code: this.otpDigits.join('') });
+    if (this.otpDigits.join('').length === 6 && (this.otpDigits.join('') !== this.lastOtpAttempt || wasInvalid)) {
+      this.autoVerifyOtp();
+    }
   }
 
   onOtpKeydown(event: KeyboardEvent, idx: number): void {
-    if (event.key === 'Backspace' && !(event.target as HTMLInputElement).value && idx > 0) {
+    const input = event.target as HTMLInputElement;
+    if (event.key === 'Backspace' && !input.value && idx > 0) {
       (document.getElementById(`otp-${idx - 1}`) as HTMLInputElement)?.focus();
     }
   }
 
+  onOtpPaste(event: ClipboardEvent): void {
+    event.preventDefault();
+    const value = event.clipboardData?.getData('text').replace(/\D/g, '') ?? '';
+    this.setOtp(value);
+    if (this.otpDigits.join('').length === 6) this.autoVerifyOtp();
+    else (document.getElementById(`otp-${Math.min(value.length, 5)}`) as HTMLInputElement)?.focus();
+  }
+
   verifyOtp(): void {
     const code = this.otpDigits.join('');
-    if (code.length < 6) {
+    if (code.length < 6 || this.loading()) {
       this.error.set('Please enter the full 6-digit code.');
       return;
     }
+    this.lastOtpAttempt = code;
     this.loading.set(true);
     this.error.set('');
-    // Verify OTP — advance optimistically (mock env has no backend)
-    this.authService.verifyEmail({ token: code }).subscribe({
-      next: () => { this.loading.set(false); this.step.set(3); },
-      error: () => { this.loading.set(false); this.step.set(3); },
+    // Frontend-only demo flow: 123456 succeeds; other codes show retry feedback.
+    setTimeout(() => {
+      this.loading.set(false);
+      if (code === '123456') {
+        this.step.set(3);
+      } else {
+        this.error.set('That code didn’t match. Try again.');
+        this.lastOtpAttempt = '';
+        this.otpDigits = ['', '', '', '', '', ''];
+        this.otpForm.patchValue({ code: '' });
+        for (let index = 0; index < 6; index++) {
+          const input = document.getElementById(`otp-${index}`) as HTMLInputElement | null;
+          if (input) input.value = '';
+        }
+        (document.getElementById('otp-0') as HTMLInputElement | null)?.focus();
+      }
+    }, 850);
+  }
+
+  private autoVerifyOtp(): void {
+    if (this.loading() || this.otpDigits.join('').length !== 6) return;
+    this.verifyOtp();
+  }
+
+  private setOtp(value: string): void {
+    this.otpDigits = [...value.slice(0, 6), ...Array(Math.max(0, 6 - value.length)).fill('')];
+    this.error.set('');
+    this.otpForm.patchValue({ code: this.otpDigits.join('') });
+    this.otpDigits.forEach((digit, index) => {
+      const input = document.getElementById(`otp-${index}`) as HTMLInputElement | null;
+      if (input) input.value = digit;
     });
+  }
+
+  otpDigit(index: number): string {
+    return this.otpDigits[index] ?? '';
   }
 
   resetPassword(): void {

@@ -56,7 +56,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
             </p>
 
             <form class="auth-form" (ngSubmit)="verifyCode()">
-              <div class="auth-otp" role="group" aria-label="Five-character verification code">
+              <div class="auth-otp" [class.auth-otp--error]="!!error()" [class.auth-otp--verifying]="loading()" role="group" aria-label="Five-character verification code">
                 <input
                   #codeInput
                   *ngFor="let slot of codeSlots; let index = index"
@@ -84,6 +84,7 @@ import { SplashCursorComponent } from '../../../shared/components/splash-cursor/
                 class="auth-btn auth-btn--primary"
                 [disabled]="!email() || loading() || !isValidCode()"
               >
+                <span *ngIf="loading()" class="auth-btn__spinner" aria-hidden="true"></span>
                 {{ loading() ? 'Verifying…' : 'Verify email' }}
               </button>
 
@@ -204,6 +205,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
     input.value = value;
     this.error.set('');
     if (value && index < 4) this.focusCodeInput(index + 1);
+    if (this.code().length === 5) this.verifyCode();
   }
 
   onCodeKeydown(event: KeyboardEvent, index: number): void {
@@ -222,6 +224,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
     const value = event.clipboardData?.getData('text').replace(/[^a-z\d]/gi, '').toUpperCase() ?? '';
     this.setCode(value);
     this.focusCodeInput(Math.min(value.length, 4));
+    if (this.code().length === 5) this.verifyCode();
   }
 
   verifyCode(): void {
@@ -240,6 +243,9 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
       error: () => {
         this.loading.set(false);
         this.error.set('That code is incorrect or expired. Check it and try again, or request a new one.');
+        this.codeParts.set(['', '', '', '', '']);
+        this.codeInputs?.forEach((input) => { input.nativeElement.value = ''; });
+        this.focusCodeInput(0);
       },
     });
   }
